@@ -1,6 +1,26 @@
 # Vim Cheat Sheet
 
-[source](https://vim.rtorr.com/)
+* [Global](#global)
+* [Cursor movement](#cursor-movement)
+* [Insert mode, inserting/appending text](#insert-mode-insertingappending-text)
+* [Editing](#editing)
+* [Marking text (visual mode)](#marking-text-visual-mode)
+* [Visual commands](#visual-commands)
+* [Registers](#registers)
+* [Marks](#marks)
+* [Macros](#macros)
+* [Cut and paste](#cut-and-paste)
+* [Exiting](#exiting)
+* [Search and replace](#search-and-replace)
+* [Search in multiple files](#search-in-multiple-files)
+* [Working with multiple files](#working-with-multiple-files)
+* [Tabs](#tabs)
+* [Extra](#extra)
+* [Open vim specially](#open-vim-specially)
+* [Vim sessions](#vim-sessions)
+* [Command line history](#command-line-history)
+
+* multiple sources, like this [great cheatsheet](https://vim.rtorr.com/)
 
 ## Global
 
@@ -32,10 +52,10 @@
 * `gg` - go to the first line of the document
 * `G` - go to the last line of the document
 * `5G` - go to line 5
-* `fx` - jump to next occurrence of character x
-* `tx` - jump to before next occurrence of character x
-* `Fx` - jump to previous occurence of character x
-* `Tx` - jump to after previous occurence of character x
+* `fx` - jump to next occurrence of character x in this line
+* `tx` - jump to before next occurrence of character x in this line
+* `Fx` - jump to previous occurence of character x in this line
+* `Tx` - jump to after previous occurence of character x in this line
 * `;` - repeat previous f, t, F or T movement
 * `,` - repeat previous f, t, F or T movement, backwards
 * `}` - jump to next paragraph (or function/block, when editing code)
@@ -43,12 +63,14 @@
 * `zz` - center cursor on screen
 * `Ctrl + e` - move screen down one line (without moving cursor)
 * `Ctrl + y` - move screen up one line (without moving cursor)
-* `Ctrl + b` - move back one full screen
-* `Ctrl + f` - move forward one full screen
-* `Ctrl + d` - move forward 1/2 a screen
-* `Ctrl + u` - move back 1/2 a screen
+* `Ctrl + b` - move back one full screen (back full page)
+* `Ctrl + f` - move forward one full screen (forward full page)
+* `Ctrl + d` - move forward 1/2 a screen (down half page)
+* `Ctrl + u` - move back 1/2 a screen (up half page)
+* `Ctrl + o` - retrace previous cursor position`
+* `Ctrl + i` - retrace next cursor position`
 
-  > Tip Prefix a cursor movement command with a number to repeat it. For example, 4j moves down 4 lines.
+> Tip Prefix a cursor movement command with a number to repeat it. For example, 4j moves down 4 lines.
 
 ## Insert mode, inserting/appending text
 
@@ -58,7 +80,7 @@
 * `A` - insert (append) at the end of the line
 * `o` - append (open) a new line below the current line
 * `O` - append (open) a new line above the current line
-* `ea` - insert (append) at the end of the word
+* `ea` - insert (append) at the end of the word (they can be cjained with moves)
 * `Esc` - exit insert mode
 
 ## Editing
@@ -73,7 +95,7 @@
 * `ciw` - change (replace) entire word
 * `cw` - change (replace) to the end of the word
 * `s` - delete character and substitute text
-* `S` - delete line and substitute text (same as cc)
+* `xp` - transpose two letters (delete and paste)
 * `xp` - transpose two letters (delete and paste)
 * `u` - undo
 * `Ctrl + r` - redo
@@ -106,8 +128,10 @@
 * `:reg` - show registers content
 * `"xy` - yank into register x
 * `"xp` - paste contents of register x
-Tip Registers are being stored in ~/.viminfo, and will be loaded again on next restart of vim.
-Tip Register 0 contains always the value of the last yank command.
+
+> Tip Registers are being stored in ~/.viminfo, and will be loaded again on next restart of vim.
+
+> Tip Register 0 contains always the value of the last yank command.
 
 ## Marks
 
@@ -115,6 +139,7 @@ Tip Register 0 contains always the value of the last yank command.
 * `ma` - set current position for mark A
 * ```\`a``` - jump to position of mark A
 * ```y`a``` - yank text to position of mark A
+* `:delm <pattern>` - delete marks. Pattern can be 1 lowercase letter, any number of characters, range of letters or numbers
 
 ## Macros
 
@@ -151,18 +176,20 @@ Tip Register 0 contains always the value of the last yank command.
 
 * `/pattern` - search for pattern
 * `?pattern` - search backward for pattern
-* `\vpattern` - 'very magic' pattern: non-alphanumeric characters are interpreted as special regex symbols (no escaping needed)
+* `/\vpattern` - 'very magic' pattern: non-alphanumeric characters are interpreted as special regex symbols (no escaping needed)
 * `n` - repeat search in same direction
 * `N` - repeat search in opposite direction
 * `:%s/old/new/g` - replace all old with new throughout file
 * `:%s/old/new/gc` - replace all old with new throughout file with confirmations
 * `:noh` - remove highlighting of search matches
+* ```*``` - start a search forward with the current word under the cursor
+* `#` - start a search backwards with the current word under the cursor
 
 ## Search in multiple files
 
 * `:vimgrep /pattern/ {file}` - search for pattern in multiple files
 
-  > e.g.:`vimgrep /foo/ **/*`
+> e.g.:```vimgrep /foo/ **/*```
 
 * `:cn` - jump to the next match
 * `:cp` - jump to the previous match
@@ -170,6 +197,7 @@ Tip Register 0 contains always the value of the last yank command.
 
 ## Working with multiple files
 
+* `:e` - reload current file
 * `:e file` - edit a file in a new buffer
 * `:bnext or :bn` - go to the next buffer
 * `:bprev or :bp` - go to the previous buffer
@@ -181,19 +209,56 @@ Tip Register 0 contains always the value of the last yank command.
 * `Ctrl + ww` - switch windows
 * `Ctrl + wq` - quit a window
 * `Ctrl + wv` - split window vertically
+* `Ctrl + wr` - rotate two windows (can not do it if the other one is splitted)
 * `Ctrl + wh` - move cursor to the left window (vertical split)
 * `Ctrl + wl` - move cursor to the right window (vertical split)
 * `Ctrl + wj` - move cursor to the window below (horizontal split)
-* `Ctrl + wk` - move cursor to the window above (horizontal split)
+* `Ctrl + wk` - move cursor to the window above (horizontal split
+* `ctrl-w ctrl-w` - move cursor to another window (cycle)
+* ```ctrl-w _``` - maximize current window vertically
+* `ctrl-w |` - maximize current window horizontally
+* `ctrl-w =` - make all equal size
+* `:sview file` - same as split, but readonly (`:sv` is shorter)
+* `:vert sview file` - vertically open a file as readonly as a split
+* `:res +number or :res -number or :vert res +/-number` - vertically or horizontally resize by number of lines or columns. It can be done one by one with ```Ctrl + w +/-/</>/```
 
 ## Tabs
 
-* `:tabnew or :tabnew file` - open a file in a new tab
+* `:tabe file or :tabnew or :tabnew file` - open a file in a new tab
 * `Ctrl + wT` - move the current split window into its own tab
 * `gt or :tabnext or :tabn` - move to the next tab
 * `gT or :tabprev or :tabp` - move to the previous tab
 * `#gt` - move to tab number #
-* `:tabmove #` - move current tab to the #th position (indexed from 0)
+* `:tabm #` - move current tab to the #th position (indexed from 0) (short for tabmove)
 * `:tabclose or :tabc` - close the current tab and all its windows
 * `:tabonly or :tabo` - close all tabs except for the current one
 * `:tabdo command` - run the command on all tabs (e.g. :tabdo q - closes all opened tabs)
+
+## Extra
+
+* `Ctrl + n` - in insert mode opens up autocomplete
+* `Ctrl + g` - show line info
+
+## Open vim specially
+
+* `vim file1 file2` - open multiple files as buffer 
+* `vim -p file1 file2` - open multiple files as tabs
+* `vim -o file1 file2` - open multiple files as horizontal split
+* `vim -O file1 file2` - open multiple files as vertical split
+* `vim file1 +number` - open file at linenumber $number 
+
+## Vim sessions
+
+* `:mks header-files-work.vim` - Your current session of open tabs will be stored in a file header-files-work.vim (short for mksession)
+* `vim -S header-files-work.vim` - load vim session
+* `:source header-files-work.vim` - load vim session to an opened vim
+* `:mks! header-files-work.vim` save changed session tabs while you are in the session
+
+> If the filename is omitted then `Session.vim` name will be used
+
+## Command line history
+
+* `q:` - show prev commands. Close with Ctrl+c
+* `q/` - show prev searches. Close with Ctrl+c
+* `:` - type in any word and press up. It will look for the prev command that started like that.
+
