@@ -14,11 +14,13 @@
 * [Search and replace](#search-and-replace)
 * [Search in multiple files](#search-in-multiple-files)
 * [Working with multiple files](#working-with-multiple-files)
+* [Split window](#split-window)
 * [Tabs](#tabs)
 * [Extra](#extra)
 * [Open vim specially](#open-vim-specially)
 * [Vim sessions](#vim-sessions)
 * [Command line history](#command-line-history)
+* [Tips and tricks](#tips-and-tricks)
 
 * multiple sources, like this [great cheatsheet](https://vim.rtorr.com/)
 
@@ -60,9 +62,11 @@
 * `,` - repeat previous f, t, F or T movement, backwards
 * `}` - jump to next paragraph (or function/block, when editing code)
 * `{` - jump to previous paragraph (or function/block, when editing code)
-* `zz` - center cursor on screen
-* `Ctrl + e` - move screen down one line (without moving cursor)
-* `Ctrl + y` - move screen up one line (without moving cursor)
+* `zz` - cursor on screen to the center
+* `zt` - cursor on screen to top
+* `zb` - cursor on screen to bottom
+* `Ctrl + e` - move screen down one line (without moving cursor), same as `+` symbol
+* `Ctrl + y` - move screen up one line (without moving cursor), same as `-` symbol
 * `Ctrl + b` - move back one full screen (back full page)
 * `Ctrl + f` - move forward one full screen (forward full page)
 * `Ctrl + d` - move forward 1/2 a screen (down half page)
@@ -80,12 +84,13 @@
 * `A` - insert (append) at the end of the line
 * `o` - append (open) a new line below the current line
 * `O` - append (open) a new line above the current line
-* `ea` - insert (append) at the end of the word (they can be cjained with moves)
+* `ea` - insert (append) at the end of the word (they can be chained with moves)
 * `Esc` - exit insert mode
 
 ## Editing
 
 * `r` - replace a single character
+* `R` - start replace mode, similar to insert, but overwrites the characters underneath
 * `J` - join line below to the current one with one space in between
 * `gJ` - join line below to the current one without space in between
 * `gwip` - reflow paragraph
@@ -96,10 +101,11 @@
 * `cw` - change (replace) to the end of the word
 * `s` - delete character and substitute text
 * `xp` - transpose two letters (delete and paste)
-* `xp` - transpose two letters (delete and paste)
 * `u` - undo
 * `Ctrl + r` - redo
 * `.` - repeat last command
+* `Ctrl + a` - increase a number 
+* `Ctrl + x` - decrease a number (4)
 
 ## Marking text (visual mode)
 
@@ -115,6 +121,9 @@
 * `iB` - inner block with {}
 * `Esc` - exit visual mode
 
+> Practice here to select inner block (like this )
+> Or {an inner block} of this.
+
 ## Visual commands
 
 * `>` - shift text right
@@ -125,7 +134,7 @@
 
 ## Registers
 
-* `:reg` - show registers content
+* `:reg` - show registers content (can append selectors of which registers to show)
 * `"xy` - yank into register x
 * `"xp` - paste contents of register x
 
@@ -137,15 +146,15 @@
 
 * `:marks` - list of marks
 * `ma` - set current position for mark A
-* ```\`a``` - jump to position of mark A
+* ````a``` - jump to position of mark A
 * ```y`a``` - yank text to position of mark A
 * `:delm <pattern>` - delete marks. Pattern can be 1 lowercase letter, any number of characters, range of letters or numbers
 
 ## Macros
 
-* `qa` - record macro a
+* `qa` - record macro a (it empties that register and appends the keystrokes to it)
 * `q` - stop recording macro
-* `@a` - run macro a
+* `@a` - run macro e
 * `@@` - rerun last run macro
 
 ## Cut and paste
@@ -171,6 +180,7 @@
 * `:q` - quit (fails if there are unsaved changes)
 * `:q! or ZQ` - quit and throw away unsaved changes
 * `:wqa` - write (save) and quit on all tabs
+* `Ctrl + z` - suspend vim, start up again with `fg` command (optionally `fg %jobnumber` if multiple jobs are selected). Check running suspended jobs with `jobs` command
 
 ## Search and replace
 
@@ -205,21 +215,23 @@
 * `:ls` - list all open buffers
 * `:sp file` - open a file in a new buffer and split window
 * `:vsp file` - open a file in a new buffer and vertically split window
+* `:sv file` - same as split, but readonly (short for `:sview`)
+* `:vert sv file` - vertically open a file as readonly as a split
+
+## Split window
+
 * `Ctrl + ws` - split window
-* `Ctrl + ww` - switch windows
-* `Ctrl + wq` - quit a window
 * `Ctrl + wv` - split window vertically
+* `Ctrl + ww` - switch windows (cycle)
+* `Ctrl + wq` - quit a window
 * `Ctrl + wr` - rotate two windows (can not do it if the other one is splitted)
 * `Ctrl + wh` - move cursor to the left window (vertical split)
 * `Ctrl + wl` - move cursor to the right window (vertical split)
 * `Ctrl + wj` - move cursor to the window below (horizontal split)
-* `Ctrl + wk` - move cursor to the window above (horizontal split
-* `ctrl-w ctrl-w` - move cursor to another window (cycle)
+* `Ctrl + wk` - move cursor to the window above (horizontal split)
 * ```ctrl-w _``` - maximize current window vertically
 * `ctrl-w |` - maximize current window horizontally
 * `ctrl-w =` - make all equal size
-* `:sview file` - same as split, but readonly (`:sv` is shorter)
-* `:vert sview file` - vertically open a file as readonly as a split
 * `:res +number or :res -number or :vert res +/-number` - vertically or horizontally resize by number of lines or columns. It can be done one by one with ```Ctrl + w +/-/</>/```
 
 ## Tabs
@@ -230,8 +242,8 @@
 * `gT or :tabprev or :tabp` - move to the previous tab
 * `#gt` - move to tab number #
 * `:tabm #` - move current tab to the #th position (indexed from 0) (short for tabmove)
-* `:tabclose or :tabc` - close the current tab and all its windows
-* `:tabonly or :tabo` - close all tabs except for the current one
+* `:tabc` - close the current tab and all its windows (short for tabclose)
+* `:tabo` - close all tabs except for the current one (shotr for tabonly)
 * `:tabdo command` - run the command on all tabs (e.g. :tabdo q - closes all opened tabs)
 
 ## Extra
@@ -261,4 +273,8 @@
 * `q:` - show prev commands. Close with Ctrl+c
 * `q/` - show prev searches. Close with Ctrl+c
 * `:` - type in any word and press up. It will look for the prev command that started like that.
+
+## Tips and tricks
+
+* select text in visual mode then `xi()<esc>P` Wrap brackets around visually selected text.
 
