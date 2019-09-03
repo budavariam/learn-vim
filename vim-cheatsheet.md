@@ -250,6 +250,7 @@
 
 * `Ctrl + n` - in insert mode opens up autocomplete
 * `Ctrl + g` - show line info
+* `Ctrl + o` - in Insert mode after this key combo, you can use a command from normal mode, and immediately switch back to the starting mode
 
 ## Open vim specially
 
