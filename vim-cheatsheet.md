@@ -13,6 +13,7 @@
 * [Exiting](#exiting)
 * [Search and replace](#search-and-replace)
 * [Search in multiple files](#search-in-multiple-files)
+* [Vim for programmers](#vim-for-programmers)
 * [Working with multiple files](#working-with-multiple-files)
 * [Split window](#split-window)
 * [Tabs](#tabs)
@@ -30,6 +31,7 @@
 * `:saveas file` - save file as
 * `:close` - close current pane
 * `K` - open man page for word under the cursor
+* `gf` - open file under cursor
 
 ## Cursor movement
 
@@ -44,9 +46,11 @@
 * `W` - jump forwards to the start of a word (words can contain punctuation)
 * `e` - jump forwards to the end of a word
 * `E` - jump forwards to the end of a word (words can contain punctuation)
+* `ge` - jump backwards to the end of a word
+* `gE` - jump backwards to the end of a word (words can contain punctuation)
 * `b` - jump backwards to the start of a word
 * `B` - jump backwards to the start of a word (words can contain punctuation)
-* `%` - move to matching character (default supported pairs: '()', '{}', '[]'; use <code>:h matchpairs</code> in vim for more info)
+* `%` - move to matching character (default supported pairs: '()', '{}', '[]'; use `:h matchpairs` in vim for more info)
 * `0` - jump to the start of the line
 * `^` - jump to the first non-blank character of the line
 * `$` - jump to the end of the line
@@ -112,7 +116,7 @@
 
 ## Marking text (visual mode)
 
-* `v` - start visual mode, mark lines, then do a command (like y-yank)
+* `v` - start visual mode. (you can mark text, then do a command (like y-yank))
 * `V` - start linewise visual mode
 * `o` - move to other end of marked area
 * `Ctrl + v` - start visual block mode
@@ -141,9 +145,8 @@
 * `"xy` - yank into register x
 * `"xp` - paste contents of register x
 
-> Tip Registers are being stored in ~/.viminfo, and will be loaded again on next restart of vim.
-
-> Tip Register 0 contains always the value of the last yank command.
+> Tip: Registers are being stored in ~/.viminfo, and will be loaded again on next restart of vim.
+> Tip: Register 0 contains always the value of the last yank command.
 
 ## Marks
 
@@ -157,7 +160,7 @@
 
 * `qa` - record macro a (it empties that register and appends the keystrokes to it)
 * `q` - stop recording macro
-* `@a` - run macro e
+* `@a` - run macro a
 * `@@` - rerun last run macro
 
 ## Cut and paste
@@ -179,9 +182,9 @@
 
 * `:w` - write (save) the file, but don't exit
 * `:w !sudo tee %` - write out the current file using sudo
-* `:wq or :x or ZZ` - write (save) and quit
+* `:wq`, `:x`, `ZZ` - write (save) and quit
 * `:q` - quit (fails if there are unsaved changes)
-* `:q! or ZQ` - quit and throw away unsaved changes
+* `:q!`, `ZQ` - quit and throw away unsaved changes
 * `:wqa` - write (save) and quit on all tabs
 * `Ctrl + z` - suspend vim, start up again with `fg` command (optionally `fg %jobnumber` if multiple jobs are selected). Check running suspended jobs with `jobs` command
 
@@ -195,8 +198,10 @@
 * `:%s/old/new/g` - replace all old with new throughout file
 * `:%s/old/new/gc` - replace all old with new throughout file with confirmations
 * `:noh` - remove highlighting of search matches
-* ```*``` - start a search forward with the current word under the cursor
+* ```*``` - start a search forward with the whole current word under the cursor
 * `#` - start a search backwards with the current word under the cursor
+* ```g*``` - start a search with the word under the cursor but find occurrances that has more content in it. e.g: `rain` finds `rainbow`
+* ```g#``` - same as ```g*``` but backwards
 
 ## Search in multiple files
 
@@ -208,12 +213,17 @@
 * `:cp` - jump to the previous match
 * `:copen` - open a window containing the list of matches
 
+## Vim for programmers
+
+* `gd` - go to local declaration
+* `gD` - go to global declaration
+
 ## Working with multiple files
 
 * `:e` - reload current file
 * `:e file` - edit a file in a new buffer
-* `:bnext or :bn` - go to the next buffer
-* `:bprev or :bp` - go to the previous buffer
+* `:bnext`, `:bn` - go to the next buffer
+* `:bprev`, `:bp` - go to the previous buffer
 * `:bd` - delete a buffer (close a file)
 * `:ls` - list all open buffers
 * `:sp file` - open a file in a new buffer and split window
@@ -223,7 +233,7 @@
 
 ## Split window
 
-* `Ctrl + ws` - split window
+* `Ctrl + ws` - split window horizontally
 * `Ctrl + wv` - split window vertically
 * `Ctrl + ww` - switch windows (cycle)
 * `Ctrl + wq` - quit a window
@@ -235,16 +245,19 @@
 * ```ctrl-w _``` - maximize current window vertically
 * `ctrl-w |` - maximize current window horizontally
 * `ctrl-w =` - make all equal size
-* `:res +number or :res -number or :vert res +/-number` - vertically or horizontally resize by number of lines or columns. It can be done one by one with ```Ctrl + w +/-/</>/```
+* `:res +/-number` - horizontally resize by number of lines or columns. It can be done one by one with ```Ctrl + w +/-```
+* `:vert res +/-number` - vertically resize by number of lines or columns. It can be done one by one with ```Ctrl + w </>```
 
 ## Tabs
 
-* `:tabe file or :tabnew or :tabnew file` - open a file in a new tab
+Tabs should be imagined as layouts. They can show different window arrangements of any buffers.
+
+* `:tabe file`, `:tabnew`, `:tabnew file` - open a file in a new tab
 * `Ctrl + wT` - move the current split window into its own tab
-* `gt or :tabnext or :tabn` - move to the next tab
-* `gT or :tabprev or :tabp` - move to the previous tab
-* `#gt` - move to tab number #
-* `:tabm #` - move current tab to the #th position (indexed from 0) (short for tabmove)
+* `gt`, `:tabnext`, `:tabn` - move to the next tab
+* `gT`, `:tabprev`, `:tabp` - move to the previous tab
+* `NUMgt` - move to tab number NUM
+* `:tabm NUM` - move current tab to the NUMth position (indexed from 0) (short for tabmove)
 * `:tabc` - close the current tab and all its windows (short for tabclose)
 * `:tabo` - close all tabs except for the current one (shotr for tabonly)
 * `:tabdo command` - run the command on all tabs (e.g. :tabdo q - closes all opened tabs)
@@ -276,9 +289,9 @@
 
 * `q:` - show prev commands. Close with Ctrl+c
 * `q/` - show prev searches. Close with Ctrl+c
-* `:` - type in any word and press up. It will look for the prev command that started like that.
+* `:` - type in any word and press up. It will look for the prev command that started like that
 
 ## Tips and tricks
 
-* select text in visual mode then `xi()<esc>P` Wrap brackets around visually selected text.
+* select text in visual mode then `xi()<esc>P` Wrap brackets around visually selected text
 
