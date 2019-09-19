@@ -104,8 +104,11 @@
 * `u` - undo
 * `Ctrl + r` - redo
 * `.` - repeat last command
-* `Ctrl + a` - increase a number 
+* `Ctrl + a` - increase a number
 * `Ctrl + x` - decrease a number (4)
+* `gu` + movement - make it lowercase
+* `gU` + movement - make it uppercase
+* `g~` + movement - toggle case
 
 ## Marking text (visual mode)
 
@@ -254,11 +257,11 @@
 
 ## Open vim specially
 
-* `vim file1 file2` - open multiple files as buffer 
+* `vim file1 file2` - open multiple files as buffer
 * `vim -p file1 file2` - open multiple files as tabs
 * `vim -o file1 file2` - open multiple files as horizontal split
 * `vim -O file1 file2` - open multiple files as vertical split
-* `vim file1 +number` - open file at linenumber $number 
+* `vim file1 +number` - open file at linenumber $number
 
 ## Vim sessions
 
