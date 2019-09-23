@@ -303,4 +303,5 @@ Tabs should be imagined as layouts. They can show different window arrangements 
 ## Tips and tricks
 
 * select text in visual mode then `xi()<esc>P` Wrap brackets around visually selected text
+* `:w !diff % -` - show the diffs with `diff` command since last save. (It saves the output to stdin and loads the differences between the current filename and standard input).
 
