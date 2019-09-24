@@ -50,7 +50,7 @@
 * `gE` - jump backwards to the end of a word (words can contain punctuation)
 * `b` - jump backwards to the start of a word
 * `B` - jump backwards to the start of a word (words can contain punctuation)
-* `%` - move to matching character (default supported pairs: '()', '{}', '[]'; use *:h matchpairs* in vim for more info). It jumps to the on it finds in the current line.
+* `%` - move to matching character (default supported pairs: '()', '{}', '[]'; use *:h matchpairs* in vim for more info). It jumps to the on it finds in the current line
 * `0` - jump to the start of the line
 * `^` - jump to the first non-blank character of the line
 * `$` - jump to the end of the line
@@ -66,8 +66,8 @@
 * `,` - repeat previous f, t, F or T movement, backwards
 * `}` - jump to next paragraph (or function/block, when editing code)
 * `{` - jump to previous paragraph (or function/block, when editing code)
-* `(` - jump to the next sentence
-* `)` - jump to the previous sentence
+* `(` - jump to the previous sentence
+* `)` - jump to the next sentence
 * `zz` - cursor on screen to the center
 * `zt` - cursor on screen to top
 * `zb` - cursor on screen to bottom
@@ -109,7 +109,7 @@
 * `s` - delete character and substitute text
 * `xp` - transpose two letters (delete and paste)
 * `u` - undo
-* `U` - undo all latest changes on one line.
+* `U` - undo all latest changes on one line
 * `ctrl-r` - redo
 * `.` - repeat last command
 * `ctrl-a` - increase a number
@@ -148,7 +148,7 @@
 * `:reg` - show registers content (can append selectors of which registers to show)
 * `"xy` - yank into register `x`
 * `"xp` - paste contents of register `x`
-* `"Xp` - appent contents to register `x`
+* `"Xp` - append contents to register `x`
 
 > Tip: Registers are being stored in ~/.viminfo, and will be loaded again on next restart of vim.
 > Tip: Register 0 contains always the value of the last yank command.
@@ -229,7 +229,7 @@
 
 * `:e` - reload current file
 * `:e file` - edit a `file` in a new buffer
-* `:r file`, `:read file` - insert a `file` into the cuurrent location
+* `:r file`, `:read file` - insert a `file` into the current location
 * `:r !{cmd}` - execute `{cmd}` and insert its standard output below the cursor
 * `:bnext`, `:bn` - go to the next buffer
 * `:bprev`, `:bp` - go to the previous buffer
@@ -237,7 +237,7 @@
 * `:ls` - list all open buffers
 * `:sp file` - open a `file` in a new buffer and split window
 * `:vsp file` - open a `file` in a new buffer and vertically split window
-* `:sv file`, `:sview` - open a `file` in a new buffer, but readonly
+* `:sv file`, `:sview file` - open a `file` in a new buffer, but readonly
 * `:vert sv file` - vertically open a `file` as readonly as a split
 
 ## Split window
@@ -254,8 +254,8 @@
 * ```ctrl-w_``` - maximize current window vertically
 * `ctrl-w|` - maximize current window horizontally
 * `ctrl-w=` - make all equal size
-* `:res +/-num`, ```ctrl-w+/-``` - horizontally resize by `+/-num` of lines or columns
-* `:vert res +/-num`, ```ctrl-w</>``` - vertically resize by `+/-num` of lines or columns
+* `:res +/-num`, ```numctrl-w+/-``` - horizontally resize by `+/-num` of lines or columns
+* `:vert res +/-num`, ```numctrl-w</>``` - vertically resize by `+/-num` of lines or columns
 
 ## Tabs
 
@@ -288,7 +288,7 @@ Tabs should be imagined as layouts. They can show different window arrangements 
 ## Vim sessions
 
 * `:mks workproject.vim`, `:mksession workproject.vim`- Your current session of open tabs will be stored in a file `workproject.vim`
-* `vim -S workproject.vim` - load vim session called `workproject.vim`
+* `vim -S workproject.vim` - load up vim with a session called `workproject.vim`
 * `:source workproject.vim` - load vim session to an opened vim called `workproject.vim`
 * `:mks! workproject.vim` save changed session tabs while you are in the session called `workproject.vim`
 
@@ -303,5 +303,5 @@ Tabs should be imagined as layouts. They can show different window arrangements 
 ## Tips and tricks
 
 * select text in visual mode then `xi()<esc>P` Wrap brackets around visually selected text
-* `:w !diff % -` - show the diffs with `diff` command since last save. (It saves the output to stdin and loads the differences between the current filename and standard input).
+* `:w !diff % -` - show the diffs with `diff` command since last save. (It saves the output to stdin and loads the differences between the current filename and standard input)
 
