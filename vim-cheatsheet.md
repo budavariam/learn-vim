@@ -93,6 +93,7 @@
 * `ea` - insert (append) at the end of the word (so they can be chained with moves)
 * `Esc` - exit insert mode
 * `gi` - go to the last place where insert mode was finished
+* `ctrl-r NUM` - insert the contents of `NUM`th register
 
 ## Editing
 
@@ -184,6 +185,7 @@
 * `D` - delete (cut) to the end of the line
 * `d$` - delete (cut) to the end of the line
 * `x` - delete (cut) character
+* `viwp` - replace (paste) content of the last used register with the word under the cursor
 
 ## Exiting
 
