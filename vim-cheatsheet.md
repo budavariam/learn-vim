@@ -21,6 +21,7 @@
 * [Open vim specially](#open-vim-specially)
 * [Vim sessions](#vim-sessions)
 * [Command line history](#command-line-history)
+* [Folding](#folding)
 * [Tips and tricks](#tips-and-tricks)
 
 * multiple sources, like this [great cheatsheet](https://vim.rtorr.com/), and [this](https://www.fprintf.net/vimCheatSheet.html).
@@ -93,7 +94,7 @@
 * `ea` - insert (append) at the end of the word (so they can be chained with moves)
 * `Esc` - exit insert mode
 * `gi` - go to the last place where insert mode was finished
-* `ctrl-r NUM` - insert the contents of `NUM`th register
+* `ctrl-r REG` - insert the contents of `REG` register in insert mode.
 
 ## Editing
 
@@ -103,8 +104,7 @@
 * `gJ` - join line below to the current one without space in between
 * `gwip` - reflow paragraph
 * `cc` - change (replace) entire line
-* `C` - change (replace) to the end of the line
-* `c$` - change (replace) to the end of the line
+* `C`, `c$` - change (replace) to the end of the line
 * `ciw` - change (replace) entire word
 * `cw` - change (replace) to the end of the word
 * `s` - delete character and substitute text
@@ -115,7 +115,7 @@
 * `.` - repeat last command
 * `ctrl-a` - increase a number
 * `ctrl-x` - decrease a number (practice: 4)
-* `gu + movement`  - make `movement` lowercase
+* `gu + movement` - make `movement` lowercase
 * `gU + movement` - make `movement` uppercase
 * `g~ + movement` - toggle case of `movement`
 
@@ -182,10 +182,11 @@
 * `2dd` - delete (cut) `2` lines
 * `diw` - delete (cut) the characters of the whole word
 * `dw` - delete (cut) the characters of the word from the cursor position to the start of the next word
-* `D` - delete (cut) to the end of the line
-* `d$` - delete (cut) to the end of the line
+* `D`, `d$` - delete (cut) to the end of the line
 * `x` - delete (cut) character
 * `viwp` - replace (paste) content of the last used register with the word under the cursor
+* `"/p` - paste the last search
+* `":p" - paste the last command
 
 ## Exiting
 
@@ -255,7 +256,7 @@
 * `ctrl-wk` - move cursor to the window above (horizontal split)
 * ```ctrl-w_``` - maximize current window vertically
 * `ctrl-w|` - maximize current window horizontally
-* `ctrl-w=` - make all equal size
+* `ctrl-w=` - make all equal size vertically
 * `:res +/-num`, ```numctrl-w+/-``` - horizontally resize by `+/-num` of lines or columns
 * `:vert res +/-num`, ```numctrl-w</>``` - vertically resize by `+/-num` of lines or columns
 
@@ -292,7 +293,7 @@ Tabs should be imagined as layouts. They can show different window arrangements 
 * `:mks workproject.vim`, `:mksession workproject.vim`- Your current session of open tabs will be stored in a file `workproject.vim`
 * `vim -S workproject.vim` - load up vim with a session called `workproject.vim`
 * `:source workproject.vim` - load vim session to an opened vim called `workproject.vim`
-* `:mks! workproject.vim` save changed session tabs while you are in the session called `workproject.vim`
+* `:mks! workproject.vim` - save changed session tabs while you are in the session called `workproject.vim`
 
 > If the filename is omitted then `Session.vim` name will be used
 
@@ -301,6 +302,21 @@ Tabs should be imagined as layouts. They can show different window arrangements 
 * `q:` - show prev commands. Close with Ctrl+c
 * `q/` - show prev searches. Close with Ctrl+c
 * `:` - type in any word and press up. It will look for the prev command that started like that
+
+## Folding
+
+* `za` - toggle folding
+* `:set foldcolumn=NUM` - visualize folds. show `NUM` lines of nested folds per line
+* `zfip` - fold the current paragraph
+* `zf/string` - fold until next occurrance of `string`
+* `zd` - delete fold
+* `zE` - delete all folds
+* `zf20j` - fold the next `20` lines
+* ```zf`a``` - fold until wherever mark `a` is in the document
+* `zR` - open all folds
+* `zM` - close all folds
+* `:mkview` - save folding state
+* `:loadview` - load prev folding state
 
 ## Tips and tricks
 
