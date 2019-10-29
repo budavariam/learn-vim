@@ -279,6 +279,7 @@ Tabs should be imagined as layouts. They can show different window arrangements 
 * `ctrl-n` - in insert mode opens up autocomplete
 * `ctrl-g` - show line info
 * `ctrl-o` - in Insert mode after this key combo, you can use a command from normal mode, and immediately switch back to the starting mode
+* `:term` - open terminal as a horizontal split buffer.
 
 ## Open vim specially
 
@@ -321,5 +322,7 @@ Tabs should be imagined as layouts. They can show different window arrangements 
 ## Tips and tricks
 
 * select text in visual mode then `xi()<esc>P` Wrap brackets around visually selected text
+* select text in visual mode then `y/ctrl-r"` starts to search for visually selected text
 * `:w !diff % -` - show the diffs with `diff` command since last save. (It saves the output to stdin and loads the differences between the current filename and standard input)
+* `:g/pattern/norm @o` - run the previously recorded `o` macro on all lines that match `pattern`
 
