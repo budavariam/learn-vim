@@ -24,7 +24,7 @@
 * [Folding](#folding)
 * [Tips and tricks](#tips-and-tricks)
 
-* multiple sources, like this [great cheatsheet](https://vim.rtorr.com/), and [this](https://www.fprintf.net/vimCheatSheet.html).
+* multiple sources, like [this](https://vim.rtorr.com/), and [this](https://www.fprintf.net/vimCheatSheet.html) great cheatsheets.
 
 ## Global
 
