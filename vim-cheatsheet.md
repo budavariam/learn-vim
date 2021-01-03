@@ -32,7 +32,7 @@
 * `:saveas file` - save `file` as
 * `:close` - close current pane
 * `K` - open man page for word under the cursor
-* `gf` - open file under cursor
+* `gf` - open file under cursor (goto file)
 
 ## Cursor movement
 
@@ -47,10 +47,10 @@
 * `W` - jump forwards to the start of a word (words can contain punctuation)
 * `e` - jump forwards to the end of a word
 * `E` - jump forwards to the end of a word (words can contain punctuation)
-* `ge` - jump backwards to the end of a word
-* `gE` - jump backwards to the end of a word (words can contain punctuation)
-* `b` - jump backwards to the start of a word
-* `B` - jump backwards to the start of a word (words can contain punctuation)
+* `ge` - jump backward to the end of a word
+* `gE` - jump backward to the end of a word (words can contain punctuation)
+* `b` - jump backward to the start of a word
+* `B` - jump backward to the start of a word (words can contain punctuation)
 * `%` - move to matching character (default supported pairs: '()', '{}', '[]'; use *:h matchpairs* in vim for more info). It jumps to the on it finds in the current line
 * `0` - jump to the start of the line
 * `^` - jump to the first non-blank character of the line
@@ -59,12 +59,13 @@
 * `gg` - go to the first line of the document
 * `G` - go to the last line of the document
 * `5G` - go to line `5`
+* `:5` - go to line `5` with command
 * `fx` - jump to next occurrence of character `x` in this line
 * `tx` - jump to before next occurrence of character `x` in this line
 * `Fx` - jump to previous occurence of character `x` in this line
 * `Tx` - jump to after previous occurence of character `x` in this line
 * `;` - repeat previous f, t, F or T movement
-* `,` - repeat previous f, t, F or T movement, backwards
+* `,` - repeat previous f, t, F or T movement, backward
 * `}` - jump to next paragraph (or function/block, when editing code)
 * `{` - jump to previous paragraph (or function/block, when editing code)
 * `(` - jump to the previous sentence
@@ -205,13 +206,15 @@
 * `/\vpattern` - 'very magic' `pattern`: non-alphanumeric characters are interpreted as special regex symbols (no escaping needed)
 * `n` - repeat search in same direction
 * `N` - repeat search in opposite direction
+* `ggn` - go to first match (assuming forward search)
+* `GN` - go to last match (assuming forward search)
 * `:%s/old/new/g` - replace all `old` with `new` throughout file
 * `:%s/old/new/gc` - replace all `old` with `new` throughout file with confirmations
 * `:noh` - remove highlighting of search matches
 * ```*``` - start a search forward with the whole current word under the cursor
-* `#` - start a search backwards with the current word under the cursor
-* ```g*``` - start a search with the word under the cursor but find occurrances that has more content in it. e.g: `rain` finds `rainbow`
-* ```g#``` - start a search backwards with the word under the cursor but find occurrances that has more content in it. e.g: `rain` finds `rainbow`
+* `#` - start a search backward with the current word under the cursor
+* ```g*``` - start a search with the word under the cursor but find occurrences that has more content in it. e.g: `rain` finds `rainbow`
+* ```g#``` - start a search backward with the word under the cursor but find occurrences that has more content in it. e.g: `rain` finds `rainbow`
 
 ## Search in multiple files
 
@@ -233,6 +236,7 @@
 * `:e` - reload current file
 * `:e file` - edit a `file` in a new buffer
 * `:r file`, `:read file` - insert a `file` into the current location
+* `:0r file`, `:0read file` - insert a `file` before the first line
 * `:r !{cmd}` - execute `{cmd}` and insert its standard output below the cursor
 * `:bnext`, `:bn` - go to the next buffer
 * `:bprev`, `:bp` - go to the previous buffer
@@ -325,4 +329,3 @@ Tabs should be imagined as layouts. They can show different window arrangements 
 * select text in visual mode then `y/ctrl-r"` starts to search for visually selected text
 * `:w !diff % -` - show the diffs with `diff` command since last save. (It saves the output to stdin and loads the differences between the current filename and standard input)
 * `:g/pattern/norm @o` - run the previously recorded `o` macro on all lines that match `pattern`
-
