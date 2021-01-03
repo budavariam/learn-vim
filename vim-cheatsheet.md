@@ -108,17 +108,25 @@
 * `C`, `c$` - change (replace) to the end of the line
 * `ciw` - change (replace) entire word
 * `cw` - change (replace) to the end of the word
+* `c/hello` - change (replace) until next occurrance of "hello"
 * `s` - delete character and substitute text
 * `xp` - transpose two letters (delete and paste)
 * `u` - undo
+* `:u` - undo in command mode
 * `U` - undo all latest changes on one line
 * `ctrl-r` - redo
+* `:red` - redo in command mode
 * `.` - repeat last command
 * `ctrl-a` - increase a number
 * `ctrl-x` - decrease a number (practice: 4)
 * `gu + movement` - make `movement` lowercase
 * `gU + movement` - make `movement` uppercase
 * `g~ + movement` - toggle case of `movement`
+* `g+` - undo branch forward
+* `g-` - undo branch backward
+* `ea 4h` - undo changes in the last 4 hours
+* `ea 2f` - undo last 2 file states (last 2 buffer writes)
+* `lat 8m` - redo changes in last 8 minutes
 
 ## Marking text (visual mode)
 
@@ -128,6 +136,8 @@
 * `ctrl-v` - start visual block mode
 * `O` - move to other corner of block
 * `aw` - mark a word
+* `as` - mark a sentence
+* `ap` - mark a paragraph
 * `ab` - mark a block with ()
 * `aB` - mark a block with {}
 * `ib` - mark inner block with ()
