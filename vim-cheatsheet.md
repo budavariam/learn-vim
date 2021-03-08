@@ -169,9 +169,9 @@
 
 * `:marks` - list of marks
 * `ma` - set current position for mark `a`
-* ````a``` - jump to position of mark `a`
-* ```'a``` - jump to the first non-blank character in the line of mark `a`
-* ```y`a``` - yank text to position of mark `a`
+* `` `a `` - jump to position of mark `a`
+* `'a` - jump to the first non-blank character in the line of mark `a`
+* `` y`a `` - yank text to position of mark `a`
 * `:delm <pattern>` - delete marks. `<pattern>` can be 1 lowercase letter, any number of characters, range of letters or numbers
 
 ## Macros
@@ -221,16 +221,16 @@
 * `:%s/old/new/g` - replace all `old` with `new` throughout file
 * `:%s/old/new/gc` - replace all `old` with `new` throughout file with confirmations
 * `:noh` - remove highlighting of search matches
-* ```*``` - start a search forward with the whole current word under the cursor
+* `*` - start a search forward with the whole current word under the cursor
 * `#` - start a search backward with the current word under the cursor
-* ```g*``` - start a search with the word under the cursor but find occurrences that has more content in it. e.g: `rain` finds `rainbow`
-* ```g#``` - start a search backward with the word under the cursor but find occurrences that has more content in it. e.g: `rain` finds `rainbow`
+* `g*` - start a search with the word under the cursor but find occurrences that has more content in it. e.g: `rain` finds `rainbow`
+* `g#` - start a search backward with the word under the cursor but find occurrences that has more content in it. e.g: `rain` finds `rainbow`
 
 ## Search in multiple files
 
 * `:vimgrep /pattern/ {file}` - search for `/pattern/` in multiple `{file}`s
 
-> e.g.:```vimgrep /foo/ **/*```
+> e.g.: `vimgrep /foo/ **/*`
 
 * `:cn` - jump to the next match
 * `:cp` - jump to the previous match
@@ -268,11 +268,11 @@
 * `ctrl-wl` - move cursor to the right window (vertical split)
 * `ctrl-wj` - move cursor to the window below (horizontal split)
 * `ctrl-wk` - move cursor to the window above (horizontal split)
-* ```ctrl-w_``` - maximize current window vertically
+* `ctrl-w_` - maximize current window vertically
 * `ctrl-w|` - maximize current window horizontally
 * `ctrl-w=` - make all equal size vertically
-* `:res +/-num`, ```numctrl-w+/-``` - horizontally resize by `+/-num` of lines or columns
-* `:vert res +/-num`, ```numctrl-w</>``` - vertically resize by `+/-num` of lines or columns
+* `:res +/-num`, `numctrl-w+/-` - horizontally resize by `+/-num` of lines or columns
+* `:vert res +/-num`, `numctrl-w</>` - vertically resize by `+/-num` of lines or columns
 
 ## Tabs
 
@@ -327,7 +327,7 @@ Tabs should be imagined as layouts. They can show different window arrangements 
 * `zd` - delete fold
 * `zE` - delete all folds
 * `zf20j` - fold the next `20` lines
-* ```zf`a``` - fold until wherever mark `a` is in the document
+* `` zf`a `` - fold until wherever mark `a` is in the document
 * `zR` - open all folds
 * `zM` - close all folds
 * `:mkview` - save folding state
