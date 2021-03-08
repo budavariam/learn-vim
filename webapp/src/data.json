@@ -1,0 +1,1608 @@
+[
+  {
+    "category": "Global",
+    "question": "open help for `keyword`",
+    "solution": [
+      ":help keyword",
+      ":h keyword"
+    ]
+  },
+  {
+    "category": "Global",
+    "question": "save `file` as",
+    "solution": [
+      ":saveas file"
+    ]
+  },
+  {
+    "category": "Global",
+    "question": "close current pane",
+    "solution": [
+      ":close"
+    ]
+  },
+  {
+    "category": "Global",
+    "question": "open man page for word under the cursor",
+    "solution": [
+      "K"
+    ]
+  },
+  {
+    "category": "Global",
+    "question": "open file under cursor (goto file)",
+    "solution": [
+      "gf"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move cursor left",
+    "solution": [
+      "h"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move cursor down",
+    "solution": [
+      "j"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move cursor up",
+    "solution": [
+      "k"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move cursor right",
+    "solution": [
+      "l"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move to top of screen",
+    "solution": [
+      "H"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move to middle of screen",
+    "solution": [
+      "M"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move to bottom of screen",
+    "solution": [
+      "L"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump forwards to the start of a word",
+    "solution": [
+      "w"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump forwards to the start of a word (words can contain punctuation)",
+    "solution": [
+      "W"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump forwards to the end of a word",
+    "solution": [
+      "e"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump forwards to the end of a word (words can contain punctuation)",
+    "solution": [
+      "E"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump backward to the end of a word",
+    "solution": [
+      "ge"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump backward to the end of a word (words can contain punctuation)",
+    "solution": [
+      "gE"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump backward to the start of a word",
+    "solution": [
+      "b"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump backward to the start of a word (words can contain punctuation)",
+    "solution": [
+      "B"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move to matching character (default supported pairs: '()', '{}', '[]'; use *:h matchpairs* in vim for more info). It jumps to the on it finds in the current line",
+    "solution": [
+      "%"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump to the start of the line",
+    "solution": [
+      "0"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump to the first non-blank character of the line",
+    "solution": [
+      "^"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump to the end of the line",
+    "solution": [
+      "$"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump to the last non-blank character of the line",
+    "solution": [
+      "g_"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "go to the first line of the document",
+    "solution": [
+      "gg"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "go to the last line of the document",
+    "solution": [
+      "G"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "go to line `5`",
+    "solution": [
+      "5G"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "go to line `5` with command",
+    "solution": [
+      ":5"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump to next occurrence of character `x` in this line",
+    "solution": [
+      "fx"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump to before next occurrence of character `x` in this line",
+    "solution": [
+      "tx"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump to previous occurence of character `x` in this line",
+    "solution": [
+      "Fx"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump to after previous occurence of character `x` in this line",
+    "solution": [
+      "Tx"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "repeat previous f, t, F or T movement",
+    "solution": [
+      ";"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "repeat previous f, t, F or T movement, backward",
+    "solution": [
+      ","
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump to next paragraph (or function/block, when editing code)",
+    "solution": [
+      "}"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump to previous paragraph (or function/block, when editing code)",
+    "solution": [
+      "{"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump to the previous sentence",
+    "solution": [
+      "("
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump to the next sentence",
+    "solution": [
+      ")"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "cursor on screen to the center",
+    "solution": [
+      "zz"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "cursor on screen to top",
+    "solution": [
+      "zt"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "cursor on screen to bottom",
+    "solution": [
+      "zb"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move screen down one line (without moving cursor), same as `+` symbol",
+    "solution": [
+      "ctrl-e"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move screen up one line (without moving cursor), same as `-` symbol",
+    "solution": [
+      "ctrl-y"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move back one full screen (back full page)",
+    "solution": [
+      "ctrl-b"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move forward one full screen (forward full page)",
+    "solution": [
+      "ctrl-f"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move forward 1/2 a screen (down half page)",
+    "solution": [
+      "ctrl-d"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move back 1/2 a screen (up half page)",
+    "solution": [
+      "ctrl-u"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "retrace previous cursor position",
+    "solution": [
+      "ctrl-o"
+    ]
+  },
+  {
+    "category": "Cursor movement",
+    "question": "retrace next cursor position",
+    "solution": [
+      "ctrl-i"
+    ]
+  },
+  {
+    "category": "Insert mode, inserting/appending text",
+    "question": "insert before the cursor",
+    "solution": [
+      "i"
+    ]
+  },
+  {
+    "category": "Insert mode, inserting/appending text",
+    "question": "insert at the beginning of the line",
+    "solution": [
+      "I"
+    ]
+  },
+  {
+    "category": "Insert mode, inserting/appending text",
+    "question": "insert (append) after the cursor",
+    "solution": [
+      "a"
+    ]
+  },
+  {
+    "category": "Insert mode, inserting/appending text",
+    "question": "insert (append) at the end of the line",
+    "solution": [
+      "A"
+    ]
+  },
+  {
+    "category": "Insert mode, inserting/appending text",
+    "question": "append (open) a new line below the current line",
+    "solution": [
+      "o"
+    ]
+  },
+  {
+    "category": "Insert mode, inserting/appending text",
+    "question": "append (open) a new line above the current line",
+    "solution": [
+      "O"
+    ]
+  },
+  {
+    "category": "Insert mode, inserting/appending text",
+    "question": "insert (append) at the end of the word (so they can be chained with moves)",
+    "solution": [
+      "ea"
+    ]
+  },
+  {
+    "category": "Insert mode, inserting/appending text",
+    "question": "exit insert mode",
+    "solution": [
+      "Esc"
+    ]
+  },
+  {
+    "category": "Insert mode, inserting/appending text",
+    "question": "go to the last place where insert mode was finished",
+    "solution": [
+      "gi"
+    ]
+  },
+  {
+    "category": "Insert mode, inserting/appending text",
+    "question": "insert the contents of `REG` register in insert mode.",
+    "solution": [
+      "ctrl-r REG"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "replace a single character",
+    "solution": [
+      "r"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "start replace mode, similar to insert, but overwrites the characters underneath",
+    "solution": [
+      "R"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "join line below to the current one with one space in between",
+    "solution": [
+      "J"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "join line below to the current one without space in between",
+    "solution": [
+      "gJ"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "reflow paragraph",
+    "solution": [
+      "gwip"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "change (replace) entire line",
+    "solution": [
+      "cc"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "change (replace) to the end of the line",
+    "solution": [
+      "C",
+      "c$"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "change (replace) entire word",
+    "solution": [
+      "ciw"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "change (replace) to the end of the word",
+    "solution": [
+      "cw"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "change (replace) until next occurrance of \"hello\"",
+    "solution": [
+      "c/hello"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "delete character and substitute text",
+    "solution": [
+      "s"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "transpose two letters (delete and paste)",
+    "solution": [
+      "xp"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "undo",
+    "solution": [
+      "u"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "undo in command mode",
+    "solution": [
+      ":u"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "undo all latest changes on one line",
+    "solution": [
+      "U"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "redo",
+    "solution": [
+      "ctrl-r"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "redo in command mode",
+    "solution": [
+      ":red"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "repeat last command",
+    "solution": [
+      "."
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "increase a number",
+    "solution": [
+      "ctrl-a"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "decrease a number (practice: 4)",
+    "solution": [
+      "ctrl-x"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "make `movement` lowercase",
+    "solution": [
+      "gu + movement"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "make `movement` uppercase",
+    "solution": [
+      "gU + movement"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "toggle case of `movement`",
+    "solution": [
+      "g~ + movement"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "undo branch forward",
+    "solution": [
+      "g+"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "undo branch backward",
+    "solution": [
+      "g-"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "undo changes in the last 4 hours",
+    "solution": [
+      "ea 4h"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "undo last 2 file states (last 2 buffer writes)",
+    "solution": [
+      "ea 2f"
+    ]
+  },
+  {
+    "category": "Editing",
+    "question": "redo changes in last 8 minutes",
+    "solution": [
+      "lat 8m"
+    ]
+  },
+  {
+    "category": "Marking text (visual mode)",
+    "question": "start visual mode. (you can mark text, then do a command (like y-yank))",
+    "solution": [
+      "v"
+    ]
+  },
+  {
+    "category": "Marking text (visual mode)",
+    "question": "start linewise visual mode",
+    "solution": [
+      "V"
+    ]
+  },
+  {
+    "category": "Marking text (visual mode)",
+    "question": "move to other end of marked area",
+    "solution": [
+      "o"
+    ]
+  },
+  {
+    "category": "Marking text (visual mode)",
+    "question": "start visual block mode",
+    "solution": [
+      "ctrl-v"
+    ]
+  },
+  {
+    "category": "Marking text (visual mode)",
+    "question": "move to other corner of block",
+    "solution": [
+      "O"
+    ]
+  },
+  {
+    "category": "Marking text (visual mode)",
+    "question": "mark a word",
+    "solution": [
+      "aw"
+    ]
+  },
+  {
+    "category": "Marking text (visual mode)",
+    "question": "mark a sentence",
+    "solution": [
+      "as"
+    ]
+  },
+  {
+    "category": "Marking text (visual mode)",
+    "question": "mark a paragraph",
+    "solution": [
+      "ap"
+    ]
+  },
+  {
+    "category": "Marking text (visual mode)",
+    "question": "mark a block with ()",
+    "solution": [
+      "ab"
+    ]
+  },
+  {
+    "category": "Marking text (visual mode)",
+    "question": "mark a block with {}",
+    "solution": [
+      "aB"
+    ]
+  },
+  {
+    "category": "Marking text (visual mode)",
+    "question": "mark inner block with ()",
+    "solution": [
+      "ib"
+    ]
+  },
+  {
+    "category": "Marking text (visual mode)",
+    "question": "mark inner block with {}",
+    "solution": [
+      "iB"
+    ]
+  },
+  {
+    "category": "Marking text (visual mode)",
+    "question": "exit visual mode",
+    "solution": [
+      "Esc"
+    ]
+  },
+  {
+    "category": "Visual commands",
+    "question": "shift text right",
+    "solution": [
+      ">"
+    ]
+  },
+  {
+    "category": "Visual commands",
+    "question": "shift text left",
+    "solution": [
+      "<"
+    ]
+  },
+  {
+    "category": "Visual commands",
+    "question": "yank (copy) marked text",
+    "solution": [
+      "y"
+    ]
+  },
+  {
+    "category": "Visual commands",
+    "question": "delete marked text",
+    "solution": [
+      "d"
+    ]
+  },
+  {
+    "category": "Visual commands",
+    "question": "switch case",
+    "solution": [
+      "~"
+    ]
+  },
+  {
+    "category": "Registers",
+    "question": "show registers content (can append selectors of which registers to show)",
+    "solution": [
+      ":reg"
+    ]
+  },
+  {
+    "category": "Registers",
+    "question": "yank into register `x`",
+    "solution": [
+      "\"xy"
+    ]
+  },
+  {
+    "category": "Registers",
+    "question": "paste contents of register `x`",
+    "solution": [
+      "\"xp"
+    ]
+  },
+  {
+    "category": "Registers",
+    "question": "append contents to register `x`",
+    "solution": [
+      "\"Xp"
+    ]
+  },
+  {
+    "category": "Marks",
+    "question": "list of marks",
+    "solution": [
+      ":marks"
+    ]
+  },
+  {
+    "category": "Marks",
+    "question": "set current position for mark `a`",
+    "solution": [
+      "ma"
+    ]
+  },
+  {
+    "category": "Marks",
+    "question": "jump to position of mark `a`",
+    "solution": [
+      "`a"
+    ]
+  },
+  {
+    "category": "Marks",
+    "question": "jump to the first non-blank character in the line of mark `a`",
+    "solution": [
+      "'a"
+    ]
+  },
+  {
+    "category": "Marks",
+    "question": "yank text to position of mark `a`",
+    "solution": [
+      "y`a"
+    ]
+  },
+  {
+    "category": "Marks",
+    "question": "delete marks. `<pattern>` can be 1 lowercase letter, any number of characters, range of letters or numbers",
+    "solution": [
+      ":delm <pattern>"
+    ]
+  },
+  {
+    "category": "Macros",
+    "question": "record macro `a` (it empties that register and appends the keystrokes to it)",
+    "solution": [
+      "qa"
+    ]
+  },
+  {
+    "category": "Macros",
+    "question": "stop recording macro",
+    "solution": [
+      "q"
+    ]
+  },
+  {
+    "category": "Macros",
+    "question": "run macro `a`",
+    "solution": [
+      "@a"
+    ]
+  },
+  {
+    "category": "Macros",
+    "question": "rerun last run macro",
+    "solution": [
+      "@@"
+    ]
+  },
+  {
+    "category": "Cut and paste",
+    "question": "yank (copy) a line",
+    "solution": [
+      "yy"
+    ]
+  },
+  {
+    "category": "Cut and paste",
+    "question": "yank (copy) `2` lines",
+    "solution": [
+      "2yy"
+    ]
+  },
+  {
+    "category": "Cut and paste",
+    "question": "yank (copy) the characters of the word from the cursor position to the start of the next word",
+    "solution": [
+      "yw"
+    ]
+  },
+  {
+    "category": "Cut and paste",
+    "question": "yank (copy) to end of line",
+    "solution": [
+      "y$"
+    ]
+  },
+  {
+    "category": "Cut and paste",
+    "question": "put (paste) the clipboard after cursor",
+    "solution": [
+      "p"
+    ]
+  },
+  {
+    "category": "Cut and paste",
+    "question": "put (paste) before cursor",
+    "solution": [
+      "P"
+    ]
+  },
+  {
+    "category": "Cut and paste",
+    "question": "delete (cut) a line",
+    "solution": [
+      "dd"
+    ]
+  },
+  {
+    "category": "Cut and paste",
+    "question": "delete (cut) `2` lines",
+    "solution": [
+      "2dd"
+    ]
+  },
+  {
+    "category": "Cut and paste",
+    "question": "delete (cut) the characters of the whole word",
+    "solution": [
+      "diw"
+    ]
+  },
+  {
+    "category": "Cut and paste",
+    "question": "delete (cut) the characters of the word from the cursor position to the start of the next word",
+    "solution": [
+      "dw"
+    ]
+  },
+  {
+    "category": "Cut and paste",
+    "question": "delete (cut) to the end of the line",
+    "solution": [
+      "D",
+      "d$"
+    ]
+  },
+  {
+    "category": "Cut and paste",
+    "question": "delete (cut) character",
+    "solution": [
+      "x"
+    ]
+  },
+  {
+    "category": "Cut and paste",
+    "question": "replace (paste) content of the last used register with the word under the cursor",
+    "solution": [
+      "viwp"
+    ]
+  },
+  {
+    "category": "Cut and paste",
+    "question": "paste the last search",
+    "solution": [
+      "\"/p"
+    ]
+  },
+  {
+    "category": "Exiting",
+    "question": "write (save) the file, but don't exit",
+    "solution": [
+      ":w"
+    ]
+  },
+  {
+    "category": "Exiting",
+    "question": "write out the current file using sudo",
+    "solution": [
+      ":w !sudo tee %"
+    ]
+  },
+  {
+    "category": "Exiting",
+    "question": "write (save) and quit",
+    "solution": [
+      ":wq",
+      ":x",
+      "ZZ"
+    ]
+  },
+  {
+    "category": "Exiting",
+    "question": "quit (fails if there are unsaved changes)",
+    "solution": [
+      ":q"
+    ]
+  },
+  {
+    "category": "Exiting",
+    "question": "quit and throw away unsaved changes",
+    "solution": [
+      ":q!",
+      "ZQ"
+    ]
+  },
+  {
+    "category": "Exiting",
+    "question": "write (save) and quit on all tabs",
+    "solution": [
+      ":wqa"
+    ]
+  },
+  {
+    "category": "Exiting",
+    "question": "suspend vim, start up again with `fg` command (optionally `fg %jobnumber` if multiple jobs are selected). Check running suspended jobs with `jobs` command",
+    "solution": [
+      "ctrl-z",
+      ":st",
+      ":stop"
+    ]
+  },
+  {
+    "category": "Search and replace",
+    "question": "search for `pattern`",
+    "solution": [
+      "/pattern"
+    ]
+  },
+  {
+    "category": "Search and replace",
+    "question": "search backward for `pattern`",
+    "solution": [
+      "?pattern"
+    ]
+  },
+  {
+    "category": "Search and replace",
+    "question": "'very magic' `pattern`: non-alphanumeric characters are interpreted as special regex symbols (no escaping needed)",
+    "solution": [
+      "/\\vpattern"
+    ]
+  },
+  {
+    "category": "Search and replace",
+    "question": "repeat search in same direction",
+    "solution": [
+      "n"
+    ]
+  },
+  {
+    "category": "Search and replace",
+    "question": "repeat search in opposite direction",
+    "solution": [
+      "N"
+    ]
+  },
+  {
+    "category": "Search and replace",
+    "question": "go to first match (assuming forward search)",
+    "solution": [
+      "ggn"
+    ]
+  },
+  {
+    "category": "Search and replace",
+    "question": "go to last match (assuming forward search)",
+    "solution": [
+      "GN"
+    ]
+  },
+  {
+    "category": "Search and replace",
+    "question": "replace all `old` with `new` throughout file",
+    "solution": [
+      ":%s/old/new/g"
+    ]
+  },
+  {
+    "category": "Search and replace",
+    "question": "replace all `old` with `new` throughout file with confirmations",
+    "solution": [
+      ":%s/old/new/gc"
+    ]
+  },
+  {
+    "category": "Search and replace",
+    "question": "remove highlighting of search matches",
+    "solution": [
+      ":noh"
+    ]
+  },
+  {
+    "category": "Search and replace",
+    "question": "start a search forward with the whole current word under the cursor",
+    "solution": [
+      "*"
+    ]
+  },
+  {
+    "category": "Search and replace",
+    "question": "start a search backward with the current word under the cursor",
+    "solution": [
+      "#"
+    ]
+  },
+  {
+    "category": "Search and replace",
+    "question": "start a search with the word under the cursor but find occurrences that has more content in it. e.g: `rain` finds `rainbow`",
+    "solution": [
+      "g*"
+    ]
+  },
+  {
+    "category": "Search and replace",
+    "question": "start a search backward with the word under the cursor but find occurrences that has more content in it. e.g: `rain` finds `rainbow`",
+    "solution": [
+      "g#"
+    ]
+  },
+  {
+    "category": "Search in multiple files",
+    "question": "search for `/pattern/` in multiple `{file}`s",
+    "solution": [
+      ":vimgrep /pattern/ {file}"
+    ]
+  },
+  {
+    "category": "Search in multiple files",
+    "question": "jump to the next match",
+    "solution": [
+      ":cn"
+    ]
+  },
+  {
+    "category": "Search in multiple files",
+    "question": "jump to the previous match",
+    "solution": [
+      ":cp"
+    ]
+  },
+  {
+    "category": "Search in multiple files",
+    "question": "open a window containing the list of matches",
+    "solution": [
+      ":copen"
+    ]
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "go to local declaration",
+    "solution": [
+      "gd"
+    ]
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "go to global declaration",
+    "solution": [
+      "gD"
+    ]
+  },
+  {
+    "category": "Working with multiple files",
+    "question": "reload current file",
+    "solution": [
+      ":e"
+    ]
+  },
+  {
+    "category": "Working with multiple files",
+    "question": "edit a `file` in a new buffer",
+    "solution": [
+      ":e file"
+    ]
+  },
+  {
+    "category": "Working with multiple files",
+    "question": "insert a `file` into the current location",
+    "solution": [
+      ":r file",
+      ":read file"
+    ]
+  },
+  {
+    "category": "Working with multiple files",
+    "question": "insert a `file` before the first line",
+    "solution": [
+      ":0r file",
+      ":0read file"
+    ]
+  },
+  {
+    "category": "Working with multiple files",
+    "question": "execute `{cmd}` and insert its standard output below the cursor",
+    "solution": [
+      ":r !{cmd}"
+    ]
+  },
+  {
+    "category": "Working with multiple files",
+    "question": "go to the next buffer",
+    "solution": [
+      ":bnext",
+      ":bn"
+    ]
+  },
+  {
+    "category": "Working with multiple files",
+    "question": "go to the previous buffer",
+    "solution": [
+      ":bprev",
+      ":bp"
+    ]
+  },
+  {
+    "category": "Working with multiple files",
+    "question": "delete a buffer (close a file)",
+    "solution": [
+      ":bd"
+    ]
+  },
+  {
+    "category": "Working with multiple files",
+    "question": "list all open buffers",
+    "solution": [
+      ":ls"
+    ]
+  },
+  {
+    "category": "Working with multiple files",
+    "question": "open a `file` in a new buffer and split window",
+    "solution": [
+      ":sp file"
+    ]
+  },
+  {
+    "category": "Working with multiple files",
+    "question": "open a `file` in a new buffer and vertically split window",
+    "solution": [
+      ":vsp file"
+    ]
+  },
+  {
+    "category": "Working with multiple files",
+    "question": "open a `file` in a new buffer, but readonly",
+    "solution": [
+      ":sv file",
+      ":sview file"
+    ]
+  },
+  {
+    "category": "Working with multiple files",
+    "question": "vertically open a `file` as readonly as a split",
+    "solution": [
+      ":vert sv file"
+    ]
+  },
+  {
+    "category": "Split window",
+    "question": "split window horizontally",
+    "solution": [
+      "ctrl-ws"
+    ]
+  },
+  {
+    "category": "Split window",
+    "question": "split window vertically",
+    "solution": [
+      "ctrl-wv"
+    ]
+  },
+  {
+    "category": "Split window",
+    "question": "switch windows (cycle)",
+    "solution": [
+      "ctrl-ww"
+    ]
+  },
+  {
+    "category": "Split window",
+    "question": "quit a window",
+    "solution": [
+      "ctrl-wq"
+    ]
+  },
+  {
+    "category": "Split window",
+    "question": "rotate two windows (can not do it if the other one is splitted)",
+    "solution": [
+      "ctrl-wr"
+    ]
+  },
+  {
+    "category": "Split window",
+    "question": "move cursor to the left window (vertical split)",
+    "solution": [
+      "ctrl-wh"
+    ]
+  },
+  {
+    "category": "Split window",
+    "question": "move cursor to the right window (vertical split)",
+    "solution": [
+      "ctrl-wl"
+    ]
+  },
+  {
+    "category": "Split window",
+    "question": "move cursor to the window below (horizontal split)",
+    "solution": [
+      "ctrl-wj"
+    ]
+  },
+  {
+    "category": "Split window",
+    "question": "move cursor to the window above (horizontal split)",
+    "solution": [
+      "ctrl-wk"
+    ]
+  },
+  {
+    "category": "Split window",
+    "question": "maximize current window vertically",
+    "solution": [
+      "ctrl-w_"
+    ]
+  },
+  {
+    "category": "Split window",
+    "question": "maximize current window horizontally",
+    "solution": [
+      "ctrl-w|"
+    ]
+  },
+  {
+    "category": "Split window",
+    "question": "make all equal size vertically",
+    "solution": [
+      "ctrl-w="
+    ]
+  },
+  {
+    "category": "Split window",
+    "question": "horizontally resize by `+/-num` of lines or columns",
+    "solution": [
+      ":res +/-num",
+      "numctrl-w+/-"
+    ]
+  },
+  {
+    "category": "Split window",
+    "question": "vertically resize by `+/-num` of lines or columns",
+    "solution": [
+      ":vert res +/-num",
+      "numctrl-w</>"
+    ]
+  },
+  {
+    "category": "Tabs",
+    "question": "open a `file` in a new tab",
+    "solution": [
+      ":tabe file",
+      ":tabnew",
+      ":tabnew file"
+    ]
+  },
+  {
+    "category": "Tabs",
+    "question": "move the current split window into its own tab",
+    "solution": [
+      "ctrl-wT"
+    ]
+  },
+  {
+    "category": "Tabs",
+    "question": "move to the next tab",
+    "solution": [
+      "gt",
+      ":tabnext",
+      ":tabn"
+    ]
+  },
+  {
+    "category": "Tabs",
+    "question": "move to the previous tab",
+    "solution": [
+      "gT",
+      ":tabprev",
+      ":tabp"
+    ]
+  },
+  {
+    "category": "Tabs",
+    "question": "move to tab number `NUM`",
+    "solution": [
+      "NUMgt"
+    ]
+  },
+  {
+    "category": "Tabs",
+    "question": "move current tab to the `NUM`th position (indexed from 0)",
+    "solution": [
+      ":tabm NUM",
+      ":tabmove NUM"
+    ]
+  },
+  {
+    "category": "Tabs",
+    "question": "close the current tab and all its windows",
+    "solution": [
+      ":tabc",
+      ":tabclose"
+    ]
+  },
+  {
+    "category": "Tabs",
+    "question": "close all tabs except for the current one",
+    "solution": [
+      ":tabo",
+      ":tabonly"
+    ]
+  },
+  {
+    "category": "Tabs",
+    "question": "run the `command` on all tabs (e.g. `command` = q - closes all opened tabs)",
+    "solution": [
+      ":tabdo command"
+    ]
+  },
+  {
+    "category": "Extra",
+    "question": "in insert mode opens up autocomplete",
+    "solution": [
+      "ctrl-n"
+    ]
+  },
+  {
+    "category": "Extra",
+    "question": "show line info",
+    "solution": [
+      "ctrl-g"
+    ]
+  },
+  {
+    "category": "Extra",
+    "question": "in Insert mode after this key combo, you can use a command from normal mode, and immediately switch back to the starting mode",
+    "solution": [
+      "ctrl-o"
+    ]
+  },
+  {
+    "category": "Extra",
+    "question": "open terminal as a horizontal split buffer.",
+    "solution": [
+      ":term"
+    ]
+  },
+  {
+    "category": "Open vim specially",
+    "question": "open multiple files (`file1` `file2`) as buffer",
+    "solution": [
+      "vim file1 file2"
+    ]
+  },
+  {
+    "category": "Open vim specially",
+    "question": "open multiple files (`file1` `file2`) as tabs",
+    "solution": [
+      "vim -p file1 file2"
+    ]
+  },
+  {
+    "category": "Open vim specially",
+    "question": "open multiple files (`file1` `file2`) as horizontal split",
+    "solution": [
+      "vim -o file1 file2"
+    ]
+  },
+  {
+    "category": "Open vim specially",
+    "question": "open multiple files (`file1` `file2`) as vertical split",
+    "solution": [
+      "vim -O file1 file2"
+    ]
+  },
+  {
+    "category": "Open vim specially",
+    "question": "open `file` at linenumber `number`",
+    "solution": [
+      "vim file +number"
+    ]
+  },
+  {
+    "category": "Vim sessions",
+    "question": "load up vim with a session called `workproject.vim`",
+    "solution": [
+      "vim -S workproject.vim"
+    ]
+  },
+  {
+    "category": "Vim sessions",
+    "question": "load vim session to an opened vim called `workproject.vim`",
+    "solution": [
+      ":source workproject.vim"
+    ]
+  },
+  {
+    "category": "Vim sessions",
+    "question": "save changed session tabs while you are in the session called `workproject.vim`",
+    "solution": [
+      ":mks! workproject.vim"
+    ]
+  },
+  {
+    "category": "Command line history",
+    "question": "show prev commands. Close with Ctrl+c",
+    "solution": [
+      "q:"
+    ]
+  },
+  {
+    "category": "Command line history",
+    "question": "show prev searches. Close with Ctrl+c",
+    "solution": [
+      "q/"
+    ]
+  },
+  {
+    "category": "Command line history",
+    "question": "type in any word and press up. It will look for the prev command that started like that",
+    "solution": [
+      ":"
+    ]
+  },
+  {
+    "category": "Folding",
+    "question": "toggle folding",
+    "solution": [
+      "za"
+    ]
+  },
+  {
+    "category": "Folding",
+    "question": "visualize folds. show `NUM` lines of nested folds per line",
+    "solution": [
+      ":set foldcolumn=NUM"
+    ]
+  },
+  {
+    "category": "Folding",
+    "question": "fold the current paragraph",
+    "solution": [
+      "zfip"
+    ]
+  },
+  {
+    "category": "Folding",
+    "question": "fold until next occurrance of `string`",
+    "solution": [
+      "zf/string"
+    ]
+  },
+  {
+    "category": "Folding",
+    "question": "delete fold",
+    "solution": [
+      "zd"
+    ]
+  },
+  {
+    "category": "Folding",
+    "question": "delete all folds",
+    "solution": [
+      "zE"
+    ]
+  },
+  {
+    "category": "Folding",
+    "question": "fold the next `20` lines",
+    "solution": [
+      "zf20j"
+    ]
+  },
+  {
+    "category": "Folding",
+    "question": "fold until wherever mark `a` is in the document",
+    "solution": [
+      "zf`a"
+    ]
+  },
+  {
+    "category": "Folding",
+    "question": "open all folds",
+    "solution": [
+      "zR"
+    ]
+  },
+  {
+    "category": "Folding",
+    "question": "close all folds",
+    "solution": [
+      "zM"
+    ]
+  },
+  {
+    "category": "Folding",
+    "question": "save folding state",
+    "solution": [
+      ":mkview"
+    ]
+  },
+  {
+    "category": "Folding",
+    "question": "load prev folding state",
+    "solution": [
+      ":loadview"
+    ]
+  },
+  {
+    "category": "Tips and tricks",
+    "question": "show the diffs with `diff` command since last save. (It saves the output to stdin and loads the differences between the current filename and standard input)",
+    "solution": [
+      ":w !diff % -"
+    ]
+  },
+  {
+    "category": "Tips and tricks",
+    "question": "run the previously recorded `o` macro on all lines that match `pattern`",
+    "solution": [
+      ":g/pattern/norm @o"
+    ]
+  }
+]

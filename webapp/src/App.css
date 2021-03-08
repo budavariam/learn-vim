@@ -1,0 +1,64 @@
+.App {
+  display: flex;
+  justify-content: center;
+}
+
+.combo {
+  width: 300px;
+  text-align: right;
+}
+
+.category {
+  width: 200px;
+}
+
+td {
+  border-bottom: 1px solid #888888;
+  line-height: 1.5;
+  height: 50px;
+}
+
+td.category {
+  font-size: small;
+}
+
+.question {
+  width: 550px;
+}
+
+.score {
+  width: 50px;
+}
+
+.hidden {
+  visibility: hidden;
+}
+
+table {
+  margin-bottom: 100px;
+}
+
+.searchWrapper {
+  display: flex;
+  justify-content: center;
+}
+
+#search-box {
+  margin: 10px;
+  width: 500px;
+  line-height: 2;
+}
+
+.reference {
+  color: green;
+  font-weight: bold;
+}
+
+.keycombo {
+  font-size: larger;
+  border: 1px solid #888888;
+  border-radius: 5px;
+  padding: 2px;
+  white-space: nowrap;
+  margin-right: 5px;
+}
