@@ -3,6 +3,7 @@
 This repository contains materials that helped me get comforatble with vim.
 
 I collected shortcuts and commands into [my cheatsheet](./vim-cheatsheet.md).
+See a fuzzy searchable version at [https://budavariam.github.io/learn-vim](https://budavariam.github.io/learn-vim).
 I used a simplistic tone, to help me get familiar the basics in a practicable manner.
 
 Once you dive into vim you'll realize there are much more combinations.
