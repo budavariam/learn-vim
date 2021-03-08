@@ -9,7 +9,6 @@ const options = {
   includeScore: true,
   shouldSort: true,
   threshold: 0.6,
-  // Search in `author` and in `tags` array
   keys: ['category', 'question', 'answers']
 }
 
