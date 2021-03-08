@@ -14,13 +14,13 @@ const options = {
 
 const fuzzy = (search) => {
   const result = fuse.search(search)
-  console.log(result)
+  // console.log(result)
   return result.map(line => ({ ...line.item, score: line.score }))
 }
 
 const prepareData = (data) => {
   return data.map(elem => {
-    const q = elem.question.replace(/`(.*)`/, `<span class="reference">$1</span>`)
+    const q = elem.question.replace(/`(.*?)`/g, `<span class="reference">$1</span>`)
     return { ...elem, question: q }
   })
 }
@@ -31,7 +31,6 @@ const fuse = new Fuse(preparedData, options)
 function App() {
   const [search, setsearch] = useState("")
   const result = search === "" ? preparedData : fuzzy(search)
-  console.log(result)
 
   return (
     <div className="App">
@@ -39,10 +38,11 @@ function App() {
         <div className="searchWrapper">
           <input
             id="search-box"
+            autofocus="true"
             placeholder="Type Fuzzy Filter Query here"
             onChange={(e) => {
               const value = e.target.value
-              // console.log("text", value)
+              // console.log("search text", value)
               setsearch(value)
             }} value={search} />
         </div>
