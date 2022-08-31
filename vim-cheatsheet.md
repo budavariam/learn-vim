@@ -51,7 +51,7 @@
 * `gE` - jump backward to the end of a word (words can contain punctuation)
 * `b` - jump backward to the start of a word
 * `B` - jump backward to the start of a word (words can contain punctuation)
-* `%` - move to matching character (default supported pairs: '()', '{}', '[]'; use *:h matchpairs* in vim for more info). It jumps to the on it finds in the current line
+* `%` - move to matching character (default supported pairs: '()', '{}', '[]'; use *:h matchpairs* in vim for more info). It jumps to the one it finds in the current line
 * `0` - jump to the start of the line
 * `^` - jump to the first non-blank character of the line
 * `$` - jump to the end of the line
@@ -82,7 +82,7 @@
 * `ctrl-o` - retrace previous cursor position
 * `ctrl-i` - retrace next cursor position
 
-> Tip Prefix a cursor movement command with a number to repeat it. For example, 4j moves down 4 lines.
+> Tip: Prefix a cursor movement command with a number to repeat it. For example, 4j moves down 4 lines.
 
 ## Insert mode, inserting/appending text
 
@@ -144,7 +144,7 @@
 * `iB` - mark inner block with {}
 * `Esc` - exit visual mode
 
-> Practice here to select inner block (like this )
+> Practice here to select inner block (like this)
 > Or {an inner block} of this.
 
 ## Visual commands
@@ -163,7 +163,7 @@
 * `"Xp` - append contents to register `x`
 
 > Tip: Registers are being stored in ~/.viminfo, and will be loaded again on next restart of vim.
-> Tip: Register 0 contains always the value of the last yank command.
+> Tip: Register 0 always contains the value of the last yank command.
 
 ## Marks
 
@@ -292,7 +292,7 @@ Tabs should be imagined as layouts. They can show different window arrangements 
 
 * `ctrl-n` - in insert mode opens up autocomplete
 * `ctrl-g` - show line info
-* `ctrl-o` - in Insert mode after this key combo, you can use a command from normal mode, and immediately switch back to the starting mode
+* `ctrl-o` - in insert mode after this key combo, you can use a command from normal mode, and immediately switch back to the starting mode
 * `:term` - open terminal as a horizontal split buffer.
 
 ## Open vim specially
