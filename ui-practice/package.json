@@ -6,11 +6,12 @@
   "author": "Mátyás Budavári <budavariam@gmail.com> (https://budavariam.github.io/)",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "vite --base /learn-vim/",
+    "build": "vite build && tsc --noEmit",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "generate-data": "node scripts/generateData.js"
+    "preview": "vite preview --base /learn-vim/",
+    "generate-data": "node scripts/generateData.js",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "lucide-react": "^0.263.1",
@@ -20,6 +21,9 @@
   "devDependencies": {
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/node": "^20.4.5",
+    "@typescript-eslint/eslint-plugin": "^6.2.0",
+    "@typescript-eslint/parser": "^6.2.0",
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.45.0",
@@ -29,6 +33,7 @@
     "gray-matter": "^4.0.3",
     "postcss": "^8.4.27",
     "tailwindcss": "^3.3.3",
+    "typescript": "^5.1.6",
     "vite": "^4.4.5"
   }
 }

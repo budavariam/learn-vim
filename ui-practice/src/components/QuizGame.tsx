@@ -2,23 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { Shuffle, RotateCcw, Trophy, Target, CheckCircle, XCircle } from 'lucide-react';
 import ColoredText from './ColoredText';
 import quizData from '../data.json';
+import { QuizQuestion, GameState } from '../types/Quiz';
 
-const QuizGame = () => {
-    const [gameData, setGameData] = useState([]);
-    const [currentIndex, setCurrentIndex] = useState(0);
-    const [score, setScore] = useState(0);
-    const [userAnswer, setUserAnswer] = useState('');
-    const [gameState, setGameState] = useState('playing'); // 'playing', 'answered', 'finished'
-    const [showAnswer, setShowAnswer] = useState(false);
-    const [isCorrect, setIsCorrect] = useState(false);
-    const [gameStarted, setGameStarted] = useState(false);
+const QuizGame: React.FC = () => {
+    const [gameData, setGameData] = useState<QuizQuestion[]>([]);
+    const [currentIndex, setCurrentIndex] = useState<number>(0);
+    const [score, setScore] = useState<number>(0);
+    const [userAnswer, setUserAnswer] = useState<string>('');
+    const [gameState, setGameState] = useState<GameState>('playing');
+    const [showAnswer, setShowAnswer] = useState<boolean>(false);
+    const [isCorrect, setIsCorrect] = useState<boolean>(false);
+    const [gameStarted, setGameStarted] = useState<boolean>(false);
 
     useEffect(() => {
         shuffleQuestions();
     }, []);
 
-    const shuffleQuestions = () => {
-        const shuffled = [...quizData].sort(() => Math.random() - 0.5);
+    const shuffleQuestions = (): void => {
+        const shuffled = [...(quizData as QuizQuestion[])].sort(() => Math.random() - 0.5);
         setGameData(shuffled);
         setCurrentIndex(0);
         setScore(0);
@@ -26,7 +27,7 @@ const QuizGame = () => {
         setGameStarted(true);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
         e.preventDefault();
         if (!userAnswer.trim()) return;
 
@@ -42,7 +43,7 @@ const QuizGame = () => {
         setGameState('answered');
     };
 
-    const nextQuestion = () => {
+    const nextQuestion = (): void => {
         if (currentIndex + 1 >= gameData.length) {
             setGameState('finished');
         } else {
@@ -53,14 +54,14 @@ const QuizGame = () => {
         }
     };
 
-    const resetGame = () => {
+    const resetGame = (): void => {
         shuffleQuestions();
         setUserAnswer('');
         setShowAnswer(false);
         setGameStarted(false);
     };
 
-    const quitGame = () => {
+    const quitGame = (): void => {
         setGameState('finished');
     };
 
