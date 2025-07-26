@@ -6,10 +6,10 @@
   "author": "Mátyás Budavári <budavariam@gmail.com> (https://budavariam.github.io/)",
   "type": "module",
   "scripts": {
-    "dev": "vite --base /learn-vim/",
+    "dev": "vite --base /learn-vim/game/",
     "build": "vite build && tsc --noEmit",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview --base /learn-vim/",
+    "preview": "vite preview --base /learn-vim/game/",
     "generate-data": "node scripts/generateData.js",
     "type-check": "tsc --noEmit"
   },

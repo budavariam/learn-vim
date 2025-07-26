@@ -45,6 +45,9 @@ function App() {
               // console.log("search text", value)
               setsearch(value)
             }} value={search} />
+          <span>
+            <a href="/learn-vim/game">Quiz</a>
+          </span>
         </div>
         <table>
           <tr>
