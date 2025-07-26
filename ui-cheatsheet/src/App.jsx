@@ -46,7 +46,7 @@ function App() {
               setsearch(value)
             }} value={search} />
           <span>
-            <a href="/learn-vim/game">Quiz</a>
+            <a href="/learn-vim/game" className="quiz-button">Quiz</a>
           </span>
         </div>
         <table>
