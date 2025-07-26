@@ -1,8 +1,8 @@
 {
   "files": {
-    "main.css": "/learn-vim/static/css/main.8cbc75bc.chunk.css",
-    "main.js": "/learn-vim/static/js/main.2bf8090f.chunk.js",
-    "main.js.map": "/learn-vim/static/js/main.2bf8090f.chunk.js.map",
+    "main.css": "/learn-vim/static/css/main.0d0a6464.chunk.css",
+    "main.js": "/learn-vim/static/js/main.88198fec.chunk.js",
+    "main.js.map": "/learn-vim/static/js/main.88198fec.chunk.js.map",
     "runtime-main.js": "/learn-vim/static/js/runtime-main.009798a9.js",
     "runtime-main.js.map": "/learn-vim/static/js/runtime-main.009798a9.js.map",
     "static/js/2.0a06353f.chunk.js": "/learn-vim/static/js/2.0a06353f.chunk.js",
@@ -10,13 +10,13 @@
     "static/js/3.4fc2ad21.chunk.js": "/learn-vim/static/js/3.4fc2ad21.chunk.js",
     "static/js/3.4fc2ad21.chunk.js.map": "/learn-vim/static/js/3.4fc2ad21.chunk.js.map",
     "index.html": "/learn-vim/index.html",
-    "static/css/main.8cbc75bc.chunk.css.map": "/learn-vim/static/css/main.8cbc75bc.chunk.css.map",
+    "static/css/main.0d0a6464.chunk.css.map": "/learn-vim/static/css/main.0d0a6464.chunk.css.map",
     "static/js/2.0a06353f.chunk.js.LICENSE.txt": "/learn-vim/static/js/2.0a06353f.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.009798a9.js",
     "static/js/2.0a06353f.chunk.js",
-    "static/css/main.8cbc75bc.chunk.css",
-    "static/js/main.2bf8090f.chunk.js"
+    "static/css/main.0d0a6464.chunk.css",
+    "static/js/main.88198fec.chunk.js"
   ]
 }
