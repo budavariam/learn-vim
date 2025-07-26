@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Shuffle, RotateCcw, Trophy, Target, CheckCircle, XCircle, Sun, Moon } from 'lucide-react';
+import { Shuffle, RotateCcw, Trophy, Target, CheckCircle, XCircle } from 'lucide-react';
 import ColoredText from './ColoredText';
+import ThemeToggle from './ThemeToggle';
 import quizData from '../data.json';
-import { QuizQuestion, GameState, GameStats } from '../types/quiz';
-import { useTheme } from '../hooks/useTheme';
+import { QuizQuestion, GameState } from '../types/Quiz';
 
 const QuizGame: React.FC = () => {
     const [gameData, setGameData] = useState<QuizQuestion[]>([]);
@@ -14,8 +14,6 @@ const QuizGame: React.FC = () => {
     const [showAnswer, setShowAnswer] = useState<boolean>(false);
     const [isCorrect, setIsCorrect] = useState<boolean>(false);
     const [gameStarted, setGameStarted] = useState<boolean>(false);
-
-    const theme = useTheme();
 
     useEffect(() => {
         shuffleQuestions();
@@ -72,17 +70,11 @@ const QuizGame: React.FC = () => {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center space-y-8 fade-in">
+                    <div className="flex justify-center mb-6">
+                        <ThemeToggle size="md" />
+                    </div>
+
                     <div className="space-y-4">
-                        <div className="flex items-center justify-center gap-4 mb-4">
-                            {theme === 'dark' ? (
-                                <Moon className="w-8 h-8 color-cyan" />
-                            ) : (
-                                <Sun className="w-8 h-8 color-yellow" />
-                            )}
-                            <span className="text-sm color-cyan">
-                                {theme === 'dark' ? 'Dark Mode' : 'Light Mode'} (Auto-detected)
-                            </span>
-                        </div>
                         <h1 className="text-5xl font-bold color-cyan typing-animation">
                             Interactive Quiz Game
                         </h1>
@@ -118,6 +110,10 @@ const QuizGame: React.FC = () => {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center space-y-8 fade-in">
+                    <div className="flex justify-center mb-6">
+                        <ThemeToggle size="sm" />
+                    </div>
+
                     <Trophy className="w-24 h-24 color-yellow mx-auto" />
 
                     <div className="space-y-4">
@@ -166,16 +162,6 @@ const QuizGame: React.FC = () => {
                     <div className="flex items-center gap-4">
                         <Target className="w-8 h-8 color-cyan" />
                         <h1 className="text-3xl font-bold color-cyan">Quiz Game</h1>
-                        <div className="flex items-center gap-2 ml-4">
-                            {theme === 'dark' ? (
-                                <Moon className="w-5 h-5 color-cyan" />
-                            ) : (
-                                <Sun className="w-5 h-5 color-yellow" />
-                            )}
-                            <span className="text-sm color-cyan opacity-70">
-                                {theme === 'dark' ? 'Dark' : 'Light'}
-                            </span>
-                        </div>
                     </div>
 
                     <div className="flex items-center gap-6">
@@ -188,6 +174,7 @@ const QuizGame: React.FC = () => {
                             <span className="color-blue">Question: </span>
                             <span className="color-cyan font-bold">{currentIndex + 1}/{gameData.length}</span>
                         </div>
+                        <ThemeToggle size="sm" showText={false} />
                     </div>
                 </div>
 
