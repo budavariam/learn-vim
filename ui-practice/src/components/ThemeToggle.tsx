@@ -13,7 +13,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
   showText = true, 
   className = '' 
 }) => {
-  const { theme, themePreference, toggleTheme, getThemeDisplayText } = useTheme();
+  const { themePreference, toggleTheme, getThemeDisplayText } = useTheme();
 
   const sizeClasses = {
     sm: 'w-4 h-4',
