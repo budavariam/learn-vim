@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-terminal-bg text-terminal-fg font-mono;
+    }
+}
+
+@layer components {
+    .terminal-text {
+        @apply font-mono leading-relaxed;
+    }
+
+    .color-red {
+        @apply text-terminal-red;
+    }
+
+    .color-green {
+        @apply text-terminal-green;
+    }
+
+    .color-yellow {
+        @apply text-terminal-yellow;
+    }
+
+    .color-blue {
+        @apply text-terminal-blue;
+    }
+
+    .color-cyan {
+        @apply text-terminal-cyan;
+    }
+
+    .terminal-input {
+        @apply bg-transparent border-2 border-terminal-cyan/30 rounded-lg px-4 py-3 text-terminal-fg placeholder-terminal-fg/50 focus:border-terminal-cyan focus:outline-none transition-colors duration-200;
+    }
+
+    .terminal-button {
+        @apply px-6 py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95;
+    }
+
+    .terminal-button-primary {
+        @apply terminal-button bg-terminal-green text-terminal-bg hover:bg-terminal-green/90 shadow-lg shadow-terminal-green/20;
+    }
+
+    .terminal-button-secondary {
+        @apply terminal-button bg-terminal-blue text-terminal-bg hover:bg-terminal-blue/90 shadow-lg shadow-terminal-blue/20;
+    }
+
+    .terminal-button-danger {
+        @apply terminal-button bg-terminal-red text-terminal-bg hover:bg-terminal-red/90 shadow-lg shadow-terminal-red/20;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.typing-animation {
+    overflow: hidden;
+    border-right: 2px solid #22d3ee;
+    white-space: nowrap;
+    animation: typing 2s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+    from {
+        width: 0
+    }
+
+    to {
+        width: 100%
+    }
+}
+
+@keyframes blink-caret {
+
+    from,
+    to {
+        border-color: transparent
+    }
+
+    50% {
+        border-color: #22d3ee
+    }
+}
