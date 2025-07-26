@@ -3,98 +3,130 @@
 @tailwind utilities;
 
 @layer base {
-    body {
-        @apply bg-terminal-bg text-terminal-fg font-mono;
-    }
+  body {
+    @apply bg-light-bg dark:bg-terminal-bg text-light-fg dark:text-terminal-fg font-mono transition-colors duration-300;
+  }
 }
 
 @layer components {
-    .terminal-text {
-        @apply font-mono leading-relaxed;
-    }
+  .terminal-text {
+    @apply font-mono leading-relaxed;
+  }
+  
+  .color-red {
+    @apply text-light-red dark:text-terminal-red;
+  }
+  
+  .color-green {
+    @apply text-light-green dark:text-terminal-green;
+  }
+  
+  .color-yellow {
+    @apply text-light-yellow dark:text-terminal-yellow;
+  }
+  
+  .color-blue {
+    @apply text-light-blue dark:text-terminal-blue;
+  }
+  
+  .color-cyan {
+    @apply text-light-cyan dark:text-terminal-cyan;
+  }
+  
+  .terminal-input {
+    @apply bg-transparent border-2 border-light-cyan/30 dark:border-terminal-cyan/30 
+           rounded-lg px-4 py-3 text-light-fg dark:text-terminal-fg 
+           placeholder-light-fg/50 dark:placeholder-terminal-fg/50 
+           focus:border-light-cyan dark:focus:border-terminal-cyan 
+           focus:outline-none transition-colors duration-200;
+  }
+  
+  .terminal-button {
+    @apply px-6 py-3 rounded-lg font-medium transition-all duration-200 
+           transform hover:scale-105 active:scale-95;
+  }
+  
+  .terminal-button-primary {
+    @apply terminal-button bg-light-green dark:bg-terminal-green 
+           text-white dark:text-terminal-bg 
+           hover:bg-light-green/90 dark:hover:bg-terminal-green/90 
+           shadow-lg shadow-light-green/20 dark:shadow-terminal-green/20;
+  }
+  
+  .terminal-button-secondary {
+    @apply terminal-button bg-light-blue dark:bg-terminal-blue 
+           text-white dark:text-terminal-bg 
+           hover:bg-light-blue/90 dark:hover:bg-terminal-blue/90 
+           shadow-lg shadow-light-blue/20 dark:shadow-terminal-blue/20;
+  }
+  
+  .terminal-button-danger {
+    @apply terminal-button bg-light-red dark:bg-terminal-red 
+           text-white dark:text-terminal-bg 
+           hover:bg-light-red/90 dark:hover:bg-terminal-red/90 
+           shadow-lg shadow-light-red/20 dark:shadow-terminal-red/20;
+  }
 
-    .color-red {
-        @apply text-terminal-red;
-    }
+  .quiz-card {
+    @apply bg-light-fg/5 dark:bg-terminal-fg/5 rounded-xl p-8 mb-8 
+           border border-light-cyan/20 dark:border-terminal-cyan/20 
+           shadow-lg shadow-light-cyan/10 dark:shadow-terminal-cyan/10;
+  }
 
-    .color-green {
-        @apply text-terminal-green;
-    }
+  .progress-bar-bg {
+    @apply bg-light-fg/10 dark:bg-terminal-fg/10 rounded-full h-2;
+  }
 
-    .color-yellow {
-        @apply text-terminal-yellow;
-    }
+  .progress-bar-fill {
+    @apply bg-light-cyan dark:bg-terminal-cyan h-2 rounded-full transition-all duration-300;
+  }
 
-    .color-blue {
-        @apply text-terminal-blue;
-    }
-
-    .color-cyan {
-        @apply text-terminal-cyan;
-    }
-
-    .terminal-input {
-        @apply bg-transparent border-2 border-terminal-cyan/30 rounded-lg px-4 py-3 text-terminal-fg placeholder-terminal-fg/50 focus:border-terminal-cyan focus:outline-none transition-colors duration-200;
-    }
-
-    .terminal-button {
-        @apply px-6 py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95;
-    }
-
-    .terminal-button-primary {
-        @apply terminal-button bg-terminal-green text-terminal-bg hover:bg-terminal-green/90 shadow-lg shadow-terminal-green/20;
-    }
-
-    .terminal-button-secondary {
-        @apply terminal-button bg-terminal-blue text-terminal-bg hover:bg-terminal-blue/90 shadow-lg shadow-terminal-blue/20;
-    }
-
-    .terminal-button-danger {
-        @apply terminal-button bg-terminal-red text-terminal-bg hover:bg-terminal-red/90 shadow-lg shadow-terminal-red/20;
-    }
+  .theme-divider {
+    @apply w-20 h-1 bg-light-yellow dark:bg-terminal-yellow mx-auto rounded;
+  }
 }
 
 .fade-in {
-    animation: fadeIn 0.5s ease-in-out;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .typing-animation {
-    overflow: hidden;
-    border-right: 2px solid #22d3ee;
-    white-space: nowrap;
-    animation: typing 2s steps(40, end), blink-caret 0.75s step-end infinite;
+  overflow: hidden;
+  border-right: 2px solid #0891b2;
+  white-space: nowrap;
+  animation: typing 2s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+.dark .typing-animation {
+  border-right-color: #22d3ee;
 }
 
 @keyframes typing {
-    from {
-        width: 0
-    }
-
-    to {
-        width: 100%
-    }
+  from { width: 0 }
+  to { width: 100% }
 }
 
 @keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { 
+    border-color: #0891b2;
+  }
+}
 
-    from,
-    to {
-        border-color: transparent
-    }
-
-    50% {
-        border-color: #22d3ee
-    }
+.dark @keyframes blink-caret {
+  from, to { border-color: transparent }
+  50% { 
+    border-color: #22d3ee;
+  }
 }

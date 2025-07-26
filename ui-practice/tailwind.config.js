@@ -4,6 +4,7 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'media', // Enable automatic dark mode detection
   theme: {
     extend: {
       colors: {
@@ -15,6 +16,15 @@ export default {
           yellow: '#ffd43b',
           blue: '#74c0fc',
           cyan: '#22d3ee',
+        },
+        light: {
+          bg: '#ffffff',
+          fg: '#1f2937',
+          red: '#dc2626',
+          green: '#059669',
+          yellow: '#d97706',
+          blue: '#2563eb',
+          cyan: '#0891b2',
         }
       },
       fontFamily: {
