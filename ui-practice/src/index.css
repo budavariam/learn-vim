@@ -110,6 +110,7 @@
 
 .dark .typing-animation {
   border-right-color: #22d3ee;
+  animation: typing 2s steps(40, end), blink-caret-dark 0.75s step-end infinite;
 }
 
 @keyframes typing {
@@ -124,7 +125,7 @@
   }
 }
 
-.dark @keyframes blink-caret {
+@keyframes blink-caret-dark {
   from, to { border-color: transparent }
   50% { 
     border-color: #22d3ee;
