@@ -1,11 +1,12 @@
 import React, { useReducer, FormEvent } from 'react';
 import {
     Shuffle, RotateCcw, Trophy, Target,
-    CheckCircle, XCircle
+    CheckCircle, XCircle, Zap, BookOpen, Database
 } from 'lucide-react';
 import quizData from '../data.json';
 import ColoredText from './ColoredText';
 import ThemeToggle from './ThemeToggle';
+import TypingText from './TypingText';
 
 /* ──────────────────── types ──────────────────── */
 
@@ -15,10 +16,21 @@ interface QuizQuestion {
     solution: string[];
 }
 
-type GameState = 'intro' | 'playing' | 'answered' | 'finished';
+type GameState = 'intro' | 'mode-select' | 'playing' | 'answered' | 'finished';
+type GameMode = 'flash' | 'regular' | 'all';
+
+interface GameModeConfig {
+    name: string;
+    description: string;
+    questionCount: number;
+    icon: React.ComponentType<{ className?: string }>;
+    color: string;
+    bgColor: string;
+}
 
 interface State {
     gameState: GameState;
+    gameMode: GameMode | null;
     questions: QuizQuestion[];
     currentIndex: number;
     score: number;
@@ -28,6 +40,7 @@ interface State {
 }
 
 type Action =
+    | { type: 'SELECT_MODE'; payload: GameMode }
     | { type: 'START_GAME' }
     | { type: 'ANSWER'; payload: { answer: string } }
     | { type: 'NEXT_QUESTION' }
@@ -35,16 +48,49 @@ type Action =
     | { type: 'RESET' }
     | { type: 'SET_USER_ANSWER'; payload: string };
 
-
 /* ────────────────── helpers ──────────────────── */
 
 const shuffle = <T,>(arr: T[]): T[] =>
     [...arr].sort(() => Math.random() - 0.5);
 
+const gameModes: Record<GameMode, GameModeConfig> = {
+    flash: {
+        name: "Flash Mode",
+        description: "Quick 10-question challenge",
+        questionCount: 10,
+        icon: Zap,
+        color: "color-yellow",
+        bgColor: "from-yellow-500 to-orange-500"
+    },
+    regular: {
+        name: "Regular Mode",
+        description: "Standard 50-question practice",
+        questionCount: 50,
+        icon: BookOpen,
+        color: "color-blue",
+        bgColor: "from-blue-500 to-purple-500"
+    },
+    all: {
+        name: "Master Mode",
+        description: `All ${quizData.length} questions`,
+        questionCount: quizData.length,
+        icon: Database,
+        color: "color-green",
+        bgColor: "from-green-500 to-teal-500"
+    }
+};
+
+const getQuestionsForMode = (mode: GameMode, allQuestions: QuizQuestion[]): QuizQuestion[] => {
+    const shuffled = shuffle(allQuestions);
+    const { questionCount } = gameModes[mode];
+    return shuffled.slice(0, Math.min(questionCount, shuffled.length));
+};
+
 const initialQuestions = shuffle(quizData as QuizQuestion[]);
 
 const initialState: State = {
     gameState: 'intro',
+    gameMode: null,
     questions: initialQuestions,
     currentIndex: 0,
     score: 0,
@@ -57,6 +103,15 @@ const initialState: State = {
 
 function reducer(state: State, action: Action): State {
     switch (action.type) {
+        case 'SELECT_MODE':
+            const modeQuestions = getQuestionsForMode(action.payload, quizData as QuizQuestion[]);
+            return {
+                ...state,
+                gameState: 'mode-select',
+                gameMode: action.payload,
+                questions: modeQuestions
+            };
+
         case 'START_GAME':
             return {
                 ...state,
@@ -65,8 +120,7 @@ function reducer(state: State, action: Action): State {
                 score: 0,
                 userAnswer: '',
                 isCorrect: false,
-                showAnswer: false,
-                questions: shuffle(state.questions)
+                showAnswer: false
             };
 
         case 'SET_USER_ANSWER':
@@ -74,9 +128,7 @@ function reducer(state: State, action: Action): State {
 
         case 'ANSWER': {
             const currentQ = state.questions[state.currentIndex];
-            const correct = currentQ.solution.includes(
-                action.payload.answer.trim()
-            );
+            const correct = currentQ.solution.includes(action.payload.answer.trim());
 
             return {
                 ...state,
@@ -113,7 +165,7 @@ function reducer(state: State, action: Action): State {
         case 'RESET':
             return {
                 ...initialState,
-                questions: shuffle(state.questions)
+                questions: shuffle(quizData as QuizQuestion[])
             };
 
         default:
@@ -121,14 +173,13 @@ function reducer(state: State, action: Action): State {
     }
 }
 
-
 /* ───────────────── component ─────────────────── */
 
 const QuizGame: React.FC = () => {
     const [state, dispatch] = useReducer(reducer, initialState);
 
     const {
-        gameState, questions, currentIndex,
+        gameState, gameMode, questions, currentIndex,
         score, userAnswer, isCorrect, showAnswer
     } = state;
 
@@ -140,48 +191,148 @@ const QuizGame: React.FC = () => {
         dispatch({ type: 'ANSWER', payload: { answer: userAnswer } });
     };
 
+    const handleModeSelect = (mode: GameMode) => {
+        dispatch({ type: 'SELECT_MODE', payload: mode });
+    };
+
     const accuracy = (() => {
         const totalAnswered = gameState === 'finished' && showAnswer
-            ? currentIndex + 1  // If quit after answering current question
-            : currentIndex;     // If quit before answering current question
+            ? currentIndex + 1
+            : currentIndex;
 
         if (totalAnswered === 0) return 0;
         return Math.round((score / totalAnswered) * 100);
     })();
 
-
     /* ────────────────── UI ─────────────────── */
 
+    // Intro Page
     if (gameState === 'intro') {
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center space-y-8 fade-in">
                     <ThemeToggle size="md" className="mx-auto mb-4" />
 
-                    <h1 className="text-5xl font-bold color-cyan typing-animation">
-                        Interactive Quiz Game
-                    </h1>
+                    <TypingText
+                        text="Interactive Quiz Game"
+                        className="text-5xl font-bold color-cyan"
+                        speed={80} // Adjust speed as needed
+                        startDelay={300}
+                        onComplete={() => {
+                            // Optional: Do something when typing completes
+                            console.log('Typing animation completed');
+                        }}
+                    />
                     <p className="text-xl color-yellow">
-                        Test your knowledge with {questions.length} questions
+                        Test your Vim knowledge with different challenge modes
                     </p>
 
-                    <p className="terminal-text color-green">
-                        If there are <span className="font-semibold">color coded texts</span>,
-                        include them in the answer.
-                    </p>
+                    <div className="space-y-4 max-w-md mx-auto">
+                        <p className="terminal-text color-green">
+                            If there are <span className="font-semibold">color coded texts</span>,
+                            include them in the answer.
+                        </p>
+                    </div>
 
-                    <button
-                        className="terminal-button-primary text-xl px-8 py-4"
-                        onClick={() => dispatch({ type: 'START_GAME' })}
-                    >
-                        Start Game
-                    </button>
+                    {/* Mode Selection Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-8">
+                        {Object.entries(gameModes).map(([mode, config]) => {
+                            const IconComponent = config.icon;
+                            return (
+                                <div
+                                    key={mode}
+                                    onClick={() => handleModeSelect(mode as GameMode)}
+                                    className="group cursor-pointer h-full" // Add h-full here
+                                >
+                                    <div className="quiz-card hover:scale-105 transition-all duration-300 hover:shadow-2xl h-full flex flex-col"> {/* Add h-full and flex */}
+                                        <div className="text-center space-y-4 flex-grow flex flex-col justify-between"> {/* Add flex styling */}
+                                            <div className="space-y-4"> {/* Wrap top content */}
+                                                <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-r ${config.bgColor} flex items-center justify-center`}>
+                                                    <IconComponent className="w-8 h-8 text-white" />
+                                                </div>
+
+                                                <h3 className={`text-2xl font-bold ${config.color}`}>
+                                                    {config.name}
+                                                </h3>
+
+                                                <p className="terminal-text color-cyan min-h-[3rem] flex items-center justify-center"> {/* Fixed height for description */}
+                                                    {config.description}
+                                                </p>
+
+                                                <div className="text-lg font-mono color-yellow">
+                                                    {config.questionCount} Questions
+                                                </div>
+                                            </div>
+
+                                            <button className="terminal-button-primary w-full group-hover:shadow-lg mt-4"> {/* Add margin top */}
+                                                Start {config.name}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+
+                    <div className="text-center terminal-text color-cyan opacity-60 mt-8">
+                        <p>Choose your challenge level to begin</p>
+                    </div>
                 </div>
             </div>
         );
     }
 
+    // Mode Selected - Confirmation
+    if (gameState === 'mode-select' && gameMode) {
+        const config = gameModes[gameMode];
+        const IconComponent = config.icon;
+
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center space-y-8 fade-in">
+                    <ThemeToggle size="sm" className="mx-auto" />
+
+                    <div className={`w-24 h-24 mx-auto rounded-full bg-gradient-to-r ${config.bgColor} flex items-center justify-center`}>
+                        <IconComponent className="w-12 h-12 text-white" />
+                    </div>
+
+                    <h2 className={`text-4xl font-bold ${config.color}`}>
+                        {config.name}
+                    </h2>
+
+                    <div className="space-y-4">
+                        <p className="text-xl terminal-text color-yellow">
+                            {config.description}
+                        </p>
+                        <p className="text-lg terminal-text color-cyan">
+                            {config.questionCount} questions • Multiple choice answers
+                        </p>
+                    </div>
+
+                    <div className="flex gap-4 justify-center">
+                        <button
+                            onClick={() => dispatch({ type: 'START_GAME' })}
+                            className="terminal-button-primary text-xl px-8 py-4"
+                        >
+                            Begin Quiz
+                        </button>
+                        <button
+                            onClick={() => dispatch({ type: 'RESET' })}
+                            className="terminal-button-secondary text-xl px-8 py-4"
+                        >
+                            Choose Different Mode
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Finished Game
     if (gameState === 'finished') {
+        const config = gameMode ? gameModes[gameMode] : null;
+
         return (
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center space-y-8 fade-in">
@@ -189,28 +340,44 @@ const QuizGame: React.FC = () => {
 
                     <Trophy className="w-24 h-24 color-yellow mx-auto" />
 
-                    <h2 className="text-4xl font-bold color-cyan">Game Finished!</h2>
+                    <div className="space-y-4">
+                        <h2 className="text-4xl font-bold color-cyan">
+                            {config?.name} Complete!
+                        </h2>
 
-                    <div className="text-6xl font-bold color-green">
-                        {score}/{questions.length}
+                        <div className="text-6xl font-bold color-green">
+                            {score}/{questions.length}
+                        </div>
+
+                        <p className="text-2xl color-yellow">{accuracy}% Accuracy</p>
+
+                        <div className="terminal-text text-lg">
+                            {accuracy >= 90 ? (
+                                <span className="color-green">Outstanding! Perfect mastery! 🏆</span>
+                            ) : accuracy >= 80 ? (
+                                <span className="color-green">Excellent work! 🎉</span>
+                            ) : accuracy >= 60 ? (
+                                <span className="color-yellow">Good job! Keep practicing! 👍</span>
+                            ) : (
+                                <span className="color-red">Keep studying and try again! 📚</span>
+                            )}
+                        </div>
                     </div>
 
-                    <p className="text-2xl color-yellow">{accuracy}% Accuracy</p>
-
-                    <div className="flex gap-4 justify-center">
+                    <div className="flex gap-4 justify-center flex-wrap">
                         <button
                             onClick={() => dispatch({ type: 'RESET' })}
                             className="terminal-button-primary"
                         >
                             <RotateCcw className="w-5 h-5 inline mr-2" />
-                            Play Again
+                            Try Different Mode
                         </button>
                         <button
-                            onClick={() => dispatch({ type: 'START_GAME' })}
+                            onClick={() => gameMode && handleModeSelect(gameMode)}
                             className="terminal-button-secondary"
                         >
                             <Shuffle className="w-5 h-5 inline mr-2" />
-                            Shuffle & Restart
+                            Retry {config?.name}
                         </button>
                     </div>
                 </div>
@@ -218,7 +385,9 @@ const QuizGame: React.FC = () => {
         );
     }
 
+    // Playing Game
     const currentQ = questions[currentIndex];
+    const config = gameMode ? gameModes[gameMode] : null;
 
     return (
         <div className="min-h-screen p-6">
@@ -227,7 +396,9 @@ const QuizGame: React.FC = () => {
                 <div className="flex justify-between items-center mb-8">
                     <div className="flex items-center gap-4">
                         <Target className="w-8 h-8 color-cyan" />
-                        <h1 className="text-3xl font-bold color-cyan">Quiz Game</h1>
+                        <h1 className="text-3xl font-bold color-cyan">
+                            {config?.name || 'Quiz Game'}
+                        </h1>
                     </div>
 
                     <div className="flex items-center gap-4">
@@ -235,6 +406,10 @@ const QuizGame: React.FC = () => {
                             <span className="color-yellow">Score: </span>
                             <span className="color-green font-bold text-xl">{score}</span>
                             <span className="color-cyan">/{questions.length}</span>
+                        </div>
+                        <div className="terminal-text">
+                            <span className="color-blue">Question: </span>
+                            <span className="color-cyan font-bold">{currentIndex + 1}/{questions.length}</span>
                         </div>
                         <ThemeToggle size="sm" showText={false} />
                     </div>
@@ -288,7 +463,6 @@ const QuizGame: React.FC = () => {
                                 >
                                     Quit Game
                                 </button>
-
                             </div>
                         </form>
                     ) : (

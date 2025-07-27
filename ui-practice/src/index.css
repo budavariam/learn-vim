@@ -12,65 +12,49 @@
   .terminal-text {
     @apply font-mono leading-relaxed;
   }
-  
+
   .color-red {
     @apply text-light-red dark:text-terminal-red;
   }
-  
+
   .color-green {
     @apply text-light-green dark:text-terminal-green;
   }
-  
+
   .color-yellow {
     @apply text-light-yellow dark:text-terminal-yellow;
   }
-  
+
   .color-blue {
     @apply text-light-blue dark:text-terminal-blue;
   }
-  
+
   .color-cyan {
     @apply text-light-cyan dark:text-terminal-cyan;
   }
-  
+
   .terminal-input {
-    @apply bg-transparent border-2 border-light-cyan/30 dark:border-terminal-cyan/30 
-           rounded-lg px-4 py-3 text-light-fg dark:text-terminal-fg 
-           placeholder-light-fg/50 dark:placeholder-terminal-fg/50 
-           focus:border-light-cyan dark:focus:border-terminal-cyan 
-           focus:outline-none transition-colors duration-200;
+    @apply bg-transparent border-2 border-light-cyan/30 dark:border-terminal-cyan/30 rounded-lg px-4 py-3 text-light-fg dark:text-terminal-fg placeholder-light-fg/50 dark:placeholder-terminal-fg/50 focus:border-light-cyan dark:focus:border-terminal-cyan focus:outline-none transition-colors duration-200;
   }
-  
+
   .terminal-button {
-    @apply px-6 py-3 rounded-lg font-medium transition-all duration-200 
-           transform hover:scale-105 active:scale-95;
+    @apply px-6 py-3 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 active:scale-95;
   }
-  
+
   .terminal-button-primary {
-    @apply terminal-button bg-light-green dark:bg-terminal-green 
-           text-white dark:text-terminal-bg 
-           hover:bg-light-green/90 dark:hover:bg-terminal-green/90 
-           shadow-lg shadow-light-green/20 dark:shadow-terminal-green/20;
+    @apply terminal-button bg-light-green dark:bg-terminal-green text-white dark:text-terminal-bg hover:bg-light-green/90 dark:hover:bg-terminal-green/90 shadow-lg shadow-light-green/20 dark:shadow-terminal-green/20;
   }
-  
+
   .terminal-button-secondary {
-    @apply terminal-button bg-light-blue dark:bg-terminal-blue 
-           text-white dark:text-terminal-bg 
-           hover:bg-light-blue/90 dark:hover:bg-terminal-blue/90 
-           shadow-lg shadow-light-blue/20 dark:shadow-terminal-blue/20;
+    @apply terminal-button bg-light-blue dark:bg-terminal-blue text-white dark:text-terminal-bg hover:bg-light-blue/90 dark:hover:bg-terminal-blue/90 shadow-lg shadow-light-blue/20 dark:shadow-terminal-blue/20;
   }
-  
+
   .terminal-button-danger {
-    @apply terminal-button bg-light-red dark:bg-terminal-red 
-           text-white dark:text-terminal-bg 
-           hover:bg-light-red/90 dark:hover:bg-terminal-red/90 
-           shadow-lg shadow-light-red/20 dark:shadow-terminal-red/20;
+    @apply terminal-button bg-light-red dark:bg-terminal-red text-white dark:text-terminal-bg hover:bg-light-red/90 dark:hover:bg-terminal-red/90 shadow-lg shadow-light-red/20 dark:shadow-terminal-red/20;
   }
 
   .quiz-card {
-    @apply bg-light-fg/5 dark:bg-terminal-fg/5 rounded-xl p-8 mb-8 
-           border border-light-cyan/20 dark:border-terminal-cyan/20 
-           shadow-lg shadow-light-cyan/10 dark:shadow-terminal-cyan/10;
+    @apply bg-light-fg/5 dark:bg-terminal-fg/5 rounded-xl p-8 mb-8 border border-light-cyan/20 dark:border-terminal-cyan/20 shadow-lg shadow-light-cyan/10 dark:shadow-terminal-cyan/10;
   }
 
   .progress-bar-bg {
@@ -95,39 +79,92 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
+/* Ensure equal height cards */
+.quiz-card {
+  @apply bg-light-fg/5 dark:bg-terminal-fg/5 rounded-xl p-8 mb-8 border border-light-cyan/20 dark:border-terminal-cyan/20 shadow-lg shadow-light-cyan/10 dark:shadow-terminal-cyan/10 min-h-[350px];
+  /* Set minimum height for consistency */
+}
+
+/* Mode selection specific styling */
+.mode-card {
+  @apply quiz-card min-h-[400px];
+  /* Specific height for mode cards */
+}
+
+
 .typing-animation {
   overflow: hidden;
-  border-right: 2px solid #0891b2;
+  border-right: 2px solid var(--caret-color);
   white-space: nowrap;
-  animation: typing 2s steps(40, end), blink-caret 0.75s step-end infinite;
+  width: 0;
+  display: inline-block;
+  /* This makes the element only as wide as its content */
+  animation: blink-caret 0.75s step-end infinite;
 }
 
-.dark .typing-animation {
-  border-right-color: #22d3ee;
-  animation: typing 2s steps(40, end), blink-caret-dark 0.75s step-end infinite;
+.typing-animation.animate {
+  animation: typing var(--typing-duration) steps(var(--char-count), end) forwards,
+    blink-caret 0.75s step-end infinite;
 }
 
-@keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
+.typing-animation.animation-complete {
+  width: auto !important;
+  animation: blink-caret 0.75s step-end infinite;
+  border-right: 2px solid var(--caret-color);
 }
 
-@keyframes blink-caret {
-  from, to { border-color: transparent }
-  50% { 
-    border-color: #0891b2;
+/* Stop cursor blinking after animation */
+@keyframes stop-cursor-delayed {
+  0% {
+    border-right-color: var(--caret-color);
+  }
+
+  100% {
+    border-right-color: transparent;
   }
 }
 
-@keyframes blink-caret-dark {
-  from, to { border-color: transparent }
-  50% { 
-    border-color: #22d3ee;
+.typing-animation.animation-complete {
+  animation:
+    blink-caret 0.75s step-end infinite 2s,
+    /* Blink for 2 seconds */
+    stop-cursor-delayed 0.1s ease-in-out 2s forwards;
+  /* Then stop */
+}
+
+:root {
+  --caret-color: #0891b2;
+}
+
+.dark {
+  --caret-color: #22d3ee;
+}
+
+@keyframes typing {
+  from {
+    width: 0
+  }
+
+  to {
+    width: 100%
+  }
+}
+
+@keyframes blink-caret {
+
+  from,
+  to {
+    border-color: transparent
+  }
+
+  50% {
+    border-color: var(--caret-color);
   }
 }
