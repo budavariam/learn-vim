@@ -54,7 +54,7 @@
   }
 
   .quiz-card {
-    @apply bg-light-fg/5 dark:bg-terminal-fg/5 rounded-xl p-8 mb-8 border border-light-cyan/20 dark:border-terminal-cyan/20 shadow-lg shadow-light-cyan/10 dark:shadow-terminal-cyan/10 min-h-[350px];
+    @apply bg-light-fg/5 dark:bg-terminal-fg/5 rounded-xl p-8 mb-8 border border-light-cyan/20 dark:border-terminal-cyan/20 shadow-lg shadow-light-cyan/10 dark:shadow-terminal-cyan/10;
   }
 
   .progress-bar-bg {
@@ -83,5 +83,88 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Ensure equal height cards */
+.quiz-card {
+  @apply bg-light-fg/5 dark:bg-terminal-fg/5 rounded-xl p-8 mb-8 border border-light-cyan/20 dark:border-terminal-cyan/20 shadow-lg shadow-light-cyan/10 dark:shadow-terminal-cyan/10 min-h-[350px];
+  /* Set minimum height for consistency */
+}
+
+/* Mode selection specific styling */
+.mode-card {
+  @apply quiz-card min-h-[400px];
+  /* Specific height for mode cards */
+}
+
+
+.typing-animation {
+  overflow: hidden;
+  border-right: 2px solid var(--caret-color);
+  white-space: nowrap;
+  width: 0;
+  display: inline-block;
+  /* This makes the element only as wide as its content */
+  animation: blink-caret 0.75s step-end infinite;
+}
+
+.typing-animation.animate {
+  animation: typing var(--typing-duration) steps(var(--char-count), end) forwards,
+    blink-caret 0.75s step-end infinite;
+}
+
+.typing-animation.animation-complete {
+  width: auto !important;
+  animation: blink-caret 0.75s step-end infinite;
+  border-right: 2px solid var(--caret-color);
+}
+
+/* Stop cursor blinking after animation */
+@keyframes stop-cursor-delayed {
+  0% {
+    border-right-color: var(--caret-color);
+  }
+
+  100% {
+    border-right-color: transparent;
+  }
+}
+
+.typing-animation.animation-complete {
+  animation:
+    blink-caret 0.75s step-end infinite 2s,
+    /* Blink for 2 seconds */
+    stop-cursor-delayed 0.1s ease-in-out 2s forwards;
+  /* Then stop */
+}
+
+:root {
+  --caret-color: #0891b2;
+}
+
+.dark {
+  --caret-color: #22d3ee;
+}
+
+@keyframes typing {
+  from {
+    width: 0
+  }
+
+  to {
+    width: 100%
+  }
+}
+
+@keyframes blink-caret {
+
+  from,
+  to {
+    border-color: transparent
+  }
+
+  50% {
+    border-color: var(--caret-color);
   }
 }
