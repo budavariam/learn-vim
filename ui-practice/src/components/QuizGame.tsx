@@ -494,13 +494,14 @@ const QuizGame: React.FC = () => {
                                     {currentQ.solution.join(', ')}
                                 </span>
                             </div>
-
-                            <button
-                                onClick={() => dispatch({ type: 'NEXT_QUESTION' })}
-                                className="terminal-button-primary text-lg px-8 py-3"
-                            >
-                                {currentIndex + 1 >= questions.length ? 'Finish Game' : 'Next Question'}
-                            </button>
+                            <form onSubmit={() => dispatch({ type: 'NEXT_QUESTION' })}>
+                                <button
+                                    type='submit'
+                                    className="terminal-button-primary text-lg px-8 py-3"
+                                >
+                                    {currentIndex + 1 >= questions.length ? 'Finish Game' : 'Next Question'}
+                                </button>
+                            </form>
                         </div>
                     )}
                 </div>

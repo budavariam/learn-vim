@@ -1,0 +1,70 @@
+.typingAnimationPrecise {
+    overflow: hidden;
+    border-right: 2px solid var(--caret-color);
+    white-space: nowrap;
+    width: 0;
+    display: inline-block;
+    animation: blinkCaret 0.75s step-end infinite;
+    /* Fix: Ensure the element has height even when width is 0 */
+    min-height: 1em;
+    line-height: 1;
+}
+
+.typingAnimationPrecise.animate {
+    animation:
+        typingPrecise var(--typing-duration) steps(var(--char-count), end) forwards,
+        blinkCaret 0.75s step-end infinite var(--typing-duration),
+        stopCursorFinal 0.1s ease-in-out calc(var(--typing-duration) + 2s) forwards;
+}
+
+.container {
+    --caret-color: #0891b2;
+    /* Ensure container has minimum height */
+    min-height: 1.5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.container.dark {
+    --caret-color: #22d3ee;
+}
+
+/* Keyframe that animates to exact text width */
+@keyframes typingPrecise {
+    from {
+        width: 0;
+    }
+
+    to {
+        width: var(--target-width);
+    }
+}
+
+@keyframes blinkCaret {
+
+    from,
+    to {
+        border-color: transparent
+    }
+
+    50% {
+        border-color: var(--caret-color);
+    }
+}
+
+@keyframes stopCursorFinal {
+    100% {
+        border-right-color: transparent;
+    }
+}
+
+.measureElement {
+    visibility: hidden;
+    position: absolute;
+    pointer-events: none;
+    white-space: nowrap;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
