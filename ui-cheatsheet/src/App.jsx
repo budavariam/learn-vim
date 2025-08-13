@@ -7,7 +7,11 @@ const options = {
   includeScore: true,
   shouldSort: true,
   threshold: 0.15, // Changed to 0.15 for 85% match (1 - 0.85 = 0.15)
-  keys: ['category', 'question', 'answers']
+  keys: [
+    { name: 'solution', weight: 0.4 },    // Highest priority for key combos
+    { name: 'question', weight: 0.4 },    // High priority for descriptions  
+    { name: 'category', weight: 0.2 }     // Lower priority for categories
+  ]
 }
 
 const fuzzy = (search, fuse) => {
