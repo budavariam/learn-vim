@@ -45,6 +45,7 @@ const groupByCategory = (data) => {
 function App() {
   const [search, setSearch] = useState("")
   const [darkMode, setDarkMode] = useState(false)
+  const [collapsedCategories, setCollapsedCategories] = useState(new Set())
 
   // Initialize dark mode from localStorage or system preference
   useEffect(() => {
@@ -68,6 +69,38 @@ function App() {
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
+  }
+
+  // Toggle category collapse state
+  const toggleCategory = (category) => {
+    setCollapsedCategories(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(category)) {
+        newSet.delete(category)
+      } else {
+        newSet.add(category)
+      }
+      return newSet
+    })
+  }
+
+  // Expand all categories when searching
+  useEffect(() => {
+    if (search) {
+      setCollapsedCategories(new Set())
+    }
+  }, [search])
+
+  // Collapse/Expand all categories
+  const toggleAllCategories = () => {
+    const allCategories = Object.keys(groupedData)
+    if (collapsedCategories.size === allCategories.length) {
+      // All collapsed, expand all
+      setCollapsedCategories(new Set())
+    } else {
+      // Some or none collapsed, collapse all
+      setCollapsedCategories(new Set(allCategories))
+    }
   }
 
   return (
@@ -96,6 +129,25 @@ function App() {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Expand/Collapse All Button */}
+              {!search && Object.keys(groupedData).length > 0 && (
+                <button
+                  onClick={toggleAllCategories}
+                  className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+                  title={collapsedCategories.size === Object.keys(groupedData).length ? "Expand all categories" : "Collapse all categories"}
+                >
+                  {collapsedCategories.size === Object.keys(groupedData).length ? (
+                    <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  ) : (
+                    <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                    </svg>
+                  )}
+                </button>
+              )}
+
               <button
                 onClick={toggleDarkMode}
                 className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
@@ -125,58 +177,78 @@ function App() {
           <p className="text-gray-600 dark:text-gray-400 text-sm">
             {search && `${result.length} commands found`}
             {search && result.length === 0 && " (try adjusting your search)"}
+            {!search && Object.keys(groupedData).length > 0 && `${Object.keys(groupedData).length} categories • ${result.length} total commands`}
           </p>
         </div>
 
         {/* Categories Grid */}
-        <div className="space-y-8">
-          {Object.entries(groupedData).map(([category, items]) => (
-            <div key={category} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
-              {/* Category Header */}
-              <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-750 px-6 py-4 border-b border-gray-200 dark:border-gray-600">
-                <h2 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
-                  {category}
-                  <span className="ml-auto text-sm font-normal text-gray-500 dark:text-gray-400">
-                    {items.length} command{items.length !== 1 ? 's' : ''}
-                  </span>
-                </h2>
-              </div>
+        <div className="space-y-4">
+          {Object.entries(groupedData).map(([category, items]) => {
+            const isCollapsed = collapsedCategories.has(category)
 
-              {/* Commands Grid */}
-              <div className="p-6">
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {items.map((item, index) => (
-                    <div
-                      key={index}
-                      className="group p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md transition-all duration-200 bg-gray-50 dark:bg-gray-800"
+            return (
+              <div key={category} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+                {/* Category Header - Clickable */}
+                <button
+                  onClick={() => toggleCategory(category)}
+                  className="w-full bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 px-6 py-4 border-b border-gray-200 dark:border-gray-600 hover:from-gray-100 hover:to-gray-150 dark:hover:from-gray-650 dark:hover:to-gray-750 transition-all duration-200"
+                >
+                  <h2 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
+                    {/* Collapse/Expand Icon */}
+                    <svg
+                      className={`w-5 h-5 mr-3 transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
                     >
-                      {/* Key combinations */}
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {item.solution.map((combo, comboIndex) => (
-                          <code key={comboIndex} className="keycombo">
-                            {combo}
-                          </code>
-                        ))}
-                      </div>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
 
-                      {/* Description */}
-                      <div className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-                        {parse(item.question)}
-                      </div>
+                    <span className="w-2 h-2 bg-blue-500 rounded-full mr-3"></span>
+                    {category}
+                    <span className="ml-auto text-sm font-normal text-gray-500 dark:text-gray-400">
+                      {items.length} command{items.length !== 1 ? 's' : ''}
+                    </span>
+                  </h2>
+                </button>
 
-                      {/* Score (if searching) */}
-                      {item.score && (
-                        <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                          Match: {Math.round((1 - item.score) * 100)}%
+                {/* Commands Grid - Collapsible */}
+                <div className={`transition-all duration-300 ease-in-out ${isCollapsed ? 'max-h-0 overflow-hidden' : 'max-h-none'}`}>
+                  <div className="p-6">
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {items.map((item, index) => (
+                        <div
+                          key={index}
+                          className="group p-4 rounded-lg border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md transition-all duration-200 bg-gray-50 dark:bg-gray-800"
+                        >
+                          {/* Key combinations */}
+                          <div className="flex flex-wrap gap-2 mb-3">
+                            {item.solution.map((combo, comboIndex) => (
+                              <code key={comboIndex} className="keycombo">
+                                {combo}
+                              </code>
+                            ))}
+                          </div>
+
+                          {/* Description */}
+                          <div className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
+                            {parse(item.question)}
+                          </div>
+
+                          {/* Score (if searching) */}
+                          {item.score && (
+                            <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                              Match: {Math.round((1 - item.score) * 100)}%
+                            </div>
+                          )}
                         </div>
-                      )}
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* Empty state */}
