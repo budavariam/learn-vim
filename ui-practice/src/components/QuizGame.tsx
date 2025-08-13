@@ -191,6 +191,11 @@ const QuizGame: React.FC = () => {
         dispatch({ type: 'ANSWER', payload: { answer: userAnswer } });
     };
 
+    const handleNextQuestion = (e: FormEvent) => {
+        e.preventDefault();
+        dispatch({ type: 'NEXT_QUESTION' });
+    };
+    
     const handleModeSelect = (mode: GameMode) => {
         dispatch({ type: 'SELECT_MODE', payload: mode });
     };
@@ -465,45 +470,47 @@ const QuizGame: React.FC = () => {
                                 </button>
                             </div>
                         </form>
-                    ) : (
-                        <div className="space-y-6 text-center">
-                            <div className="flex items-center justify-center gap-3">
-                                {isCorrect ? (
-                                    <CheckCircle className="w-8 h-8 color-green" />
-                                ) : (
-                                    <XCircle className="w-8 h-8 color-red" />
-                                )}
-                                <span
-                                    className={`text-2xl font-bold ${isCorrect ? 'color-green' : 'color-red'
-                                        }`}
-                                >
-                                    {isCorrect ? 'Correct!' : 'Incorrect'}
-                                </span>
+                        ) : (
+                            <div className="space-y-6 text-center">
+                                <div className="flex items-center justify-center gap-3">
+                                    {isCorrect ? (
+                                        <CheckCircle className="w-8 h-8 color-green" />
+                                    ) : (
+                                        <XCircle className="w-8 h-8 color-red" />
+                                    )}
+                                    <span
+                                        className={`text-2xl font-bold ${isCorrect ? 'color-green' : 'color-red'
+                                            }`}
+                                    >
+                                        {isCorrect ? 'Correct!' : 'Incorrect'}
+                                    </span>
+                                </div>
+                        
+                                <div className="terminal-text">
+                                    <span className="color-cyan">Your answer: </span>
+                                    <span className={isCorrect ? 'color-green' : 'color-red'}>
+                                        {userAnswer}
+                                    </span>
+                                </div>
+                        
+                                <div className="terminal-text">
+                                    <span className="color-cyan">Correct answer(s): </span>
+                                    <span className="color-yellow font-semibold">
+                                        {currentQ.solution.join(', ')}
+                                    </span>
+                                </div>
+                                
+                                <form onSubmit={handleNextQuestion} className="space-y-6">
+                                    <button
+                                        type="submit"
+                                        className="terminal-button-primary text-lg px-8 py-3"
+                                        autoFocus
+                                    >
+                                        {currentIndex + 1 >= questions.length ? 'Finish Game' : 'Next Question'}
+                                    </button>
+                                </form>
                             </div>
-
-                            <div className="terminal-text">
-                                <span className="color-cyan">Your answer: </span>
-                                <span className={isCorrect ? 'color-green' : 'color-red'}>
-                                    {userAnswer}
-                                </span>
-                            </div>
-
-                            <div className="terminal-text">
-                                <span className="color-cyan">Correct answer(s): </span>
-                                <span className="color-yellow font-semibold">
-                                    {currentQ.solution.join(', ')}
-                                </span>
-                            </div>
-                            <form onSubmit={() => dispatch({ type: 'NEXT_QUESTION' })}>
-                                <button
-                                    type='submit'
-                                    className="terminal-button-primary text-lg px-8 py-3"
-                                >
-                                    {currentIndex + 1 >= questions.length ? 'Finish Game' : 'Next Question'}
-                                </button>
-                            </form>
-                        </div>
-                    )}
+                        )}
                 </div>
             </div>
         </div>
