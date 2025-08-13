@@ -1,11 +1,11 @@
 # Github Actions deploy workflow
 
 name: Deployment
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
-    branches: [ master ]
+    branches: [master]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -13,67 +13,61 @@ jobs:
   deploy:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - uses: actions/checkout@v4
-    
-    # Build the existing CRA app (Node 14.x as before)
-    - name: Use Node.js 14.x for CRA app
-      uses: actions/setup-node@v4
-      with:
-        node-version: 14.x
-    
-    - name: Install Packages for CRA app
-      run: |
-        cd ui-cheatsheet
-        npm install
-        
-    - name: Build CRA page
-      run: |
-        cd ui-cheatsheet
-        npm run build
-    
-    # Build the new Vite quiz app (latest Node.js)
-    - name: Use Node.js 20.x for Vite app
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20.x
-        
-    - name: Install Packages for Quiz app
-      run: |
-        cd ui-practice
-        npm install
-        
-    - name: Generate quiz data from markdown
-      run: |
-        cd ui-practice
-        npm run generate-data
-        
-    - name: Build Quiz app
-      run: |
-        cd ui-practice
-        npm run build
-    
-    # Combine both builds into a single deployment structure
-    - name: Prepare deployment structure
-      run: |
-        # Create deployment directory
-        mkdir -p deploy
-        
-        # Copy CRA build (main site)
-        cp -r ui-cheatsheet/build/* deploy/
-        
-        # Copy Vite build to game subfolder
-        mkdir -p deploy/game
-        cp -r ui-practice/dist/* deploy/game/
-        
-        # List the structure for debugging
-        echo "Deployment structure:"
-        find deploy -type f | head -20
-        
-    - name: Deploy to gh-pages
-      uses: peaceiris/actions-gh-pages@v4
-      with:
-        publish_dir: ./deploy
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
+
+      # Build the Vite cheatsheet app (latest Node.js)
+      - name: Use Node.js 20.x for Vite apps
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+
+      - name: Install Packages for Cheatsheet app
+        run: |
+          cd ui-cheatsheet
+          npm install
+
+      - name: Build Cheatsheet app
+        run: |
+          cd ui-cheatsheet
+          npm run build
+
+      - name: Install Packages for Quiz app
+        run: |
+          cd ui-practice
+          npm install
+
+      - name: Generate quiz data from markdown
+        run: |
+          cd ui-practice
+          npm run generate-data
+
+      - name: Build Quiz app
+        run: |
+          cd ui-practice
+          npm run build
+
+      # Combine both builds into a single deployment structure
+      - name: Prepare deployment structure
+        run: |
+          # Create deployment directory
+          mkdir -p deploy
+
+          # Copy Vite cheatsheet build (main site) - note: dist instead of build
+          cp -r ui-cheatsheet/dist/* deploy/
+
+          # Copy Vite quiz build to game subfolder
+          mkdir -p deploy/game
+          cp -r ui-practice/dist/* deploy/game/
+
+          # List the structure for debugging
+          echo "Deployment structure:"
+          find deploy -type f | head -20
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          publish_dir: ./deploy
+          github_token: ${{ secrets.GITHUB_TOKEN }}
