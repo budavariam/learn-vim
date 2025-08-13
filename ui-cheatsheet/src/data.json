@@ -142,7 +142,7 @@
   },
   {
     "category": "Cursor movement",
-    "question": "move to matching character (default supported pairs: '()', '{}', '[]'; use *:h matchpairs* in vim for more info). It jumps to the on it finds in the current line",
+    "question": "move to matching character (default supported pairs: '()', '{}', '[]'; use *:h matchpairs* in vim for more info). It jumps to the one it finds in the current line",
     "solution": [
       "%"
     ]
@@ -1418,7 +1418,7 @@
   },
   {
     "category": "Extra",
-    "question": "in Insert mode after this key combo, you can use a command from normal mode, and immediately switch back to the starting mode",
+    "question": "in insert mode after this key combo, you can use a command from normal mode, and immediately switch back to the starting mode",
     "solution": [
       "ctrl-o"
     ]

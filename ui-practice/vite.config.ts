@@ -11,7 +11,7 @@ export default defineConfig({
       buildStart() {
         // Generate data from markdown during build
         try {
-          execSync('node scripts/generateData.js', { stdio: 'inherit' });
+          execSync('node ../scripts/generateData.js ui-practice', { stdio: 'inherit' });
         } catch (error) {
           console.error('Failed to generate quiz data:', error);
           throw error;

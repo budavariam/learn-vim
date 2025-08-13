@@ -39,11 +39,6 @@ jobs:
           cd ui-practice
           npm install
 
-      - name: Generate quiz data from markdown
-        run: |
-          cd ui-practice
-          npm run generate-data
-
       - name: Build Quiz app
         run: |
           cd ui-practice

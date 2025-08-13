@@ -5,10 +5,10 @@
   "homepage": "https://budavariam.github.io/learn-vim",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite  --base /learn-vim/",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview --base /learn-vim/"
   },
   "dependencies": {
     "react": "^19.1.1",
