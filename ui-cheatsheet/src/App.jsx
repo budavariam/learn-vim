@@ -181,7 +181,7 @@ function App() {
                 >
                   <h2 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center">
                     <svg
-                      className={`w-4 h-4 mr-2 transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}
+                      className={`w-4 h-4 mr-2 flex-shrink-0 transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
