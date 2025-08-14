@@ -1,0 +1,3 @@
+[submodule "vimtutor"]
+	path = vimtutor
+	url = git@github.com:budavariam/vimtutor.git

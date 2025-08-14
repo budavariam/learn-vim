@@ -2,13 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Fix overscroll background for dark mode */
 html {
   @apply bg-gray-50 dark:bg-gray-900;
+  overscroll-behavior: none;
+  /* Disable overscroll */
 }
 
 body {
   @apply bg-gray-50 dark:bg-gray-900;
+  overscroll-behavior: none;
+  /* Disable overscroll */
 }
 
 @layer components {
@@ -17,6 +20,6 @@ body {
   }
 
   .keycombo {
-    @apply text-sm border border-gray-300 dark:border-gray-600 rounded px-2 py-1 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 font-mono whitespace-nowrap mr-2 inline-block;
+    @apply text-xs border border-gray-300 dark:border-gray-600 rounded px-1.5 py-0.5 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 font-mono whitespace-nowrap mr-1 inline-block;
   }
 }
