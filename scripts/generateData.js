@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,6 +12,11 @@ if (!folderName) {
     console.error('❌ Error: Please provide a folder name as an argument');
     console.log('Usage: node script.js <folderName>');
     process.exit(1);
+}
+
+function generateId(obj) {
+  const str = JSON.stringify(obj);
+  return crypto.createHash('sha256').update(str).digest('hex').slice(0, 12);
 }
 
 
@@ -40,11 +47,13 @@ function parseMarkdownData(markdownContent) {
             });
 
             const question = taskMatch[2];
-            result.push({
+            const item = {
                 category: currentCategory,
                 question: question,
                 solution: answers
-            });
+            }
+            item.id = generateId(item);
+            result.push(item);
         } else {
             const categoryMatch = categoryRegexp.exec(line);
             if (categoryMatch) {

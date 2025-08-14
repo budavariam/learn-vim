@@ -5,462 +5,528 @@
     "solution": [
       ":help keyword",
       ":h keyword"
-    ]
+    ],
+    "id": "028a059af5a5"
   },
   {
     "category": "Global",
     "question": "save `file` as",
     "solution": [
       ":saveas file"
-    ]
+    ],
+    "id": "2214b54e8bc2"
   },
   {
     "category": "Global",
     "question": "close current pane",
     "solution": [
       ":close"
-    ]
+    ],
+    "id": "f03b2d24c084"
   },
   {
     "category": "Global",
     "question": "open man page for word under the cursor",
     "solution": [
       "K"
-    ]
+    ],
+    "id": "048610ad1e1c"
   },
   {
     "category": "Global",
     "question": "open file under cursor (goto file)",
     "solution": [
       "gf"
-    ]
+    ],
+    "id": "662cbbac88cc"
   },
   {
     "category": "Cursor movement",
     "question": "move cursor left",
     "solution": [
       "h"
-    ]
+    ],
+    "id": "1b1699bf636a"
   },
   {
     "category": "Cursor movement",
     "question": "move cursor down",
     "solution": [
       "j"
-    ]
+    ],
+    "id": "e47a5c82c865"
   },
   {
     "category": "Cursor movement",
     "question": "move cursor up",
     "solution": [
       "k"
-    ]
+    ],
+    "id": "41b422b91f9f"
   },
   {
     "category": "Cursor movement",
     "question": "move cursor right",
     "solution": [
       "l"
-    ]
+    ],
+    "id": "38729f14817f"
   },
   {
     "category": "Cursor movement",
     "question": "move to top of screen",
     "solution": [
       "H"
-    ]
+    ],
+    "id": "348cf10a140e"
   },
   {
     "category": "Cursor movement",
     "question": "move to middle of screen",
     "solution": [
       "M"
-    ]
+    ],
+    "id": "a27a1914b737"
   },
   {
     "category": "Cursor movement",
     "question": "move to bottom of screen",
     "solution": [
       "L"
-    ]
+    ],
+    "id": "6fb0a32d01fd"
   },
   {
     "category": "Cursor movement",
     "question": "jump forwards to the start of a word",
     "solution": [
       "w"
-    ]
+    ],
+    "id": "76b4b6684acd"
   },
   {
     "category": "Cursor movement",
     "question": "jump forwards to the start of a word (words can contain punctuation)",
     "solution": [
       "W"
-    ]
+    ],
+    "id": "9cbe77e8a108"
   },
   {
     "category": "Cursor movement",
     "question": "jump forwards to the end of a word",
     "solution": [
       "e"
-    ]
+    ],
+    "id": "0f807296462e"
   },
   {
     "category": "Cursor movement",
     "question": "jump forwards to the end of a word (words can contain punctuation)",
     "solution": [
       "E"
-    ]
+    ],
+    "id": "cef9d5eb3485"
   },
   {
     "category": "Cursor movement",
     "question": "jump backward to the end of a word",
     "solution": [
       "ge"
-    ]
+    ],
+    "id": "40020e559c60"
   },
   {
     "category": "Cursor movement",
     "question": "jump backward to the end of a word (words can contain punctuation)",
     "solution": [
       "gE"
-    ]
+    ],
+    "id": "1723920c2788"
   },
   {
     "category": "Cursor movement",
     "question": "jump backward to the start of a word",
     "solution": [
       "b"
-    ]
+    ],
+    "id": "0d91583f2bf8"
   },
   {
     "category": "Cursor movement",
     "question": "jump backward to the start of a word (words can contain punctuation)",
     "solution": [
       "B"
-    ]
+    ],
+    "id": "abd88172297c"
   },
   {
     "category": "Cursor movement",
     "question": "move to matching character (default supported pairs: '()', '{}', '[]'; use *:h matchpairs* in vim for more info). It jumps to the one it finds in the current line",
     "solution": [
       "%"
-    ]
+    ],
+    "id": "1ea49a3ab075"
   },
   {
     "category": "Cursor movement",
     "question": "jump to the start of the line",
     "solution": [
       "0"
-    ]
+    ],
+    "id": "ab8198b97931"
   },
   {
     "category": "Cursor movement",
     "question": "jump to the first non-blank character of the line",
     "solution": [
       "^"
-    ]
+    ],
+    "id": "fa0f368d35ca"
   },
   {
     "category": "Cursor movement",
     "question": "jump to the end of the line",
     "solution": [
       "$"
-    ]
+    ],
+    "id": "06301c0d17da"
   },
   {
     "category": "Cursor movement",
     "question": "jump to the last non-blank character of the line",
     "solution": [
       "g_"
-    ]
+    ],
+    "id": "c535b0f98a5d"
   },
   {
     "category": "Cursor movement",
     "question": "go to the first line of the document",
     "solution": [
       "gg"
-    ]
+    ],
+    "id": "7a49572fe6e1"
   },
   {
     "category": "Cursor movement",
     "question": "go to the last line of the document",
     "solution": [
       "G"
-    ]
+    ],
+    "id": "0c7bb9bf550d"
   },
   {
     "category": "Cursor movement",
     "question": "go to line `5`",
     "solution": [
       "5G"
-    ]
+    ],
+    "id": "87d63c7ed342"
   },
   {
     "category": "Cursor movement",
     "question": "go to line `5` with command",
     "solution": [
       ":5"
-    ]
+    ],
+    "id": "2db4e1c9417f"
   },
   {
     "category": "Cursor movement",
     "question": "jump to next occurrence of character `x` in this line",
     "solution": [
       "fx"
-    ]
+    ],
+    "id": "65598dca12da"
   },
   {
     "category": "Cursor movement",
     "question": "jump to before next occurrence of character `x` in this line",
     "solution": [
       "tx"
-    ]
+    ],
+    "id": "352d97c8e944"
   },
   {
     "category": "Cursor movement",
     "question": "jump to previous occurence of character `x` in this line",
     "solution": [
       "Fx"
-    ]
+    ],
+    "id": "5d7c47f5d1af"
   },
   {
     "category": "Cursor movement",
     "question": "jump to after previous occurence of character `x` in this line",
     "solution": [
       "Tx"
-    ]
+    ],
+    "id": "ff04930c455c"
   },
   {
     "category": "Cursor movement",
     "question": "repeat previous f, t, F or T movement",
     "solution": [
       ";"
-    ]
+    ],
+    "id": "745e0eabfd7d"
   },
   {
     "category": "Cursor movement",
     "question": "repeat previous f, t, F or T movement, backward",
     "solution": [
       ","
-    ]
+    ],
+    "id": "2622e8221b8e"
   },
   {
     "category": "Cursor movement",
     "question": "jump to next paragraph (or function/block, when editing code)",
     "solution": [
       "}"
-    ]
+    ],
+    "id": "c938a1f66bc3"
   },
   {
     "category": "Cursor movement",
     "question": "jump to previous paragraph (or function/block, when editing code)",
     "solution": [
       "{"
-    ]
+    ],
+    "id": "7c58b5942806"
   },
   {
     "category": "Cursor movement",
     "question": "jump to the previous sentence",
     "solution": [
       "("
-    ]
+    ],
+    "id": "01121d2f55cd"
   },
   {
     "category": "Cursor movement",
     "question": "jump to the next sentence",
     "solution": [
       ")"
-    ]
+    ],
+    "id": "47920d381b07"
   },
   {
     "category": "Cursor movement",
     "question": "cursor on screen to the center",
     "solution": [
       "zz"
-    ]
+    ],
+    "id": "9e001619107a"
   },
   {
     "category": "Cursor movement",
     "question": "cursor on screen to top",
     "solution": [
       "zt"
-    ]
+    ],
+    "id": "75f35e9a6eb0"
   },
   {
     "category": "Cursor movement",
     "question": "cursor on screen to bottom",
     "solution": [
       "zb"
-    ]
+    ],
+    "id": "932fed577a15"
   },
   {
     "category": "Cursor movement",
     "question": "move screen down one line (without moving cursor), same as `+` symbol",
     "solution": [
       "ctrl-e"
-    ]
+    ],
+    "id": "5f5f91356b10"
   },
   {
     "category": "Cursor movement",
     "question": "move screen up one line (without moving cursor), same as `-` symbol",
     "solution": [
       "ctrl-y"
-    ]
+    ],
+    "id": "a7b42f642d9c"
   },
   {
     "category": "Cursor movement",
     "question": "move back one full screen (back full page)",
     "solution": [
       "ctrl-b"
-    ]
+    ],
+    "id": "dc0ded7a550f"
   },
   {
     "category": "Cursor movement",
     "question": "move forward one full screen (forward full page)",
     "solution": [
       "ctrl-f"
-    ]
+    ],
+    "id": "b11ffb6be668"
   },
   {
     "category": "Cursor movement",
     "question": "move forward 1/2 a screen (down half page)",
     "solution": [
       "ctrl-d"
-    ]
+    ],
+    "id": "50c214083200"
   },
   {
     "category": "Cursor movement",
     "question": "move back 1/2 a screen (up half page)",
     "solution": [
       "ctrl-u"
-    ]
+    ],
+    "id": "db29bc279d4d"
   },
   {
     "category": "Cursor movement",
     "question": "retrace previous cursor position",
     "solution": [
       "ctrl-o"
-    ]
+    ],
+    "id": "04787d9eb23e"
   },
   {
     "category": "Cursor movement",
     "question": "retrace next cursor position",
     "solution": [
       "ctrl-i"
-    ]
+    ],
+    "id": "fe9d6d345d8d"
   },
   {
     "category": "Insert mode, inserting/appending text",
     "question": "insert before the cursor",
     "solution": [
       "i"
-    ]
+    ],
+    "id": "3a20556dbb75"
   },
   {
     "category": "Insert mode, inserting/appending text",
     "question": "insert at the beginning of the line",
     "solution": [
       "I"
-    ]
+    ],
+    "id": "996e549ca656"
   },
   {
     "category": "Insert mode, inserting/appending text",
     "question": "insert (append) after the cursor",
     "solution": [
       "a"
-    ]
+    ],
+    "id": "77fb3215fa01"
   },
   {
     "category": "Insert mode, inserting/appending text",
     "question": "insert (append) at the end of the line",
     "solution": [
       "A"
-    ]
+    ],
+    "id": "92b23595895b"
   },
   {
     "category": "Insert mode, inserting/appending text",
     "question": "append (open) a new line below the current line",
     "solution": [
       "o"
-    ]
+    ],
+    "id": "0a1df80d3cbf"
   },
   {
     "category": "Insert mode, inserting/appending text",
     "question": "append (open) a new line above the current line",
     "solution": [
       "O"
-    ]
+    ],
+    "id": "fdafd1797cc7"
   },
   {
     "category": "Insert mode, inserting/appending text",
     "question": "insert (append) at the end of the word (so they can be chained with moves)",
     "solution": [
       "ea"
-    ]
+    ],
+    "id": "665d9937ffe0"
   },
   {
     "category": "Insert mode, inserting/appending text",
     "question": "exit insert mode",
     "solution": [
       "Esc"
-    ]
+    ],
+    "id": "4f67d4849636"
   },
   {
     "category": "Insert mode, inserting/appending text",
     "question": "go to the last place where insert mode was finished",
     "solution": [
       "gi"
-    ]
+    ],
+    "id": "4ae221fb18b0"
   },
   {
     "category": "Insert mode, inserting/appending text",
     "question": "insert the contents of `REG` register in insert mode.",
     "solution": [
       "ctrl-r REG"
-    ]
+    ],
+    "id": "0c06dfe13a63"
   },
   {
     "category": "Editing",
     "question": "replace a single character",
     "solution": [
       "r"
-    ]
+    ],
+    "id": "098c3bf8d4f6"
   },
   {
     "category": "Editing",
     "question": "start replace mode, similar to insert, but overwrites the characters underneath",
     "solution": [
       "R"
-    ]
+    ],
+    "id": "ec7b3978f852"
   },
   {
     "category": "Editing",
     "question": "join line below to the current one with one space in between",
     "solution": [
       "J"
-    ]
+    ],
+    "id": "3caad1b4ff16"
   },
   {
     "category": "Editing",
     "question": "join line below to the current one without space in between",
     "solution": [
       "gJ"
-    ]
+    ],
+    "id": "cae4a97e7594"
   },
   {
     "category": "Editing",
     "question": "reflow paragraph",
     "solution": [
       "gwip"
-    ]
+    ],
+    "id": "cb5898dca46f"
   },
   {
     "category": "Editing",
     "question": "change (replace) entire line",
     "solution": [
       "cc"
-    ]
+    ],
+    "id": "2e8bba5c789e"
   },
   {
     "category": "Editing",
@@ -468,448 +534,512 @@
     "solution": [
       "C",
       "c$"
-    ]
+    ],
+    "id": "9315312b068c"
   },
   {
     "category": "Editing",
     "question": "change (replace) entire word",
     "solution": [
       "ciw"
-    ]
+    ],
+    "id": "fb0095c117fb"
   },
   {
     "category": "Editing",
     "question": "change (replace) to the end of the word",
     "solution": [
       "cw"
-    ]
+    ],
+    "id": "61f3ed52fcd8"
   },
   {
     "category": "Editing",
     "question": "change (replace) until next occurrance of \"hello\"",
     "solution": [
       "c/hello"
-    ]
+    ],
+    "id": "fbb340ee624d"
   },
   {
     "category": "Editing",
     "question": "delete character and substitute text",
     "solution": [
       "s"
-    ]
+    ],
+    "id": "a3895dc86a05"
   },
   {
     "category": "Editing",
     "question": "transpose two letters (delete and paste)",
     "solution": [
       "xp"
-    ]
+    ],
+    "id": "23c9d8770f0c"
   },
   {
     "category": "Editing",
     "question": "undo",
     "solution": [
       "u"
-    ]
+    ],
+    "id": "d5a5f370e59f"
   },
   {
     "category": "Editing",
     "question": "undo in command mode",
     "solution": [
       ":u"
-    ]
+    ],
+    "id": "b736cc3384a8"
   },
   {
     "category": "Editing",
     "question": "undo all latest changes on one line",
     "solution": [
       "U"
-    ]
+    ],
+    "id": "72f62392a48f"
   },
   {
     "category": "Editing",
     "question": "redo",
     "solution": [
       "ctrl-r"
-    ]
+    ],
+    "id": "a628156e12c2"
   },
   {
     "category": "Editing",
     "question": "redo in command mode",
     "solution": [
       ":red"
-    ]
+    ],
+    "id": "d7574ad38bf3"
   },
   {
     "category": "Editing",
     "question": "repeat last command",
     "solution": [
       "."
-    ]
+    ],
+    "id": "21ea54f7b5f1"
   },
   {
     "category": "Editing",
     "question": "increase a number",
     "solution": [
       "ctrl-a"
-    ]
+    ],
+    "id": "65c9d8c501b7"
   },
   {
     "category": "Editing",
     "question": "decrease a number (practice: 4)",
     "solution": [
       "ctrl-x"
-    ]
+    ],
+    "id": "91e2233493c3"
   },
   {
     "category": "Editing",
     "question": "make `movement` lowercase",
     "solution": [
       "gu + movement"
-    ]
+    ],
+    "id": "a7c8a3f50a15"
   },
   {
     "category": "Editing",
     "question": "make `movement` uppercase",
     "solution": [
       "gU + movement"
-    ]
+    ],
+    "id": "9ddaf623d22a"
   },
   {
     "category": "Editing",
     "question": "toggle case of `movement`",
     "solution": [
       "g~ + movement"
-    ]
+    ],
+    "id": "624441cc3354"
   },
   {
     "category": "Editing",
     "question": "undo branch forward",
     "solution": [
       "g+"
-    ]
+    ],
+    "id": "ed04678b8455"
   },
   {
     "category": "Editing",
     "question": "undo branch backward",
     "solution": [
       "g-"
-    ]
+    ],
+    "id": "3fa30ec46b8e"
   },
   {
     "category": "Editing",
     "question": "undo changes in the last 4 hours",
     "solution": [
       "ea 4h"
-    ]
+    ],
+    "id": "84c2e21977fe"
   },
   {
     "category": "Editing",
     "question": "undo last 2 file states (last 2 buffer writes)",
     "solution": [
       "ea 2f"
-    ]
+    ],
+    "id": "e7c0e1599c6f"
   },
   {
     "category": "Editing",
     "question": "redo changes in last 8 minutes",
     "solution": [
       "lat 8m"
-    ]
+    ],
+    "id": "b3b50759fbf7"
   },
   {
     "category": "Marking text (visual mode)",
     "question": "start visual mode. (you can mark text, then do a command (like y-yank))",
     "solution": [
       "v"
-    ]
+    ],
+    "id": "595b9f96f536"
   },
   {
     "category": "Marking text (visual mode)",
     "question": "start linewise visual mode",
     "solution": [
       "V"
-    ]
+    ],
+    "id": "ef509160599b"
   },
   {
     "category": "Marking text (visual mode)",
     "question": "move to other end of marked area",
     "solution": [
       "o"
-    ]
+    ],
+    "id": "b40330109fa1"
   },
   {
     "category": "Marking text (visual mode)",
     "question": "start visual block mode",
     "solution": [
       "ctrl-v"
-    ]
+    ],
+    "id": "4725ff77daec"
   },
   {
     "category": "Marking text (visual mode)",
     "question": "move to other corner of block",
     "solution": [
       "O"
-    ]
+    ],
+    "id": "55dcd023308f"
   },
   {
     "category": "Marking text (visual mode)",
     "question": "mark a word",
     "solution": [
       "aw"
-    ]
+    ],
+    "id": "3a35d9b5ee40"
   },
   {
     "category": "Marking text (visual mode)",
     "question": "mark a sentence",
     "solution": [
       "as"
-    ]
+    ],
+    "id": "d0599ae8aee0"
   },
   {
     "category": "Marking text (visual mode)",
     "question": "mark a paragraph",
     "solution": [
       "ap"
-    ]
+    ],
+    "id": "1aa1e20407f8"
   },
   {
     "category": "Marking text (visual mode)",
     "question": "mark a block with ()",
     "solution": [
       "ab"
-    ]
+    ],
+    "id": "ba29201af661"
   },
   {
     "category": "Marking text (visual mode)",
     "question": "mark a block with {}",
     "solution": [
       "aB"
-    ]
+    ],
+    "id": "5ecc016eb5d3"
   },
   {
     "category": "Marking text (visual mode)",
     "question": "mark inner block with ()",
     "solution": [
       "ib"
-    ]
+    ],
+    "id": "3ff2a688d0f1"
   },
   {
     "category": "Marking text (visual mode)",
     "question": "mark inner block with {}",
     "solution": [
       "iB"
-    ]
+    ],
+    "id": "eab070492ba4"
   },
   {
     "category": "Marking text (visual mode)",
     "question": "exit visual mode",
     "solution": [
       "Esc"
-    ]
+    ],
+    "id": "f5b097060852"
   },
   {
     "category": "Visual commands",
     "question": "shift text right",
     "solution": [
       ">"
-    ]
+    ],
+    "id": "a7860b6e0331"
   },
   {
     "category": "Visual commands",
     "question": "shift text left",
     "solution": [
       "<"
-    ]
+    ],
+    "id": "7a293089fdc9"
   },
   {
     "category": "Visual commands",
     "question": "yank (copy) marked text",
     "solution": [
       "y"
-    ]
+    ],
+    "id": "017379d8b8ec"
   },
   {
     "category": "Visual commands",
     "question": "delete marked text",
     "solution": [
       "d"
-    ]
+    ],
+    "id": "dbfd0623d894"
   },
   {
     "category": "Visual commands",
     "question": "switch case",
     "solution": [
       "~"
-    ]
+    ],
+    "id": "6cad0fd66898"
   },
   {
     "category": "Registers",
     "question": "show registers content (can append selectors of which registers to show)",
     "solution": [
       ":reg"
-    ]
+    ],
+    "id": "b8f8ed6c62e2"
   },
   {
     "category": "Registers",
     "question": "yank into register `x`",
     "solution": [
       "\"xy"
-    ]
+    ],
+    "id": "e7012b84ec87"
   },
   {
     "category": "Registers",
     "question": "paste contents of register `x`",
     "solution": [
       "\"xp"
-    ]
+    ],
+    "id": "ae1dded39224"
   },
   {
     "category": "Registers",
     "question": "append contents to register `x`",
     "solution": [
       "\"Xp"
-    ]
+    ],
+    "id": "b392288492d3"
   },
   {
     "category": "Marks",
     "question": "list of marks",
     "solution": [
       ":marks"
-    ]
+    ],
+    "id": "66922e3607a1"
   },
   {
     "category": "Marks",
     "question": "set current position for mark `a`",
     "solution": [
       "ma"
-    ]
+    ],
+    "id": "50f02ddabc4b"
   },
   {
     "category": "Marks",
     "question": "jump to position of mark `a`",
     "solution": [
       "`a"
-    ]
+    ],
+    "id": "05e6fd2fdd4d"
   },
   {
     "category": "Marks",
     "question": "jump to the first non-blank character in the line of mark `a`",
     "solution": [
       "'a"
-    ]
+    ],
+    "id": "c3f2a5672d9a"
   },
   {
     "category": "Marks",
     "question": "yank text to position of mark `a`",
     "solution": [
       "y`a"
-    ]
+    ],
+    "id": "31b1771eb0b7"
   },
   {
     "category": "Marks",
     "question": "delete marks. `<pattern>` can be 1 lowercase letter, any number of characters, range of letters or numbers",
     "solution": [
       ":delm <pattern>"
-    ]
+    ],
+    "id": "9d6c14ffa6f0"
   },
   {
     "category": "Macros",
     "question": "record macro `a` (it empties that register and appends the keystrokes to it)",
     "solution": [
       "qa"
-    ]
+    ],
+    "id": "1fa795f10141"
   },
   {
     "category": "Macros",
     "question": "stop recording macro",
     "solution": [
       "q"
-    ]
+    ],
+    "id": "1d7316d000b2"
   },
   {
     "category": "Macros",
     "question": "run macro `a`",
     "solution": [
       "@a"
-    ]
+    ],
+    "id": "01b238fa249c"
   },
   {
     "category": "Macros",
     "question": "rerun last run macro",
     "solution": [
       "@@"
-    ]
+    ],
+    "id": "4e0e5438822b"
   },
   {
     "category": "Cut and paste",
     "question": "yank (copy) a line",
     "solution": [
       "yy"
-    ]
+    ],
+    "id": "b4221ae791e0"
   },
   {
     "category": "Cut and paste",
     "question": "yank (copy) `2` lines",
     "solution": [
       "2yy"
-    ]
+    ],
+    "id": "101af1084b65"
   },
   {
     "category": "Cut and paste",
     "question": "yank (copy) the characters of the word from the cursor position to the start of the next word",
     "solution": [
       "yw"
-    ]
+    ],
+    "id": "8bd1a0400b8c"
   },
   {
     "category": "Cut and paste",
     "question": "yank (copy) to end of line",
     "solution": [
       "y$"
-    ]
+    ],
+    "id": "b5575f87e5bd"
   },
   {
     "category": "Cut and paste",
     "question": "put (paste) the clipboard after cursor",
     "solution": [
       "p"
-    ]
+    ],
+    "id": "51bbb705a45f"
   },
   {
     "category": "Cut and paste",
     "question": "put (paste) before cursor",
     "solution": [
       "P"
-    ]
+    ],
+    "id": "fae5440d0002"
   },
   {
     "category": "Cut and paste",
     "question": "delete (cut) a line",
     "solution": [
       "dd"
-    ]
+    ],
+    "id": "242c4ce7eba9"
   },
   {
     "category": "Cut and paste",
     "question": "delete (cut) `2` lines",
     "solution": [
       "2dd"
-    ]
+    ],
+    "id": "6572a3226e4b"
   },
   {
     "category": "Cut and paste",
     "question": "delete (cut) the characters of the whole word",
     "solution": [
       "diw"
-    ]
+    ],
+    "id": "fdc0e5dbead7"
   },
   {
     "category": "Cut and paste",
     "question": "delete (cut) the characters of the word from the cursor position to the start of the next word",
     "solution": [
       "dw"
-    ]
+    ],
+    "id": "baed9bf23d8c"
   },
   {
     "category": "Cut and paste",
@@ -917,42 +1047,48 @@
     "solution": [
       "D",
       "d$"
-    ]
+    ],
+    "id": "2ed5c5b97242"
   },
   {
     "category": "Cut and paste",
     "question": "delete (cut) character",
     "solution": [
       "x"
-    ]
+    ],
+    "id": "c97729def9d2"
   },
   {
     "category": "Cut and paste",
     "question": "replace (paste) content of the last used register with the word under the cursor",
     "solution": [
       "viwp"
-    ]
+    ],
+    "id": "ecec2c82ac0c"
   },
   {
     "category": "Cut and paste",
     "question": "paste the last search",
     "solution": [
       "\"/p"
-    ]
+    ],
+    "id": "b16a54d0c242"
   },
   {
     "category": "Exiting",
     "question": "write (save) the file, but don't exit",
     "solution": [
       ":w"
-    ]
+    ],
+    "id": "70b26bb2bb52"
   },
   {
     "category": "Exiting",
     "question": "write out the current file using sudo",
     "solution": [
       ":w !sudo tee %"
-    ]
+    ],
+    "id": "64718e52b046"
   },
   {
     "category": "Exiting",
@@ -961,14 +1097,16 @@
       ":wq",
       ":x",
       "ZZ"
-    ]
+    ],
+    "id": "41202c7741d8"
   },
   {
     "category": "Exiting",
     "question": "quit (fails if there are unsaved changes)",
     "solution": [
       ":q"
-    ]
+    ],
+    "id": "611b132efdaa"
   },
   {
     "category": "Exiting",
@@ -976,14 +1114,16 @@
     "solution": [
       ":q!",
       "ZQ"
-    ]
+    ],
+    "id": "78e8eb6cd5c0"
   },
   {
     "category": "Exiting",
     "question": "write (save) and quit on all tabs",
     "solution": [
       ":wqa"
-    ]
+    ],
+    "id": "de7f9b7015b5"
   },
   {
     "category": "Exiting",
@@ -992,161 +1132,184 @@
       "ctrl-z",
       ":st",
       ":stop"
-    ]
+    ],
+    "id": "e099da74803a"
   },
   {
     "category": "Search and replace",
     "question": "search for `pattern`",
     "solution": [
       "/pattern"
-    ]
+    ],
+    "id": "28612e1b3ee8"
   },
   {
     "category": "Search and replace",
     "question": "search backward for `pattern`",
     "solution": [
       "?pattern"
-    ]
+    ],
+    "id": "634276449d92"
   },
   {
     "category": "Search and replace",
     "question": "'very magic' `pattern`: non-alphanumeric characters are interpreted as special regex symbols (no escaping needed)",
     "solution": [
       "/\\vpattern"
-    ]
+    ],
+    "id": "dd5de5c8f000"
   },
   {
     "category": "Search and replace",
     "question": "repeat search in same direction",
     "solution": [
       "n"
-    ]
+    ],
+    "id": "13201c8ede84"
   },
   {
     "category": "Search and replace",
     "question": "repeat search in opposite direction",
     "solution": [
       "N"
-    ]
+    ],
+    "id": "5f1067ac1298"
   },
   {
     "category": "Search and replace",
     "question": "go to first match (assuming forward search)",
     "solution": [
       "ggn"
-    ]
+    ],
+    "id": "01cc600bee6d"
   },
   {
     "category": "Search and replace",
     "question": "go to last match (assuming forward search)",
     "solution": [
       "GN"
-    ]
+    ],
+    "id": "788ab752dcc6"
   },
   {
     "category": "Search and replace",
     "question": "replace all `old` with `new` throughout file",
     "solution": [
       ":%s/old/new/g"
-    ]
+    ],
+    "id": "9b5336199c20"
   },
   {
     "category": "Search and replace",
     "question": "replace all `old` with `new` throughout file with confirmations",
     "solution": [
       ":%s/old/new/gc"
-    ]
+    ],
+    "id": "401f1b0d4878"
   },
   {
     "category": "Search and replace",
     "question": "remove highlighting of search matches",
     "solution": [
       ":noh"
-    ]
+    ],
+    "id": "214298f2e87b"
   },
   {
     "category": "Search and replace",
     "question": "start a search forward with the whole current word under the cursor",
     "solution": [
       "*"
-    ]
+    ],
+    "id": "8b44147d280e"
   },
   {
     "category": "Search and replace",
     "question": "start a search backward with the current word under the cursor",
     "solution": [
       "#"
-    ]
+    ],
+    "id": "606716519b5f"
   },
   {
     "category": "Search and replace",
     "question": "start a search with the word under the cursor but find occurrences that has more content in it. e.g: `rain` finds `rainbow`",
     "solution": [
       "g*"
-    ]
+    ],
+    "id": "71a3971eb874"
   },
   {
     "category": "Search and replace",
     "question": "start a search backward with the word under the cursor but find occurrences that has more content in it. e.g: `rain` finds `rainbow`",
     "solution": [
       "g#"
-    ]
+    ],
+    "id": "e0d4bda2290e"
   },
   {
     "category": "Search in multiple files",
     "question": "search for `/pattern/` in multiple `{file}`s",
     "solution": [
       ":vimgrep /pattern/ {file}"
-    ]
+    ],
+    "id": "f0062dd2af57"
   },
   {
     "category": "Search in multiple files",
     "question": "jump to the next match",
     "solution": [
       ":cn"
-    ]
+    ],
+    "id": "7aceedfb2f81"
   },
   {
     "category": "Search in multiple files",
     "question": "jump to the previous match",
     "solution": [
       ":cp"
-    ]
+    ],
+    "id": "cc2cf34df970"
   },
   {
     "category": "Search in multiple files",
     "question": "open a window containing the list of matches",
     "solution": [
       ":copen"
-    ]
+    ],
+    "id": "c0eab233627b"
   },
   {
     "category": "Vim for programmers",
     "question": "go to local declaration",
     "solution": [
       "gd"
-    ]
+    ],
+    "id": "306d350c61a9"
   },
   {
     "category": "Vim for programmers",
     "question": "go to global declaration",
     "solution": [
       "gD"
-    ]
+    ],
+    "id": "0dc6e458a487"
   },
   {
     "category": "Working with multiple files",
     "question": "reload current file",
     "solution": [
       ":e"
-    ]
+    ],
+    "id": "de8aaba5ea28"
   },
   {
     "category": "Working with multiple files",
     "question": "edit a `file` in a new buffer",
     "solution": [
       ":e file"
-    ]
+    ],
+    "id": "b210740e0163"
   },
   {
     "category": "Working with multiple files",
@@ -1154,7 +1317,8 @@
     "solution": [
       ":r file",
       ":read file"
-    ]
+    ],
+    "id": "f5ddc1bcacaf"
   },
   {
     "category": "Working with multiple files",
@@ -1162,14 +1326,16 @@
     "solution": [
       ":0r file",
       ":0read file"
-    ]
+    ],
+    "id": "71cf586af011"
   },
   {
     "category": "Working with multiple files",
     "question": "execute `{cmd}` and insert its standard output below the cursor",
     "solution": [
       ":r !{cmd}"
-    ]
+    ],
+    "id": "5a30167fca1b"
   },
   {
     "category": "Working with multiple files",
@@ -1177,7 +1343,8 @@
     "solution": [
       ":bnext",
       ":bn"
-    ]
+    ],
+    "id": "94984e73dea1"
   },
   {
     "category": "Working with multiple files",
@@ -1185,35 +1352,40 @@
     "solution": [
       ":bprev",
       ":bp"
-    ]
+    ],
+    "id": "ae3ce941a9ea"
   },
   {
     "category": "Working with multiple files",
     "question": "delete a buffer (close a file)",
     "solution": [
       ":bd"
-    ]
+    ],
+    "id": "6643d75cb741"
   },
   {
     "category": "Working with multiple files",
     "question": "list all open buffers",
     "solution": [
       ":ls"
-    ]
+    ],
+    "id": "368787c7a95d"
   },
   {
     "category": "Working with multiple files",
     "question": "open a `file` in a new buffer and split window",
     "solution": [
       ":sp file"
-    ]
+    ],
+    "id": "baed4066efc5"
   },
   {
     "category": "Working with multiple files",
     "question": "open a `file` in a new buffer and vertically split window",
     "solution": [
       ":vsp file"
-    ]
+    ],
+    "id": "99db921c4b1e"
   },
   {
     "category": "Working with multiple files",
@@ -1221,98 +1393,112 @@
     "solution": [
       ":sv file",
       ":sview file"
-    ]
+    ],
+    "id": "0a7c1b824aa5"
   },
   {
     "category": "Working with multiple files",
     "question": "vertically open a `file` as readonly as a split",
     "solution": [
       ":vert sv file"
-    ]
+    ],
+    "id": "3e4e02235f54"
   },
   {
     "category": "Split window",
     "question": "split window horizontally",
     "solution": [
       "ctrl-ws"
-    ]
+    ],
+    "id": "3d9c187d7fa8"
   },
   {
     "category": "Split window",
     "question": "split window vertically",
     "solution": [
       "ctrl-wv"
-    ]
+    ],
+    "id": "72e5715206af"
   },
   {
     "category": "Split window",
     "question": "switch windows (cycle)",
     "solution": [
       "ctrl-ww"
-    ]
+    ],
+    "id": "eecb920ce667"
   },
   {
     "category": "Split window",
     "question": "quit a window",
     "solution": [
       "ctrl-wq"
-    ]
+    ],
+    "id": "da25c0440718"
   },
   {
     "category": "Split window",
     "question": "rotate two windows (can not do it if the other one is splitted)",
     "solution": [
       "ctrl-wr"
-    ]
+    ],
+    "id": "21a7c6c06ea2"
   },
   {
     "category": "Split window",
     "question": "move cursor to the left window (vertical split)",
     "solution": [
       "ctrl-wh"
-    ]
+    ],
+    "id": "57de3f620fd5"
   },
   {
     "category": "Split window",
     "question": "move cursor to the right window (vertical split)",
     "solution": [
       "ctrl-wl"
-    ]
+    ],
+    "id": "8cba53a610a5"
   },
   {
     "category": "Split window",
     "question": "move cursor to the window below (horizontal split)",
     "solution": [
       "ctrl-wj"
-    ]
+    ],
+    "id": "9a83c3d3c7ad"
   },
   {
     "category": "Split window",
     "question": "move cursor to the window above (horizontal split)",
     "solution": [
       "ctrl-wk"
-    ]
+    ],
+    "id": "b14526ae4242"
   },
   {
     "category": "Split window",
     "question": "maximize current window vertically",
     "solution": [
       "ctrl-w_"
-    ]
+    ],
+    "id": "a4aab5d46b56"
   },
   {
     "category": "Split window",
     "question": "maximize current window horizontally",
     "solution": [
       "ctrl-w|"
-    ]
+    ],
+    "id": "5e3f16ab60a6"
   },
   {
     "category": "Split window",
     "question": "make all equal size vertically",
     "solution": [
       "ctrl-w="
-    ]
+    ],
+    "id": "25499ad00214"
   },
   {
     "category": "Split window",
@@ -1320,7 +1506,8 @@
     "solution": [
       ":res +/-num",
       "numctrl-w+/-"
-    ]
+    ],
+    "id": "ca87f8e8e726"
   },
   {
     "category": "Split window",
@@ -1328,7 +1515,8 @@
     "solution": [
       ":vert res +/-num",
       "numctrl-w</>"
-    ]
+    ],
+    "id": "9f0b8c2abe8c"
   },
   {
     "category": "Tabs",
@@ -1337,14 +1525,16 @@
       ":tabe file",
       ":tabnew",
       ":tabnew file"
-    ]
+    ],
+    "id": "11d65645ee79"
   },
   {
     "category": "Tabs",
     "question": "move the current split window into its own tab",
     "solution": [
       "ctrl-wT"
-    ]
+    ],
+    "id": "4ab4eebea846"
   },
   {
     "category": "Tabs",
@@ -1353,7 +1543,8 @@
       "gt",
       ":tabnext",
       ":tabn"
-    ]
+    ],
+    "id": "c150136f4667"
   },
   {
     "category": "Tabs",
@@ -1362,14 +1553,16 @@
       "gT",
       ":tabprev",
       ":tabp"
-    ]
+    ],
+    "id": "2bb7fde67a22"
   },
   {
     "category": "Tabs",
     "question": "move to tab number `NUM`",
     "solution": [
       "NUMgt"
-    ]
+    ],
+    "id": "b1ef50c07474"
   },
   {
     "category": "Tabs",
@@ -1377,7 +1570,8 @@
     "solution": [
       ":tabm NUM",
       ":tabmove NUM"
-    ]
+    ],
+    "id": "81fa5294ae65"
   },
   {
     "category": "Tabs",
@@ -1385,7 +1579,8 @@
     "solution": [
       ":tabc",
       ":tabclose"
-    ]
+    ],
+    "id": "a2ea378a808c"
   },
   {
     "category": "Tabs",
@@ -1393,216 +1588,247 @@
     "solution": [
       ":tabo",
       ":tabonly"
-    ]
+    ],
+    "id": "732028fd6e33"
   },
   {
     "category": "Tabs",
     "question": "run the `command` on all tabs (e.g. `command` = q - closes all opened tabs)",
     "solution": [
       ":tabdo command"
-    ]
+    ],
+    "id": "ccfa4951cafd"
   },
   {
     "category": "Extra",
     "question": "in insert mode opens up autocomplete",
     "solution": [
       "ctrl-n"
-    ]
+    ],
+    "id": "22bdd1bf617d"
   },
   {
     "category": "Extra",
     "question": "show line info",
     "solution": [
       "ctrl-g"
-    ]
+    ],
+    "id": "e152319ebcbc"
   },
   {
     "category": "Extra",
     "question": "in insert mode after this key combo, you can use a command from normal mode, and immediately switch back to the starting mode",
     "solution": [
       "ctrl-o"
-    ]
+    ],
+    "id": "77759ca1f905"
   },
   {
     "category": "Extra",
     "question": "open terminal as a horizontal split buffer.",
     "solution": [
       ":term"
-    ]
+    ],
+    "id": "4e4b22ec2977"
   },
   {
     "category": "Open vim specially",
     "question": "open multiple files (`file1` `file2`) as buffer",
     "solution": [
       "vim file1 file2"
-    ]
+    ],
+    "id": "8493cdd351c7"
   },
   {
     "category": "Open vim specially",
     "question": "open multiple files (`file1` `file2`) as tabs",
     "solution": [
       "vim -p file1 file2"
-    ]
+    ],
+    "id": "76674f179bd7"
   },
   {
     "category": "Open vim specially",
     "question": "open multiple files (`file1` `file2`) as horizontal split",
     "solution": [
       "vim -o file1 file2"
-    ]
+    ],
+    "id": "6679c9836abf"
   },
   {
     "category": "Open vim specially",
     "question": "open multiple files (`file1` `file2`) as vertical split",
     "solution": [
       "vim -O file1 file2"
-    ]
+    ],
+    "id": "6c5cd5956e70"
   },
   {
     "category": "Open vim specially",
     "question": "open `file` at linenumber `number`",
     "solution": [
       "vim file +number"
-    ]
+    ],
+    "id": "8f21f70d6f8f"
   },
   {
     "category": "Vim sessions",
     "question": "load up vim with a session called `workproject.vim`",
     "solution": [
       "vim -S workproject.vim"
-    ]
+    ],
+    "id": "117db5434154"
   },
   {
     "category": "Vim sessions",
     "question": "load vim session to an opened vim called `workproject.vim`",
     "solution": [
       ":source workproject.vim"
-    ]
+    ],
+    "id": "8aae52d606e4"
   },
   {
     "category": "Vim sessions",
     "question": "save changed session tabs while you are in the session called `workproject.vim`",
     "solution": [
       ":mks! workproject.vim"
-    ]
+    ],
+    "id": "faca3fe0667b"
   },
   {
     "category": "Command line history",
     "question": "show prev commands. Close with Ctrl+c",
     "solution": [
       "q:"
-    ]
+    ],
+    "id": "21680837e78a"
   },
   {
     "category": "Command line history",
     "question": "show prev searches. Close with Ctrl+c",
     "solution": [
       "q/"
-    ]
+    ],
+    "id": "37c169a57cd4"
   },
   {
     "category": "Command line history",
     "question": "type in any word and press up. It will look for the prev command that started like that",
     "solution": [
       ":"
-    ]
+    ],
+    "id": "ce794513cd84"
   },
   {
     "category": "Folding",
     "question": "toggle folding",
     "solution": [
       "za"
-    ]
+    ],
+    "id": "4099b72ad5c0"
   },
   {
     "category": "Folding",
     "question": "visualize folds. show `NUM` lines of nested folds per line",
     "solution": [
       ":set foldcolumn=NUM"
-    ]
+    ],
+    "id": "760430c95485"
   },
   {
     "category": "Folding",
     "question": "fold the current paragraph",
     "solution": [
       "zfip"
-    ]
+    ],
+    "id": "34cf02d318a1"
   },
   {
     "category": "Folding",
     "question": "fold until next occurrance of `string`",
     "solution": [
       "zf/string"
-    ]
+    ],
+    "id": "2f7b863e53a3"
   },
   {
     "category": "Folding",
     "question": "delete fold",
     "solution": [
       "zd"
-    ]
+    ],
+    "id": "5ecaed4b01a2"
   },
   {
     "category": "Folding",
     "question": "delete all folds",
     "solution": [
       "zE"
-    ]
+    ],
+    "id": "9f5e3193ef48"
   },
   {
     "category": "Folding",
     "question": "fold the next `20` lines",
     "solution": [
       "zf20j"
-    ]
+    ],
+    "id": "2da7c9d167ef"
   },
   {
     "category": "Folding",
     "question": "fold until wherever mark `a` is in the document",
     "solution": [
       "zf`a"
-    ]
+    ],
+    "id": "c94046cb8c7f"
   },
   {
     "category": "Folding",
     "question": "open all folds",
     "solution": [
       "zR"
-    ]
+    ],
+    "id": "3a8a20aef70a"
   },
   {
     "category": "Folding",
     "question": "close all folds",
     "solution": [
       "zM"
-    ]
+    ],
+    "id": "5ea787ba1b54"
   },
   {
     "category": "Folding",
     "question": "save folding state",
     "solution": [
       ":mkview"
-    ]
+    ],
+    "id": "469a28d0cfdb"
   },
   {
     "category": "Folding",
     "question": "load prev folding state",
     "solution": [
       ":loadview"
-    ]
+    ],
+    "id": "4687a5f517d6"
   },
   {
     "category": "Tips and tricks",
     "question": "show the diffs with `diff` command since last save. (It saves the output to stdin and loads the differences between the current filename and standard input)",
     "solution": [
       ":w !diff % -"
-    ]
+    ],
+    "id": "a84f3c57d2cd"
   },
   {
     "category": "Tips and tricks",
     "question": "run the previously recorded `o` macro on all lines that match `pattern`",
     "solution": [
       ":g/pattern/norm @o"
-    ]
+    ],
+    "id": "d9c029025e8e"
   }
 ]

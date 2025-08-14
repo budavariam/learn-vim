@@ -44,6 +44,9 @@ const groupByCategory = (data) => {
 function App() {
   const [search, setSearch] = useState("")
   const [darkMode, setDarkMode] = useState(false)
+  const [knownItems, setKnownItems] = useState(new Set());
+  const [showUnknownOnly, setShowUnknownOnly] = useState(false);
+
   const [collapsedCategories, setCollapsedCategories] = useState(new Set())
 
   useEffect(() => {
@@ -61,8 +64,25 @@ function App() {
     localStorage.setItem('darkMode', JSON.stringify(darkMode))
   }, [darkMode])
 
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('knownItems') || '[]');
+    setKnownItems(new Set(saved));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('knownItems', JSON.stringify([...knownItems]));
+  }, [knownItems]);
+
+
   const result = search === "" ? preparedData : fuzzy(search, fuse)
-  const groupedData = groupByCategory(result)
+  let filteredData = result;
+  if (showUnknownOnly) {
+    filteredData = result.filter((item) =>
+      !knownItems.has(item.id)
+    );
+  }
+
+  const groupedData = groupByCategory(filteredData)
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode)
@@ -94,6 +114,19 @@ function App() {
       setCollapsedCategories(new Set(allCategories))
     }
   }
+
+  const toggleKnown = (id) => {
+    setKnownItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
@@ -152,6 +185,42 @@ function App() {
                   </svg>
                 )}
               </button>
+              <button
+                onClick={() => setShowUnknownOnly(v => !v)}
+                className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+                title={showUnknownOnly ? "Show all commands" : "Show only unknown"}
+              >
+                <svg className={`w-4 h-4 ${showUnknownOnly ? 'text-yellow-500' : 'text-gray-600 dark:text-gray-300'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M12 2a7 7 0 00-7 7c0 2.485 1.355 4.66 3.367 5.828L8 20h8l-.367-5.172A7.002 7.002 0 0019 9a7 7 0 00-7-7z" />
+                </svg>
+              </button>
+
+              <button
+                onClick={() => {
+                  const allItemIds = new Set(preparedData.map(item => item.id));
+                  const allKnown = [...allItemIds].every(id => knownItems.has(id));
+
+                  if (allKnown) {
+                    setKnownItems(new Set()); // Reset - mark all as unknown
+                  } else {
+                    setKnownItems(allItemIds); // Mark all as known
+                  }
+                }}
+                className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+                title={(() => {
+                  const allItemIds = new Set(preparedData.map(item => item.id));
+                  const allKnown = [...allItemIds].every(id => knownItems.has(id));
+                  return allKnown ? "Reset - mark all as unknown" : "Mark all as known";
+                })()}
+              >
+                {(() => {
+                  const allItemIds = new Set(preparedData.map(item => item.id));
+                  const allKnown = [...allItemIds].every(id => knownItems.has(id));
+                  return allKnown ? "🔄" : "✅";
+                })()}
+              </button>
+
 
               <a
                 href="/learn-vim/game"
@@ -202,8 +271,13 @@ function App() {
                     <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                       {items.map((item, index) => (
                         <div
+                          onClick={() => toggleKnown(item.id)}
                           key={index}
-                          className="group p-2.5 rounded-md border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md transition-all duration-200 bg-gray-50 dark:bg-gray-800"
+                          // className="group p-2.5 rounded-md border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md transition-all duration-200 bg-gray-50 dark:bg-gray-800"
+                          className={`group p-2.5 rounded-md border cursor-pointer transition-all duration-200 ${knownItems.has(item.id)
+                            ? 'opacity-50 bg-gray-200 dark:bg-gray-700'
+                            : 'bg-yellow-50 dark:bg-yellow-900 border-yellow-400'
+                            }`}
                         >
                           <div className="flex flex-wrap gap-1 mb-2">
                             {item.solution.map((combo, comboIndex) => (
