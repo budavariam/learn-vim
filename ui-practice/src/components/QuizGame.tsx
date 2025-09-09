@@ -1,8 +1,8 @@
-import React, { useReducer, FormEvent } from 'react';
+import React, { useReducer, FormEvent, useState, useEffect } from 'react';
 import {
     Shuffle, RotateCcw, Trophy, Target,
     CheckCircle, XCircle, Zap, BookOpen, Database,
-    Download, Plus, Minus, Eye
+    Download, Plus, Minus, Eye, ToggleLeft, ToggleRight
 } from 'lucide-react';
 import quizData from '../data.json';
 import ColoredText from './ColoredText';
@@ -253,6 +253,14 @@ function reducer(state: State, action: Action): State {
 
 const QuizGame: React.FC = () => {
     const [state, dispatch] = useReducer(reducer, initialState);
+    const [currentKnownItems, setCurrentKnownItems] = useState<Set<string>>(new Set());
+
+    // Update local known items state when entering review
+    useEffect(() => {
+        if (state.gameState === 'review') {
+            setCurrentKnownItems(getKnownItems());
+        }
+    }, [state.gameState]);
 
     const {
         gameState, gameMode, questions, currentIndex,
@@ -312,6 +320,7 @@ const QuizGame: React.FC = () => {
         });
 
         saveKnownItems(knownItems);
+        setCurrentKnownItems(new Set(knownItems));
         if (addedCount === 0) {
             alert(`All ${correctResults.length} correctly answered items were already in known items!`);
         } else {
@@ -332,11 +341,27 @@ const QuizGame: React.FC = () => {
         });
 
         saveKnownItems(knownItems);
+        setCurrentKnownItems(new Set(knownItems));
         if (removedCount === 0) {
             alert(`None of the ${incorrectResults.length} missed items were in known items!`);
         } else {
             alert(`Removed ${removedCount} items from known items! (${incorrectResults.length - removedCount} were not previously known)`);
         }
+    };
+
+    // Individual item toggle function
+    const toggleKnownItem = (questionId: string | undefined) => {
+        if (!questionId) return;
+
+        const knownItems = getKnownItems();
+        if (knownItems.has(questionId)) {
+            knownItems.delete(questionId);
+        } else {
+            knownItems.add(questionId);
+        }
+
+        saveKnownItems(knownItems);
+        setCurrentKnownItems(new Set(knownItems));
     };
 
     /* ────────────────── UI ─────────────────── */
@@ -552,56 +577,78 @@ const QuizGame: React.FC = () => {
                             <div className="quiz-card">
                                 <h2 className="text-2xl font-bold color-cyan mb-6">Detailed Review</h2>
                                 <div className="space-y-4">
-                                    {results.map((result, index) => (
-                                        <div
-                                            key={index}
-                                            className={`p-4 rounded-lg border-2 ${result.isCorrect
+                                    {results.map((result, index) => {
+                                        const isCurrentlyKnown = currentKnownItems.has(result.question.id || '');
+                                        return (
+                                            <div
+                                                key={index}
+                                                className={`p-4 rounded-lg border-2 ${result.isCorrect
                                                     ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
                                                     : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                                                }`}
-                                        >
-                                            <div className="flex items-start gap-4">
-                                                <div className="flex-shrink-0 mt-1">
-                                                    {result.isCorrect ? (
-                                                        <CheckCircle className="w-6 h-6 color-green" />
-                                                    ) : (
-                                                        <XCircle className="w-6 h-6 color-red" />
-                                                    )}
-                                                </div>
-                                                <div className="flex-grow space-y-3">
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-sm font-bold color-cyan">
-                                                            Q{index + 1}: {result.question.category}
-                                                        </span>
-                                                        {result.wasKnownBefore && !result.isCorrect && (
-                                                            <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 text-xs rounded-full font-medium">
-                                                                Previously Known
-                                                            </span>
+                                                    }`}
+                                            >
+                                                <div className="flex items-start gap-4">
+                                                    <div className="flex-shrink-0 mt-1">
+                                                        {result.isCorrect ? (
+                                                            <CheckCircle className="w-6 h-6 color-green" />
+                                                        ) : (
+                                                            <XCircle className="w-6 h-6 color-red" />
                                                         )}
                                                     </div>
+                                                    <div className="flex-grow space-y-3">
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-sm font-bold color-cyan">
+                                                                    Q{index + 1}: {result.question.category}
+                                                                </span>
+                                                                {result.wasKnownBefore && !result.isCorrect && (
+                                                                    <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 text-xs rounded-full font-medium">
+                                                                        Previously Known
+                                                                    </span>
+                                                                )}
+                                                            </div>
 
-                                                    <div className="terminal-text">
-                                                        <ColoredText text={result.question.question} />
-                                                    </div>
-
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                                        <div>
-                                                            <span className="color-cyan font-semibold">Your Answer: </span>
-                                                            <span className={result.isCorrect ? 'color-green' : 'color-red'}>
-                                                                {result.userAnswer || '(empty)'}
-                                                            </span>
+                                                            {/* Individual Toggle Button */}
+                                                            <button
+                                                                onClick={() => toggleKnownItem(result.question.id)}
+                                                                className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${isCurrentlyKnown
+                                                                    ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800'
+                                                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                                                    }`}
+                                                                title={isCurrentlyKnown ? "Mark as unknown" : "Mark as known"}
+                                                            >
+                                                                {isCurrentlyKnown ? (
+                                                                    <ToggleRight className="w-4 h-4" />
+                                                                ) : (
+                                                                    <ToggleLeft className="w-4 h-4" />
+                                                                )}
+                                                                {isCurrentlyKnown ? 'Known' : 'Unknown'}
+                                                            </button>
                                                         </div>
-                                                        <div>
-                                                            <span className="color-cyan font-semibold">Correct: </span>
-                                                            <span className="color-yellow">
-                                                                {result.question.solution.join(', ')}
-                                                            </span>
+
+                                                        <div className="terminal-text">
+                                                            <ColoredText text={result.question.question} />
+                                                        </div>
+
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                                            <div>
+                                                                <span className="color-cyan font-semibold">Your Answer: </span>
+                                                                <span className={result.isCorrect ? 'color-green' : 'color-red'}>
+                                                                    {result.userAnswer || '(empty)'}
+                                                                </span>
+                                                            </div>
+                                                            <div>
+                                                                <span className="color-cyan font-semibold">Correct: </span>
+                                                                <span className="color-yellow">
+                                                                    {result.question.solution.join(', ')}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
