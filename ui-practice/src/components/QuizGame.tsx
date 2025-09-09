@@ -112,6 +112,25 @@ const saveKnownItems = (knownItems: Set<string>) => {
     }
 };
 
+// Helper function to calculate impact of add/remove operations
+const calculateImpacts = (results: QuizResult[]) => {
+    const knownItems = getKnownItems();
+    const correctAnswers = results.filter(r => r.isCorrect);
+    const incorrectAnswers = results.filter(r => !r.isCorrect);
+
+    // Calculate how many correct items are NOT already known
+    const correctToAdd = correctAnswers.filter(result =>
+        result.question.id && !knownItems.has(result.question.id)
+    ).length;
+
+    // Calculate how many incorrect items ARE currently known
+    const incorrectToRemove = incorrectAnswers.filter(result =>
+        result.question.id && knownItems.has(result.question.id)
+    ).length;
+
+    return { correctToAdd, incorrectToRemove };
+};
+
 const getQuestionsForMode = (mode: GameMode, allQuestions: QuizQuestion[]): QuizQuestion[] => {
     const shuffled = shuffle(allQuestions);
     const { questionCount } = gameModes[mode];
@@ -283,29 +302,41 @@ const QuizGame: React.FC = () => {
     const addCorrectToKnownItems = () => {
         const knownItems = getKnownItems();
         const correctResults = results.filter(result => result.isCorrect);
+        let addedCount = 0;
 
         correctResults.forEach(result => {
-            if (result.question.id) {
+            if (result.question.id && !knownItems.has(result.question.id)) {
                 knownItems.add(result.question.id);
+                addedCount++;
             }
         });
 
         saveKnownItems(knownItems);
-        alert(`Added ${correctResults.length} correctly answered items to known items!`);
+        if (addedCount === 0) {
+            alert(`All ${correctResults.length} correctly answered items were already in known items!`);
+        } else {
+            alert(`Added ${addedCount} new items to known items! (${correctResults.length - addedCount} were already known)`);
+        }
     };
 
     const removeIncorrectFromKnownItems = () => {
         const knownItems = getKnownItems();
         const incorrectResults = results.filter(result => !result.isCorrect);
+        let removedCount = 0;
 
         incorrectResults.forEach(result => {
-            if (result.question.id) {
+            if (result.question.id && knownItems.has(result.question.id)) {
                 knownItems.delete(result.question.id);
+                removedCount++;
             }
         });
 
         saveKnownItems(knownItems);
-        alert(`Removed ${incorrectResults.length} incorrectly answered items from known items!`);
+        if (removedCount === 0) {
+            alert(`None of the ${incorrectResults.length} missed items were in known items!`);
+        } else {
+            alert(`Removed ${removedCount} items from known items! (${incorrectResults.length - removedCount} were not previously known)`);
+        }
     };
 
     /* ────────────────── UI ─────────────────── */
@@ -436,6 +467,7 @@ const QuizGame: React.FC = () => {
         const correctAnswers = results.filter(r => r.isCorrect);
         const incorrectAnswers = results.filter(r => !r.isCorrect);
         const knownButMissed = results.filter(r => !r.isCorrect && r.wasKnownBefore);
+        const { correctToAdd, incorrectToRemove } = calculateImpacts(results);
 
         return (
             <div className="min-h-screen p-6">
@@ -469,18 +501,20 @@ const QuizGame: React.FC = () => {
                         <button
                             onClick={addCorrectToKnownItems}
                             className="terminal-button-success flex items-center justify-center gap-2"
-                            disabled={correctAnswers.length === 0}
+                            disabled={correctToAdd === 0}
+                            title={correctToAdd === 0 ? "All correct answers are already in known items" : `Will add ${correctToAdd} new items to known list`}
                         >
                             <Plus className="w-4 h-4" />
-                            Add Correct ({correctAnswers.length})
+                            Add Correct (+{correctToAdd})
                         </button>
                         <button
                             onClick={removeIncorrectFromKnownItems}
                             className="terminal-button-danger flex items-center justify-center gap-2"
-                            disabled={incorrectAnswers.length === 0}
+                            disabled={incorrectToRemove === 0}
+                            title={incorrectToRemove === 0 ? "No incorrect answers are in known items" : `Will remove ${incorrectToRemove} items from known list`}
                         >
                             <Minus className="w-4 h-4" />
-                            Remove Missed ({incorrectAnswers.length})
+                            Remove Missed (-{incorrectToRemove})
                         </button>
                         <div className="terminal-text color-yellow text-center p-2 rounded">
                             Known but Missed: {knownButMissed.length}
