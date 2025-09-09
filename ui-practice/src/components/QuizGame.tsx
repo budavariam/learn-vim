@@ -1,7 +1,8 @@
 import React, { useReducer, FormEvent } from 'react';
 import {
     Shuffle, RotateCcw, Trophy, Target,
-    CheckCircle, XCircle, Zap, BookOpen, Database
+    CheckCircle, XCircle, Zap, BookOpen, Database,
+    Download, Plus, Minus, Eye
 } from 'lucide-react';
 import quizData from '../data.json';
 import ColoredText from './ColoredText';
@@ -11,12 +12,20 @@ import TypingText from './TypingText';
 /* ──────────────────── types ──────────────────── */
 
 interface QuizQuestion {
+    id?: string;
     category: string;
     question: string;
     solution: string[];
 }
 
-type GameState = 'intro' | 'mode-select' | 'playing' | 'answered' | 'finished';
+interface QuizResult {
+    question: QuizQuestion;
+    userAnswer: string;
+    isCorrect: boolean;
+    wasKnownBefore: boolean;
+}
+
+type GameState = 'intro' | 'mode-select' | 'playing' | 'answered' | 'finished' | 'review';
 type GameMode = 'flash' | 'regular' | 'all';
 
 interface GameModeConfig {
@@ -37,6 +46,7 @@ interface State {
     userAnswer: string;
     isCorrect: boolean;
     showAnswer: boolean;
+    results: QuizResult[];
 }
 
 type Action =
@@ -46,7 +56,9 @@ type Action =
     | { type: 'NEXT_QUESTION' }
     | { type: 'QUIT_GAME' }
     | { type: 'RESET' }
-    | { type: 'SET_USER_ANSWER'; payload: string };
+    | { type: 'SET_USER_ANSWER'; payload: string }
+    | { type: 'SHOW_REVIEW' }
+    | { type: 'BACK_TO_RESULTS' };
 
 /* ────────────────── helpers ──────────────────── */
 
@@ -80,6 +92,26 @@ const gameModes: Record<GameMode, GameModeConfig> = {
     }
 };
 
+// Helper function to get known items from localStorage
+const getKnownItems = (): Set<string> => {
+    try {
+        const saved = JSON.parse(localStorage.getItem('knownItems') || '[]');
+        return new Set(saved);
+    } catch (error) {
+        console.error('Error reading knownItems from localStorage:', error);
+        return new Set();
+    }
+};
+
+// Helper function to save known items to localStorage
+const saveKnownItems = (knownItems: Set<string>) => {
+    try {
+        localStorage.setItem('knownItems', JSON.stringify([...knownItems]));
+    } catch (error) {
+        console.error('Error saving knownItems to localStorage:', error);
+    }
+};
+
 const getQuestionsForMode = (mode: GameMode, allQuestions: QuizQuestion[]): QuizQuestion[] => {
     const shuffled = shuffle(allQuestions);
     const { questionCount } = gameModes[mode];
@@ -96,7 +128,8 @@ const initialState: State = {
     score: 0,
     userAnswer: '',
     isCorrect: false,
-    showAnswer: false
+    showAnswer: false,
+    results: []
 };
 
 /* ────────────────── reducer ──────────────────── */
@@ -109,7 +142,8 @@ function reducer(state: State, action: Action): State {
                 ...state,
                 gameState: 'mode-select',
                 gameMode: action.payload,
-                questions: modeQuestions
+                questions: modeQuestions,
+                results: []
             };
 
         case 'START_GAME':
@@ -120,7 +154,8 @@ function reducer(state: State, action: Action): State {
                 score: 0,
                 userAnswer: '',
                 isCorrect: false,
-                showAnswer: false
+                showAnswer: false,
+                results: []
             };
 
         case 'SET_USER_ANSWER':
@@ -129,13 +164,23 @@ function reducer(state: State, action: Action): State {
         case 'ANSWER': {
             const currentQ = state.questions[state.currentIndex];
             const correct = currentQ.solution.includes(action.payload.answer.trim());
+            const knownItems = getKnownItems();
+            const wasKnownBefore = knownItems.has(currentQ.id || '');
+
+            const newResult: QuizResult = {
+                question: currentQ,
+                userAnswer: action.payload.answer.trim(),
+                isCorrect: correct,
+                wasKnownBefore
+            };
 
             return {
                 ...state,
                 isCorrect: correct,
                 score: correct ? state.score + 1 : state.score,
                 gameState: 'answered',
-                showAnswer: true
+                showAnswer: true,
+                results: [...state.results, newResult]
             };
         }
 
@@ -162,6 +207,18 @@ function reducer(state: State, action: Action): State {
                 gameState: 'finished'
             };
 
+        case 'SHOW_REVIEW':
+            return {
+                ...state,
+                gameState: 'review'
+            };
+
+        case 'BACK_TO_RESULTS':
+            return {
+                ...state,
+                gameState: 'finished'
+            };
+
         case 'RESET':
             return {
                 ...initialState,
@@ -180,7 +237,7 @@ const QuizGame: React.FC = () => {
 
     const {
         gameState, gameMode, questions, currentIndex,
-        score, userAnswer, isCorrect, showAnswer
+        score, userAnswer, isCorrect, showAnswer, results
     } = state;
 
     /* ──────────────── handlers ─────────────── */
@@ -195,7 +252,7 @@ const QuizGame: React.FC = () => {
         e.preventDefault();
         dispatch({ type: 'NEXT_QUESTION' });
     };
-    
+
     const handleModeSelect = (mode: GameMode) => {
         dispatch({ type: 'SELECT_MODE', payload: mode });
     };
@@ -209,6 +266,48 @@ const QuizGame: React.FC = () => {
         return Math.round((score / totalAnswered) * 100);
     })();
 
+    // Export functions for review section
+    const exportKnownItems = () => {
+        const knownItems = getKnownItems();
+        const knownItemsArray = [...knownItems];
+        const dataStr = JSON.stringify(knownItemsArray, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
+        const exportFileDefaultName = 'knownItems.json';
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+    };
+
+    const addCorrectToKnownItems = () => {
+        const knownItems = getKnownItems();
+        const correctResults = results.filter(result => result.isCorrect);
+
+        correctResults.forEach(result => {
+            if (result.question.id) {
+                knownItems.add(result.question.id);
+            }
+        });
+
+        saveKnownItems(knownItems);
+        alert(`Added ${correctResults.length} correctly answered items to known items!`);
+    };
+
+    const removeIncorrectFromKnownItems = () => {
+        const knownItems = getKnownItems();
+        const incorrectResults = results.filter(result => !result.isCorrect);
+
+        incorrectResults.forEach(result => {
+            if (result.question.id) {
+                knownItems.delete(result.question.id);
+            }
+        });
+
+        saveKnownItems(knownItems);
+        alert(`Removed ${incorrectResults.length} incorrectly answered items from known items!`);
+    };
+
     /* ────────────────── UI ─────────────────── */
 
     // Intro Page
@@ -221,10 +320,9 @@ const QuizGame: React.FC = () => {
                     <TypingText
                         text="Interactive Quiz Game"
                         className="text-5xl font-bold color-cyan"
-                        speed={80} // Adjust speed as needed
+                        speed={80}
                         startDelay={300}
                         onComplete={() => {
-                            // Optional: Do something when typing completes
                             console.log('Typing animation completed');
                         }}
                     />
@@ -247,11 +345,11 @@ const QuizGame: React.FC = () => {
                                 <div
                                     key={mode}
                                     onClick={() => handleModeSelect(mode as GameMode)}
-                                    className="group cursor-pointer h-full" // Add h-full here
+                                    className="group cursor-pointer h-full"
                                 >
-                                    <div className="quiz-card hover:scale-105 transition-all duration-300 hover:shadow-2xl h-full flex flex-col"> {/* Add h-full and flex */}
-                                        <div className="text-center space-y-4 flex-grow flex flex-col justify-between"> {/* Add flex styling */}
-                                            <div className="space-y-4"> {/* Wrap top content */}
+                                    <div className="quiz-card hover:scale-105 transition-all duration-300 hover:shadow-2xl h-full flex flex-col">
+                                        <div className="text-center space-y-4 flex-grow flex flex-col justify-between">
+                                            <div className="space-y-4">
                                                 <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-r ${config.bgColor} flex items-center justify-center`}>
                                                     <IconComponent className="w-8 h-8 text-white" />
                                                 </div>
@@ -260,7 +358,7 @@ const QuizGame: React.FC = () => {
                                                     {config.name}
                                                 </h3>
 
-                                                <p className="terminal-text color-cyan min-h-[3rem] flex items-center justify-center"> {/* Fixed height for description */}
+                                                <p className="terminal-text color-cyan min-h-[3rem] flex items-center justify-center">
                                                     {config.description}
                                                 </p>
 
@@ -269,7 +367,7 @@ const QuizGame: React.FC = () => {
                                                 </div>
                                             </div>
 
-                                            <button className="terminal-button-primary w-full group-hover:shadow-lg mt-4"> {/* Add margin top */}
+                                            <button className="terminal-button-primary w-full group-hover:shadow-lg mt-4">
                                                 Start {config.name}
                                             </button>
                                         </div>
@@ -278,7 +376,6 @@ const QuizGame: React.FC = () => {
                             );
                         })}
                     </div>
-
 
                     <div className="text-center terminal-text color-cyan opacity-60 mt-8">
                         <p>Choose your challenge level to begin</p>
@@ -334,6 +431,152 @@ const QuizGame: React.FC = () => {
         );
     }
 
+    // Review Section
+    if (gameState === 'review') {
+        const correctAnswers = results.filter(r => r.isCorrect);
+        const incorrectAnswers = results.filter(r => !r.isCorrect);
+        const knownButMissed = results.filter(r => !r.isCorrect && r.wasKnownBefore);
+
+        return (
+            <div className="min-h-screen p-6">
+                <div className="max-w-6xl mx-auto">
+                    {/* Header */}
+                    <div className="flex justify-between items-center mb-8">
+                        <div className="flex items-center gap-4">
+                            <Eye className="w-8 h-8 color-cyan" />
+                            <h1 className="text-3xl font-bold color-cyan">Review Session</h1>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <ThemeToggle size="sm" showText={false} />
+                            <button
+                                onClick={() => dispatch({ type: 'BACK_TO_RESULTS' })}
+                                className="terminal-button-secondary"
+                            >
+                                Back to Results
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                        <button
+                            onClick={exportKnownItems}
+                            className="terminal-button-primary flex items-center justify-center gap-2"
+                        >
+                            <Download className="w-4 h-4" />
+                            Export Known Items
+                        </button>
+                        <button
+                            onClick={addCorrectToKnownItems}
+                            className="terminal-button-success flex items-center justify-center gap-2"
+                            disabled={correctAnswers.length === 0}
+                        >
+                            <Plus className="w-4 h-4" />
+                            Add Correct ({correctAnswers.length})
+                        </button>
+                        <button
+                            onClick={removeIncorrectFromKnownItems}
+                            className="terminal-button-danger flex items-center justify-center gap-2"
+                            disabled={incorrectAnswers.length === 0}
+                        >
+                            <Minus className="w-4 h-4" />
+                            Remove Missed ({incorrectAnswers.length})
+                        </button>
+                        <div className="terminal-text color-yellow text-center p-2 rounded">
+                            Known but Missed: {knownButMissed.length}
+                        </div>
+                    </div>
+
+                    {/* Statistics Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div className="quiz-card bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+                            <div className="text-center space-y-2">
+                                <CheckCircle className="w-12 h-12 color-green mx-auto" />
+                                <h3 className="text-2xl font-bold color-green">Correct</h3>
+                                <p className="text-3xl font-mono color-green">{correctAnswers.length}</p>
+                            </div>
+                        </div>
+                        <div className="quiz-card bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
+                            <div className="text-center space-y-2">
+                                <XCircle className="w-12 h-12 color-red mx-auto" />
+                                <h3 className="text-2xl font-bold color-red">Incorrect</h3>
+                                <p className="text-3xl font-mono color-red">{incorrectAnswers.length}</p>
+                            </div>
+                        </div>
+                        <div className="quiz-card bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
+                            <div className="text-center space-y-2">
+                                <Target className="w-12 h-12 color-yellow mx-auto" />
+                                <h3 className="text-2xl font-bold color-yellow">Accuracy</h3>
+                                <p className="text-3xl font-mono color-yellow">{accuracy}%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Detailed Review */}
+                    <div className="space-y-6">
+                        {results.length > 0 && (
+                            <div className="quiz-card">
+                                <h2 className="text-2xl font-bold color-cyan mb-6">Detailed Review</h2>
+                                <div className="space-y-4">
+                                    {results.map((result, index) => (
+                                        <div
+                                            key={index}
+                                            className={`p-4 rounded-lg border-2 ${result.isCorrect
+                                                    ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                                                    : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                                                }`}
+                                        >
+                                            <div className="flex items-start gap-4">
+                                                <div className="flex-shrink-0 mt-1">
+                                                    {result.isCorrect ? (
+                                                        <CheckCircle className="w-6 h-6 color-green" />
+                                                    ) : (
+                                                        <XCircle className="w-6 h-6 color-red" />
+                                                    )}
+                                                </div>
+                                                <div className="flex-grow space-y-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-sm font-bold color-cyan">
+                                                            Q{index + 1}: {result.question.category}
+                                                        </span>
+                                                        {result.wasKnownBefore && !result.isCorrect && (
+                                                            <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 text-xs rounded-full font-medium">
+                                                                Previously Known
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="terminal-text">
+                                                        <ColoredText text={result.question.question} />
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                                        <div>
+                                                            <span className="color-cyan font-semibold">Your Answer: </span>
+                                                            <span className={result.isCorrect ? 'color-green' : 'color-red'}>
+                                                                {result.userAnswer || '(empty)'}
+                                                            </span>
+                                                        </div>
+                                                        <div>
+                                                            <span className="color-cyan font-semibold">Correct: </span>
+                                                            <span className="color-yellow">
+                                                                {result.question.solution.join(', ')}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     // Finished Game
     if (gameState === 'finished') {
         const config = gameMode ? gameModes[gameMode] : null;
@@ -371,8 +614,15 @@ const QuizGame: React.FC = () => {
 
                     <div className="flex gap-4 justify-center flex-wrap">
                         <button
-                            onClick={() => dispatch({ type: 'RESET' })}
+                            onClick={() => dispatch({ type: 'SHOW_REVIEW' })}
                             className="terminal-button-primary"
+                        >
+                            <Eye className="w-5 h-5 inline mr-2" />
+                            Review Answers
+                        </button>
+                        <button
+                            onClick={() => dispatch({ type: 'RESET' })}
+                            className="terminal-button-secondary"
                         >
                             <RotateCcw className="w-5 h-5 inline mr-2" />
                             Try Different Mode
@@ -470,47 +720,47 @@ const QuizGame: React.FC = () => {
                                 </button>
                             </div>
                         </form>
-                        ) : (
-                            <div className="space-y-6 text-center">
-                                <div className="flex items-center justify-center gap-3">
-                                    {isCorrect ? (
-                                        <CheckCircle className="w-8 h-8 color-green" />
-                                    ) : (
-                                        <XCircle className="w-8 h-8 color-red" />
-                                    )}
-                                    <span
-                                        className={`text-2xl font-bold ${isCorrect ? 'color-green' : 'color-red'
-                                            }`}
-                                    >
-                                        {isCorrect ? 'Correct!' : 'Incorrect'}
-                                    </span>
-                                </div>
-                        
-                                <div className="terminal-text">
-                                    <span className="color-cyan">Your answer: </span>
-                                    <span className={isCorrect ? 'color-green' : 'color-red'}>
-                                        {userAnswer}
-                                    </span>
-                                </div>
-                        
-                                <div className="terminal-text">
-                                    <span className="color-cyan">Correct answer(s): </span>
-                                    <span className="color-yellow font-semibold">
-                                        {currentQ.solution.join(', ')}
-                                    </span>
-                                </div>
-                                
-                                <form onSubmit={handleNextQuestion} className="space-y-6">
-                                    <button
-                                        type="submit"
-                                        className="terminal-button-primary text-lg px-8 py-3"
-                                        autoFocus
-                                    >
-                                        {currentIndex + 1 >= questions.length ? 'Finish Game' : 'Next Question'}
-                                    </button>
-                                </form>
+                    ) : (
+                        <div className="space-y-6 text-center">
+                            <div className="flex items-center justify-center gap-3">
+                                {isCorrect ? (
+                                    <CheckCircle className="w-8 h-8 color-green" />
+                                ) : (
+                                    <XCircle className="w-8 h-8 color-red" />
+                                )}
+                                <span
+                                    className={`text-2xl font-bold ${isCorrect ? 'color-green' : 'color-red'
+                                        }`}
+                                >
+                                    {isCorrect ? 'Correct!' : 'Incorrect'}
+                                </span>
                             </div>
-                        )}
+
+                            <div className="terminal-text">
+                                <span className="color-cyan">Your answer: </span>
+                                <span className={isCorrect ? 'color-green' : 'color-red'}>
+                                    {userAnswer}
+                                </span>
+                            </div>
+
+                            <div className="terminal-text">
+                                <span className="color-cyan">Correct answer(s): </span>
+                                <span className="color-yellow font-semibold">
+                                    {currentQ.solution.join(', ')}
+                                </span>
+                            </div>
+
+                            <form onSubmit={handleNextQuestion} className="space-y-6">
+                                <button
+                                    type="submit"
+                                    className="terminal-button-primary text-lg px-8 py-3"
+                                    autoFocus
+                                >
+                                    {currentIndex + 1 >= questions.length ? 'Finish Game' : 'Next Question'}
+                                </button>
+                            </form>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
