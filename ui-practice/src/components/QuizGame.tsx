@@ -50,6 +50,7 @@ interface State {
     showAnswer: boolean;
     results: QuizResult[];
     mcOptions?: string[];
+    flashcardResponses?: Map<string, boolean>;
 }
 
 type Action =
@@ -62,7 +63,8 @@ type Action =
     | { type: 'SET_USER_ANSWER'; payload: string }
     | { type: 'SHOW_REVIEW' }
     | { type: 'BACK_TO_RESULTS' }
-    | { type: 'SET_MC_OPTIONS'; payload: string[] };
+    | { type: 'SET_MC_OPTIONS'; payload: string[] }
+    | { type: 'RECORD_FLASHCARD_RESPONSE'; payload: { questionId: string; known: boolean } };
 
 /* ────────────────── helpers ──────────────────── */
 
@@ -319,7 +321,8 @@ const initialState: State = {
     isCorrect: false,
     showAnswer: false,
     results: [],
-    mcOptions: []
+    mcOptions: [],
+    flashcardResponses: new Map()
 };
 
 /* ────────────────── reducer ──────────────────── */
@@ -351,7 +354,8 @@ function reducer(state: State, action: Action): State {
                 userAnswer: '',
                 isCorrect: false,
                 showAnswer: false,
-                results: []
+                results: [],
+                flashcardResponses: new Map()
             };
 
         case 'SET_USER_ANSWER':
@@ -359,6 +363,15 @@ function reducer(state: State, action: Action): State {
 
         case 'SET_MC_OPTIONS':
             return { ...state, mcOptions: action.payload };
+
+        case 'RECORD_FLASHCARD_RESPONSE': {
+            const newResponses = new Map(state.flashcardResponses);
+            newResponses.set(action.payload.questionId, action.payload.known);
+            return {
+                ...state,
+                flashcardResponses: newResponses
+            };
+        }
 
         case 'ANSWER': {
             const currentQ = state.questions[state.currentIndex];
@@ -427,7 +440,8 @@ function reducer(state: State, action: Action): State {
         case 'RESET':
             return {
                 ...initialState,
-                questions: shuffle(quizData as QuizQuestion[])
+                questions: shuffle(quizData as QuizQuestion[]),
+                flashcardResponses: new Map()
             };
 
         default:
@@ -516,20 +530,42 @@ const QuizGame: React.FC = () => {
 
     const handleFlashcardKnown = (known: boolean) => {
         const currentQ = questions[currentIndex];
-        const knownItems = getKnownItems();
-
-        if (known) {
-            if (currentQ.id) {
-                knownItems.add(currentQ.id);
-            }
-        } else {
-            if (currentQ.id) {
-                knownItems.delete(currentQ.id);
-            }
+        
+        // Just record the response, don't update localStorage
+        if (currentQ.id) {
+            dispatch({ 
+                type: 'RECORD_FLASHCARD_RESPONSE', 
+                payload: { questionId: currentQ.id, known } 
+            });
         }
+        
+        dispatch({ type: 'NEXT_QUESTION' });
+    };
+
+    // New function to apply flashcard responses to known items
+    const applyFlashcardResponses = () => {
+        const knownItems = getKnownItems();
+        let addedCount = 0;
+        let removedCount = 0;
+
+        state.flashcardResponses?.forEach((known, questionId) => {
+            if (known && !knownItems.has(questionId)) {
+                knownItems.add(questionId);
+                addedCount++;
+            } else if (!known && knownItems.has(questionId)) {
+                knownItems.delete(questionId);
+                removedCount++;
+            }
+        });
 
         saveKnownItems(knownItems);
-        dispatch({ type: 'NEXT_QUESTION' });
+        
+        const totalChanges = addedCount + removedCount;
+        if (totalChanges === 0) {
+            alert('No changes to apply - all items already match your responses!');
+        } else {
+            alert(`Updated known items!\n✓ Added: ${addedCount}\n✗ Removed: ${removedCount}`);
+        }
     };
 
     const accuracy = (() => {
@@ -612,7 +648,7 @@ const QuizGame: React.FC = () => {
 
     /* ────────────────── UI ─────────────────── */
 
-    // Intro Page - keeping existing code...
+    // Intro Page
     if (gameState === 'intro') {
         const quizModes = Object.entries(gameModes).filter(([_, config]) => config.category === 'quiz');
         const practiceModes = Object.entries(gameModes).filter(([_, config]) => config.category === 'practice');
@@ -685,7 +721,7 @@ const QuizGame: React.FC = () => {
                     {/* Practice Modes */}
                     <div className="space-y-4">
                         <h2 className="text-2xl font-bold color-purple">🎴 Flashcard Practice</h2>
-                        <p className="text-sm terminal-text color-cyan opacity-80">Auto-updates your known items list in real-time</p>
+                        <p className="text-sm terminal-text color-cyan opacity-80">Practice freely - update your known items when you're done</p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
                             {practiceModes.map(([mode, config]) => {
                                 const IconComponent = config.icon;
@@ -784,7 +820,7 @@ const QuizGame: React.FC = () => {
         );
     }
 
-    // Mode confirmation - keeping existing...
+    // Mode confirmation
     if (gameState === 'mode-select' && gameMode) {
         const config = gameModes[gameMode];
         const IconComponent = config.icon;
@@ -809,14 +845,14 @@ const QuizGame: React.FC = () => {
                         </p>
                         <p className="text-lg terminal-text color-cyan">
                             {questions.length} {isFlashcardMode ? 'cards' : 'questions'} • {
-                                isFlashcardMode ? 'Practice mode - updates in real-time' :
+                                isFlashcardMode ? 'Practice mode - apply changes at the end' :
                                     gameMode?.startsWith('mc-') ? 'Multiple choice - Press 1-4 for quick answers' :
                                         'Type your answers'
                             }
                         </p>
                         {isFlashcardMode && (
                             <p className="text-sm terminal-text color-green">
-                                ✓ Your progress is saved automatically as you practice
+                                ✓ Your responses are tracked but not saved until you finish
                             </p>
                         )}
                     </div>
@@ -840,12 +876,13 @@ const QuizGame: React.FC = () => {
         );
     }
 
-    // Flashcard Mode - keeping existing...
+    // Flashcard Mode
     if (gameState === 'flashcard') {
         const currentQ = questions[currentIndex];
         const config = gameMode ? gameModes[gameMode] : null;
         const knownItems = getKnownItems();
         const isKnown = knownItems.has(currentQ.id || '');
+        const currentResponse = state.flashcardResponses?.get(currentQ.id || '');
 
         return (
             <div className="min-h-screen p-6">
@@ -926,9 +963,11 @@ const QuizGame: React.FC = () => {
                                             Still Learning
                                         </button>
                                     </div>
-                                    <p className="text-center text-xs terminal-text color-cyan opacity-70">
-                                        ✓ Saved automatically to your known items list
-                                    </p>
+                                    {currentResponse !== undefined && (
+                                        <p className="text-center text-xs terminal-text color-green opacity-70">
+                                            ✓ Response recorded for this session
+                                        </p>
+                                    )}
                                 </div>
                             )}
 
@@ -943,7 +982,7 @@ const QuizGame: React.FC = () => {
                         {isKnown && (
                             <div className="text-center">
                                 <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm rounded-full font-medium">
-                                    ✓ Previously marked as known
+                                    ✓ Currently in known items
                                 </span>
                             </div>
                         )}
@@ -953,7 +992,7 @@ const QuizGame: React.FC = () => {
         );
     }
 
-    // Multiple Choice Mode - UPDATED with smoother styling and number keys
+    // Multiple Choice Mode
     if (gameState === 'multiple-choice') {
         const currentQ = questions[currentIndex];
         const config = gameMode ? gameModes[gameMode] : null;
@@ -1244,6 +1283,7 @@ const QuizGame: React.FC = () => {
     if (gameState === 'finished') {
         const config = gameMode ? gameModes[gameMode] : null;
         const isFlashcardMode = gameMode?.startsWith('flashcard');
+        const flashcardCount = state.flashcardResponses?.size || 0;
 
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -1280,10 +1320,28 @@ const QuizGame: React.FC = () => {
                         )}
 
                         {isFlashcardMode && (
-                            <p className="text-xl terminal-text color-cyan">
-                                You've completed the flashcard practice session!<br/>
-                                <span className="text-sm color-green">✓ All progress saved automatically</span>
-                            </p>
+                            <div className="space-y-4">
+                                <p className="text-xl terminal-text color-cyan">
+                                    You've completed the flashcard practice session!
+                                </p>
+                                <p className="text-lg terminal-text color-yellow">
+                                    Reviewed {flashcardCount} card{flashcardCount !== 1 ? 's' : ''}
+                                </p>
+                                {flashcardCount > 0 && (
+                                    <div className="quiz-card max-w-md mx-auto">
+                                        <p className="text-sm color-cyan mb-4">
+                                            Would you like to update your known items list based on this session?
+                                        </p>
+                                        <button
+                                            onClick={applyFlashcardResponses}
+                                            className="terminal-button-success w-full flex items-center justify-center gap-2"
+                                        >
+                                            <Download className="w-5 h-5" />
+                                            Apply Changes to Known Items
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
                         )}
                     </div>
 
