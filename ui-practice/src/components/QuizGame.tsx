@@ -2,7 +2,8 @@ import React, { useReducer, FormEvent, useState, useEffect } from 'react';
 import {
     Shuffle, RotateCcw, Trophy, Target,
     CheckCircle, XCircle, Zap, BookOpen, Database,
-    Download, Plus, Minus, Eye, ToggleLeft, ToggleRight
+    Download, Plus, Minus, Eye, ToggleLeft, ToggleRight,
+    Layers, Grid3x3
 } from 'lucide-react';
 import quizData from '../data.json';
 import ColoredText from './ColoredText';
@@ -25,8 +26,8 @@ interface QuizResult {
     wasKnownBefore: boolean;
 }
 
-type GameState = 'intro' | 'mode-select' | 'playing' | 'answered' | 'finished' | 'review';
-type GameMode = 'flash' | 'regular' | 'all';
+type GameState = 'intro' | 'mode-select' | 'playing' | 'answered' | 'finished' | 'review' | 'flashcard' | 'multiple-choice';
+type GameMode = 'flash' | 'regular' | 'all' | 'flashcard' | 'mc-easy' | 'mc-medium' | 'mc-hard';
 
 interface GameModeConfig {
     name: string;
@@ -35,6 +36,7 @@ interface GameModeConfig {
     icon: React.ComponentType<{ className?: string }>;
     color: string;
     bgColor: string;
+    category?: 'quiz' | 'practice' | 'test';
 }
 
 interface State {
@@ -47,6 +49,7 @@ interface State {
     isCorrect: boolean;
     showAnswer: boolean;
     results: QuizResult[];
+    mcOptions?: string[];
 }
 
 type Action =
@@ -58,12 +61,116 @@ type Action =
     | { type: 'RESET' }
     | { type: 'SET_USER_ANSWER'; payload: string }
     | { type: 'SHOW_REVIEW' }
-    | { type: 'BACK_TO_RESULTS' };
+    | { type: 'BACK_TO_RESULTS' }
+    | { type: 'SET_MC_OPTIONS'; payload: string[] };
 
 /* ────────────────── helpers ──────────────────── */
 
 const shuffle = <T,>(arr: T[]): T[] =>
     [...arr].sort(() => Math.random() - 0.5);
+
+// Calculate Levenshtein distance for string similarity
+const levenshteinDistance = (str1: string, str2: string): number => {
+    const len1 = str1.length;
+    const len2 = str2.length;
+    const matrix: number[][] = [];
+
+    for (let i = 0; i <= len1; i++) {
+        matrix[i] = [i];
+    }
+
+    for (let j = 0; j <= len2; j++) {
+        matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= len1; i++) {
+        for (let j = 1; j <= len2; j++) {
+            if (str1[i - 1] === str2[j - 1]) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j - 1] + 1,
+                    matrix[i][j - 1] + 1,
+                    matrix[i - 1][j] + 1
+                );
+            }
+        }
+    }
+
+    return matrix[len1][len2];
+};
+
+const calculateSimilarity = (str1: string, str2: string): number => {
+    const distance = levenshteinDistance(str1.toLowerCase(), str2.toLowerCase());
+    const maxLen = Math.max(str1.length, str2.length);
+    return maxLen === 0 ? 1 : 1 - distance / maxLen;
+};
+
+// Generate multiple choice options with varying difficulty
+const generateMCOptions = (
+    correctAnswer: string,
+    allQuestions: QuizQuestion[],
+    currentQuestion: QuizQuestion,
+    difficulty: 'easy' | 'medium' | 'hard'
+): string[] => {
+    const allAnswers = allQuestions.flatMap(q => q.solution);
+    const uniqueAnswers = Array.from(new Set(allAnswers)).filter(
+        ans => ans !== correctAnswer
+    );
+
+    let candidates: { answer: string; similarity: number }[] = [];
+
+    if (difficulty === 'hard') {
+        const sameCategoryAnswers = allQuestions
+            .filter(q => q.category === currentQuestion.category && q !== currentQuestion)
+            .flatMap(q => q.solution)
+            .filter(ans => ans !== correctAnswer);
+
+        candidates = sameCategoryAnswers.map(ans => ({
+            answer: ans,
+            similarity: calculateSimilarity(correctAnswer, ans)
+        }));
+
+        candidates.sort((a, b) => b.similarity - a.similarity);
+    } else if (difficulty === 'medium') {
+        const sameCategoryAnswers = allQuestions
+            .filter(q => q.category === currentQuestion.category && q !== currentQuestion)
+            .flatMap(q => q.solution)
+            .filter(ans => ans !== correctAnswer);
+
+        const mixedAnswers = [...sameCategoryAnswers, ...shuffle(uniqueAnswers)];
+        candidates = Array.from(new Set(mixedAnswers)).map(ans => ({
+            answer: ans,
+            similarity: calculateSimilarity(correctAnswer, ans)
+        }));
+
+        candidates.sort((a, b) => Math.abs(b.similarity - 0.5) - Math.abs(a.similarity - 0.5));
+    } else {
+        const differentCategoryAnswers = allQuestions
+            .filter(q => q.category !== currentQuestion.category)
+            .flatMap(q => q.solution)
+            .filter(ans => ans !== correctAnswer);
+
+        candidates = shuffle(differentCategoryAnswers).map(ans => ({
+            answer: ans,
+            similarity: calculateSimilarity(correctAnswer, ans)
+        }));
+    }
+
+    const distractors = candidates
+        .slice(0, 3)
+        .map(c => c.answer);
+
+    while (distractors.length < 3 && uniqueAnswers.length > 0) {
+        const randomAnswer = uniqueAnswers[Math.floor(Math.random() * uniqueAnswers.length)];
+        if (!distractors.includes(randomAnswer)) {
+            distractors.push(randomAnswer);
+        }
+    }
+
+    const options = shuffle([correctAnswer, ...distractors.slice(0, 3)]);
+    return options;
+};
 
 const gameModes: Record<GameMode, GameModeConfig> = {
     flash: {
@@ -72,7 +179,8 @@ const gameModes: Record<GameMode, GameModeConfig> = {
         questionCount: 10,
         icon: Zap,
         color: "color-yellow",
-        bgColor: "from-yellow-500 to-orange-500"
+        bgColor: "from-yellow-500 to-orange-500",
+        category: 'quiz'
     },
     regular: {
         name: "Regular Mode",
@@ -80,7 +188,8 @@ const gameModes: Record<GameMode, GameModeConfig> = {
         questionCount: 50,
         icon: BookOpen,
         color: "color-blue",
-        bgColor: "from-blue-500 to-purple-500"
+        bgColor: "from-blue-500 to-purple-500",
+        category: 'quiz'
     },
     all: {
         name: "Master Mode",
@@ -88,11 +197,47 @@ const gameModes: Record<GameMode, GameModeConfig> = {
         questionCount: quizData.length,
         icon: Database,
         color: "color-green",
-        bgColor: "from-green-500 to-teal-500"
+        bgColor: "from-green-500 to-teal-500",
+        category: 'quiz'
+    },
+    flashcard: {
+        name: "Flashcard Mode",
+        description: "Study and mark what you know",
+        questionCount: 50,
+        icon: Layers,
+        color: "color-purple",
+        bgColor: "from-purple-500 to-pink-500",
+        category: 'practice'
+    },
+    'mc-easy': {
+        name: "MC Easy",
+        description: "Multiple choice - random options",
+        questionCount: 20,
+        icon: Grid3x3,
+        color: "color-green",
+        bgColor: "from-green-400 to-emerald-500",
+        category: 'test'
+    },
+    'mc-medium': {
+        name: "MC Medium",
+        description: "Multiple choice - mixed difficulty",
+        questionCount: 30,
+        icon: Grid3x3,
+        color: "color-yellow",
+        bgColor: "from-yellow-400 to-orange-500",
+        category: 'test'
+    },
+    'mc-hard': {
+        name: "MC Hard",
+        description: "Multiple choice - similar answers",
+        questionCount: 40,
+        icon: Grid3x3,
+        color: "color-red",
+        bgColor: "from-red-500 to-rose-600",
+        category: 'test'
     }
 };
 
-// Helper function to get known items from localStorage
 const getKnownItems = (): Set<string> => {
     try {
         const saved = JSON.parse(localStorage.getItem('knownItems') || '[]');
@@ -103,7 +248,6 @@ const getKnownItems = (): Set<string> => {
     }
 };
 
-// Helper function to save known items to localStorage
 const saveKnownItems = (knownItems: Set<string>) => {
     try {
         localStorage.setItem('knownItems', JSON.stringify([...knownItems]));
@@ -112,18 +256,15 @@ const saveKnownItems = (knownItems: Set<string>) => {
     }
 };
 
-// Helper function to calculate impact of add/remove operations
 const calculateImpacts = (results: QuizResult[]) => {
     const knownItems = getKnownItems();
     const correctAnswers = results.filter(r => r.isCorrect);
     const incorrectAnswers = results.filter(r => !r.isCorrect);
 
-    // Calculate how many correct items are NOT already known
     const correctToAdd = correctAnswers.filter(result =>
         result.question.id && !knownItems.has(result.question.id)
     ).length;
 
-    // Calculate how many incorrect items ARE currently known
     const incorrectToRemove = incorrectAnswers.filter(result =>
         result.question.id && knownItems.has(result.question.id)
     ).length;
@@ -148,7 +289,8 @@ const initialState: State = {
     userAnswer: '',
     isCorrect: false,
     showAnswer: false,
-    results: []
+    results: [],
+    mcOptions: []
 };
 
 /* ────────────────── reducer ──────────────────── */
@@ -157,18 +299,23 @@ function reducer(state: State, action: Action): State {
     switch (action.type) {
         case 'SELECT_MODE':
             const modeQuestions = getQuestionsForMode(action.payload, quizData as QuizQuestion[]);
+            const isMCMode = action.payload.startsWith('mc-');
+
             return {
                 ...state,
                 gameState: 'mode-select',
                 gameMode: action.payload,
                 questions: modeQuestions,
-                results: []
+                results: [],
+                mcOptions: isMCMode ? [] : undefined
             };
 
         case 'START_GAME':
+            const startGameState = state.gameMode === 'flashcard' ? 'flashcard' :
+                state.gameMode?.startsWith('mc-') ? 'multiple-choice' : 'playing';
             return {
                 ...state,
-                gameState: 'playing',
+                gameState: startGameState,
                 currentIndex: 0,
                 score: 0,
                 userAnswer: '',
@@ -179,6 +326,9 @@ function reducer(state: State, action: Action): State {
 
         case 'SET_USER_ANSWER':
             return { ...state, userAnswer: action.payload };
+
+        case 'SET_MC_OPTIONS':
+            return { ...state, mcOptions: action.payload };
 
         case 'ANSWER': {
             const currentQ = state.questions[state.currentIndex];
@@ -211,12 +361,17 @@ function reducer(state: State, action: Action): State {
                     gameState: 'finished'
                 };
             }
+
+            const nextGameState = state.gameMode === 'flashcard' ? 'flashcard' :
+                state.gameMode?.startsWith('mc-') ? 'multiple-choice' : 'playing';
+
             return {
                 ...state,
                 currentIndex: nextIndex,
-                gameState: 'playing',
+                gameState: nextGameState,
                 userAnswer: '',
-                showAnswer: false
+                showAnswer: false,
+                mcOptions: state.gameMode?.startsWith('mc-') ? [] : undefined
             };
         }
 
@@ -254,17 +409,40 @@ function reducer(state: State, action: Action): State {
 const QuizGame: React.FC = () => {
     const [state, dispatch] = useReducer(reducer, initialState);
     const [currentKnownItems, setCurrentKnownItems] = useState<Set<string>>(new Set());
+    const [showFlashAnswer, setShowFlashAnswer] = useState(false);
 
-    // Update local known items state when entering review
     useEffect(() => {
         if (state.gameState === 'review') {
             setCurrentKnownItems(getKnownItems());
         }
     }, [state.gameState]);
 
+    // Generate MC options when entering multiple-choice mode
+    useEffect(() => {
+        if (state.gameState === 'multiple-choice' && state.gameMode?.startsWith('mc-') && state.mcOptions?.length === 0) {
+            const currentQ = state.questions[state.currentIndex];
+            const difficulty = state.gameMode === 'mc-easy' ? 'easy' :
+                state.gameMode === 'mc-medium' ? 'medium' : 'hard';
+            const options = generateMCOptions(
+                currentQ.solution[0],
+                quizData as QuizQuestion[],
+                currentQ,
+                difficulty
+            );
+            dispatch({ type: 'SET_MC_OPTIONS', payload: options });
+        }
+    }, [state.gameState, state.currentIndex, state.gameMode, state.mcOptions, state.questions]);
+
+    // Reset flash answer visibility when moving to next card
+    useEffect(() => {
+        if (state.gameState === 'flashcard') {
+            setShowFlashAnswer(false);
+        }
+    }, [state.currentIndex, state.gameState]);
+
     const {
         gameState, gameMode, questions, currentIndex,
-        score, userAnswer, isCorrect, showAnswer, results
+        score, userAnswer, isCorrect, showAnswer, results, mcOptions
     } = state;
 
     /* ──────────────── handlers ─────────────── */
@@ -284,6 +462,29 @@ const QuizGame: React.FC = () => {
         dispatch({ type: 'SELECT_MODE', payload: mode });
     };
 
+    const handleMCAnswer = (answer: string) => {
+        dispatch({ type: 'SET_USER_ANSWER', payload: answer });
+        dispatch({ type: 'ANSWER', payload: { answer } });
+    };
+
+    const handleFlashcardKnown = (known: boolean) => {
+        const currentQ = questions[currentIndex];
+        const knownItems = getKnownItems();
+
+        if (known) {
+            if (currentQ.id) {
+                knownItems.add(currentQ.id);
+            }
+        } else {
+            if (currentQ.id) {
+                knownItems.delete(currentQ.id);
+            }
+        }
+
+        saveKnownItems(knownItems);
+        dispatch({ type: 'NEXT_QUESTION' });
+    };
+
     const accuracy = (() => {
         const totalAnswered = gameState === 'finished' && showAnswer
             ? currentIndex + 1
@@ -293,7 +494,6 @@ const QuizGame: React.FC = () => {
         return Math.round((score / totalAnswered) * 100);
     })();
 
-    // Export functions for review section
     const exportKnownItems = () => {
         const knownItems = getKnownItems();
         const knownItemsArray = [...knownItems];
@@ -349,7 +549,6 @@ const QuizGame: React.FC = () => {
         }
     };
 
-    // Individual item toggle function
     const toggleKnownItem = (questionId: string | undefined) => {
         if (!questionId) return;
 
@@ -368,9 +567,13 @@ const QuizGame: React.FC = () => {
 
     // Intro Page
     if (gameState === 'intro') {
+        const quizModes = Object.entries(gameModes).filter(([_, config]) => config.category === 'quiz');
+        const practiceModes = Object.entries(gameModes).filter(([_, config]) => config.category === 'practice');
+        const testModes = Object.entries(gameModes).filter(([_, config]) => config.category === 'test');
+
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center space-y-8 fade-in">
+            <div className="min-h-screen flex items-center justify-center p-6">
+                <div className="text-center space-y-8 fade-in max-w-7xl">
                     <ThemeToggle size="md" className="mx-auto mb-4" />
 
                     <TypingText
@@ -393,44 +596,121 @@ const QuizGame: React.FC = () => {
                         </p>
                     </div>
 
-                    {/* Mode Selection Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-8">
-                        {Object.entries(gameModes).map(([mode, config]) => {
-                            const IconComponent = config.icon;
-                            return (
-                                <div
-                                    key={mode}
-                                    onClick={() => handleModeSelect(mode as GameMode)}
-                                    className="group cursor-pointer h-full"
-                                >
-                                    <div className="quiz-card hover:scale-105 transition-all duration-300 hover:shadow-2xl h-full flex flex-col">
-                                        <div className="text-center space-y-4 flex-grow flex flex-col justify-between">
-                                            <div className="space-y-4">
-                                                <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-r ${config.bgColor} flex items-center justify-center`}>
-                                                    <IconComponent className="w-8 h-8 text-white" />
+                    {/* Quiz Modes */}
+                    <div className="space-y-4">
+                        <h2 className="text-2xl font-bold color-cyan">📝 Quiz Modes</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                            {quizModes.map(([mode, config]) => {
+                                const IconComponent = config.icon;
+                                return (
+                                    <div
+                                        key={mode}
+                                        onClick={() => handleModeSelect(mode as GameMode)}
+                                        className="group cursor-pointer h-full"
+                                    >
+                                        <div className="quiz-card hover:scale-105 transition-all duration-300 hover:shadow-2xl h-full flex flex-col">
+                                            <div className="text-center space-y-4 flex-grow flex flex-col justify-between">
+                                                <div className="space-y-4">
+                                                    <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-r ${config.bgColor} flex items-center justify-center`}>
+                                                        <IconComponent className="w-8 h-8 text-white" />
+                                                    </div>
+                                                    <h3 className={`text-2xl font-bold ${config.color}`}>
+                                                        {config.name}
+                                                    </h3>
+                                                    <p className="terminal-text color-cyan min-h-[3rem] flex items-center justify-center">
+                                                        {config.description}
+                                                    </p>
+                                                    <div className="text-lg font-mono color-yellow">
+                                                        {config.questionCount} Questions
+                                                    </div>
                                                 </div>
-
-                                                <h3 className={`text-2xl font-bold ${config.color}`}>
-                                                    {config.name}
-                                                </h3>
-
-                                                <p className="terminal-text color-cyan min-h-[3rem] flex items-center justify-center">
-                                                    {config.description}
-                                                </p>
-
-                                                <div className="text-lg font-mono color-yellow">
-                                                    {config.questionCount} Questions
-                                                </div>
+                                                <button className="terminal-button-primary w-full group-hover:shadow-lg mt-4">
+                                                    Start {config.name}
+                                                </button>
                                             </div>
-
-                                            <button className="terminal-button-primary w-full group-hover:shadow-lg mt-4">
-                                                Start {config.name}
-                                            </button>
                                         </div>
                                     </div>
-                                </div>
-                            );
-                        })}
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Practice Mode */}
+                    <div className="space-y-4">
+                        <h2 className="text-2xl font-bold color-purple">🎴 Practice Mode</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 max-w-md mx-auto">
+                            {practiceModes.map(([mode, config]) => {
+                                const IconComponent = config.icon;
+                                return (
+                                    <div
+                                        key={mode}
+                                        onClick={() => handleModeSelect(mode as GameMode)}
+                                        className="group cursor-pointer h-full"
+                                    >
+                                        <div className="quiz-card hover:scale-105 transition-all duration-300 hover:shadow-2xl h-full flex flex-col">
+                                            <div className="text-center space-y-4 flex-grow flex flex-col justify-between">
+                                                <div className="space-y-4">
+                                                    <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-r ${config.bgColor} flex items-center justify-center`}>
+                                                        <IconComponent className="w-8 h-8 text-white" />
+                                                    </div>
+                                                    <h3 className={`text-2xl font-bold ${config.color}`}>
+                                                        {config.name}
+                                                    </h3>
+                                                    <p className="terminal-text color-cyan min-h-[3rem] flex items-center justify-center">
+                                                        {config.description}
+                                                    </p>
+                                                    <div className="text-lg font-mono color-yellow">
+                                                        {config.questionCount} Questions
+                                                    </div>
+                                                </div>
+                                                <button className="terminal-button-primary w-full group-hover:shadow-lg mt-4">
+                                                    Start {config.name}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Multiple Choice Tests */}
+                    <div className="space-y-4">
+                        <h2 className="text-2xl font-bold color-green">✅ Multiple Choice Tests</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                            {testModes.map(([mode, config]) => {
+                                const IconComponent = config.icon;
+                                return (
+                                    <div
+                                        key={mode}
+                                        onClick={() => handleModeSelect(mode as GameMode)}
+                                        className="group cursor-pointer h-full"
+                                    >
+                                        <div className="quiz-card hover:scale-105 transition-all duration-300 hover:shadow-2xl h-full flex flex-col">
+                                            <div className="text-center space-y-4 flex-grow flex flex-col justify-between">
+                                                <div className="space-y-4">
+                                                    <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-r ${config.bgColor} flex items-center justify-center`}>
+                                                        <IconComponent className="w-8 h-8 text-white" />
+                                                    </div>
+                                                    <h3 className={`text-2xl font-bold ${config.color}`}>
+                                                        {config.name}
+                                                    </h3>
+                                                    <p className="terminal-text color-cyan min-h-[3rem] flex items-center justify-center">
+                                                        {config.description}
+                                                    </p>
+                                                    <div className="text-lg font-mono color-yellow">
+                                                        {config.questionCount} Questions
+                                                    </div>
+                                                </div>
+                                                <button className="terminal-button-primary w-full group-hover:shadow-lg mt-4">
+                                                    Start {config.name}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
 
                     <div className="text-center terminal-text color-cyan opacity-60 mt-8">
@@ -441,7 +721,7 @@ const QuizGame: React.FC = () => {
         );
     }
 
-    // Mode Selected - Confirmation
+    // Mode confirmation
     if (gameState === 'mode-select' && gameMode) {
         const config = gameModes[gameMode];
         const IconComponent = config.icon;
@@ -464,7 +744,11 @@ const QuizGame: React.FC = () => {
                             {config.description}
                         </p>
                         <p className="text-lg terminal-text color-cyan">
-                            {config.questionCount} questions • Multiple choice answers
+                            {config.questionCount} questions • {
+                                gameMode === 'flashcard' ? 'Practice mode' :
+                                    gameMode?.startsWith('mc-') ? 'Multiple choice format' :
+                                        'Type your answers'
+                            }
                         </p>
                     </div>
 
@@ -473,7 +757,7 @@ const QuizGame: React.FC = () => {
                             onClick={() => dispatch({ type: 'START_GAME' })}
                             className="terminal-button-primary text-xl px-8 py-4"
                         >
-                            Begin Quiz
+                            Begin {gameMode === 'flashcard' ? 'Practice' : 'Quiz'}
                         </button>
                         <button
                             onClick={() => dispatch({ type: 'RESET' })}
@@ -487,7 +771,235 @@ const QuizGame: React.FC = () => {
         );
     }
 
-    // Review Section
+    // Flashcard Mode
+    if (gameState === 'flashcard') {
+        const currentQ = questions[currentIndex];
+        const config = gameMode ? gameModes[gameMode] : null;
+        const knownItems = getKnownItems();
+        const isKnown = knownItems.has(currentQ.id || '');
+
+        return (
+            <div className="min-h-screen p-6">
+                <div className="max-w-4xl mx-auto">
+                    <div className="flex justify-between items-center mb-8">
+                        <div className="flex items-center gap-4">
+                            <Layers className="w-8 h-8 color-purple" />
+                            <h1 className="text-3xl font-bold color-purple">
+                                {config?.name || 'Flashcard Practice'}
+                            </h1>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                            <div className="terminal-text">
+                                <span className="color-blue">Card: </span>
+                                <span className="color-cyan font-bold">{currentIndex + 1}/{questions.length}</span>
+                            </div>
+                            <ThemeToggle size="sm" showText={false} />
+                        </div>
+                    </div>
+
+                    <div className="progress-bar-bg mb-8">
+                        <div
+                            className="progress-bar-fill"
+                            style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+                        />
+                    </div>
+
+                    <div className="quiz-card fade-in space-y-6">
+                        <div className="text-center">
+                            <h2 className="text-2xl font-bold color-yellow mb-2">
+                                {currentQ.category}
+                            </h2>
+                            <div className="theme-divider" />
+                        </div>
+
+                        <div className="text-center text-xl terminal-text leading-relaxed min-h-[200px] flex items-center justify-center">
+                            <ColoredText text={currentQ.question} />
+                        </div>
+
+                        {showFlashAnswer && (
+                            <div className="bg-yellow-50 dark:bg-yellow-900/20 p-6 rounded-lg border-2 border-yellow-200 dark:border-yellow-800">
+                                <div className="text-center space-y-4">
+                                    <p className="text-lg font-bold color-cyan">Answer:</p>
+                                    <p className="text-2xl color-yellow font-semibold">
+                                        {currentQ.solution.join(', ')}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="space-y-6">
+                            {!showFlashAnswer ? (
+                                <button
+                                    onClick={() => setShowFlashAnswer(true)}
+                                    className="terminal-button-primary w-full text-lg px-8 py-4"
+                                >
+                                    Show Answer
+                                </button>
+                            ) : (
+                                <div className="space-y-4">
+                                    <p className="text-center terminal-text color-cyan">
+                                        Do you know this command?
+                                    </p>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <button
+                                            onClick={() => handleFlashcardKnown(true)}
+                                            className="terminal-button-success text-lg px-8 py-4 flex items-center justify-center gap-2"
+                                        >
+                                            <CheckCircle className="w-5 h-5" />
+                                            I Know This
+                                        </button>
+                                        <button
+                                            onClick={() => handleFlashcardKnown(false)}
+                                            className="terminal-button-danger text-lg px-8 py-4 flex items-center justify-center gap-2"
+                                        >
+                                            <XCircle className="w-5 h-5" />
+                                            Still Learning
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            <button
+                                onClick={() => dispatch({ type: 'QUIT_GAME' })}
+                                className="terminal-button-secondary w-full"
+                            >
+                                End Practice
+                            </button>
+                        </div>
+
+                        {isKnown && (
+                            <div className="text-center">
+                                <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm rounded-full font-medium">
+                                    ✓ Previously marked as known
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Multiple Choice Mode
+    if (gameState === 'multiple-choice') {
+        const currentQ = questions[currentIndex];
+        const config = gameMode ? gameModes[gameMode] : null;
+
+        return (
+            <div className="min-h-screen p-6">
+                <div className="max-w-4xl mx-auto">
+                    <div className="flex justify-between items-center mb-8">
+                        <div className="flex items-center gap-4">
+                            <Grid3x3 className="w-8 h-8 color-cyan" />
+                            <h1 className="text-3xl font-bold color-cyan">
+                                {config?.name || 'Multiple Choice Quiz'}
+                            </h1>
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                            <div className="terminal-text">
+                                <span className="color-yellow">Score: </span>
+                                <span className="color-green font-bold text-xl">{score}</span>
+                                <span className="color-cyan">/{questions.length}</span>
+                            </div>
+                            <div className="terminal-text">
+                                <span className="color-blue">Question: </span>
+                                <span className="color-cyan font-bold">{currentIndex + 1}/{questions.length}</span>
+                            </div>
+                            <ThemeToggle size="sm" showText={false} />
+                        </div>
+                    </div>
+
+                    <div className="progress-bar-bg mb-8">
+                        <div
+                            className="progress-bar-fill"
+                            style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+                        />
+                    </div>
+
+                    <div className="quiz-card fade-in space-y-6">
+                        <div className="text-center">
+                            <h2 className="text-2xl font-bold color-yellow mb-2">
+                                {currentQ.category}
+                            </h2>
+                            <div className="theme-divider" />
+                        </div>
+
+                        <div className="text-center text-xl terminal-text leading-relaxed">
+                            <ColoredText text={currentQ.question} />
+                        </div>
+
+                        {!showAnswer ? (
+                            <div className="space-y-4">
+                                {mcOptions && mcOptions.map((option, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => handleMCAnswer(option)}
+                                        className="w-full text-left terminal-button-secondary text-lg px-6 py-4 hover:scale-102 transition-transform"
+                                    >
+                                        <span className="font-bold color-cyan mr-4">
+                                            {String.fromCharCode(65 + index)}.
+                                        </span>
+                                        {option}
+                                    </button>
+                                ))}
+                                <button
+                                    onClick={() => dispatch({ type: 'QUIT_GAME' })}
+                                    className="terminal-button-danger w-full mt-4"
+                                >
+                                    Quit Game
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="space-y-6 text-center">
+                                <div className="flex items-center justify-center gap-3">
+                                    {isCorrect ? (
+                                        <CheckCircle className="w-8 h-8 color-green" />
+                                    ) : (
+                                        <XCircle className="w-8 h-8 color-red" />
+                                    )}
+                                    <span
+                                        className={`text-2xl font-bold ${isCorrect ? 'color-green' : 'color-red'}`}
+                                    >
+                                        {isCorrect ? 'Correct!' : 'Incorrect'}
+                                    </span>
+                                </div>
+
+                                <div className="terminal-text">
+                                    <span className="color-cyan">Your answer: </span>
+                                    <span className={isCorrect ? 'color-green' : 'color-red'}>
+                                        {userAnswer}
+                                    </span>
+                                </div>
+
+                                {!isCorrect && (
+                                    <div className="terminal-text">
+                                        <span className="color-cyan">Correct answer: </span>
+                                        <span className="color-yellow font-semibold">
+                                            {currentQ.solution.join(', ')}
+                                        </span>
+                                    </div>
+                                )}
+
+                                <form onSubmit={handleNextQuestion} className="space-y-6">
+                                    <button
+                                        type="submit"
+                                        className="terminal-button-primary text-lg px-8 py-3"
+                                        autoFocus
+                                    >
+                                        {currentIndex + 1 >= questions.length ? 'Finish Game' : 'Next Question'}
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Review Section (existing code - keeping it as is)
     if (gameState === 'review') {
         const correctAnswers = results.filter(r => r.isCorrect);
         const incorrectAnswers = results.filter(r => !r.isCorrect);
@@ -497,7 +1009,6 @@ const QuizGame: React.FC = () => {
         return (
             <div className="min-h-screen p-6">
                 <div className="max-w-6xl mx-auto">
-                    {/* Header */}
                     <div className="flex justify-between items-center mb-8">
                         <div className="flex items-center gap-4">
                             <Eye className="w-8 h-8 color-cyan" />
@@ -514,7 +1025,6 @@ const QuizGame: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Action Buttons */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
                         <button
                             onClick={exportKnownItems}
@@ -546,7 +1056,6 @@ const QuizGame: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Statistics Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <div className="quiz-card bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
                             <div className="text-center space-y-2">
@@ -571,7 +1080,6 @@ const QuizGame: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Detailed Review */}
                     <div className="space-y-6">
                         {results.length > 0 && (
                             <div className="quiz-card">
@@ -581,6 +1089,282 @@ const QuizGame: React.FC = () => {
                                         const isCurrentlyKnown = currentKnownItems.has(result.question.id || '');
                                         return (
                                             <div
+                                                key={index}
+                                                className={`p-4 rounded-lg border-2 ${result.isCorrect
+                                                    ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+                                                    : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                                                    }`}
+                                            >
+                                                <div className="flex items-start gap-4">
+                                                    <div className="flex-shrink-0 mt-1">
+                                                        {result.isCorrect ? (
+                                                            <CheckCircle className="w-6 h-6 color-green" />
+                                                        ) : (
+                                                            <XCircle className="w-6 h-6 color-red" />
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-grow space-y-3">
+                                                        <div className="flex items-center justify-between">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-sm font-bold color-cyan">
+                                                                    Q{index + 1}: {result.question.category}
+                                                                </span>
+                                                                {result.wasKnownBefore && !result.isCorrect && (
+                                                                    <span className="px-2 py-1 bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 text-xs rounded-full font-medium">
+                                                                        Previously Known
+                                                                    </span>
+                                                                )}
+                                                            </div>
+
+                                                            <button
+                                                                onClick={() => toggleKnownItem(result.question.id)}
+                                                                className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${isCurrentlyKnown
+                                                                    ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800'
+                                                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                                                    }`}
+                                                                title={isCurrentlyKnown ? "Mark as unknown" : "Mark as known"}
+                                                            >
+                                                                {isCurrentlyKnown ? (
+                                                                    <ToggleRight className="w-4 h-4" />
+                                                                ) : (
+                                                                    <ToggleLeft className="w-4 h-4" />
+                                                                )}
+                                                                {isCurrentlyKnown ? 'Known' : 'Unknown'}
+                                                            </button>
+                                                        </div>
+
+                                                        <div className="terminal-text">
+                                                            <ColoredText text={result.question.question} />
+                                                        </div>
+
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                                            <div>
+                                                                <span className="color-cyan font-semibold">Your Answer: </span>
+                                                                <span className={result.isCorrect ? 'color-green' : 'color-red'}>
+                                                                    {result.userAnswer || '(empty)'}
+                                                                </span>
+                                                            </div>
+                                                            <div>
+                                                                <span className="color-cyan font-semibold">Correct: </span>
+                                                                <span className="color-yellow">
+                                                                    {result.question.solution.join(', ')}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Finished Game
+    if (gameState === 'finished') {
+        const config = gameMode ? gameModes[gameMode] : null;
+
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center space-y-8 fade-in">
+                    <ThemeToggle size="sm" className="mx-auto" />
+
+                    <Trophy className="w-24 h-24 color-yellow mx-auto" />
+
+                    <div className="space-y-4">
+                        <h2 className="text-4xl font-bold color-cyan">
+                            {config?.name} Complete!
+                        </h2>
+
+                        {gameMode !== 'flashcard' && (
+                            <>
+                                <div className="text-6xl font-bold color-green">
+                                    {score}/{questions.length}
+                                </div>
+
+                                <p className="text-2xl color-yellow">{accuracy}% Accuracy</p>
+
+                                <div className="terminal-text text-lg">
+                                    {accuracy >= 90 ? (
+                                        <span className="color-green">Outstanding! Perfect mastery! 🏆</span>
+                                    ) : accuracy >= 80 ? (
+                                        <span className="color-green">Excellent work! 🎉</span>
+                                    ) : accuracy >= 60 ? (
+                                        <span className="color-yellow">Good job! Keep practicing! 👍</span>
+                                    ) : (
+                                        <span className="color-red">Keep studying and try again! 📚</span>
+                                    )}
+                                </div>
+                            </>
+                        )}
+
+                        {gameMode === 'flashcard' && (
+                            <p className="text-xl terminal-text color-cyan">
+                                You've completed the flashcard practice session!
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="flex gap-4 justify-center flex-wrap">
+                        {gameMode !== 'flashcard' && results.length > 0 && (
+                            <button
+                                onClick={() => dispatch({ type: 'SHOW_REVIEW' })}
+                                className="terminal-button-primary"
+                            >
+                                <Eye className="w-5 h-5 inline mr-2" />
+                                Review Answers
+                            </button>
+                        )}
+                        <button
+                            onClick={() => dispatch({ type: 'RESET' })}
+                            className="terminal-button-secondary"
+                        >
+                            <RotateCcw className="w-5 h-5 inline mr-2" />
+                            Try Different Mode
+                        </button>
+                        <button
+                            onClick={() => gameMode && handleModeSelect(gameMode)}
+                            className="terminal-button-secondary"
+                        >
+                            <Shuffle className="w-5 h-5 inline mr-2" />
+                            Retry {config?.name}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    // Playing Game (existing type-in mode)
+    const currentQ = questions[currentIndex];
+    const config = gameMode ? gameModes[gameMode] : null;
+
+    return (
+        <div className="min-h-screen p-6">
+            <div className="max-w-4xl mx-auto">
+                <div className="flex justify-between items-center mb-8">
+                    <div className="flex items-center gap-4">
+                        <Target className="w-8 h-8 color-cyan" />
+                        <h1 className="text-3xl font-bold color-cyan">
+                            {config?.name || 'Quiz Game'}
+                        </h1>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <div className="terminal-text">
+                            <span className="color-yellow">Score: </span>
+                            <span className="color-green font-bold text-xl">{score}</span>
+                            <span className="color-cyan">/{questions.length}</span>
+                        </div>
+                        <div className="terminal-text">
+                            <span className="color-blue">Question: </span>
+                            <span className="color-cyan font-bold">{currentIndex + 1}/{questions.length}</span>
+                        </div>
+                        <ThemeToggle size="sm" showText={false} />
+                    </div>
+                </div>
+
+                <div className="progress-bar-bg mb-8">
+                    <div
+                        className="progress-bar-fill"
+                        style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+                    />
+                </div>
+
+                <div className="quiz-card fade-in space-y-6">
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold color-yellow mb-2">
+                            {currentQ.category}
+                        </h2>
+                        <div className="theme-divider" />
+                    </div>
+
+                    <div className="text-center text-xl terminal-text leading-relaxed">
+                        <ColoredText text={currentQ.question} />
+                    </div>
+
+                    {!showAnswer ? (
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <input
+                                type="text"
+                                value={userAnswer}
+                                onChange={e =>
+                                    dispatch({ type: 'SET_USER_ANSWER', payload: e.target.value })
+                                }
+                                placeholder="Type your answer here..."
+                                className="terminal-input w-full text-lg"
+                                autoFocus
+                            />
+                            <div className="flex gap-4 justify-center">
+                                <button
+                                    type="submit"
+                                    className="terminal-button-primary"
+                                    disabled={!userAnswer.trim()}
+                                >
+                                    Submit Answer
+                                </button>
+                                <button
+                                    type="button"
+                                    className="terminal-button-danger"
+                                    onClick={() => dispatch({ type: 'QUIT_GAME' })}
+                                >
+                                    Quit Game
+                                </button>
+                            </div>
+                        </form>
+                    ) : (
+                        <div className="space-y-6 text-center">
+                            <div className="flex items-center justify-center gap-3">
+                                {isCorrect ? (
+                                    <CheckCircle className="w-8 h-8 color-green" />
+                                ) : (
+                                    <XCircle className="w-8 h-8 color-red" />
+                                )}
+                                <span
+                                    className={`text-2xl font-bold ${isCorrect ? 'color-green' : 'color-red'
+                                        }`}
+                                >
+                                    {isCorrect ? 'Correct!' : 'Incorrect'}
+                                </span>
+                            </div>
+
+                            <div className="terminal-text">
+                                <span className="color-cyan">Your answer: </span>
+                                <span className={isCorrect ? 'color-green' : 'color-red'}>
+                                    {userAnswer}
+                                </span>
+                            </div>
+
+                            <div className="terminal-text">
+                                <span className="color-cyan">Correct answer(s): </span>
+                                <span className="color-yellow font-semibold">
+                                    {currentQ.solution.join(', ')}
+                                </span>
+                            </div>
+
+                            <form onSubmit={handleNextQuestion} className="space-y-6">
+                                <button
+                                    type="submit"
+                                    className="terminal-button-primary text-lg px-8 py-3"
+                                    autoFocus
+                                >
+                                    {currentIndex + 1 >= questions.length ? 'Finish Game' : 'Next Question'}
+                                </button>
+                            </form>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default QuizGame;                                            <div
                                                 key={index}
                                                 className={`p-4 rounded-lg border-2 ${result.isCorrect
                                                     ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
