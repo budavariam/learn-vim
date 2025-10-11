@@ -3,7 +3,7 @@ import {
     Shuffle, RotateCcw, Trophy, Target,
     CheckCircle, XCircle, Zap, BookOpen, Database,
     Download, Plus, Minus, Eye, ToggleLeft, ToggleRight,
-    Layers, Grid3x3, Brain, AlertCircle, Repeat
+    Layers, Grid3x3, Brain, Repeat
 } from 'lucide-react';
 import quizData from '../data.json';
 import ColoredText from './ColoredText';
