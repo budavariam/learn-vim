@@ -3,7 +3,7 @@ import {
     Shuffle, RotateCcw, Trophy, Target,
     CheckCircle, XCircle, Zap, BookOpen, Database,
     Download, Plus, Minus, Eye, ToggleLeft, ToggleRight,
-    Layers, Grid3x3
+    Layers, Grid3x3, Brain, Repeat
 } from 'lucide-react';
 import quizData from '../data.json';
 import ColoredText from './ColoredText';
@@ -27,7 +27,7 @@ interface QuizResult {
 }
 
 type GameState = 'intro' | 'mode-select' | 'playing' | 'answered' | 'finished' | 'review' | 'flashcard' | 'multiple-choice';
-type GameMode = 'flash' | 'regular' | 'all' | 'flashcard' | 'mc-easy' | 'mc-medium' | 'mc-hard';
+type GameMode = 'flash' | 'regular' | 'all' | 'flashcard' | 'flashcard-unknown' | 'flashcard-repeat' | 'mc-easy' | 'mc-medium' | 'mc-hard';
 
 interface GameModeConfig {
     name: string;
@@ -201,12 +201,30 @@ const gameModes: Record<GameMode, GameModeConfig> = {
         category: 'quiz'
     },
     flashcard: {
-        name: "Flashcard Mode",
-        description: "Study and mark what you know",
+        name: "Flashcard - All",
+        description: "Study all commands",
         questionCount: 50,
         icon: Layers,
         color: "color-purple",
         bgColor: "from-purple-500 to-pink-500",
+        category: 'practice'
+    },
+    'flashcard-unknown': {
+        name: "Flashcard - Unknown",
+        description: "Practice only unknown commands",
+        questionCount: 9999,
+        icon: Brain,
+        color: "color-orange",
+        bgColor: "from-orange-500 to-red-500",
+        category: 'practice'
+    },
+    'flashcard-repeat': {
+        name: "Flashcard - Review",
+        description: "Review all known commands",
+        questionCount: 9999,
+        icon: Repeat,
+        color: "color-teal",
+        bgColor: "from-teal-500 to-cyan-500",
         category: 'practice'
     },
     'mc-easy': {
@@ -273,7 +291,18 @@ const calculateImpacts = (results: QuizResult[]) => {
 };
 
 const getQuestionsForMode = (mode: GameMode, allQuestions: QuizQuestion[]): QuizQuestion[] => {
-    const shuffled = shuffle(allQuestions);
+    const knownItems = getKnownItems();
+    
+    let filteredQuestions = allQuestions;
+    
+    // Filter based on flashcard mode
+    if (mode === 'flashcard-unknown') {
+        filteredQuestions = allQuestions.filter(q => !knownItems.has(q.id || ''));
+    } else if (mode === 'flashcard-repeat') {
+        filteredQuestions = allQuestions.filter(q => knownItems.has(q.id || ''));
+    }
+    
+    const shuffled = shuffle(filteredQuestions);
     const { questionCount } = gameModes[mode];
     return shuffled.slice(0, Math.min(questionCount, shuffled.length));
 };
@@ -311,7 +340,8 @@ function reducer(state: State, action: Action): State {
             };
 
         case 'START_GAME':
-            const startGameState = state.gameMode === 'flashcard' ? 'flashcard' :
+            const isFlashcardMode = state.gameMode?.startsWith('flashcard');
+            const startGameState = isFlashcardMode ? 'flashcard' :
                 state.gameMode?.startsWith('mc-') ? 'multiple-choice' : 'playing';
             return {
                 ...state,
@@ -362,7 +392,8 @@ function reducer(state: State, action: Action): State {
                 };
             }
 
-            const nextGameState = state.gameMode === 'flashcard' ? 'flashcard' :
+            const isFlashcardMode = state.gameMode?.startsWith('flashcard');
+            const nextGameState = isFlashcardMode ? 'flashcard' :
                 state.gameMode?.startsWith('mc-') ? 'multiple-choice' : 'playing';
 
             return {
@@ -635,19 +666,31 @@ const QuizGame: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Practice Mode */}
+                    {/* Practice Modes */}
                     <div className="space-y-4">
-                        <h2 className="text-2xl font-bold color-purple">🎴 Practice Mode</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-1 gap-6 max-w-md mx-auto">
+                        <h2 className="text-2xl font-bold color-purple">🎴 Flashcard Practice</h2>
+                        <p className="text-sm terminal-text color-cyan opacity-80">Auto-updates your known items list in real-time</p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
                             {practiceModes.map(([mode, config]) => {
                                 const IconComponent = config.icon;
+                                const knownItems = getKnownItems();
+                                const unknownCount = (quizData as QuizQuestion[]).filter(q => !knownItems.has(q.id || '')).length;
+                                const knownCount = (quizData as QuizQuestion[]).filter(q => knownItems.has(q.id || '')).length;
+                                
+                                let displayCount = config.questionCount;
+                                if (mode === 'flashcard-unknown') displayCount = unknownCount;
+                                if (mode === 'flashcard-repeat') displayCount = knownCount;
+                                
+                                const isEmpty = (mode === 'flashcard-unknown' && unknownCount === 0) || 
+                                              (mode === 'flashcard-repeat' && knownCount === 0);
+                                
                                 return (
                                     <div
                                         key={mode}
-                                        onClick={() => handleModeSelect(mode as GameMode)}
-                                        className="group cursor-pointer h-full"
+                                        onClick={() => !isEmpty && handleModeSelect(mode as GameMode)}
+                                        className={`group h-full ${isEmpty ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                                     >
-                                        <div className="quiz-card hover:scale-105 transition-all duration-300 hover:shadow-2xl h-full flex flex-col">
+                                        <div className={`quiz-card transition-all duration-300 h-full flex flex-col ${!isEmpty && 'hover:scale-105 hover:shadow-2xl'}`}>
                                             <div className="text-center space-y-4 flex-grow flex flex-col justify-between">
                                                 <div className="space-y-4">
                                                     <div className={`w-16 h-16 mx-auto rounded-full bg-gradient-to-r ${config.bgColor} flex items-center justify-center`}>
@@ -660,11 +703,14 @@ const QuizGame: React.FC = () => {
                                                         {config.description}
                                                     </p>
                                                     <div className="text-lg font-mono color-yellow">
-                                                        {config.questionCount} Questions
+                                                        {isEmpty ? 'No cards available' : `${displayCount} Cards`}
                                                     </div>
                                                 </div>
-                                                <button className="terminal-button-primary w-full group-hover:shadow-lg mt-4">
-                                                    Start {config.name}
+                                                <button 
+                                                    className={`terminal-button-primary w-full mt-4 ${!isEmpty && 'group-hover:shadow-lg'}`}
+                                                    disabled={isEmpty}
+                                                >
+                                                    {isEmpty ? 'Empty' : `Start ${config.name}`}
                                                 </button>
                                             </div>
                                         </div>
@@ -725,6 +771,7 @@ const QuizGame: React.FC = () => {
     if (gameState === 'mode-select' && gameMode) {
         const config = gameModes[gameMode];
         const IconComponent = config.icon;
+        const isFlashcardMode = gameMode.startsWith('flashcard');
 
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -744,12 +791,17 @@ const QuizGame: React.FC = () => {
                             {config.description}
                         </p>
                         <p className="text-lg terminal-text color-cyan">
-                            {config.questionCount} questions • {
-                                gameMode === 'flashcard' ? 'Practice mode' :
+                            {questions.length} {isFlashcardMode ? 'cards' : 'questions'} • {
+                                isFlashcardMode ? 'Practice mode - updates in real-time' :
                                     gameMode?.startsWith('mc-') ? 'Multiple choice format' :
                                         'Type your answers'
                             }
                         </p>
+                        {isFlashcardMode && (
+                            <p className="text-sm terminal-text color-green">
+                                ✓ Your progress is saved automatically as you practice
+                            </p>
+                        )}
                     </div>
 
                     <div className="flex gap-4 justify-center">
@@ -757,7 +809,7 @@ const QuizGame: React.FC = () => {
                             onClick={() => dispatch({ type: 'START_GAME' })}
                             className="terminal-button-primary text-xl px-8 py-4"
                         >
-                            Begin {gameMode === 'flashcard' ? 'Practice' : 'Quiz'}
+                            Begin {isFlashcardMode ? 'Practice' : 'Quiz'}
                         </button>
                         <button
                             onClick={() => dispatch({ type: 'RESET' })}
@@ -857,6 +909,9 @@ const QuizGame: React.FC = () => {
                                             Still Learning
                                         </button>
                                     </div>
+                                    <p className="text-center text-xs terminal-text color-cyan opacity-70">
+                                        ✓ Saved automatically to your known items list
+                                    </p>
                                 </div>
                             )}
 
@@ -881,7 +936,7 @@ const QuizGame: React.FC = () => {
         );
     }
 
-    // Multiple Choice Mode
+    // Multiple Choice Mode (keeping existing code...)
     if (gameState === 'multiple-choice') {
         const currentQ = questions[currentIndex];
         const config = gameMode ? gameModes[gameMode] : null;
@@ -997,7 +1052,10 @@ const QuizGame: React.FC = () => {
         );
     }
 
-    // Review Section
+    // Review, Finished, and Playing sections remain the same...
+    // (Include the rest of your existing code for these sections)
+    
+    // Review Section (keeping existing code from previous version)
     if (gameState === 'review') {
         const correctAnswers = results.filter(r => r.isCorrect);
         const incorrectAnswers = results.filter(r => !r.isCorrect);
@@ -1166,6 +1224,7 @@ const QuizGame: React.FC = () => {
     // Finished Game
     if (gameState === 'finished') {
         const config = gameMode ? gameModes[gameMode] : null;
+        const isFlashcardMode = gameMode?.startsWith('flashcard');
 
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -1179,7 +1238,7 @@ const QuizGame: React.FC = () => {
                             {config?.name} Complete!
                         </h2>
 
-                        {gameMode !== 'flashcard' && (
+                        {!isFlashcardMode && (
                             <>
                                 <div className="text-6xl font-bold color-green">
                                     {score}/{questions.length}
@@ -1201,15 +1260,16 @@ const QuizGame: React.FC = () => {
                             </>
                         )}
 
-                        {gameMode === 'flashcard' && (
+                        {isFlashcardMode && (
                             <p className="text-xl terminal-text color-cyan">
-                                You've completed the flashcard practice session!
+                                You've completed the flashcard practice session!<br/>
+                                <span className="text-sm color-green">✓ All progress saved automatically</span>
                             </p>
                         )}
                     </div>
 
                     <div className="flex gap-4 justify-center flex-wrap">
-                        {gameMode !== 'flashcard' && results.length > 0 && (
+                        {!isFlashcardMode && results.length > 0 && (
                             <button
                                 onClick={() => dispatch({ type: 'SHOW_REVIEW' })}
                                 className="terminal-button-primary"
