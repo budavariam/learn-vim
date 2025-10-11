@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import "./TypingText.css"
 
 interface TypingTextProps {
     text: string;
@@ -22,22 +23,59 @@ const TypingText: React.FC<TypingTextProps> = ({
     useEffect(() => {
         const duration = text.length * speed;
 
+        console.log('[TypingText] Animation config:', {
+            text,
+            textLength: text.length,
+            speed,
+            startDelay,
+            calculatedDuration: duration,
+            timestamp: new Date().toISOString()
+        });
+
         if (elementRef.current) {
-            elementRef.current.style.setProperty('--char-count', text.length.toString());
-            elementRef.current.style.setProperty('--typing-duration', `${duration}ms`);
+            try {
+                // Set CSS custom properties
+                elementRef.current.style.setProperty('--char-count', text.length.toString());
+                elementRef.current.style.setProperty('--typing-duration', `${duration}ms`);
+                
+                // Critical: Set max-width to constrain the animation
+                elementRef.current.style.setProperty('max-width', `${text.length}ch`);
+                elementRef.current.style.setProperty('width', 'fit-content');
+                
+                console.log('[TypingText] CSS properties set:', {
+                    charCount: text.length,
+                    duration: `${duration}ms`,
+                    maxWidth: `${text.length}ch`,
+                    element: elementRef.current.tagName
+                });
+            } catch (error) {
+                console.error('[TypingText] Error setting CSS properties:', error);
+            }
+        } else {
+            console.warn('[TypingText] Element ref is null during setup');
         }
 
         const startTimer = setTimeout(() => {
+            console.log('[TypingText] Starting animation', { timestamp: new Date().toISOString() });
             setShouldAnimate(true);
             setIsAnimating(true);
         }, startDelay);
 
         const endTimer = setTimeout(() => {
+            console.log('[TypingText] Animation completed', { 
+                timestamp: new Date().toISOString(),
+                totalTime: startDelay + duration + 100
+            });
             setIsAnimating(false);
-            onComplete?.();
+            try {
+                onComplete?.();
+            } catch (error) {
+                console.error('[TypingText] Error in onComplete callback:', error);
+            }
         }, startDelay + duration + 100);
 
         return () => {
+            console.log('[TypingText] Cleanup: clearing timers');
             clearTimeout(startTimer);
             clearTimeout(endTimer);
         };
@@ -48,10 +86,15 @@ const TypingText: React.FC<TypingTextProps> = ({
             <h1
                 ref={elementRef}
                 className={`
-          ${className} 
-          ${shouldAnimate ? 'typing-animation animate' : 'typing-animation'}
-          ${!isAnimating && shouldAnimate ? 'animation-complete' : ''}
-        `}
+                    ${className} 
+                    ${shouldAnimate ? 'typing-animation animate' : 'typing-animation'}
+                    ${!isAnimating && shouldAnimate ? 'animation-complete' : ''}
+                `}
+                style={{
+                    display: 'inline-block',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden'
+                }}
             >
                 {text}
             </h1>
