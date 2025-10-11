@@ -1048,7 +1048,7 @@ const QuizGame: React.FC = () => {
                                 </p>
                                 {mcOptions && mcOptions.map((option, index) => (
                                     <button
-                                        key={index}
+                                        key={option}
                                         onClick={() => handleMCAnswer(option)}
                                         className="w-full text-left px-6 py-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 hover:shadow-md text-gray-800 dark:text-gray-200"
                                     >
@@ -1203,7 +1203,7 @@ const QuizGame: React.FC = () => {
                                         const isCurrentlyKnown = currentKnownItems.has(result.question.id || '');
                                         return (
                                             <div
-                                                key={index}
+                                                key={result.question.id}
                                                 className={`p-4 rounded-lg border-2 ${result.isCorrect
                                                     ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
                                                     : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
