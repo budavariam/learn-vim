@@ -3,7 +3,7 @@ import {
     Shuffle, RotateCcw, Trophy, Target,
     CheckCircle, XCircle, Zap, BookOpen, Database,
     Download, Plus, Minus, Eye, ToggleLeft, ToggleRight,
-    Layers, Grid3x3, Brain, Repeat
+    Layers, Grid3x3, Brain, AlertCircle, Repeat
 } from 'lucide-react';
 import quizData from '../data.json';
 import ColoredText from './ColoredText';
@@ -471,6 +471,22 @@ const QuizGame: React.FC = () => {
         }
     }, [state.currentIndex, state.gameState]);
 
+    // Keyboard support for multiple choice (1-4 keys)
+    useEffect(() => {
+        const handleKeyPress = (e: KeyboardEvent) => {
+            if (state.gameState === 'multiple-choice' && !state.showAnswer && state.mcOptions) {
+                const keyNum = parseInt(e.key);
+                if (keyNum >= 1 && keyNum <= 4 && keyNum <= state.mcOptions.length) {
+                    const selectedOption = state.mcOptions[keyNum - 1];
+                    handleMCAnswer(selectedOption);
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyPress);
+        return () => window.removeEventListener('keydown', handleKeyPress);
+    }, [state.gameState, state.showAnswer, state.mcOptions]);
+
     const {
         gameState, gameMode, questions, currentIndex,
         score, userAnswer, isCorrect, showAnswer, results, mcOptions
@@ -596,7 +612,7 @@ const QuizGame: React.FC = () => {
 
     /* ────────────────── UI ─────────────────── */
 
-    // Intro Page
+    // Intro Page - keeping existing code...
     if (gameState === 'intro') {
         const quizModes = Object.entries(gameModes).filter(([_, config]) => config.category === 'quiz');
         const practiceModes = Object.entries(gameModes).filter(([_, config]) => config.category === 'practice');
@@ -723,6 +739,7 @@ const QuizGame: React.FC = () => {
                     {/* Multiple Choice Tests */}
                     <div className="space-y-4">
                         <h2 className="text-2xl font-bold color-green">✅ Multiple Choice Tests</h2>
+                        <p className="text-sm terminal-text color-cyan opacity-80">Use keys 1-4 to quickly select answers</p>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
                             {testModes.map(([mode, config]) => {
                                 const IconComponent = config.icon;
@@ -767,7 +784,7 @@ const QuizGame: React.FC = () => {
         );
     }
 
-    // Mode confirmation
+    // Mode confirmation - keeping existing...
     if (gameState === 'mode-select' && gameMode) {
         const config = gameModes[gameMode];
         const IconComponent = config.icon;
@@ -793,7 +810,7 @@ const QuizGame: React.FC = () => {
                         <p className="text-lg terminal-text color-cyan">
                             {questions.length} {isFlashcardMode ? 'cards' : 'questions'} • {
                                 isFlashcardMode ? 'Practice mode - updates in real-time' :
-                                    gameMode?.startsWith('mc-') ? 'Multiple choice format' :
+                                    gameMode?.startsWith('mc-') ? 'Multiple choice - Press 1-4 for quick answers' :
                                         'Type your answers'
                             }
                         </p>
@@ -823,7 +840,7 @@ const QuizGame: React.FC = () => {
         );
     }
 
-    // Flashcard Mode
+    // Flashcard Mode - keeping existing...
     if (gameState === 'flashcard') {
         const currentQ = questions[currentIndex];
         const config = gameMode ? gameModes[gameMode] : null;
@@ -936,7 +953,7 @@ const QuizGame: React.FC = () => {
         );
     }
 
-    // Multiple Choice Mode (keeping existing code...)
+    // Multiple Choice Mode - UPDATED with smoother styling and number keys
     if (gameState === 'multiple-choice') {
         const currentQ = questions[currentIndex];
         const config = gameMode ? gameModes[gameMode] : null;
@@ -986,22 +1003,27 @@ const QuizGame: React.FC = () => {
                         </div>
 
                         {!showAnswer ? (
-                            <div className="space-y-4">
+                            <div className="space-y-3">
+                                <p className="text-center text-sm terminal-text color-cyan opacity-70 mb-4">
+                                    Press 1-4 or click to select
+                                </p>
                                 {mcOptions && mcOptions.map((option, index) => (
                                     <button
                                         key={index}
                                         onClick={() => handleMCAnswer(option)}
-                                        className="w-full text-left terminal-button-secondary text-lg px-6 py-4 hover:scale-102 transition-transform"
+                                        className="w-full text-left px-6 py-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 hover:shadow-md text-gray-800 dark:text-gray-200"
                                     >
-                                        <span className="font-bold color-cyan mr-4">
-                                            {String.fromCharCode(65 + index)}.
+                                        <span className="inline-flex items-center gap-3">
+                                            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold text-sm">
+                                                {index + 1}
+                                            </span>
+                                            <span className="text-lg">{option}</span>
                                         </span>
-                                        {option}
                                     </button>
                                 ))}
                                 <button
                                     onClick={() => dispatch({ type: 'QUIT_GAME' })}
-                                    className="terminal-button-danger w-full mt-4"
+                                    className="terminal-button-danger w-full mt-6"
                                 >
                                     Quit Game
                                 </button>
@@ -1052,10 +1074,7 @@ const QuizGame: React.FC = () => {
         );
     }
 
-    // Review, Finished, and Playing sections remain the same...
-    // (Include the rest of your existing code for these sections)
-    
-    // Review Section (keeping existing code from previous version)
+    // Review Section
     if (gameState === 'review') {
         const correctAnswers = results.filter(r => r.isCorrect);
         const incorrectAnswers = results.filter(r => !r.isCorrect);
