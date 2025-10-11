@@ -9,12 +9,11 @@
     "dev": "vite --base /learn-vim/game/",
     "build": "vite build && tsc --noEmit",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview --base /learn-vim/game/",
     "generate-data": "node ../scripts/generateData.js",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "lucide-react": "^0.263.1",
+    "lucide-react": "^0.545.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
