@@ -356,8 +356,8 @@ function reducer(state: State, action: Action): State {
                 mcOptions: isMCMode ? [] : state.mcOptions
             };
         }
+        
         case 'SET_CUSTOM_QUESTION_COUNT': {
-            // When setting custom count, regenerate questions if we already have a mode selected
             const newQuestions = state.gameMode 
                 ? getQuestionsForMode(
                     state.gameMode,
@@ -593,7 +593,9 @@ function reducer(state: State, action: Action): State {
             if (totalChanges === 0) {
                 alert('No changes to apply - all items already match your responses!');
             } else {
-                alert(`Updated known items!\n✓ Added: ${addedCount}\n✗ Removed: ${removedCount}`);
+                alert(`Updated known items!
+✓ Added: ${addedCount}
+✗ Removed: ${removedCount}`);
             }
 
             return {
@@ -629,59 +631,22 @@ const QuizGame: React.FC = () => {
     const { mode } = useParams<{ mode?: string }>();
     
     const [state, dispatch] = useReducer(reducer, initialState);
-    // Sync URL mode on mount
-    useEffect(() => {
-        if (mode && mode !== state.gameMode && Object.keys(gameModes).includes(mode)) {
-            dispatch({ type: 'SELECT_MODE', payload: mode as GameMode });
-        }
-    }, [mode]);
-
-    // Handle browser back/forward button
-useEffect(() => {
-    const path = location.pathname;
-    const { gameState, gameMode, results } = state;
-    
-    // Don't handle navigation if we're already in the correct state
-    if (path === '/' && gameState === 'intro') return;
-    if (path.startsWith('/mode/') && gameState === 'mode-select') return;
-    if (path.startsWith('/play/') && ['playing', 'flashcard', 'multiple-choice', 'answered'].includes(gameState)) return;
-    if (path.startsWith('/results/') && gameState === 'finished') return;
-    if (path.startsWith('/review/') && gameState === 'review') return;
-    
-    // Now handle state changes based on URL
-    if (path === '/') {
-        dispatch({ type: 'RESET' });
-    } else if (path.startsWith('/mode/')) {
-        const urlMode = path.split('/mode/')[1] as GameMode;
-        if (Object.keys(gameModes).includes(urlMode)) {
-            dispatch({ type: 'SELECT_MODE', payload: urlMode });
-        }
-    } else if (path.startsWith('/play/')) {
-        const urlMode = path.split('/play/')[1] as GameMode;
-        if (Object.keys(gameModes).includes(urlMode)) {
-            dispatch({ type: 'SELECT_MODE', payload: urlMode });
-            dispatch({ type: 'START_GAME' });
-        }
-    } else if (path.startsWith('/results/')) {
-        if (results.length > 0) {
-            dispatch({ type: 'QUIT_GAME' });
-        } else {
-            navigate('/', { replace: true });
-        }
-    } else if (path.startsWith('/review/')) {
-        if (results.length > 0 && gameMode) {
-            dispatch({ type: 'SHOW_REVIEW' });
-        } else {
-            navigate('/', { replace: true });
-        }
-    }
-}, [location.pathname, state.gameState, state.gameMode, state.results.length, navigate]);
     
     const {
         gameState, gameMode, questions, currentIndex,
         score, userAnswer, isCorrect, showAnswer, results, mcOptions,
         showFlashAnswer, knownItems, customQuestionCount
     } = state;
+
+    // Sync URL mode on mount
+    useEffect(() => {
+        if (mode && mode !== gameMode && Object.keys(gameModes).includes(mode)) {
+            dispatch({ type: 'SELECT_MODE', payload: mode as GameMode });
+        }
+    }, [mode, gameMode]);
+
+    // REMOVED the problematic useEffect that was causing redirects
+    // The navigation is now handled entirely by the handlers
 
     /* ──────────────── handlers ─────────────── */
 
@@ -713,6 +678,7 @@ useEffect(() => {
             navigate(`/play/${gameMode}`, { replace: false });
         }
     }, [gameMode, navigate]);
+    
     const handleSetQuestionCount = useCallback((count: number) => {
         dispatch({ type: 'SET_CUSTOM_QUESTION_COUNT', payload: count });
     }, []);
