@@ -3,7 +3,6 @@ import { gameModes, GameMode } from './QuizGame';
 import type { QuizQuestion } from './QuizGame';
 import ThemeToggle from './ThemeToggle';
 
-
 interface ModeConfirmationProps {
     gameMode: GameMode;
     questions: QuizQuestion[];
@@ -12,7 +11,6 @@ interface ModeConfirmationProps {
     onReset: () => void;
     onSetQuestionCount: (count: number) => void;
 }
-
 
 const ModeConfirmation: React.FC<ModeConfirmationProps> = ({
     gameMode,
@@ -93,7 +91,7 @@ const ModeConfirmation: React.FC<ModeConfirmationProps> = ({
                     )}
                     
                     <p className="text-sm md:text-lg terminal-text color-cyan break-words">
-                        {questions.length} {isFlashcardMode ? 'cards' : 'questions'} • {
+                        {questions.length} {isFlashcardMode ? 'cards' : 'questions'} available • {
                             isFlashcardMode ? 'Practice mode - apply changes at the end' :
                                 gameMode?.startsWith('mc-') ? 'Multiple choice - Press 1-4 for quick answers' :
                                     'Type your answers'
@@ -124,6 +122,5 @@ const ModeConfirmation: React.FC<ModeConfirmationProps> = ({
         </div>
     );
 };
-
 
 export default ModeConfirmation;

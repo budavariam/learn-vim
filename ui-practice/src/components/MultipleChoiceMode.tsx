@@ -17,6 +17,7 @@ interface MultipleChoiceModeProps {
     userAnswer: string;
     onMCAnswer: (answer: string) => void;
     onNext: (e: React.FormEvent) => void;
+    onHome: () => void;
     onQuit: () => void;
 }
 
@@ -32,6 +33,7 @@ const MultipleChoiceMode: React.FC<MultipleChoiceModeProps> = ({
     userAnswer,
     onMCAnswer,
     onNext,
+    onHome,
     onQuit
 }) => {
     const config = gameMode ? gameModes[gameMode] : null;
@@ -56,7 +58,7 @@ const MultipleChoiceMode: React.FC<MultipleChoiceModeProps> = ({
         <div className="min-h-screen p-6">
             <div className="max-w-4xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 cursor-pointer" onClick={() => onHome()}>
                         <Grid3x3 className="w-8 h-8 color-cyan" />
                         <h1 className="text-3xl font-bold color-cyan">
                             {config?.name || 'Multiple Choice Quiz'}

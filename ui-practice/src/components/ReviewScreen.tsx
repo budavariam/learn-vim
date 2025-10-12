@@ -12,6 +12,7 @@ interface ReviewScreenProps {
     onExport: () => void;
     onAddCorrect: () => void;
     onRemoveIncorrect: () => void;
+    onHome: () => void;
     onToggleKnown: (questionId: string | undefined) => void;
 }
 
@@ -22,6 +23,7 @@ const ReviewScreen: React.FC<ReviewScreenProps> = ({
     onExport,
     onAddCorrect,
     onRemoveIncorrect,
+    onHome,
     onToggleKnown
 }) => {
     const correctAnswers = results.filter(r => r.isCorrect);
@@ -36,7 +38,7 @@ const ReviewScreen: React.FC<ReviewScreenProps> = ({
         <div className="min-h-screen p-6">
             <div className="max-w-6xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 cursor-pointer" onClick={() => onHome()}>
                         <Eye className="w-8 h-8 color-cyan" />
                         <h1 className="text-3xl font-bold color-cyan">Review Session</h1>
                     </div>

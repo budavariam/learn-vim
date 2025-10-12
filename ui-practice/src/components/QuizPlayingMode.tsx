@@ -18,6 +18,7 @@ interface QuizPlayingModeProps {
     onSubmit: (e: React.FormEvent) => void;
     onNext: (e: React.FormEvent) => void;
     onQuit: () => void;
+    onHome: () => void;
 }
 
 const QuizPlayingMode: React.FC<QuizPlayingModeProps> = ({
@@ -32,6 +33,7 @@ const QuizPlayingMode: React.FC<QuizPlayingModeProps> = ({
     onAnswerChange,
     onSubmit,
     onNext,
+    onHome,
     onQuit
 }) => {
     const config = gameMode ? gameModes[gameMode] : null;
@@ -40,7 +42,7 @@ const QuizPlayingMode: React.FC<QuizPlayingModeProps> = ({
         <div className="min-h-screen p-6">
             <div className="max-w-4xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 cursor-pointer" onClick={() => onHome()}>
                         <Target className="w-8 h-8 color-cyan" />
                         <h1 className="text-3xl font-bold color-cyan">
                             {config?.name || 'Quiz Game'}
