@@ -3,22 +3,32 @@ import { gameModes, GameMode } from './QuizGame';
 import type { QuizQuestion } from './QuizGame';
 import ThemeToggle from './ThemeToggle';
 
+
 interface ModeConfirmationProps {
     gameMode: GameMode;
     questions: QuizQuestion[];
+    customQuestionCount: number | null;
     onStart: () => void;
     onReset: () => void;
+    onSetQuestionCount: (count: number) => void;
 }
+
 
 const ModeConfirmation: React.FC<ModeConfirmationProps> = ({
     gameMode,
     questions,
+    customQuestionCount,
     onStart,
-    onReset
+    onReset,
+    onSetQuestionCount
 }) => {
     const config = gameModes[gameMode];
     const IconComponent = config.icon;
     const isFlashcardMode = gameMode.startsWith('flashcard');
+    const isMCMode = gameMode.startsWith('mc-');
+
+    const questionCountOptions = [10, 20, 30, 40, 50, 100];
+    const currentCount = customQuestionCount || config.questionCount;
 
     return (
         <div className="min-h-screen flex items-center justify-center">
@@ -37,6 +47,28 @@ const ModeConfirmation: React.FC<ModeConfirmationProps> = ({
                     <p className="text-xl terminal-text color-yellow">
                         {config.description}
                     </p>
+                    
+                    {isMCMode && (
+                        <div className="space-y-4 max-w-md mx-auto">
+                            <p className="text-lg terminal-text color-cyan">Select number of questions:</p>
+                            <div className="grid grid-cols-3 gap-4">
+                                {questionCountOptions.map(count => (
+                                    <button
+                                        key={count}
+                                        onClick={() => onSetQuestionCount(count)}
+                                        className={`px-6 py-4 rounded-lg border-2 transition-all duration-200 ${
+                                            currentCount === count
+                                                ? 'border-cyan-500 bg-cyan-500/20 text-cyan-300'
+                                                : 'border-gray-600 bg-gray-800/50 text-gray-300 hover:border-gray-500'
+                                        }`}
+                                    >
+                                        <span className="text-2xl font-bold">{count}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    
                     <p className="text-lg terminal-text color-cyan">
                         {questions.length} {isFlashcardMode ? 'cards' : 'questions'} • {
                             isFlashcardMode ? 'Practice mode - apply changes at the end' :
@@ -69,5 +101,6 @@ const ModeConfirmation: React.FC<ModeConfirmationProps> = ({
         </div>
     );
 };
+
 
 export default ModeConfirmation;

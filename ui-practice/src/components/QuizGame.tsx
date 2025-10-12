@@ -55,6 +55,7 @@ interface State {
     flashcardResponses: Map<string, boolean>;
     showFlashAnswer: boolean;
     knownItems: Set<string>;
+    customQuestionCount: number | null;
 }
 
 type Action =
@@ -73,7 +74,8 @@ type Action =
     | { type: 'REMOVE_INCORRECT_FROM_KNOWN' }
     | { type: 'APPLY_FLASHCARD_RESPONSES' }
     | { type: 'SHOW_FLASH_ANSWER' }
-    | { type: 'RELOAD_KNOWN_ITEMS' };
+    | { type: 'RELOAD_KNOWN_ITEMS' }
+    | { type: 'SET_CUSTOM_QUESTION_COUNT'; payload: number };
 
 /* ────────────────── helpers ──────────────────── */
 
@@ -239,7 +241,7 @@ export const gameModes: Record<GameMode, GameModeConfig> = {
     'mc-easy': {
         name: "MC Easy",
         description: "Multiple choice - random options",
-        questionCount: 20,
+        questionCount: 50,
         icon: Grid3x3,
         color: "color-green",
         bgColor: "from-green-400 to-emerald-500",
@@ -257,7 +259,7 @@ export const gameModes: Record<GameMode, GameModeConfig> = {
     'mc-hard': {
         name: "MC Hard",
         description: "Multiple choice - similar answers",
-        questionCount: 40,
+        questionCount: 10,
         icon: Grid3x3,
         color: "color-red",
         bgColor: "from-red-500 to-rose-600",
@@ -299,7 +301,7 @@ export const calculateImpacts = (results: QuizResult[]) => {
     return { correctToAdd, incorrectToRemove };
 };
 
-const getQuestionsForMode = (mode: GameMode, allQuestions: QuizQuestion[], knownItems: Set<string>): QuizQuestion[] => {
+const getQuestionsForMode = (mode: GameMode, allQuestions: QuizQuestion[], knownItems: Set<string>, customCount?: number): QuizQuestion[] => {
     let filteredQuestions = allQuestions;
 
     if (mode === 'flashcard-unknown') {
@@ -309,7 +311,7 @@ const getQuestionsForMode = (mode: GameMode, allQuestions: QuizQuestion[], known
     }
 
     const shuffled = shuffle(filteredQuestions);
-    const { questionCount } = gameModes[mode];
+    const questionCount = customCount || gameModes[mode].questionCount;
     return shuffled.slice(0, Math.min(questionCount, shuffled.length));
 };
 
@@ -328,7 +330,8 @@ const initialState: State = {
     mcOptions: [],
     flashcardResponses: new Map(),
     showFlashAnswer: false,
-    knownItems: getKnownItems()
+    knownItems: getKnownItems(),
+    customQuestionCount: null
 };
 
 /* ────────────────── reducer ──────────────────── */
@@ -336,7 +339,12 @@ const initialState: State = {
 function reducer(state: State, action: Action): State {
     switch (action.type) {
         case 'SELECT_MODE': {
-            const modeQuestions = getQuestionsForMode(action.payload, quizData as QuizQuestion[], state.knownItems);
+            const modeQuestions = getQuestionsForMode(
+                action.payload, 
+                quizData as QuizQuestion[], 
+                state.knownItems,
+                state.customQuestionCount || undefined
+            );
             const isMCMode = action.payload.startsWith('mc-');
 
             return {
@@ -346,6 +354,22 @@ function reducer(state: State, action: Action): State {
                 questions: modeQuestions,
                 results: [],
                 mcOptions: isMCMode ? [] : state.mcOptions
+            };
+        }
+        case 'SET_CUSTOM_QUESTION_COUNT': {
+            // When setting custom count, regenerate questions if we already have a mode selected
+            const newQuestions = state.gameMode 
+                ? getQuestionsForMode(
+                    state.gameMode,
+                    quizData as QuizQuestion[],
+                    state.knownItems,
+                    action.payload
+                )
+                : state.questions;
+            return {
+                ...state,
+                customQuestionCount: action.payload,
+                questions: newQuestions
             };
         }
 
@@ -656,7 +680,7 @@ const QuizGame: React.FC = () => {
     const {
         gameState, gameMode, questions, currentIndex,
         score, userAnswer, isCorrect, showAnswer, results, mcOptions,
-        showFlashAnswer, knownItems
+        showFlashAnswer, knownItems, customQuestionCount
     } = state;
 
     /* ──────────────── handlers ─────────────── */
@@ -689,6 +713,9 @@ const QuizGame: React.FC = () => {
             navigate(`/play/${gameMode}`, { replace: false });
         }
     }, [gameMode, navigate]);
+    const handleSetQuestionCount = useCallback((count: number) => {
+        dispatch({ type: 'SET_CUSTOM_QUESTION_COUNT', payload: count });
+    }, []);
 
     const handleMCAnswer = (answer: string) => {
         dispatch({ type: 'SET_USER_ANSWER', payload: answer });
@@ -768,8 +795,10 @@ const QuizGame: React.FC = () => {
             <ModeConfirmation
                 gameMode={gameMode}
                 questions={questions}
+                customQuestionCount={customQuestionCount}
                 onStart={handleStartGame}
                 onReset={handleReset}
+                onSetQuestionCount={handleSetQuestionCount}
             />
         );
     }
