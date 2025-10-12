@@ -1,4 +1,5 @@
-import React, { useReducer, FormEvent, useState, useEffect } from 'react';
+import React, { useReducer, FormEvent, useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
     Zap, BookOpen, Database, Layers, Brain, Repeat, Grid3x3
 } from 'lucide-react';
@@ -50,8 +51,10 @@ interface State {
     isCorrect: boolean;
     showAnswer: boolean;
     results: QuizResult[];
-    mcOptions?: string[];
-    flashcardResponses?: Map<string, boolean>;
+    mcOptions: string[];
+    flashcardResponses: Map<string, boolean>;
+    showFlashAnswer: boolean;
+    knownItems: Set<string>;
 }
 
 type Action =
@@ -64,8 +67,13 @@ type Action =
     | { type: 'SET_USER_ANSWER'; payload: string }
     | { type: 'SHOW_REVIEW' }
     | { type: 'BACK_TO_RESULTS' }
-    | { type: 'SET_MC_OPTIONS'; payload: string[] }
-    | { type: 'RECORD_FLASHCARD_RESPONSE'; payload: { questionId: string; known: boolean } };
+    | { type: 'RECORD_FLASHCARD_RESPONSE'; payload: { questionId: string; known: boolean } }
+    | { type: 'TOGGLE_KNOWN_ITEM'; payload: string }
+    | { type: 'ADD_CORRECT_TO_KNOWN' }
+    | { type: 'REMOVE_INCORRECT_FROM_KNOWN' }
+    | { type: 'APPLY_FLASHCARD_RESPONSES' }
+    | { type: 'SHOW_FLASH_ANSWER' }
+    | { type: 'RELOAD_KNOWN_ITEMS' };
 
 /* ────────────────── helpers ──────────────────── */
 
@@ -291,9 +299,7 @@ export const calculateImpacts = (results: QuizResult[]) => {
     return { correctToAdd, incorrectToRemove };
 };
 
-const getQuestionsForMode = (mode: GameMode, allQuestions: QuizQuestion[]): QuizQuestion[] => {
-    const knownItems = getKnownItems();
-
+const getQuestionsForMode = (mode: GameMode, allQuestions: QuizQuestion[], knownItems: Set<string>): QuizQuestion[] => {
     let filteredQuestions = allQuestions;
 
     if (mode === 'flashcard-unknown') {
@@ -320,15 +326,17 @@ const initialState: State = {
     showAnswer: false,
     results: [],
     mcOptions: [],
-    flashcardResponses: new Map()
+    flashcardResponses: new Map(),
+    showFlashAnswer: false,
+    knownItems: getKnownItems()
 };
 
 /* ────────────────── reducer ──────────────────── */
 
 function reducer(state: State, action: Action): State {
     switch (action.type) {
-        case 'SELECT_MODE':
-            const modeQuestions = getQuestionsForMode(action.payload, quizData as QuizQuestion[]);
+        case 'SELECT_MODE': {
+            const modeQuestions = getQuestionsForMode(action.payload, quizData as QuizQuestion[], state.knownItems);
             const isMCMode = action.payload.startsWith('mc-');
 
             return {
@@ -337,13 +345,32 @@ function reducer(state: State, action: Action): State {
                 gameMode: action.payload,
                 questions: modeQuestions,
                 results: [],
-                mcOptions: isMCMode ? [] : undefined
+                mcOptions: isMCMode ? [] : state.mcOptions
             };
+        }
 
-        case 'START_GAME':
+        case 'START_GAME': {
             const isFlashcardMode = state.gameMode?.startsWith('flashcard');
-            const startGameState = isFlashcardMode ? 'flashcard' :
-                state.gameMode?.startsWith('mc-') ? 'multiple-choice' : 'playing';
+            const isMCMode = state.gameMode?.startsWith('mc-');
+            
+            let startGameState: GameState = 'playing';
+            let mcOptions = state.mcOptions;
+            
+            if (isFlashcardMode) {
+                startGameState = 'flashcard';
+            } else if (isMCMode) {
+                startGameState = 'multiple-choice';
+                const currentQ = state.questions[0];
+                const difficulty = state.gameMode === 'mc-easy' ? 'easy' :
+                    state.gameMode === 'mc-medium' ? 'medium' : 'hard';
+                mcOptions = generateMCOptions(
+                    currentQ.solution[0],
+                    quizData as QuizQuestion[],
+                    currentQ,
+                    difficulty
+                );
+            }
+            
             return {
                 ...state,
                 gameState: startGameState,
@@ -353,14 +380,17 @@ function reducer(state: State, action: Action): State {
                 isCorrect: false,
                 showAnswer: false,
                 results: [],
-                flashcardResponses: new Map()
+                flashcardResponses: new Map(),
+                showFlashAnswer: false,
+                mcOptions
             };
+        }
 
         case 'SET_USER_ANSWER':
             return { ...state, userAnswer: action.payload };
 
-        case 'SET_MC_OPTIONS':
-            return { ...state, mcOptions: action.payload };
+        case 'SHOW_FLASH_ANSWER':
+            return { ...state, showFlashAnswer: true };
 
         case 'RECORD_FLASHCARD_RESPONSE': {
             const newResponses = new Map(state.flashcardResponses);
@@ -374,8 +404,7 @@ function reducer(state: State, action: Action): State {
         case 'ANSWER': {
             const currentQ = state.questions[state.currentIndex];
             const correct = currentQ.solution.includes(action.payload.answer.trim());
-            const knownItems = getKnownItems();
-            const wasKnownBefore = knownItems.has(currentQ.id || '');
+            const wasKnownBefore = state.knownItems.has(currentQ.id || '');
 
             const newResult: QuizResult = {
                 question: currentQ,
@@ -404,8 +433,25 @@ function reducer(state: State, action: Action): State {
             }
 
             const isFlashcardMode = state.gameMode?.startsWith('flashcard');
-            const nextGameState = isFlashcardMode ? 'flashcard' :
-                state.gameMode?.startsWith('mc-') ? 'multiple-choice' : 'playing';
+            const isMCMode = state.gameMode?.startsWith('mc-');
+            
+            let nextGameState: GameState = 'playing';
+            let mcOptions = state.mcOptions;
+            
+            if (isFlashcardMode) {
+                nextGameState = 'flashcard';
+            } else if (isMCMode) {
+                nextGameState = 'multiple-choice';
+                const nextQ = state.questions[nextIndex];
+                const difficulty = state.gameMode === 'mc-easy' ? 'easy' :
+                    state.gameMode === 'mc-medium' ? 'medium' : 'hard';
+                mcOptions = generateMCOptions(
+                    nextQ.solution[0],
+                    quizData as QuizQuestion[],
+                    nextQ,
+                    difficulty
+                );
+            }
 
             return {
                 ...state,
@@ -413,7 +459,8 @@ function reducer(state: State, action: Action): State {
                 gameState: nextGameState,
                 userAnswer: '',
                 showAnswer: false,
-                mcOptions: state.gameMode?.startsWith('mc-') ? [] : undefined
+                showFlashAnswer: false,
+                mcOptions
             };
         }
 
@@ -435,11 +482,114 @@ function reducer(state: State, action: Action): State {
                 gameState: 'finished'
             };
 
+        case 'TOGGLE_KNOWN_ITEM': {
+            const newKnownItems = new Set(state.knownItems);
+            if (newKnownItems.has(action.payload)) {
+                newKnownItems.delete(action.payload);
+            } else {
+                newKnownItems.add(action.payload);
+            }
+            saveKnownItems(newKnownItems);
+            return {
+                ...state,
+                knownItems: newKnownItems
+            };
+        }
+
+        case 'ADD_CORRECT_TO_KNOWN': {
+            const newKnownItems = new Set(state.knownItems);
+            const correctResults = state.results.filter(result => result.isCorrect);
+            let addedCount = 0;
+
+            correctResults.forEach(result => {
+                if (result.question.id && !newKnownItems.has(result.question.id)) {
+                    newKnownItems.add(result.question.id);
+                    addedCount++;
+                }
+            });
+
+            saveKnownItems(newKnownItems);
+            
+            if (addedCount === 0) {
+                alert(`All ${correctResults.length} correctly answered items were already in known items!`);
+            } else {
+                alert(`Added ${addedCount} new items to known items! (${correctResults.length - addedCount} were already known)`);
+            }
+
+            return {
+                ...state,
+                knownItems: newKnownItems
+            };
+        }
+
+        case 'REMOVE_INCORRECT_FROM_KNOWN': {
+            const newKnownItems = new Set(state.knownItems);
+            const incorrectResults = state.results.filter(result => !result.isCorrect);
+            let removedCount = 0;
+
+            incorrectResults.forEach(result => {
+                if (result.question.id && newKnownItems.has(result.question.id)) {
+                    newKnownItems.delete(result.question.id);
+                    removedCount++;
+                }
+            });
+
+            saveKnownItems(newKnownItems);
+            
+            if (removedCount === 0) {
+                alert(`None of the ${incorrectResults.length} missed items were in known items!`);
+            } else {
+                alert(`Removed ${removedCount} items from known items! (${incorrectResults.length - removedCount} were not previously known)`);
+            }
+
+            return {
+                ...state,
+                knownItems: newKnownItems
+            };
+        }
+
+        case 'APPLY_FLASHCARD_RESPONSES': {
+            const newKnownItems = new Set(state.knownItems);
+            let addedCount = 0;
+            let removedCount = 0;
+
+            state.flashcardResponses.forEach((known, questionId) => {
+                if (known && !newKnownItems.has(questionId)) {
+                    newKnownItems.add(questionId);
+                    addedCount++;
+                } else if (!known && newKnownItems.has(questionId)) {
+                    newKnownItems.delete(questionId);
+                    removedCount++;
+                }
+            });
+
+            saveKnownItems(newKnownItems);
+
+            const totalChanges = addedCount + removedCount;
+            if (totalChanges === 0) {
+                alert('No changes to apply - all items already match your responses!');
+            } else {
+                alert(`Updated known items!\n✓ Added: ${addedCount}\n✗ Removed: ${removedCount}`);
+            }
+
+            return {
+                ...state,
+                knownItems: newKnownItems
+            };
+        }
+
+        case 'RELOAD_KNOWN_ITEMS':
+            return {
+                ...state,
+                knownItems: getKnownItems()
+            };
+
         case 'RESET':
             return {
                 ...initialState,
                 questions: shuffle(quizData as QuizQuestion[]),
-                flashcardResponses: new Map()
+                flashcardResponses: new Map(),
+                knownItems: getKnownItems()
             };
 
         default:
@@ -450,40 +600,21 @@ function reducer(state: State, action: Action): State {
 /* ───────────────── component ─────────────────── */
 
 const QuizGame: React.FC = () => {
+    const navigate = useNavigate();
+    const { mode } = useParams<{ mode?: string }>();
+    
     const [state, dispatch] = useReducer(reducer, initialState);
-    const [currentKnownItems, setCurrentKnownItems] = useState<Set<string>>(new Set());
-    const [showFlashAnswer, setShowFlashAnswer] = useState(false);
-
+    // Only sync URL mode on mount
     useEffect(() => {
-        if (state.gameState === 'review') {
-            setCurrentKnownItems(getKnownItems());
+        if (mode && mode !== state.gameMode && Object.keys(gameModes).includes(mode)) {
+            dispatch({ type: 'SELECT_MODE', payload: mode as GameMode });
         }
-    }, [state.gameState]);
-
-    useEffect(() => {
-        if (state.gameState === 'multiple-choice' && state.gameMode?.startsWith('mc-') && state.mcOptions?.length === 0) {
-            const currentQ = state.questions[state.currentIndex];
-            const difficulty = state.gameMode === 'mc-easy' ? 'easy' :
-                state.gameMode === 'mc-medium' ? 'medium' : 'hard';
-            const options = generateMCOptions(
-                currentQ.solution[0],
-                quizData as QuizQuestion[],
-                currentQ,
-                difficulty
-            );
-            dispatch({ type: 'SET_MC_OPTIONS', payload: options });
-        }
-    }, [state.gameState, state.currentIndex, state.gameMode, state.mcOptions, state.questions]);
-
-    useEffect(() => {
-        if (state.gameState === 'flashcard') {
-            setShowFlashAnswer(false);
-        }
-    }, [state.currentIndex, state.gameState]);
+    }, [mode]);
 
     const {
         gameState, gameMode, questions, currentIndex,
-        score, userAnswer, isCorrect, showAnswer, results, mcOptions
+        score, userAnswer, isCorrect, showAnswer, results, mcOptions,
+        showFlashAnswer, knownItems
     } = state;
 
     /* ──────────────── handlers ─────────────── */
@@ -496,12 +627,26 @@ const QuizGame: React.FC = () => {
 
     const handleNextQuestion = (e: FormEvent) => {
         e.preventDefault();
+        const nextIndex = currentIndex + 1;
+        
         dispatch({ type: 'NEXT_QUESTION' });
+        
+        if (nextIndex >= questions.length && gameMode) {
+            navigate(`/results/${gameMode}`, { replace: false });
+        }
     };
 
-    const handleModeSelect = (mode: GameMode) => {
+    const handleModeSelect = useCallback((mode: GameMode) => {
         dispatch({ type: 'SELECT_MODE', payload: mode });
-    };
+        navigate(`/mode/${mode}`, { replace: false });
+    }, [navigate]);
+
+    const handleStartGame = useCallback(() => {
+        dispatch({ type: 'START_GAME' });
+        if (gameMode) {
+            navigate(`/play/${gameMode}`, { replace: false });
+        }
+    }, [gameMode, navigate]);
 
     const handleMCAnswer = (answer: string) => {
         dispatch({ type: 'SET_USER_ANSWER', payload: answer });
@@ -510,6 +655,7 @@ const QuizGame: React.FC = () => {
 
     const handleFlashcardKnown = (known: boolean) => {
         const currentQ = questions[currentIndex];
+        const nextIndex = currentIndex + 1;
 
         if (currentQ.id) {
             dispatch({
@@ -519,44 +665,45 @@ const QuizGame: React.FC = () => {
         }
 
         dispatch({ type: 'NEXT_QUESTION' });
-    };
-
-    const applyFlashcardResponses = () => {
-        const knownItems = getKnownItems();
-        let addedCount = 0;
-        let removedCount = 0;
-
-        state.flashcardResponses?.forEach((known, questionId) => {
-            if (known && !knownItems.has(questionId)) {
-                knownItems.add(questionId);
-                addedCount++;
-            } else if (!known && knownItems.has(questionId)) {
-                knownItems.delete(questionId);
-                removedCount++;
-            }
-        });
-
-        saveKnownItems(knownItems);
-
-        const totalChanges = addedCount + removedCount;
-        if (totalChanges === 0) {
-            alert('No changes to apply - all items already match your responses!');
-        } else {
-            alert(`Updated known items!\n✓ Added: ${addedCount}\n✗ Removed: ${removedCount}`);
+        
+        if (nextIndex >= questions.length && gameMode) {
+            navigate(`/results/${gameMode}`, { replace: false });
         }
     };
 
-    const accuracy = (() => {
-        const totalAnswered = gameState === 'finished' && showAnswer
-            ? currentIndex + 1
-            : currentIndex;
+    const handleQuitGame = useCallback(() => {
+        dispatch({ type: 'QUIT_GAME' });
+        if (gameMode) {
+            navigate(`/results/${gameMode}`, { replace: false });
+        }
+    }, [gameMode, navigate]);
 
-        if (totalAnswered === 0) return 0;
-        return Math.round((score / totalAnswered) * 100);
-    })();
+    const handleShowReview = useCallback(() => {
+        dispatch({ type: 'SHOW_REVIEW' });
+        if (gameMode) {
+            navigate(`/review/${gameMode}`, { replace: false });
+        }
+    }, [gameMode, navigate]);
+
+    const handleBackToResults = useCallback(() => {
+        dispatch({ type: 'BACK_TO_RESULTS' });
+        if (gameMode) {
+            navigate(`/results/${gameMode}`, { replace: false });
+        }
+    }, [gameMode, navigate]);
+
+    const handleReset = useCallback(() => {
+        dispatch({ type: 'RESET' });
+        navigate('/', { replace: false });
+    }, [navigate]);
+
+    const handleRetry = useCallback(() => {
+        if (gameMode) {
+            handleModeSelect(gameMode);
+        }
+    }, [gameMode, handleModeSelect]);
 
     const exportKnownItems = () => {
-        const knownItems = getKnownItems();
         const knownItemsArray = [...knownItems];
         const dataStr = JSON.stringify(knownItemsArray, null, 2);
         const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
@@ -566,62 +713,6 @@ const QuizGame: React.FC = () => {
         linkElement.setAttribute('href', dataUri);
         linkElement.setAttribute('download', exportFileDefaultName);
         linkElement.click();
-    };
-
-    const addCorrectToKnownItems = () => {
-        const knownItems = getKnownItems();
-        const correctResults = results.filter(result => result.isCorrect);
-        let addedCount = 0;
-
-        correctResults.forEach(result => {
-            if (result.question.id && !knownItems.has(result.question.id)) {
-                knownItems.add(result.question.id);
-                addedCount++;
-            }
-        });
-
-        saveKnownItems(knownItems);
-        setCurrentKnownItems(new Set(knownItems));
-        if (addedCount === 0) {
-            alert(`All ${correctResults.length} correctly answered items were already in known items!`);
-        } else {
-            alert(`Added ${addedCount} new items to known items! (${correctResults.length - addedCount} were already known)`);
-        }
-    };
-
-    const removeIncorrectFromKnownItems = () => {
-        const knownItems = getKnownItems();
-        const incorrectResults = results.filter(result => !result.isCorrect);
-        let removedCount = 0;
-
-        incorrectResults.forEach(result => {
-            if (result.question.id && knownItems.has(result.question.id)) {
-                knownItems.delete(result.question.id);
-                removedCount++;
-            }
-        });
-
-        saveKnownItems(knownItems);
-        setCurrentKnownItems(new Set(knownItems));
-        if (removedCount === 0) {
-            alert(`None of the ${incorrectResults.length} missed items were in known items!`);
-        } else {
-            alert(`Removed ${removedCount} items from known items! (${incorrectResults.length - removedCount} were not previously known)`);
-        }
-    };
-
-    const toggleKnownItem = (questionId: string | undefined) => {
-        if (!questionId) return;
-
-        const knownItems = getKnownItems();
-        if (knownItems.has(questionId)) {
-            knownItems.delete(questionId);
-        } else {
-            knownItems.add(questionId);
-        }
-
-        saveKnownItems(knownItems);
-        setCurrentKnownItems(new Set(knownItems));
     };
 
     /* ────────────────── Render ─────────────────── */
@@ -635,8 +726,8 @@ const QuizGame: React.FC = () => {
             <ModeConfirmation
                 gameMode={gameMode}
                 questions={questions}
-                onStart={() => dispatch({ type: 'START_GAME' })}
-                onReset={() => dispatch({ type: 'RESET' })}
+                onStart={handleStartGame}
+                onReset={handleReset}
             />
         );
     }
@@ -649,10 +740,10 @@ const QuizGame: React.FC = () => {
                 totalQuestions={questions.length}
                 gameMode={gameMode}
                 showFlashAnswer={showFlashAnswer}
-                onShowAnswer={() => setShowFlashAnswer(true)}
+                onShowAnswer={() => dispatch({ type: 'SHOW_FLASH_ANSWER' })}
                 onFlashcardKnown={handleFlashcardKnown}
-                onQuit={() => dispatch({ type: 'QUIT_GAME' })}
-                flashcardResponse={state.flashcardResponses?.get(questions[currentIndex].id || '')}
+                onQuit={handleQuitGame}
+                flashcardResponse={state.flashcardResponses.get(questions[currentIndex].id || '')}
             />
         );
     }
@@ -665,13 +756,13 @@ const QuizGame: React.FC = () => {
                 totalQuestions={questions.length}
                 score={score}
                 gameMode={gameMode}
-                mcOptions={mcOptions || []}
+                mcOptions={mcOptions}
                 showAnswer={showAnswer}
                 isCorrect={isCorrect}
                 userAnswer={userAnswer}
                 onMCAnswer={handleMCAnswer}
                 onNext={handleNextQuestion}
-                onQuit={() => dispatch({ type: 'QUIT_GAME' })}
+                onQuit={handleQuitGame}
             />
         );
     }
@@ -680,12 +771,12 @@ const QuizGame: React.FC = () => {
         return (
             <ReviewScreen
                 results={results}
-                currentKnownItems={currentKnownItems}
-                onBack={() => dispatch({ type: 'BACK_TO_RESULTS' })}
+                currentKnownItems={knownItems}
+                onBack={handleBackToResults}
                 onExport={exportKnownItems}
-                onAddCorrect={addCorrectToKnownItems}
-                onRemoveIncorrect={removeIncorrectFromKnownItems}
-                onToggleKnown={toggleKnownItem}
+                onAddCorrect={() => dispatch({ type: 'ADD_CORRECT_TO_KNOWN' })}
+                onRemoveIncorrect={() => dispatch({ type: 'REMOVE_INCORRECT_FROM_KNOWN' })}
+                onToggleKnown={(id) => id && dispatch({ type: 'TOGGLE_KNOWN_ITEM', payload: id })}
             />
         );
     }
@@ -697,11 +788,11 @@ const QuizGame: React.FC = () => {
                 score={score}
                 totalQuestions={questions.length}
                 results={results}
-                flashcardResponseCount={state.flashcardResponses?.size || 0}
-                onReview={() => dispatch({ type: 'SHOW_REVIEW' })}
-                onReset={() => dispatch({ type: 'RESET' })}
-                onRetry={() => gameMode && handleModeSelect(gameMode)}
-                onApplyFlashcard={applyFlashcardResponses}
+                flashcardResponseCount={state.flashcardResponses.size}
+                onReview={handleShowReview}
+                onReset={handleReset}
+                onRetry={handleRetry}
+                onApplyFlashcard={() => dispatch({ type: 'APPLY_FLASHCARD_RESPONSES' })}
             />
         );
     }
@@ -719,7 +810,7 @@ const QuizGame: React.FC = () => {
             onAnswerChange={(answer) => dispatch({ type: 'SET_USER_ANSWER', payload: answer })}
             onSubmit={handleSubmit}
             onNext={handleNextQuestion}
-            onQuit={() => dispatch({ type: 'QUIT_GAME' })}
+            onQuit={handleQuitGame}
         />
     );
 };
