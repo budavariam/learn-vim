@@ -1,9 +1,9 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import QuizGame from './components/QuizGame';
 
 function App() {
     return (
-        <BrowserRouter basename="/learn-vim/game">
+        <HashRouter>
             <Routes>
                 <Route path="/" element={<QuizGame />} />
                 <Route path="/mode/:mode" element={<QuizGame />} />
@@ -11,7 +11,7 @@ function App() {
                 <Route path="/results/:mode" element={<QuizGame />} />
                 <Route path="/review/:mode" element={<QuizGame />} />
             </Routes>
-        </BrowserRouter>
+        </HashRouter>
     );
 }
 
