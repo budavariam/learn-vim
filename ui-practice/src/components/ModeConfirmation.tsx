@@ -26,8 +26,24 @@ const ModeConfirmation: React.FC<ModeConfirmationProps> = ({
     const IconComponent = config.icon;
     const isFlashcardMode = gameMode.startsWith('flashcard');
     const isMCMode = gameMode.startsWith('mc-');
+    const showCountSelector = isMCMode || isFlashcardMode;
 
-    const questionCountOptions = [10, 20, 30, 40, 50, 100];
+    // Get available question count options based on total available questions
+    const getAllCountOptions = () => {
+        const baseOptions = [10, 20, 30, 50, 100];
+        const totalQuestions = questions.length;
+        
+        // Filter options to only show those less than or equal to total questions
+        const validOptions = baseOptions.filter(opt => opt <= totalQuestions);
+        
+        // Add "All" option
+        const optionsWithAll = [...validOptions, totalQuestions];
+        
+        // Remove duplicates and sort
+        return Array.from(new Set(optionsWithAll)).sort((a, b) => a - b);
+    };
+
+    const questionCountOptions = getAllCountOptions();
     const currentCount = customQuestionCount || config.questionCount;
 
     return (
@@ -48,23 +64,30 @@ const ModeConfirmation: React.FC<ModeConfirmationProps> = ({
                         {config.description}
                     </p>
                     
-                    {isMCMode && (
+                    {showCountSelector && (
                         <div className="space-y-4 max-w-md mx-auto">
-                            <p className="text-base md:text-lg terminal-text color-cyan">Select number of questions:</p>
+                            <p className="text-base md:text-lg terminal-text color-cyan">
+                                Select number of {isFlashcardMode ? 'cards' : 'questions'}:
+                            </p>
                             <div className="grid grid-cols-3 gap-2 md:gap-4">
-                                {questionCountOptions.map(count => (
-                                    <button
-                                        key={count}
-                                        onClick={() => onSetQuestionCount(count)}
-                                        className={`px-3 py-3 md:px-6 md:py-4 rounded-lg border-2 transition-all duration-200 ${
-                                            currentCount === count
-                                                ? 'border-cyan-500 bg-cyan-500/20 text-cyan-300'
-                                                : 'border-gray-600 bg-gray-800/50 text-gray-300 hover:border-gray-500'
-                                        }`}
-                                    >
-                                        <span className="text-xl md:text-2xl font-bold">{count}</span>
-                                    </button>
-                                ))}
+                                {questionCountOptions.map(count => {
+                                    const isAllOption = count === questions.length;
+                                    return (
+                                        <button
+                                            key={count}
+                                            onClick={() => onSetQuestionCount(count)}
+                                            className={`px-3 py-3 md:px-6 md:py-4 rounded-lg border-2 transition-all duration-200 ${
+                                                currentCount === count
+                                                    ? 'border-cyan-500 bg-cyan-500/30 text-cyan-400 dark:text-cyan-300 font-semibold'
+                                                    : 'border-gray-400 dark:border-gray-600 bg-gray-100 dark:bg-gray-800/50 text-gray-700 dark:text-gray-300 hover:border-gray-500 dark:hover:border-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700/50'
+                                            }`}
+                                        >
+                                            <span className="text-xl md:text-2xl font-bold">
+                                                {isAllOption ? 'All' : count}
+                                            </span>
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
