@@ -627,7 +627,7 @@ function reducer(state: State, action: Action): State {
 
 const QuizGame: React.FC = () => {
     const navigate = useNavigate();
-    const location = useLocation();
+    //const location = useLocation();
     const { mode } = useParams<{ mode?: string }>();
     
     const [state, dispatch] = useReducer(reducer, initialState);
