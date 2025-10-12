@@ -1,5 +1,5 @@
 import React, { useReducer, FormEvent, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
     Zap, BookOpen, Database, Layers, Brain, Repeat, Grid3x3
 } from 'lucide-react';
@@ -601,16 +601,58 @@ function reducer(state: State, action: Action): State {
 
 const QuizGame: React.FC = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { mode } = useParams<{ mode?: string }>();
     
     const [state, dispatch] = useReducer(reducer, initialState);
-    // Only sync URL mode on mount
+    // Sync URL mode on mount
     useEffect(() => {
         if (mode && mode !== state.gameMode && Object.keys(gameModes).includes(mode)) {
             dispatch({ type: 'SELECT_MODE', payload: mode as GameMode });
         }
     }, [mode]);
-
+    // Handle browser back/forward button
+    useEffect(() => {
+        const path = location.pathname;
+        const { gameState, gameMode, results } = state;
+        
+        if (path === '/') {
+            if (gameState !== 'intro') {
+                dispatch({ type: 'RESET' });
+            }
+        } else if (path.startsWith('/mode/')) {
+            const urlMode = path.split('/mode/')[1] as GameMode;
+            if (gameState !== 'mode-select' || gameMode !== urlMode) {
+                if (Object.keys(gameModes).includes(urlMode)) {
+                    dispatch({ type: 'SELECT_MODE', payload: urlMode });
+                }
+            }
+        } else if (path.startsWith('/play/')) {
+            const urlMode = path.split('/play/')[1] as GameMode;
+            if (!['playing', 'flashcard', 'multiple-choice', 'answered'].includes(gameState) || gameMode !== urlMode) {
+                if (Object.keys(gameModes).includes(urlMode)) {
+                    dispatch({ type: 'SELECT_MODE', payload: urlMode });
+                    dispatch({ type: 'START_GAME' });
+                }
+            }
+        } else if (path.startsWith('/results/')) {
+            if (gameState !== 'finished') {
+                if (results.length > 0) {
+                    dispatch({ type: 'QUIT_GAME' });
+                } else {
+                    navigate('/', { replace: true });
+                }
+            }
+        } else if (path.startsWith('/review/')) {
+            if (gameState !== 'review') {
+                if (results.length > 0 && gameMode) {
+                    dispatch({ type: 'SHOW_REVIEW' });
+                } else {
+                    navigate('/', { replace: true });
+                }
+            }
+        }
+    }, [location.pathname, state.gameState, state.gameMode, state.results.length, navigate]);
     const {
         gameState, gameMode, questions, currentIndex,
         score, userAnswer, isCorrect, showAnswer, results, mcOptions,
