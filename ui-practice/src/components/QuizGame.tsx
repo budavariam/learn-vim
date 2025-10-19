@@ -748,7 +748,7 @@ const QuizGame: React.FC = () => {
     }
 
     if (gameState === 'finished') {
-        const isFlashcardMode = gameMode?.startsWith('flashcard');
+        // const isFlashcardMode = gameMode?.startsWith('flashcard');
 
         return (
             <FinishedScreen
