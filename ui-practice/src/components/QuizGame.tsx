@@ -1,5 +1,5 @@
-import React, { useReducer, FormEvent, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useMemo } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
     Zap, BookOpen, Database, Layers, Brain, Repeat, Grid3x3
 } from 'lucide-react';
@@ -28,7 +28,7 @@ export interface QuizResult {
     wasKnownBefore: boolean;
 }
 
-export type GameState = 'intro' | 'mode-select' | 'playing' | 'answered' | 'finished' | 'review' | 'flashcard' | 'multiple-choice';
+export type GameState = 'intro' | 'mode-select' | 'playing' | 'flashcard' | 'multiple-choice' | 'finished' | 'review';
 export type GameMode = 'flash' | 'regular' | 'all' | 'flashcard' | 'flashcard-unknown' | 'flashcard-repeat' | 'mc-easy' | 'mc-medium' | 'mc-hard';
 
 export interface GameModeConfig {
@@ -41,44 +41,7 @@ export interface GameModeConfig {
     category?: 'quiz' | 'practice' | 'test';
 }
 
-interface State {
-    gameState: GameState;
-    gameMode: GameMode | null;
-    questions: QuizQuestion[];
-    currentIndex: number;
-    score: number;
-    userAnswer: string;
-    isCorrect: boolean;
-    showAnswer: boolean;
-    results: QuizResult[];
-    mcOptions: string[];
-    flashcardResponses: Map<string, boolean>;
-    showFlashAnswer: boolean;
-    knownItems: Set<string>;
-    customQuestionCount: number | null;
-}
-
-type Action =
-    | { type: 'SELECT_MODE'; payload: GameMode }
-    | { type: 'START_GAME' }
-    | { type: 'ANSWER'; payload: { answer: string } }
-    | { type: 'NEXT_QUESTION' }
-    | { type: 'QUIT_GAME' }
-    | { type: 'RESET' }
-    | { type: 'SET_USER_ANSWER'; payload: string }
-    | { type: 'SHOW_REVIEW' }
-    | { type: 'BACK_TO_RESULTS' }
-    | { type: 'RECORD_FLASHCARD_RESPONSE'; payload: { questionId: string; known: boolean } }
-    | { type: 'TOGGLE_KNOWN_ITEM'; payload: string }
-    | { type: 'ADD_CORRECT_TO_KNOWN' }
-    | { type: 'REMOVE_INCORRECT_FROM_KNOWN' }
-    | { type: 'APPLY_FLASHCARD_RESPONSES' }
-    | { type: 'SHOW_FLASH_ANSWER' }
-    | { type: 'RELOAD_KNOWN_ITEMS' }
-    | { type: 'SET_CUSTOM_QUESTION_COUNT'; payload: number };
-
 /* ────────────────── helpers ──────────────────── */
-
 export const shuffle = <T,>(arr: T[]): T[] =>
     [...arr].sort(() => Math.random() - 0.5);
 
@@ -141,7 +104,6 @@ export const generateMCOptions = (
             answer: ans,
             similarity: calculateSimilarity(correctAnswer, ans)
         }));
-
         candidates.sort((a, b) => b.similarity - a.similarity);
     } else if (difficulty === 'medium') {
         const sameCategoryAnswers = allQuestions
@@ -154,7 +116,6 @@ export const generateMCOptions = (
             answer: ans,
             similarity: calculateSimilarity(correctAnswer, ans)
         }));
-
         candidates.sort((a, b) => Math.abs(b.similarity - 0.5) - Math.abs(a.similarity - 0.5));
     } else {
         const differentCategoryAnswers = allQuestions
@@ -339,444 +300,379 @@ const getQuestionsForMode = (
     return availableQuestions.slice(0, effectiveCount);
 };
 
-const initialQuestions = shuffle(quizData as QuizQuestion[]);
-
-const initialState: State = {
-    gameState: 'intro',
-    gameMode: null,
-    questions: initialQuestions,
-    currentIndex: 0,
-    score: 0,
-    userAnswer: '',
-    isCorrect: false,
-    showAnswer: false,
-    results: [],
-    mcOptions: [],
-    flashcardResponses: new Map(),
-    showFlashAnswer: false,
-    knownItems: getKnownItems(),
-    customQuestionCount: null
+// Session storage keys for maintaining state during game
+const SESSION_KEYS = {
+    questions: 'quiz_session_questions',
+    results: 'quiz_session_results',
+    currentIndex: 'quiz_session_currentIndex',
+    score: 'quiz_session_score',
+    flashcardResponses: 'quiz_session_flashcardResponses',
+    sessionId: 'quiz_session_id',
+    showFlashAnswer: 'quiz_session_showFlashAnswer',
+    showAnswer: 'quiz_session_showAnswer',
+    isCorrect: 'quiz_session_isCorrect',
+    userAnswer: 'quiz_session_userAnswer'
 };
 
-/* ────────────────── reducer ──────────────────── */
-
-function reducer(state: State, action: Action): State {
-    console.log("REDUCER", state, action);
-    switch (action.type) {
-        case 'SELECT_MODE': {
-            const availableQuestions = getAvailableQuestionsForMode(
-                action.payload,
-                quizData as QuizQuestion[],
-                state.knownItems
-            );
-            const isMCMode = action.payload.startsWith('mc-');
-            return {
-                ...state,
-                gameState: 'mode-select',
-                gameMode: action.payload,
-                questions: availableQuestions,  // Store ALL available questions
-                results: [],
-                mcOptions: isMCMode ? [] : state.mcOptions
-            };
-        }
-        case 'SET_CUSTOM_QUESTION_COUNT': {
-            return {
-                ...state,
-                customQuestionCount: action.payload
-            };
-        }
-        case 'START_GAME': {
-            const isFlashcardMode = state.gameMode?.startsWith('flashcard');
-            const isMCMode = state.gameMode?.startsWith('mc-');
-
-            const finalQuestions = state.gameMode
-                ? getQuestionsForMode(
-                    state.gameMode,
-                    quizData as QuizQuestion[],
-                    state.knownItems,
-                    state.customQuestionCount ?? undefined
-                )
-                : state.questions;
-            let startGameState: GameState = 'playing';
-            let mcOptions = state.mcOptions;
-            if (isFlashcardMode) {
-                startGameState = 'flashcard';
-            } else if (isMCMode) {
-                startGameState = 'multiple-choice';
-                const currentQ = finalQuestions[0];
-                const difficulty = state.gameMode === 'mc-easy' ? 'easy' :
-                    state.gameMode === 'mc-medium' ? 'medium' : 'hard';
-                mcOptions = generateMCOptions(
-                    currentQ.solution[0],
-                    quizData as QuizQuestion[],
-                    currentQ,
-                    difficulty
-                );
-            }
-            return {
-                ...state,
-                gameState: startGameState,
-                questions: finalQuestions,
-                currentIndex: 0,
-                score: 0,
-                userAnswer: '',
-                isCorrect: false,
-                showAnswer: false,
-                results: [],
-                flashcardResponses: new Map(),
-                showFlashAnswer: false,
-                mcOptions
-            };
-        }
-
-        case 'SET_USER_ANSWER':
-            return { ...state, userAnswer: action.payload };
-
-        case 'SHOW_FLASH_ANSWER':
-            return { ...state, showFlashAnswer: true };
-
-        case 'RECORD_FLASHCARD_RESPONSE': {
-            const newResponses = new Map(state.flashcardResponses);
-            newResponses.set(action.payload.questionId, action.payload.known);
-            return {
-                ...state,
-                flashcardResponses: newResponses
-            };
-        }
-
-        case 'ANSWER': {
-            const currentQ = state.questions[state.currentIndex];
-            const correct = currentQ.solution.includes(action.payload.answer.trim());
-            const wasKnownBefore = state.knownItems.has(currentQ.id || '');
-
-            const newResult: QuizResult = {
-                question: currentQ,
-                userAnswer: action.payload.answer.trim(),
-                isCorrect: correct,
-                wasKnownBefore
-            };
-
-            return {
-                ...state,
-                isCorrect: correct,
-                score: correct ? state.score + 1 : state.score,
-                gameState: 'answered',
-                showAnswer: true,
-                results: [...state.results, newResult]
-            };
-        }
-
-        case 'NEXT_QUESTION': {
-            const nextIndex = state.currentIndex + 1;
-            if (nextIndex >= state.questions.length) {
-                return {
-                    ...state,
-                    gameState: 'finished'
-                };
-            }
-
-            const isFlashcardMode = state.gameMode?.startsWith('flashcard');
-            const isMCMode = state.gameMode?.startsWith('mc-');
-
-            let nextGameState: GameState = 'playing';
-            let mcOptions = state.mcOptions;
-
-            if (isFlashcardMode) {
-                nextGameState = 'flashcard';
-            } else if (isMCMode) {
-                nextGameState = 'multiple-choice';
-                const nextQ = state.questions[nextIndex];
-                const difficulty = state.gameMode === 'mc-easy' ? 'easy' :
-                    state.gameMode === 'mc-medium' ? 'medium' : 'hard';
-                mcOptions = generateMCOptions(
-                    nextQ.solution[0],
-                    quizData as QuizQuestion[],
-                    nextQ,
-                    difficulty
-                );
-            }
-
-            return {
-                ...state,
-                currentIndex: nextIndex,
-                gameState: nextGameState,
-                userAnswer: '',
-                showAnswer: false,
-                showFlashAnswer: false,
-                mcOptions
-            };
-        }
-
-        case 'QUIT_GAME':
-            return {
-                ...state,
-                gameState: 'finished'
-            };
-
-        case 'SHOW_REVIEW':
-            return {
-                ...state,
-                gameState: 'review'
-            };
-
-        case 'BACK_TO_RESULTS':
-            return {
-                ...state,
-                gameState: 'finished'
-            };
-
-        case 'TOGGLE_KNOWN_ITEM': {
-            const newKnownItems = new Set(state.knownItems);
-            if (newKnownItems.has(action.payload)) {
-                newKnownItems.delete(action.payload);
-            } else {
-                newKnownItems.add(action.payload);
-            }
-            saveKnownItems(newKnownItems);
-            return {
-                ...state,
-                knownItems: newKnownItems
-            };
-        }
-
-        case 'ADD_CORRECT_TO_KNOWN': {
-            const newKnownItems = new Set(state.knownItems);
-            const correctResults = state.results.filter(result => result.isCorrect);
-            let addedCount = 0;
-
-            correctResults.forEach(result => {
-                if (result.question.id && !newKnownItems.has(result.question.id)) {
-                    newKnownItems.add(result.question.id);
-                    addedCount++;
-                }
-            });
-
-            saveKnownItems(newKnownItems);
-
-            if (addedCount === 0) {
-                alert(`All ${correctResults.length} correctly answered items were already in known items!`);
-            } else {
-                alert(`Added ${addedCount} new items to known items! (${correctResults.length - addedCount} were already known)`);
-            }
-
-            return {
-                ...state,
-                knownItems: newKnownItems
-            };
-        }
-
-        case 'REMOVE_INCORRECT_FROM_KNOWN': {
-            const newKnownItems = new Set(state.knownItems);
-            const incorrectResults = state.results.filter(result => !result.isCorrect);
-            let removedCount = 0;
-
-            incorrectResults.forEach(result => {
-                if (result.question.id && newKnownItems.has(result.question.id)) {
-                    newKnownItems.delete(result.question.id);
-                    removedCount++;
-                }
-            });
-
-            saveKnownItems(newKnownItems);
-
-            if (removedCount === 0) {
-                alert(`None of the ${incorrectResults.length} missed items were in known items!`);
-            } else {
-                alert(`Removed ${removedCount} items from known items! (${incorrectResults.length - removedCount} were not previously known)`);
-            }
-
-            return {
-                ...state,
-                knownItems: newKnownItems
-            };
-        }
-
-        case 'APPLY_FLASHCARD_RESPONSES': {
-            const newKnownItems = new Set(state.knownItems);
-            let addedCount = 0;
-            let removedCount = 0;
-
-            state.flashcardResponses.forEach((known, questionId) => {
-                if (known && !newKnownItems.has(questionId)) {
-                    newKnownItems.add(questionId);
-                    addedCount++;
-                } else if (!known && newKnownItems.has(questionId)) {
-                    newKnownItems.delete(questionId);
-                    removedCount++;
-                }
-            });
-
-            saveKnownItems(newKnownItems);
-
-            const totalChanges = addedCount + removedCount;
-            if (totalChanges === 0) {
-                alert('No changes to apply - all items already match your responses!');
-            } else {
-                alert(`Updated known items!
-✓ Added: ${addedCount}
-✗ Removed: ${removedCount}`);
-            }
-
-            return {
-                ...state,
-                knownItems: newKnownItems
-            };
-        }
-
-        case 'RELOAD_KNOWN_ITEMS':
-            return {
-                ...state,
-                knownItems: getKnownItems()
-            };
-
-        case 'RESET': {
-            return {
-                gameState: 'intro',
-                gameMode: null,
-                questions: shuffle(quizData as QuizQuestion[]),
-                currentIndex: 0,
-                score: 0,
-                userAnswer: '',
-                isCorrect: false,
-                showAnswer: false,
-                results: [],
-                mcOptions: [],
-                flashcardResponses: new Map(),
-                showFlashAnswer: false,
-                knownItems: getKnownItems(),
-                customQuestionCount: null
-            };
-        }
-
-        default:
-            return state;
+const getSessionData = <T,>(key: string, defaultValue: T): T => {
+    try {
+        const data = sessionStorage.getItem(key);
+        return data ? JSON.parse(data) : defaultValue;
+    } catch {
+        return defaultValue;
     }
-}
+};
+
+const setSessionData = (key: string, value: any) => {
+    try {
+        sessionStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+        console.error('Error saving to session storage:', error);
+    }
+};
+
+const clearSessionData = () => {
+    Object.values(SESSION_KEYS).forEach(key => sessionStorage.removeItem(key));
+};
 
 /* ───────────────── component ─────────────────── */
-
 const QuizGame: React.FC = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const params = useParams<{ gameMode?: string; questionCount?: string }>();
 
-    const [state, dispatch] = useReducer(reducer, initialState);
+    // Derive state from URL
+    const gameMode = params.gameMode as GameMode | undefined;
+    const customQuestionCount = params.questionCount ? parseInt(params.questionCount, 10) : undefined;
 
-    const {
-        gameState, gameMode, questions, currentIndex,
-        score, userAnswer, isCorrect, showAnswer, results, mcOptions,
-        showFlashAnswer, knownItems, customQuestionCount
-    } = state;
+    // Determine game state from path
+    const gameState: GameState = useMemo(() => {
+        const path = location.pathname;
+        if (path === '/' || path === '') return 'intro';
+        if (path.startsWith('/mode/')) return 'mode-select';
+        if (path.startsWith('/play/')) {
+            if (gameMode?.startsWith('flashcard')) return 'flashcard';
+            if (gameMode?.startsWith('mc-')) return 'multiple-choice';
+            return 'playing';
+        }
+        if (path.startsWith('/results/')) return 'finished';
+        if (path.startsWith('/review/')) return 'review';
+        return 'intro';
+    }, [location.pathname, gameMode]);
+
+    // Load known items
+    const knownItems = useMemo(() => getKnownItems(), [gameState]);
+
+    // Initialize or retrieve questions for the current game
+    const questions = useMemo(() => {
+        if (!gameMode) return [];
+
+        // Check if we have an active session
+        const sessionId = getSessionData<string>(SESSION_KEYS.sessionId, '');
+        const currentSessionId = `${gameMode}_${customQuestionCount || 'default'}`;
+
+        // If we're in the same session, retrieve existing questions
+        if (sessionId === currentSessionId && gameState !== 'mode-select') {
+            const savedQuestions = getSessionData<QuizQuestion[]>(SESSION_KEYS.questions, []);
+            if (savedQuestions.length > 0) {
+                return savedQuestions;
+            }
+        }
+
+        // Generate new questions for mode-select or new session
+        if (gameState === 'mode-select') {
+            const availableQuestions = getAvailableQuestionsForMode(gameMode, quizData as QuizQuestion[], knownItems);
+            return availableQuestions;
+        }
+
+        // Generate questions when starting game
+        if (gameState === 'playing' || gameState === 'flashcard' || gameState === 'multiple-choice') {
+            const newQuestions = getQuestionsForMode(gameMode, quizData as QuizQuestion[], knownItems, customQuestionCount);
+
+            // Save to session
+            setSessionData(SESSION_KEYS.sessionId, currentSessionId);
+            setSessionData(SESSION_KEYS.questions, newQuestions);
+            setSessionData(SESSION_KEYS.currentIndex, 0);
+            setSessionData(SESSION_KEYS.score, 0);
+            setSessionData(SESSION_KEYS.results, []);
+            setSessionData(SESSION_KEYS.flashcardResponses, []);
+            setSessionData(SESSION_KEYS.showFlashAnswer, false);
+            setSessionData(SESSION_KEYS.showAnswer, false);
+
+            return newQuestions;
+        }
+
+        // For finished/review, retrieve from session
+        const savedQuestions = getSessionData<QuizQuestion[]>(SESSION_KEYS.questions, []);
+        return savedQuestions;
+    }, [gameMode, customQuestionCount, gameState, knownItems]);
+
+    // Retrieve game progress from session
+    const currentIndex = getSessionData<number>(SESSION_KEYS.currentIndex, 0);
+    const score = getSessionData<number>(SESSION_KEYS.score, 0);
+    const results = getSessionData<QuizResult[]>(SESSION_KEYS.results, []);
+    const flashcardResponsesArray = getSessionData<Array<[string, boolean]>>(SESSION_KEYS.flashcardResponses, []);
+    const flashcardResponses = useMemo(() => new Map(flashcardResponsesArray), [flashcardResponsesArray]);
+    const showFlashAnswer = getSessionData<boolean>(SESSION_KEYS.showFlashAnswer, false);
+    const showAnswer = getSessionData<boolean>(SESSION_KEYS.showAnswer, false);
+    const isCorrect = getSessionData<boolean>(SESSION_KEYS.isCorrect, false);
+    const userAnswer = getSessionData<string>(SESSION_KEYS.userAnswer, '');
+
+    // Generate MC options for current question
+    const mcOptions = useMemo(() => {
+        if (!gameMode?.startsWith('mc-') || questions.length === 0 || currentIndex >= questions.length) {
+            return [];
+        }
+
+        const currentQ = questions[currentIndex];
+        const difficulty = gameMode === 'mc-easy' ? 'easy' : gameMode === 'mc-medium' ? 'medium' : 'hard';
+        return generateMCOptions(currentQ.solution[0], quizData as QuizQuestion[], currentQ, difficulty);
+    }, [gameMode, questions, currentIndex]);
 
     /* ──────────────── handlers ─────────────── */
-
-    const handleSubmit = (e: FormEvent) => {
-        e.preventDefault();
-        if (!userAnswer.trim()) return;
-        dispatch({ type: 'ANSWER', payload: { answer: userAnswer } });
-    };
-
-    const handleNextQuestion = (e: FormEvent) => {
-        e.preventDefault();
-        const nextIndex = currentIndex + 1;
-
-        dispatch({ type: 'NEXT_QUESTION' });
-
-        if (nextIndex >= questions.length && gameMode) {
-            navigate(`/results/${gameMode}`, { replace: false });
-        }
-    };
-
     const handleModeSelect = useCallback((mode: GameMode) => {
-        dispatch({ type: 'SELECT_MODE', payload: mode });
-        navigate(`/mode/${mode}`, { replace: false });
+        clearSessionData();
+        navigate(`/mode/${mode}`);
     }, [navigate]);
 
-    const handleStartGame = useCallback(() => {
-        dispatch({ type: 'START_GAME' });
+    const handleSetQuestionCount = useCallback((count: number) => {
         if (gameMode) {
-            navigate(`/play/${gameMode}`, { replace: false });
+            navigate(`/mode/${gameMode}/${count}`);
         }
     }, [gameMode, navigate]);
 
-    const handleSetQuestionCount = useCallback((count: number) => {
-        dispatch({ type: 'SET_CUSTOM_QUESTION_COUNT', payload: count });
+    const handleStartGame = useCallback(() => {
+        if (!gameMode) return;
+
+        const path = customQuestionCount
+            ? `/play/${gameMode}/${customQuestionCount}`
+            : `/play/${gameMode}`;
+
+        navigate(path);
+    }, [gameMode, customQuestionCount, navigate]);
+
+    const handleAnswer = useCallback((answer: string) => {
+        if (!gameMode || questions.length === 0) return;
+
+        const currentQ = questions[currentIndex];
+        const correct = currentQ.solution.includes(answer.trim());
+        const wasKnownBefore = knownItems.has(currentQ.id || '');
+
+        const newResult: QuizResult = {
+            question: currentQ,
+            userAnswer: answer.trim(),
+            isCorrect: correct,
+            wasKnownBefore
+        };
+
+        const newResults = [...results, newResult];
+        const newScore = correct ? score + 1 : score;
+        const newIndex = currentIndex + 1;
+
+        setSessionData(SESSION_KEYS.results, newResults);
+        setSessionData(SESSION_KEYS.score, newScore);
+        setSessionData(SESSION_KEYS.currentIndex, newIndex);
+
+        // Navigate to next question or results
+        if (newIndex >= questions.length) {
+            navigate(`/results/${gameMode}`);
+        }
+    }, [gameMode, questions, currentIndex, results, score, knownItems, navigate]);
+
+    const handleFlashcardResponse = useCallback((known: boolean) => {
+        if (!gameMode || questions.length === 0) return;
+
+        const currentQ = questions[currentIndex];
+        if (currentQ.id) {
+            const newResponses = [...flashcardResponsesArray, [currentQ.id, known]] as Array<[string, boolean]>;
+            setSessionData(SESSION_KEYS.flashcardResponses, newResponses);
+        }
+
+        const newIndex = currentIndex + 1;
+        setSessionData(SESSION_KEYS.currentIndex, newIndex);
+        setSessionData(SESSION_KEYS.showFlashAnswer, false); // Reset for next card
+
+        if (newIndex >= questions.length) {
+            navigate(`/results/${gameMode}`);
+        }
+    }, [gameMode, questions, currentIndex, flashcardResponsesArray, navigate]);
+
+    const handleShowFlashAnswer = useCallback(() => {
+        setSessionData(SESSION_KEYS.showFlashAnswer, true);
     }, []);
 
-    const handleMCAnswer = (answer: string) => {
-        dispatch({ type: 'SET_USER_ANSWER', payload: answer });
-        dispatch({ type: 'ANSWER', payload: { answer } });
-    };
-
-    const handleHome = useCallback(() => {
-        dispatch({ type: 'RESET' });
-        navigate('/', { replace: false });
-    }, [navigate]);
-
-
-    const handleFlashcardKnown = (known: boolean) => {
-        const currentQ = questions[currentIndex];
-        const nextIndex = currentIndex + 1;
-
-        if (currentQ.id) {
-            dispatch({
-                type: 'RECORD_FLASHCARD_RESPONSE',
-                payload: { questionId: currentQ.id, known }
-            });
-        }
-
-        dispatch({ type: 'NEXT_QUESTION' });
-
-        if (nextIndex >= questions.length && gameMode) {
-            navigate(`/results/${gameMode}`, { replace: false });
-        }
-    };
-
     const handleQuitGame = useCallback(() => {
-        dispatch({ type: 'QUIT_GAME' });
         if (gameMode) {
-            navigate(`/results/${gameMode}`, { replace: false });
+            navigate(`/results/${gameMode}`);
         }
     }, [gameMode, navigate]);
 
     const handleShowReview = useCallback(() => {
-        dispatch({ type: 'SHOW_REVIEW' });
         if (gameMode) {
-            navigate(`/review/${gameMode}`, { replace: false });
+            navigate(`/review/${gameMode}`);
         }
     }, [gameMode, navigate]);
 
     const handleBackToResults = useCallback(() => {
-        dispatch({ type: 'BACK_TO_RESULTS' });
         if (gameMode) {
-            navigate(`/results/${gameMode}`, { replace: false });
+            navigate(`/results/${gameMode}`);
         }
     }, [gameMode, navigate]);
 
-    const handleReset = useCallback(() => {
-        dispatch({ type: 'RESET' });
-        navigate('/', { replace: false });
+    const handleHome = useCallback(() => {
+        clearSessionData();
+        navigate('/');
     }, [navigate]);
 
     const handleRetry = useCallback(() => {
         if (gameMode) {
-            handleModeSelect(gameMode);
+            clearSessionData();
+            navigate(`/mode/${gameMode}`);
         }
-    }, [gameMode, handleModeSelect]);
+    }, [gameMode, navigate]);
 
-    const exportKnownItems = () => {
+    const handleToggleKnown = useCallback((id: string | undefined) => {
+        if (!id) return;
+        const newKnownItems = new Set(knownItems);
+        if (newKnownItems.has(id)) {
+            newKnownItems.delete(id);
+        } else {
+            newKnownItems.add(id);
+        }
+        saveKnownItems(newKnownItems);
+    }, [knownItems]);
+
+    const handleAddCorrectToKnown = useCallback(() => {
+        const newKnownItems = new Set(knownItems);
+        const correctResults = results.filter(result => result.isCorrect);
+        let addedCount = 0;
+
+        correctResults.forEach(result => {
+            if (result.question.id && !newKnownItems.has(result.question.id)) {
+                newKnownItems.add(result.question.id);
+                addedCount++;
+            }
+        });
+
+        saveKnownItems(newKnownItems);
+
+        if (addedCount === 0) {
+            alert(`All ${correctResults.length} correctly answered items were already in known items!`);
+        } else {
+            alert(`Added ${addedCount} new items to known items! (${correctResults.length - addedCount} were already known)`);
+        }
+    }, [knownItems, results]);
+
+    const handleRemoveIncorrectFromKnown = useCallback(() => {
+        const newKnownItems = new Set(knownItems);
+        const incorrectResults = results.filter(result => !result.isCorrect);
+        let removedCount = 0;
+
+        incorrectResults.forEach(result => {
+            if (result.question.id && newKnownItems.has(result.question.id)) {
+                newKnownItems.delete(result.question.id);
+                removedCount++;
+            }
+        });
+
+        saveKnownItems(newKnownItems);
+
+        if (removedCount === 0) {
+            alert(`None of the ${incorrectResults.length} missed items were in known items!`);
+        } else {
+            alert(`Removed ${removedCount} items from known items! (${incorrectResults.length - removedCount} were not previously known)`);
+        }
+    }, [knownItems, results]);
+
+    const handleApplyFlashcardResponses = useCallback(() => {
+        const newKnownItems = new Set(knownItems);
+        let addedCount = 0;
+        let removedCount = 0;
+
+        flashcardResponses.forEach((known, questionId) => {
+            if (known && !newKnownItems.has(questionId)) {
+                newKnownItems.add(questionId);
+                addedCount++;
+            } else if (!known && newKnownItems.has(questionId)) {
+                newKnownItems.delete(questionId);
+                removedCount++;
+            }
+        });
+
+        saveKnownItems(newKnownItems);
+
+        const totalChanges = addedCount + removedCount;
+        if (totalChanges === 0) {
+            alert('No changes to apply - all items already match your responses!');
+        } else {
+            alert(`Updated known items!\n✓ Added: ${addedCount}\n✗ Removed: ${removedCount}`);
+        }
+    }, [knownItems, flashcardResponses]);
+
+    const exportKnownItems = useCallback(() => {
         const knownItemsArray = [...knownItems];
         const dataStr = JSON.stringify(knownItemsArray, null, 2);
         const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-
         const exportFileDefaultName = 'knownItems.json';
+
         const linkElement = document.createElement('a');
         linkElement.setAttribute('href', dataUri);
         linkElement.setAttribute('download', exportFileDefaultName);
         linkElement.click();
-    };
+    }, [knownItems]);
+
+    const handleMCAnswer = useCallback((answer: string) => {
+        if (!gameMode || questions.length === 0) return;
+
+        const currentQ = questions[currentIndex];
+        const correct = currentQ.solution.includes(answer.trim());
+
+        setSessionData(SESSION_KEYS.userAnswer, answer.trim());
+        setSessionData(SESSION_KEYS.isCorrect, correct);
+        setSessionData(SESSION_KEYS.showAnswer, true);
+    }, [gameMode, questions, currentIndex]);
+
+    const handleNextQuestion = useCallback(() => {
+        if (!gameMode || questions.length === 0) return;
+
+        const currentQ = questions[currentIndex];
+        const correct = isCorrect;
+        const wasKnownBefore = knownItems.has(currentQ.id || '');
+
+        const newResult: QuizResult = {
+            question: currentQ,
+            userAnswer: userAnswer,
+            isCorrect: correct,
+            wasKnownBefore
+        };
+
+        const newResults = [...results, newResult];
+        const newScore = correct ? score + 1 : score;
+        const newIndex = currentIndex + 1;
+
+        setSessionData(SESSION_KEYS.results, newResults);
+        setSessionData(SESSION_KEYS.score, newScore);
+        setSessionData(SESSION_KEYS.currentIndex, newIndex);
+        setSessionData(SESSION_KEYS.showAnswer, false);
+        setSessionData(SESSION_KEYS.userAnswer, '');
+
+        // Navigate to next question or results
+        if (newIndex >= questions.length) {
+            navigate(`/results/${gameMode}`);
+        }
+    }, [gameMode, questions, currentIndex, results, score, knownItems, navigate, isCorrect, userAnswer]);
+
+    const handleAnswerChange = useCallback((answer: string) => {
+        setSessionData(SESSION_KEYS.userAnswer, answer);
+    }, []);
+
+    const handleSubmit = useCallback((e: React.FormEvent) => {
+        e.preventDefault();
+        if (!userAnswer.trim()) return;
+        handleAnswer(userAnswer);
+    }, [userAnswer, handleAnswer]);
 
     /* ────────────────── Render ─────────────────── */
-
-    console.log(state);
     if (gameState === 'intro') {
         return <IntroScreen onModeSelect={handleModeSelect} />;
     }
@@ -786,39 +682,44 @@ const QuizGame: React.FC = () => {
             <ModeConfirmation
                 gameMode={gameMode}
                 questions={questions}
-                customQuestionCount={customQuestionCount}
+                customQuestionCount={customQuestionCount || gameModes[gameMode].questionCount}
                 onStart={handleStartGame}
-                onReset={handleReset}
+                onReset={handleHome}
                 onSetQuestionCount={handleSetQuestionCount}
             />
         );
     }
 
     if (gameState === 'flashcard') {
+        const currentQ = questions[currentIndex];
+        const flashcardResponse = currentQ?.id ? flashcardResponses.get(currentQ.id) : undefined;
+
         return (
             <FlashcardMode
-                question={questions[currentIndex]}
+                question={currentQ}
                 currentIndex={currentIndex}
                 totalQuestions={questions.length}
-                gameMode={gameMode}
+                gameMode={gameMode!}
                 showFlashAnswer={showFlashAnswer}
-                onShowAnswer={() => dispatch({ type: 'SHOW_FLASH_ANSWER' })}
-                onFlashcardKnown={handleFlashcardKnown}
+                onShowAnswer={handleShowFlashAnswer}
+                onFlashcardKnown={handleFlashcardResponse}
                 onQuit={handleQuitGame}
-                flashcardResponse={state.flashcardResponses.get(questions[currentIndex].id || '')}
+                flashcardResponse={flashcardResponse}
                 onHome={handleHome}
             />
         );
     }
 
     if (gameState === 'multiple-choice') {
+        const currentQ = questions[currentIndex];
+
         return (
             <MultipleChoiceMode
-                question={questions[currentIndex]}
+                question={currentQ}
                 currentIndex={currentIndex}
                 totalQuestions={questions.length}
                 score={score}
-                gameMode={gameMode}
+                gameMode={gameMode!}
                 mcOptions={mcOptions}
                 showAnswer={showAnswer}
                 isCorrect={isCorrect}
@@ -838,42 +739,47 @@ const QuizGame: React.FC = () => {
                 currentKnownItems={knownItems}
                 onBack={handleBackToResults}
                 onExport={exportKnownItems}
-                onAddCorrect={() => dispatch({ type: 'ADD_CORRECT_TO_KNOWN' })}
-                onRemoveIncorrect={() => dispatch({ type: 'REMOVE_INCORRECT_FROM_KNOWN' })}
-                onToggleKnown={(id) => id && dispatch({ type: 'TOGGLE_KNOWN_ITEM', payload: id })}
+                onAddCorrect={handleAddCorrectToKnown}
+                onRemoveIncorrect={handleRemoveIncorrectFromKnown}
+                onToggleKnown={handleToggleKnown}
                 onHome={handleHome}
             />
         );
     }
 
     if (gameState === 'finished') {
+        const isFlashcardMode = gameMode?.startsWith('flashcard');
+
         return (
             <FinishedScreen
-                gameMode={gameMode}
+                gameMode={gameMode || null}
                 score={score}
                 totalQuestions={questions.length}
                 results={results}
-                flashcardResponseCount={state.flashcardResponses.size}
+                flashcardResponseCount={flashcardResponses.size}
                 onReview={handleShowReview}
-                onReset={handleReset}
+                onReset={handleHome}
                 onRetry={handleRetry}
-                onApplyFlashcard={() => dispatch({ type: 'APPLY_FLASHCARD_RESPONSES' })}
+                onApplyFlashcard={handleApplyFlashcardResponses}
             />
         );
     }
 
+    // Default playing state
+    const currentQ = questions[currentIndex];
+
     return (
         <QuizPlayingMode
-            question={questions[currentIndex]}
+            question={currentQ}
             currentIndex={currentIndex}
             totalQuestions={questions.length}
             score={score}
-            gameMode={gameMode}
+            gameMode={gameMode!}
             userAnswer={userAnswer}
             showAnswer={showAnswer}
             isCorrect={isCorrect}
             onHome={handleHome}
-            onAnswerChange={(answer) => dispatch({ type: 'SET_USER_ANSWER', payload: answer })}
+            onAnswerChange={handleAnswerChange}
             onSubmit={handleSubmit}
             onNext={handleNextQuestion}
             onQuit={handleQuitGame}
