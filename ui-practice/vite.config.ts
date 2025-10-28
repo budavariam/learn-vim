@@ -3,8 +3,10 @@ import react from '@vitejs/plugin-react'
 import { execSync } from 'child_process'
 import { VitePWA } from 'vite-plugin-pwa';
 
+const basePath = '/learn-vim/game/'
+
 export default defineConfig({
-  base: '/learn-vim/game/',
+  base: basePath,
   plugins: [
     react(),
     {
@@ -29,8 +31,8 @@ export default defineConfig({
         theme_color: '#1f2937',
         background_color: '#111827',
         display: 'standalone',
-        scope: '/',
-        start_url: '/',
+        scope: basePath,
+        start_url: basePath,
         orientation: 'portrait',
         icons: [
           {
