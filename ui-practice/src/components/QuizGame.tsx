@@ -771,43 +771,57 @@ const QuizGame: React.FC = () => {
         const savedState = loadStateFromSession();
 
         if (path === '/' || path === '') {
+            // Home screen
             if (savedState && savedState.gameState !== 'intro') {
-                // Clear session when navigating home
                 clearSessionStorage();
             }
             if (state.gameState !== 'intro') {
                 dispatch({ type: 'RESET' });
             }
-        } else if (savedState) {
-            // Restore from session storage if it matches the URL
-            if (savedState.gameMode === urlGameMode) {
+        } else if (path.startsWith('/mode/')) {
+            // Mode selection screen - always show it when URL says /mode/
+            if (urlGameMode && state.gameMode !== urlGameMode) {
+                dispatch({ type: 'SELECT_MODE', payload: urlGameMode });
+            }
+            if (urlQuestionCount && state.customQuestionCount !== urlQuestionCount) {
+                dispatch({ type: 'SET_CUSTOM_QUESTION_COUNT', payload: urlQuestionCount });
+            }
+            // Ensure we're in mode-select state
+            if (state.gameState !== 'mode-select') {
+                if (savedState && savedState.gameMode === urlGameMode) {
+                    // Restore but override gameState to mode-select
+                    dispatch({ type: 'RESTORE_STATE', payload: { ...savedState, gameState: 'mode-select' } });
+                }
+            }
+        } else if (path.startsWith('/play/')) {
+            // Playing screen - restore from session if available
+            if (savedState && savedState.gameMode === urlGameMode) {
+                // Restore full state from session
                 dispatch({ type: 'RESTORE_STATE', payload: savedState });
-            }
-        } else if (urlGameMode && path.startsWith('/mode/')) {
-            // Mode selection screen
-            if (state.gameMode !== urlGameMode || state.gameState !== 'mode-select') {
-                dispatch({ type: 'SELECT_MODE', payload: urlGameMode });
+            } else if (urlGameMode) {
+                // Start new game
+                if (state.gameMode !== urlGameMode) {
+                    dispatch({ type: 'SELECT_MODE', payload: urlGameMode });
+                }
                 if (urlQuestionCount) {
                     dispatch({ type: 'SET_CUSTOM_QUESTION_COUNT', payload: urlQuestionCount });
                 }
-            }
-        } else if (urlGameMode && path.startsWith('/play/')) {
-            // Playing screen
-            if (state.gameMode !== urlGameMode || !['playing', 'flashcard', 'multiple-choice', 'answered'].includes(state.gameState)) {
-                dispatch({ type: 'SELECT_MODE', payload: urlGameMode });
-                if (urlQuestionCount) {
-                    dispatch({ type: 'SET_CUSTOM_QUESTION_COUNT', payload: urlQuestionCount });
+                if (!['playing', 'flashcard', 'multiple-choice', 'answered'].includes(state.gameState)) {
+                    dispatch({ type: 'START_GAME' });
                 }
-                dispatch({ type: 'START_GAME' });
             }
         } else if (path.startsWith('/results/')) {
             // Results screen
-            if (state.gameState !== 'finished') {
+            if (savedState && savedState.gameMode === urlGameMode) {
+                dispatch({ type: 'RESTORE_STATE', payload: { ...savedState, gameState: 'finished' } });
+            } else if (state.gameState !== 'finished') {
                 dispatch({ type: 'QUIT_GAME' });
             }
         } else if (path.startsWith('/review/')) {
             // Review screen
-            if (state.gameState !== 'review') {
+            if (savedState && savedState.gameMode === urlGameMode) {
+                dispatch({ type: 'RESTORE_STATE', payload: { ...savedState, gameState: 'review' } });
+            } else if (state.gameState !== 'review') {
                 dispatch({ type: 'SHOW_REVIEW' });
             }
         }
