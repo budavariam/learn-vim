@@ -1,4 +1,4 @@
-import React, { useReducer, FormEvent, useCallback, useEffect } from 'react';
+import React, { useReducer, FormEvent, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
     Zap, BookOpen, Database, Layers, Brain, Repeat, Grid3x3
@@ -424,8 +424,6 @@ const initialState: State = {
 
 
 function reducer(state: State, action: Action): State {
-    let newState: State;
-
     switch (action.type) {
         case 'RESTORE_STATE': {
             return {
@@ -441,7 +439,7 @@ function reducer(state: State, action: Action): State {
                 state.knownItems
             );
             const isMCMode = action.payload.startsWith('mc-');
-            newState = {
+            return {
                 ...state,
                 gameState: 'mode-select',
                 gameMode: action.payload,
@@ -449,15 +447,13 @@ function reducer(state: State, action: Action): State {
                 results: [],
                 mcOptions: isMCMode ? [] : state.mcOptions
             };
-            break;
         }
 
         case 'SET_CUSTOM_QUESTION_COUNT': {
-            newState = {
+            return {
                 ...state,
                 customQuestionCount: action.payload
             };
-            break;
         }
 
         case 'START_GAME': {
@@ -488,7 +484,7 @@ function reducer(state: State, action: Action): State {
                     difficulty
                 );
             }
-            newState = {
+            return {
                 ...state,
                 gameState: startGameState,
                 questions: finalQuestions,
@@ -502,25 +498,21 @@ function reducer(state: State, action: Action): State {
                 showFlashAnswer: false,
                 mcOptions
             };
-            break;
         }
 
         case 'SET_USER_ANSWER':
-            newState = { ...state, userAnswer: action.payload };
-            break;
+            return { ...state, userAnswer: action.payload };
 
         case 'SHOW_FLASH_ANSWER':
-            newState = { ...state, showFlashAnswer: true };
-            break;
+            return { ...state, showFlashAnswer: true };
 
         case 'RECORD_FLASHCARD_RESPONSE': {
             const newResponses = new Map(state.flashcardResponses);
             newResponses.set(action.payload.questionId, action.payload.known);
-            newState = {
+            return {
                 ...state,
                 flashcardResponses: newResponses
             };
-            break;
         }
 
         case 'ANSWER': {
@@ -535,7 +527,7 @@ function reducer(state: State, action: Action): State {
                 wasKnownBefore
             };
 
-            newState = {
+            return {
                 ...state,
                 isCorrect: correct,
                 score: correct ? state.score + 1 : state.score,
@@ -543,17 +535,15 @@ function reducer(state: State, action: Action): State {
                 showAnswer: true,
                 results: [...state.results, newResult]
             };
-            break;
         }
 
         case 'NEXT_QUESTION': {
             const nextIndex = state.currentIndex + 1;
             if (nextIndex >= state.questions.length) {
-                newState = {
+                return {
                     ...state,
                     gameState: 'finished'
                 };
-                break;
             }
 
             const isFlashcardMode = state.gameMode?.startsWith('flashcard');
@@ -577,7 +567,7 @@ function reducer(state: State, action: Action): State {
                 );
             }
 
-            newState = {
+            return {
                 ...state,
                 currentIndex: nextIndex,
                 gameState: nextGameState,
@@ -586,29 +576,25 @@ function reducer(state: State, action: Action): State {
                 showFlashAnswer: false,
                 mcOptions
             };
-            break;
         }
 
         case 'QUIT_GAME':
-            newState = {
+            return {
                 ...state,
                 gameState: 'finished'
             };
-            break;
 
         case 'SHOW_REVIEW':
-            newState = {
+            return {
                 ...state,
                 gameState: 'review'
             };
-            break;
 
         case 'BACK_TO_RESULTS':
-            newState = {
+            return {
                 ...state,
                 gameState: 'finished'
             };
-            break;
 
         case 'TOGGLE_KNOWN_ITEM': {
             const newKnownItems = new Set(state.knownItems);
@@ -618,11 +604,10 @@ function reducer(state: State, action: Action): State {
                 newKnownItems.add(action.payload);
             }
             saveKnownItems(newKnownItems);
-            newState = {
+            return {
                 ...state,
                 knownItems: newKnownItems
             };
-            break;
         }
 
         case 'ADD_CORRECT_TO_KNOWN': {
@@ -645,11 +630,10 @@ function reducer(state: State, action: Action): State {
                 alert(`Added ${addedCount} new items to known items! (${correctResults.length - addedCount} were already known)`);
             }
 
-            newState = {
+            return {
                 ...state,
                 knownItems: newKnownItems
             };
-            break;
         }
 
         case 'REMOVE_INCORRECT_FROM_KNOWN': {
@@ -672,11 +656,10 @@ function reducer(state: State, action: Action): State {
                 alert(`Removed ${removedCount} items from known items! (${incorrectResults.length - removedCount} were not previously known)`);
             }
 
-            newState = {
+            return {
                 ...state,
                 knownItems: newKnownItems
             };
-            break;
         }
 
         case 'APPLY_FLASHCARD_RESPONSES': {
@@ -703,23 +686,21 @@ function reducer(state: State, action: Action): State {
                 alert(`Updated known items!\n✓ Added: ${addedCount}\n✗ Removed: ${removedCount}`);
             }
 
-            newState = {
+            return {
                 ...state,
                 knownItems: newKnownItems
             };
-            break;
         }
 
         case 'RELOAD_KNOWN_ITEMS':
-            newState = {
+            return {
                 ...state,
                 knownItems: getKnownItems()
             };
-            break;
 
         case 'RESET': {
             clearSessionStorage();
-            newState = {
+            return {
                 gameState: 'intro',
                 gameMode: null,
                 questions: shuffle(quizData as QuizQuestion[]),
@@ -735,19 +716,11 @@ function reducer(state: State, action: Action): State {
                 knownItems: getKnownItems(),
                 customQuestionCount: null
             };
-            break;
         }
 
         default:
             return state;
     }
-
-    // Save to session storage after every state change (except RESTORE_STATE)
-    if (action.type !== 'RESTORE_STATE') {
-        saveStateToSession(newState);
-    }
-
-    return newState;
 }
 
 
@@ -760,6 +733,15 @@ const QuizGame: React.FC = () => {
     const params = useParams<{ gameMode?: string; questionCount?: string }>();
 
     const [state, dispatch] = useReducer(reducer, initialState);
+    const previousActionTypeRef = useRef<string>('');
+
+    // Save state to session storage whenever it changes (except on RESTORE_STATE)
+    useEffect(() => {
+        if (previousActionTypeRef.current !== 'RESTORE_STATE') {
+            saveStateToSession(state);
+        }
+        previousActionTypeRef.current = '';
+    }, [state]);
 
     // Sync URL to state on mount and navigation
     useEffect(() => {
@@ -790,6 +772,7 @@ const QuizGame: React.FC = () => {
             if (state.gameState !== 'mode-select') {
                 if (savedState && savedState.gameMode === urlGameMode) {
                     // Restore but override gameState to mode-select
+                    previousActionTypeRef.current = 'RESTORE_STATE';
                     dispatch({ type: 'RESTORE_STATE', payload: { ...savedState, gameState: 'mode-select' } });
                 }
             }
@@ -797,6 +780,7 @@ const QuizGame: React.FC = () => {
             // Playing screen - restore from session if available
             if (savedState && savedState.gameMode === urlGameMode) {
                 // Restore full state from session
+                previousActionTypeRef.current = 'RESTORE_STATE';
                 dispatch({ type: 'RESTORE_STATE', payload: savedState });
             } else if (urlGameMode) {
                 // Start new game
@@ -813,6 +797,7 @@ const QuizGame: React.FC = () => {
         } else if (path.startsWith('/results/')) {
             // Results screen
             if (savedState && savedState.gameMode === urlGameMode) {
+                previousActionTypeRef.current = 'RESTORE_STATE';
                 dispatch({ type: 'RESTORE_STATE', payload: { ...savedState, gameState: 'finished' } });
             } else if (state.gameState !== 'finished') {
                 dispatch({ type: 'QUIT_GAME' });
@@ -820,12 +805,13 @@ const QuizGame: React.FC = () => {
         } else if (path.startsWith('/review/')) {
             // Review screen
             if (savedState && savedState.gameMode === urlGameMode) {
+                previousActionTypeRef.current = 'RESTORE_STATE';
                 dispatch({ type: 'RESTORE_STATE', payload: { ...savedState, gameState: 'review' } });
             } else if (state.gameState !== 'review') {
                 dispatch({ type: 'SHOW_REVIEW' });
             }
         }
-    }, [location.pathname, params.gameMode, params.questionCount]);
+    }, [location.pathname, params.gameMode, params.questionCount, state.gameState, state.gameMode, state.customQuestionCount]);
 
     const {
         gameState, gameMode, questions, currentIndex,
