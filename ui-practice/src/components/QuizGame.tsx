@@ -1034,6 +1034,8 @@ const QuizGame: React.FC = () => {
             onSubmit={handleSubmit}
             onNext={handleNextQuestion}
             onQuit={handleQuitGame}
+            knownItems={knownItems}
+            onToggleKnown={(id) => id && dispatch({ type: 'TOGGLE_KNOWN_ITEM', payload: id })}
         />
     );
 };

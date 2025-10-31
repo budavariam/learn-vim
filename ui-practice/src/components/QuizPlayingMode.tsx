@@ -1,5 +1,5 @@
 import React from 'react';
-import { Target, CheckCircle, XCircle } from 'lucide-react';
+import { Target, CheckCircle, XCircle, ToggleLeft, ToggleRight } from 'lucide-react';
 import { gameModes, GameMode } from './QuizGame';
 import type { QuizQuestion } from './QuizGame';
 import ColoredText from './ColoredText';
@@ -14,11 +14,13 @@ interface QuizPlayingModeProps {
     userAnswer: string;
     showAnswer: boolean;
     isCorrect: boolean;
+    knownItems: Set<string>;
     onAnswerChange: (answer: string) => void;
     onSubmit: (e: React.FormEvent) => void;
     onNext: (e: React.FormEvent) => void;
     onQuit: () => void;
     onHome: () => void;
+    onToggleKnown: (questionId: string | undefined) => void;
 }
 
 const QuizPlayingMode: React.FC<QuizPlayingModeProps> = ({
@@ -30,13 +32,16 @@ const QuizPlayingMode: React.FC<QuizPlayingModeProps> = ({
     userAnswer,
     showAnswer,
     isCorrect,
+    knownItems,
     onAnswerChange,
     onSubmit,
     onNext,
     onHome,
-    onQuit
+    onQuit,
+    onToggleKnown
 }) => {
     const config = gameMode ? gameModes[gameMode] : null;
+    const isCurrentlyKnown = knownItems.has(question.id || '');
 
     return (
         <div className="min-h-screen p-6">
@@ -134,6 +139,23 @@ const QuizPlayingMode: React.FC<QuizPlayingModeProps> = ({
                                 <span className="color-yellow font-semibold">
                                     {question.solution.join(', ')}
                                 </span>
+                            </div>
+                            <div className="flex justify-center">
+                                <button
+                                    onClick={() => onToggleKnown(question.id)}
+                                    className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${isCurrentlyKnown
+                                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800'
+                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
+                                        }`}
+                                    title={isCurrentlyKnown ? "Mark as unknown" : "Mark as known"}
+                                >
+                                    {isCurrentlyKnown ? (
+                                        <ToggleRight className="h-4 w-4" />
+                                    ) : (
+                                        <ToggleLeft className="h-4 w-4" />
+                                    )}
+                                    {isCurrentlyKnown ? 'Known' : 'Unknown'}
+                                </button>
                             </div>
 
                             <form onSubmit={onNext} className="space-y-6">
