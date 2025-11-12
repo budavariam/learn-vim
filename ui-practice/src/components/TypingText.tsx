@@ -37,11 +37,11 @@ const TypingText: React.FC<TypingTextProps> = ({
                 // Set CSS custom properties
                 elementRef.current.style.setProperty('--char-count', text.length.toString());
                 elementRef.current.style.setProperty('--typing-duration', `${duration}ms`);
-                
+
                 // Critical: Set max-width to constrain the animation
-                elementRef.current.style.setProperty('max-width', `${text.length}ch`);
+                elementRef.current.style.setProperty('max-width', `${text.length + 1}ch`);
                 elementRef.current.style.setProperty('width', 'fit-content');
-                
+
                 console.log('[TypingText] CSS properties set:', {
                     charCount: text.length,
                     duration: `${duration}ms`,
@@ -62,7 +62,7 @@ const TypingText: React.FC<TypingTextProps> = ({
         }, startDelay);
 
         const endTimer = setTimeout(() => {
-            console.log('[TypingText] Animation completed', { 
+            console.log('[TypingText] Animation completed', {
                 timestamp: new Date().toISOString(),
                 totalTime: startDelay + duration + 100
             });
