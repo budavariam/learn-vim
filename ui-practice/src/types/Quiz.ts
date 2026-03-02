@@ -2,6 +2,7 @@ export interface QuizQuestion {
     category: string;
     question: string;
     solution: string[];
+    level: number;
 }
 
 export type GameState = 'intro' | 'playing' | 'answered' | 'finished';

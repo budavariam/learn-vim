@@ -6,7 +6,8 @@
       ":help keyword",
       ":h keyword"
     ],
-    "id": "028a059af5a5"
+    "id": "028a059af5a5",
+    "level": 1
   },
   {
     "category": "Global",
@@ -14,7 +15,8 @@
     "solution": [
       ":saveas file"
     ],
-    "id": "2214b54e8bc2"
+    "id": "2214b54e8bc2",
+    "level": 2
   },
   {
     "category": "Global",
@@ -22,7 +24,8 @@
     "solution": [
       ":close"
     ],
-    "id": "f03b2d24c084"
+    "id": "f03b2d24c084",
+    "level": 2
   },
   {
     "category": "Global",
@@ -30,7 +33,8 @@
     "solution": [
       "K"
     ],
-    "id": "048610ad1e1c"
+    "id": "048610ad1e1c",
+    "level": 5
   },
   {
     "category": "Global",
@@ -38,7 +42,8 @@
     "solution": [
       "gf"
     ],
-    "id": "662cbbac88cc"
+    "id": "662cbbac88cc",
+    "level": 5
   },
   {
     "category": "Cursor movement",
@@ -46,7 +51,8 @@
     "solution": [
       "h"
     ],
-    "id": "1b1699bf636a"
+    "id": "1b1699bf636a",
+    "level": 0
   },
   {
     "category": "Cursor movement",
@@ -54,7 +60,8 @@
     "solution": [
       "j"
     ],
-    "id": "e47a5c82c865"
+    "id": "e47a5c82c865",
+    "level": 0
   },
   {
     "category": "Cursor movement",
@@ -62,7 +69,8 @@
     "solution": [
       "k"
     ],
-    "id": "41b422b91f9f"
+    "id": "41b422b91f9f",
+    "level": 0
   },
   {
     "category": "Cursor movement",
@@ -70,7 +78,8 @@
     "solution": [
       "l"
     ],
-    "id": "38729f14817f"
+    "id": "38729f14817f",
+    "level": 0
   },
   {
     "category": "Cursor movement",
@@ -78,7 +87,8 @@
     "solution": [
       "H"
     ],
-    "id": "348cf10a140e"
+    "id": "348cf10a140e",
+    "level": 2
   },
   {
     "category": "Cursor movement",
@@ -86,7 +96,8 @@
     "solution": [
       "M"
     ],
-    "id": "a27a1914b737"
+    "id": "a27a1914b737",
+    "level": 2
   },
   {
     "category": "Cursor movement",
@@ -94,7 +105,8 @@
     "solution": [
       "L"
     ],
-    "id": "6fb0a32d01fd"
+    "id": "6fb0a32d01fd",
+    "level": 2
   },
   {
     "category": "Cursor movement",
@@ -102,7 +114,8 @@
     "solution": [
       "w"
     ],
-    "id": "76b4b6684acd"
+    "id": "76b4b6684acd",
+    "level": 1
   },
   {
     "category": "Cursor movement",
@@ -110,7 +123,8 @@
     "solution": [
       "W"
     ],
-    "id": "9cbe77e8a108"
+    "id": "9cbe77e8a108",
+    "level": 2
   },
   {
     "category": "Cursor movement",
@@ -118,7 +132,8 @@
     "solution": [
       "e"
     ],
-    "id": "0f807296462e"
+    "id": "0f807296462e",
+    "level": 1
   },
   {
     "category": "Cursor movement",
@@ -126,7 +141,8 @@
     "solution": [
       "E"
     ],
-    "id": "cef9d5eb3485"
+    "id": "cef9d5eb3485",
+    "level": 2
   },
   {
     "category": "Cursor movement",
@@ -134,7 +150,8 @@
     "solution": [
       "ge"
     ],
-    "id": "40020e559c60"
+    "id": "40020e559c60",
+    "level": 3
   },
   {
     "category": "Cursor movement",
@@ -142,7 +159,8 @@
     "solution": [
       "gE"
     ],
-    "id": "1723920c2788"
+    "id": "1723920c2788",
+    "level": 4
   },
   {
     "category": "Cursor movement",
@@ -150,7 +168,8 @@
     "solution": [
       "b"
     ],
-    "id": "0d91583f2bf8"
+    "id": "0d91583f2bf8",
+    "level": 1
   },
   {
     "category": "Cursor movement",
@@ -158,7 +177,8 @@
     "solution": [
       "B"
     ],
-    "id": "abd88172297c"
+    "id": "abd88172297c",
+    "level": 2
   },
   {
     "category": "Cursor movement",
@@ -166,7 +186,8 @@
     "solution": [
       "%"
     ],
-    "id": "1ea49a3ab075"
+    "id": "1ea49a3ab075",
+    "level": 2
   },
   {
     "category": "Cursor movement",
@@ -174,7 +195,8 @@
     "solution": [
       "0"
     ],
-    "id": "ab8198b97931"
+    "id": "ab8198b97931",
+    "level": 1
   },
   {
     "category": "Cursor movement",
@@ -182,7 +204,8 @@
     "solution": [
       "^"
     ],
-    "id": "fa0f368d35ca"
+    "id": "fa0f368d35ca",
+    "level": 2
   },
   {
     "category": "Cursor movement",
@@ -190,7 +213,8 @@
     "solution": [
       "$"
     ],
-    "id": "06301c0d17da"
+    "id": "06301c0d17da",
+    "level": 1
   },
   {
     "category": "Cursor movement",
@@ -198,7 +222,8 @@
     "solution": [
       "g_"
     ],
-    "id": "c535b0f98a5d"
+    "id": "c535b0f98a5d",
+    "level": 3
   },
   {
     "category": "Cursor movement",
@@ -206,7 +231,8 @@
     "solution": [
       "gg"
     ],
-    "id": "7a49572fe6e1"
+    "id": "7a49572fe6e1",
+    "level": 1
   },
   {
     "category": "Cursor movement",
@@ -214,7 +240,8 @@
     "solution": [
       "G"
     ],
-    "id": "0c7bb9bf550d"
+    "id": "0c7bb9bf550d",
+    "level": 1
   },
   {
     "category": "Cursor movement",
@@ -222,7 +249,8 @@
     "solution": [
       "5G"
     ],
-    "id": "87d63c7ed342"
+    "id": "87d63c7ed342",
+    "level": 2
   },
   {
     "category": "Cursor movement",
@@ -230,7 +258,8 @@
     "solution": [
       ":5"
     ],
-    "id": "2db4e1c9417f"
+    "id": "2db4e1c9417f",
+    "level": 2
   },
   {
     "category": "Cursor movement",
@@ -238,7 +267,8 @@
     "solution": [
       "fx"
     ],
-    "id": "65598dca12da"
+    "id": "65598dca12da",
+    "level": 3
   },
   {
     "category": "Cursor movement",
@@ -246,7 +276,8 @@
     "solution": [
       "tx"
     ],
-    "id": "352d97c8e944"
+    "id": "352d97c8e944",
+    "level": 3
   },
   {
     "category": "Cursor movement",
@@ -254,7 +285,8 @@
     "solution": [
       "Fx"
     ],
-    "id": "5d7c47f5d1af"
+    "id": "5d7c47f5d1af",
+    "level": 3
   },
   {
     "category": "Cursor movement",
@@ -262,7 +294,8 @@
     "solution": [
       "Tx"
     ],
-    "id": "ff04930c455c"
+    "id": "ff04930c455c",
+    "level": 4
   },
   {
     "category": "Cursor movement",
@@ -270,7 +303,8 @@
     "solution": [
       ";"
     ],
-    "id": "745e0eabfd7d"
+    "id": "745e0eabfd7d",
+    "level": 4
   },
   {
     "category": "Cursor movement",
@@ -278,7 +312,8 @@
     "solution": [
       ","
     ],
-    "id": "2622e8221b8e"
+    "id": "2622e8221b8e",
+    "level": 4
   },
   {
     "category": "Cursor movement",
@@ -286,7 +321,8 @@
     "solution": [
       "}"
     ],
-    "id": "c938a1f66bc3"
+    "id": "c938a1f66bc3",
+    "level": 3
   },
   {
     "category": "Cursor movement",
@@ -294,7 +330,8 @@
     "solution": [
       "{"
     ],
-    "id": "7c58b5942806"
+    "id": "7c58b5942806",
+    "level": 3
   },
   {
     "category": "Cursor movement",
@@ -302,7 +339,8 @@
     "solution": [
       "("
     ],
-    "id": "01121d2f55cd"
+    "id": "01121d2f55cd",
+    "level": 4
   },
   {
     "category": "Cursor movement",
@@ -310,7 +348,8 @@
     "solution": [
       ")"
     ],
-    "id": "47920d381b07"
+    "id": "47920d381b07",
+    "level": 4
   },
   {
     "category": "Cursor movement",
@@ -318,7 +357,8 @@
     "solution": [
       "zz"
     ],
-    "id": "9e001619107a"
+    "id": "9e001619107a",
+    "level": 3
   },
   {
     "category": "Cursor movement",
@@ -326,7 +366,8 @@
     "solution": [
       "zt"
     ],
-    "id": "75f35e9a6eb0"
+    "id": "75f35e9a6eb0",
+    "level": 3
   },
   {
     "category": "Cursor movement",
@@ -334,7 +375,8 @@
     "solution": [
       "zb"
     ],
-    "id": "932fed577a15"
+    "id": "932fed577a15",
+    "level": 3
   },
   {
     "category": "Cursor movement",
@@ -342,7 +384,8 @@
     "solution": [
       "ctrl-e"
     ],
-    "id": "5f5f91356b10"
+    "id": "5f5f91356b10",
+    "level": 3
   },
   {
     "category": "Cursor movement",
@@ -350,7 +393,8 @@
     "solution": [
       "ctrl-y"
     ],
-    "id": "a7b42f642d9c"
+    "id": "a7b42f642d9c",
+    "level": 3
   },
   {
     "category": "Cursor movement",
@@ -358,7 +402,8 @@
     "solution": [
       "ctrl-b"
     ],
-    "id": "dc0ded7a550f"
+    "id": "dc0ded7a550f",
+    "level": 2
   },
   {
     "category": "Cursor movement",
@@ -366,7 +411,8 @@
     "solution": [
       "ctrl-f"
     ],
-    "id": "b11ffb6be668"
+    "id": "b11ffb6be668",
+    "level": 2
   },
   {
     "category": "Cursor movement",
@@ -374,7 +420,8 @@
     "solution": [
       "ctrl-d"
     ],
-    "id": "50c214083200"
+    "id": "50c214083200",
+    "level": 2
   },
   {
     "category": "Cursor movement",
@@ -382,7 +429,8 @@
     "solution": [
       "ctrl-u"
     ],
-    "id": "db29bc279d4d"
+    "id": "db29bc279d4d",
+    "level": 2
   },
   {
     "category": "Cursor movement",
@@ -390,7 +438,8 @@
     "solution": [
       "ctrl-o"
     ],
-    "id": "04787d9eb23e"
+    "id": "04787d9eb23e",
+    "level": 4
   },
   {
     "category": "Cursor movement",
@@ -398,7 +447,8 @@
     "solution": [
       "ctrl-i"
     ],
-    "id": "fe9d6d345d8d"
+    "id": "fe9d6d345d8d",
+    "level": 4
   },
   {
     "category": "Insert mode, inserting/appending text",
@@ -406,7 +456,8 @@
     "solution": [
       "i"
     ],
-    "id": "3a20556dbb75"
+    "id": "3a20556dbb75",
+    "level": 0
   },
   {
     "category": "Insert mode, inserting/appending text",
@@ -414,7 +465,8 @@
     "solution": [
       "I"
     ],
-    "id": "996e549ca656"
+    "id": "996e549ca656",
+    "level": 1
   },
   {
     "category": "Insert mode, inserting/appending text",
@@ -422,7 +474,8 @@
     "solution": [
       "a"
     ],
-    "id": "77fb3215fa01"
+    "id": "77fb3215fa01",
+    "level": 1
   },
   {
     "category": "Insert mode, inserting/appending text",
@@ -430,7 +483,8 @@
     "solution": [
       "A"
     ],
-    "id": "92b23595895b"
+    "id": "92b23595895b",
+    "level": 1
   },
   {
     "category": "Insert mode, inserting/appending text",
@@ -438,7 +492,8 @@
     "solution": [
       "o"
     ],
-    "id": "0a1df80d3cbf"
+    "id": "0a1df80d3cbf",
+    "level": 1
   },
   {
     "category": "Insert mode, inserting/appending text",
@@ -446,7 +501,8 @@
     "solution": [
       "O"
     ],
-    "id": "fdafd1797cc7"
+    "id": "fdafd1797cc7",
+    "level": 2
   },
   {
     "category": "Insert mode, inserting/appending text",
@@ -454,7 +510,8 @@
     "solution": [
       "ea"
     ],
-    "id": "665d9937ffe0"
+    "id": "665d9937ffe0",
+    "level": 3
   },
   {
     "category": "Insert mode, inserting/appending text",
@@ -462,7 +519,8 @@
     "solution": [
       "Esc"
     ],
-    "id": "4f67d4849636"
+    "id": "4f67d4849636",
+    "level": 0
   },
   {
     "category": "Insert mode, inserting/appending text",
@@ -470,7 +528,8 @@
     "solution": [
       "gi"
     ],
-    "id": "4ae221fb18b0"
+    "id": "4ae221fb18b0",
+    "level": 4
   },
   {
     "category": "Insert mode, inserting/appending text",
@@ -478,7 +537,8 @@
     "solution": [
       "ctrl-r REG"
     ],
-    "id": "0c06dfe13a63"
+    "id": "0c06dfe13a63",
+    "level": 6
   },
   {
     "category": "Editing",
@@ -486,7 +546,8 @@
     "solution": [
       "r"
     ],
-    "id": "098c3bf8d4f6"
+    "id": "098c3bf8d4f6",
+    "level": 2
   },
   {
     "category": "Editing",
@@ -494,7 +555,8 @@
     "solution": [
       "R"
     ],
-    "id": "ec7b3978f852"
+    "id": "ec7b3978f852",
+    "level": 3
   },
   {
     "category": "Editing",
@@ -502,7 +564,8 @@
     "solution": [
       "J"
     ],
-    "id": "3caad1b4ff16"
+    "id": "3caad1b4ff16",
+    "level": 3
   },
   {
     "category": "Editing",
@@ -510,7 +573,8 @@
     "solution": [
       "gJ"
     ],
-    "id": "cae4a97e7594"
+    "id": "cae4a97e7594",
+    "level": 4
   },
   {
     "category": "Editing",
@@ -518,7 +582,8 @@
     "solution": [
       "gwip"
     ],
-    "id": "cb5898dca46f"
+    "id": "cb5898dca46f",
+    "level": 6
   },
   {
     "category": "Editing",
@@ -526,7 +591,8 @@
     "solution": [
       "cc"
     ],
-    "id": "2e8bba5c789e"
+    "id": "2e8bba5c789e",
+    "level": 2
   },
   {
     "category": "Editing",
@@ -535,7 +601,8 @@
       "C",
       "c$"
     ],
-    "id": "9315312b068c"
+    "id": "9315312b068c",
+    "level": 2
   },
   {
     "category": "Editing",
@@ -543,7 +610,8 @@
     "solution": [
       "ciw"
     ],
-    "id": "fb0095c117fb"
+    "id": "fb0095c117fb",
+    "level": 3
   },
   {
     "category": "Editing",
@@ -551,7 +619,8 @@
     "solution": [
       "cw"
     ],
-    "id": "61f3ed52fcd8"
+    "id": "61f3ed52fcd8",
+    "level": 2
   },
   {
     "category": "Editing",
@@ -559,7 +628,8 @@
     "solution": [
       "c/hello"
     ],
-    "id": "fbb340ee624d"
+    "id": "fbb340ee624d",
+    "level": 5
   },
   {
     "category": "Editing",
@@ -567,7 +637,8 @@
     "solution": [
       "s"
     ],
-    "id": "a3895dc86a05"
+    "id": "a3895dc86a05",
+    "level": 3
   },
   {
     "category": "Editing",
@@ -575,7 +646,8 @@
     "solution": [
       "xp"
     ],
-    "id": "23c9d8770f0c"
+    "id": "23c9d8770f0c",
+    "level": 4
   },
   {
     "category": "Editing",
@@ -583,7 +655,8 @@
     "solution": [
       "u"
     ],
-    "id": "d5a5f370e59f"
+    "id": "d5a5f370e59f",
+    "level": 1
   },
   {
     "category": "Editing",
@@ -591,7 +664,8 @@
     "solution": [
       ":u"
     ],
-    "id": "b736cc3384a8"
+    "id": "b736cc3384a8",
+    "level": 2
   },
   {
     "category": "Editing",
@@ -599,7 +673,8 @@
     "solution": [
       "U"
     ],
-    "id": "72f62392a48f"
+    "id": "72f62392a48f",
+    "level": 3
   },
   {
     "category": "Editing",
@@ -607,7 +682,8 @@
     "solution": [
       "ctrl-r"
     ],
-    "id": "a628156e12c2"
+    "id": "a628156e12c2",
+    "level": 2
   },
   {
     "category": "Editing",
@@ -615,7 +691,8 @@
     "solution": [
       ":red"
     ],
-    "id": "d7574ad38bf3"
+    "id": "d7574ad38bf3",
+    "level": 3
   },
   {
     "category": "Editing",
@@ -623,7 +700,8 @@
     "solution": [
       "."
     ],
-    "id": "21ea54f7b5f1"
+    "id": "21ea54f7b5f1",
+    "level": 2
   },
   {
     "category": "Editing",
@@ -631,7 +709,8 @@
     "solution": [
       "ctrl-a"
     ],
-    "id": "65c9d8c501b7"
+    "id": "65c9d8c501b7",
+    "level": 4
   },
   {
     "category": "Editing",
@@ -639,7 +718,8 @@
     "solution": [
       "ctrl-x"
     ],
-    "id": "91e2233493c3"
+    "id": "91e2233493c3",
+    "level": 4
   },
   {
     "category": "Editing",
@@ -647,7 +727,8 @@
     "solution": [
       "gu + movement"
     ],
-    "id": "a7c8a3f50a15"
+    "id": "a7c8a3f50a15",
+    "level": 5
   },
   {
     "category": "Editing",
@@ -655,7 +736,8 @@
     "solution": [
       "gU + movement"
     ],
-    "id": "9ddaf623d22a"
+    "id": "9ddaf623d22a",
+    "level": 5
   },
   {
     "category": "Editing",
@@ -663,7 +745,8 @@
     "solution": [
       "g~ + movement"
     ],
-    "id": "624441cc3354"
+    "id": "624441cc3354",
+    "level": 5
   },
   {
     "category": "Editing",
@@ -671,7 +754,8 @@
     "solution": [
       "g+"
     ],
-    "id": "ed04678b8455"
+    "id": "ed04678b8455",
+    "level": 7
   },
   {
     "category": "Editing",
@@ -679,7 +763,8 @@
     "solution": [
       "g-"
     ],
-    "id": "3fa30ec46b8e"
+    "id": "3fa30ec46b8e",
+    "level": 7
   },
   {
     "category": "Editing",
@@ -687,7 +772,8 @@
     "solution": [
       "ea 4h"
     ],
-    "id": "84c2e21977fe"
+    "id": "84c2e21977fe",
+    "level": 8
   },
   {
     "category": "Editing",
@@ -695,7 +781,8 @@
     "solution": [
       "ea 2f"
     ],
-    "id": "e7c0e1599c6f"
+    "id": "e7c0e1599c6f",
+    "level": 8
   },
   {
     "category": "Editing",
@@ -703,7 +790,8 @@
     "solution": [
       "lat 8m"
     ],
-    "id": "b3b50759fbf7"
+    "id": "b3b50759fbf7",
+    "level": 8
   },
   {
     "category": "Marking text (visual mode)",
@@ -711,7 +799,8 @@
     "solution": [
       "v"
     ],
-    "id": "595b9f96f536"
+    "id": "595b9f96f536",
+    "level": 2
   },
   {
     "category": "Marking text (visual mode)",
@@ -719,7 +808,8 @@
     "solution": [
       "V"
     ],
-    "id": "ef509160599b"
+    "id": "ef509160599b",
+    "level": 2
   },
   {
     "category": "Marking text (visual mode)",
@@ -727,7 +817,8 @@
     "solution": [
       "o"
     ],
-    "id": "b40330109fa1"
+    "id": "b40330109fa1",
+    "level": 4
   },
   {
     "category": "Marking text (visual mode)",
@@ -735,7 +826,8 @@
     "solution": [
       "ctrl-v"
     ],
-    "id": "4725ff77daec"
+    "id": "4725ff77daec",
+    "level": 3
   },
   {
     "category": "Marking text (visual mode)",
@@ -743,7 +835,8 @@
     "solution": [
       "O"
     ],
-    "id": "55dcd023308f"
+    "id": "55dcd023308f",
+    "level": 5
   },
   {
     "category": "Marking text (visual mode)",
@@ -751,7 +844,8 @@
     "solution": [
       "aw"
     ],
-    "id": "3a35d9b5ee40"
+    "id": "3a35d9b5ee40",
+    "level": 3
   },
   {
     "category": "Marking text (visual mode)",
@@ -759,7 +853,8 @@
     "solution": [
       "as"
     ],
-    "id": "d0599ae8aee0"
+    "id": "d0599ae8aee0",
+    "level": 4
   },
   {
     "category": "Marking text (visual mode)",
@@ -767,7 +862,8 @@
     "solution": [
       "ap"
     ],
-    "id": "1aa1e20407f8"
+    "id": "1aa1e20407f8",
+    "level": 4
   },
   {
     "category": "Marking text (visual mode)",
@@ -775,7 +871,8 @@
     "solution": [
       "ab"
     ],
-    "id": "ba29201af661"
+    "id": "ba29201af661",
+    "level": 4
   },
   {
     "category": "Marking text (visual mode)",
@@ -783,7 +880,8 @@
     "solution": [
       "aB"
     ],
-    "id": "5ecc016eb5d3"
+    "id": "5ecc016eb5d3",
+    "level": 4
   },
   {
     "category": "Marking text (visual mode)",
@@ -791,7 +889,8 @@
     "solution": [
       "ib"
     ],
-    "id": "3ff2a688d0f1"
+    "id": "3ff2a688d0f1",
+    "level": 4
   },
   {
     "category": "Marking text (visual mode)",
@@ -799,7 +898,8 @@
     "solution": [
       "iB"
     ],
-    "id": "eab070492ba4"
+    "id": "eab070492ba4",
+    "level": 4
   },
   {
     "category": "Marking text (visual mode)",
@@ -807,7 +907,8 @@
     "solution": [
       "Esc"
     ],
-    "id": "f5b097060852"
+    "id": "f5b097060852",
+    "level": 2
   },
   {
     "category": "Visual commands",
@@ -815,7 +916,8 @@
     "solution": [
       ">"
     ],
-    "id": "a7860b6e0331"
+    "id": "a7860b6e0331",
+    "level": 3
   },
   {
     "category": "Visual commands",
@@ -823,7 +925,8 @@
     "solution": [
       "<"
     ],
-    "id": "7a293089fdc9"
+    "id": "7a293089fdc9",
+    "level": 3
   },
   {
     "category": "Visual commands",
@@ -831,7 +934,8 @@
     "solution": [
       "y"
     ],
-    "id": "017379d8b8ec"
+    "id": "017379d8b8ec",
+    "level": 3
   },
   {
     "category": "Visual commands",
@@ -839,7 +943,8 @@
     "solution": [
       "d"
     ],
-    "id": "dbfd0623d894"
+    "id": "dbfd0623d894",
+    "level": 3
   },
   {
     "category": "Visual commands",
@@ -847,7 +952,8 @@
     "solution": [
       "~"
     ],
-    "id": "6cad0fd66898"
+    "id": "6cad0fd66898",
+    "level": 4
   },
   {
     "category": "Registers",
@@ -855,7 +961,8 @@
     "solution": [
       ":reg"
     ],
-    "id": "b8f8ed6c62e2"
+    "id": "b8f8ed6c62e2",
+    "level": 5
   },
   {
     "category": "Registers",
@@ -863,7 +970,8 @@
     "solution": [
       "\"xy"
     ],
-    "id": "e7012b84ec87"
+    "id": "e7012b84ec87",
+    "level": 6
   },
   {
     "category": "Registers",
@@ -871,7 +979,8 @@
     "solution": [
       "\"xp"
     ],
-    "id": "ae1dded39224"
+    "id": "ae1dded39224",
+    "level": 6
   },
   {
     "category": "Registers",
@@ -879,7 +988,8 @@
     "solution": [
       "\"Xp"
     ],
-    "id": "b392288492d3"
+    "id": "b392288492d3",
+    "level": 7
   },
   {
     "category": "Marks",
@@ -887,7 +997,8 @@
     "solution": [
       ":marks"
     ],
-    "id": "66922e3607a1"
+    "id": "66922e3607a1",
+    "level": 4
   },
   {
     "category": "Marks",
@@ -895,7 +1006,8 @@
     "solution": [
       "ma"
     ],
-    "id": "50f02ddabc4b"
+    "id": "50f02ddabc4b",
+    "level": 5
   },
   {
     "category": "Marks",
@@ -903,7 +1015,8 @@
     "solution": [
       "`a"
     ],
-    "id": "05e6fd2fdd4d"
+    "id": "05e6fd2fdd4d",
+    "level": 5
   },
   {
     "category": "Marks",
@@ -911,7 +1024,8 @@
     "solution": [
       "'a"
     ],
-    "id": "c3f2a5672d9a"
+    "id": "c3f2a5672d9a",
+    "level": 5
   },
   {
     "category": "Marks",
@@ -919,7 +1033,8 @@
     "solution": [
       "y`a"
     ],
-    "id": "31b1771eb0b7"
+    "id": "31b1771eb0b7",
+    "level": 6
   },
   {
     "category": "Marks",
@@ -927,7 +1042,8 @@
     "solution": [
       ":delm <pattern>"
     ],
-    "id": "9d6c14ffa6f0"
+    "id": "9d6c14ffa6f0",
+    "level": 7
   },
   {
     "category": "Macros",
@@ -935,7 +1051,8 @@
     "solution": [
       "qa"
     ],
-    "id": "1fa795f10141"
+    "id": "1fa795f10141",
+    "level": 7
   },
   {
     "category": "Macros",
@@ -943,7 +1060,8 @@
     "solution": [
       "q"
     ],
-    "id": "1d7316d000b2"
+    "id": "1d7316d000b2",
+    "level": 7
   },
   {
     "category": "Macros",
@@ -951,7 +1069,8 @@
     "solution": [
       "@a"
     ],
-    "id": "01b238fa249c"
+    "id": "01b238fa249c",
+    "level": 7
   },
   {
     "category": "Macros",
@@ -959,7 +1078,8 @@
     "solution": [
       "@@"
     ],
-    "id": "4e0e5438822b"
+    "id": "4e0e5438822b",
+    "level": 8
   },
   {
     "category": "Cut and paste",
@@ -967,7 +1087,8 @@
     "solution": [
       "yy"
     ],
-    "id": "b4221ae791e0"
+    "id": "b4221ae791e0",
+    "level": 1
   },
   {
     "category": "Cut and paste",
@@ -975,7 +1096,8 @@
     "solution": [
       "2yy"
     ],
-    "id": "101af1084b65"
+    "id": "101af1084b65",
+    "level": 2
   },
   {
     "category": "Cut and paste",
@@ -983,7 +1105,8 @@
     "solution": [
       "yw"
     ],
-    "id": "8bd1a0400b8c"
+    "id": "8bd1a0400b8c",
+    "level": 2
   },
   {
     "category": "Cut and paste",
@@ -991,7 +1114,8 @@
     "solution": [
       "y$"
     ],
-    "id": "b5575f87e5bd"
+    "id": "b5575f87e5bd",
+    "level": 2
   },
   {
     "category": "Cut and paste",
@@ -999,7 +1123,8 @@
     "solution": [
       "p"
     ],
-    "id": "51bbb705a45f"
+    "id": "51bbb705a45f",
+    "level": 1
   },
   {
     "category": "Cut and paste",
@@ -1007,7 +1132,8 @@
     "solution": [
       "P"
     ],
-    "id": "fae5440d0002"
+    "id": "fae5440d0002",
+    "level": 2
   },
   {
     "category": "Cut and paste",
@@ -1015,7 +1141,8 @@
     "solution": [
       "dd"
     ],
-    "id": "242c4ce7eba9"
+    "id": "242c4ce7eba9",
+    "level": 1
   },
   {
     "category": "Cut and paste",
@@ -1023,7 +1150,8 @@
     "solution": [
       "2dd"
     ],
-    "id": "6572a3226e4b"
+    "id": "6572a3226e4b",
+    "level": 2
   },
   {
     "category": "Cut and paste",
@@ -1031,7 +1159,8 @@
     "solution": [
       "diw"
     ],
-    "id": "fdc0e5dbead7"
+    "id": "fdc0e5dbead7",
+    "level": 3
   },
   {
     "category": "Cut and paste",
@@ -1039,7 +1168,8 @@
     "solution": [
       "dw"
     ],
-    "id": "baed9bf23d8c"
+    "id": "baed9bf23d8c",
+    "level": 2
   },
   {
     "category": "Cut and paste",
@@ -1048,7 +1178,8 @@
       "D",
       "d$"
     ],
-    "id": "2ed5c5b97242"
+    "id": "2ed5c5b97242",
+    "level": 2
   },
   {
     "category": "Cut and paste",
@@ -1056,7 +1187,8 @@
     "solution": [
       "x"
     ],
-    "id": "c97729def9d2"
+    "id": "c97729def9d2",
+    "level": 1
   },
   {
     "category": "Cut and paste",
@@ -1064,7 +1196,8 @@
     "solution": [
       "viwp"
     ],
-    "id": "ecec2c82ac0c"
+    "id": "ecec2c82ac0c",
+    "level": 5
   },
   {
     "category": "Cut and paste",
@@ -1072,7 +1205,8 @@
     "solution": [
       "\"/p"
     ],
-    "id": "b16a54d0c242"
+    "id": "b16a54d0c242",
+    "level": 6
   },
   {
     "category": "Exiting",
@@ -1080,7 +1214,8 @@
     "solution": [
       ":w"
     ],
-    "id": "70b26bb2bb52"
+    "id": "70b26bb2bb52",
+    "level": 0
   },
   {
     "category": "Exiting",
@@ -1088,7 +1223,8 @@
     "solution": [
       ":w !sudo tee %"
     ],
-    "id": "64718e52b046"
+    "id": "64718e52b046",
+    "level": 6
   },
   {
     "category": "Exiting",
@@ -1098,7 +1234,8 @@
       ":x",
       "ZZ"
     ],
-    "id": "41202c7741d8"
+    "id": "41202c7741d8",
+    "level": 0
   },
   {
     "category": "Exiting",
@@ -1106,7 +1243,8 @@
     "solution": [
       ":q"
     ],
-    "id": "611b132efdaa"
+    "id": "611b132efdaa",
+    "level": 0
   },
   {
     "category": "Exiting",
@@ -1115,7 +1253,8 @@
       ":q!",
       "ZQ"
     ],
-    "id": "78e8eb6cd5c0"
+    "id": "78e8eb6cd5c0",
+    "level": 0
   },
   {
     "category": "Exiting",
@@ -1123,7 +1262,8 @@
     "solution": [
       ":wqa"
     ],
-    "id": "de7f9b7015b5"
+    "id": "de7f9b7015b5",
+    "level": 4
   },
   {
     "category": "Exiting",
@@ -1133,7 +1273,8 @@
       ":st",
       ":stop"
     ],
-    "id": "e099da74803a"
+    "id": "e099da74803a",
+    "level": 5
   },
   {
     "category": "Search and replace",
@@ -1141,7 +1282,8 @@
     "solution": [
       "/pattern"
     ],
-    "id": "28612e1b3ee8"
+    "id": "28612e1b3ee8",
+    "level": 2
   },
   {
     "category": "Search and replace",
@@ -1149,7 +1291,8 @@
     "solution": [
       "?pattern"
     ],
-    "id": "634276449d92"
+    "id": "634276449d92",
+    "level": 2
   },
   {
     "category": "Search and replace",
@@ -1157,7 +1300,8 @@
     "solution": [
       "/\\vpattern"
     ],
-    "id": "dd5de5c8f000"
+    "id": "dd5de5c8f000",
+    "level": 6
   },
   {
     "category": "Search and replace",
@@ -1165,7 +1309,8 @@
     "solution": [
       "n"
     ],
-    "id": "13201c8ede84"
+    "id": "13201c8ede84",
+    "level": 2
   },
   {
     "category": "Search and replace",
@@ -1173,7 +1318,8 @@
     "solution": [
       "N"
     ],
-    "id": "5f1067ac1298"
+    "id": "5f1067ac1298",
+    "level": 2
   },
   {
     "category": "Search and replace",
@@ -1181,7 +1327,8 @@
     "solution": [
       "ggn"
     ],
-    "id": "01cc600bee6d"
+    "id": "01cc600bee6d",
+    "level": 4
   },
   {
     "category": "Search and replace",
@@ -1189,7 +1336,8 @@
     "solution": [
       "GN"
     ],
-    "id": "788ab752dcc6"
+    "id": "788ab752dcc6",
+    "level": 4
   },
   {
     "category": "Search and replace",
@@ -1197,7 +1345,8 @@
     "solution": [
       ":%s/old/new/g"
     ],
-    "id": "9b5336199c20"
+    "id": "9b5336199c20",
+    "level": 3
   },
   {
     "category": "Search and replace",
@@ -1205,7 +1354,8 @@
     "solution": [
       ":%s/old/new/gc"
     ],
-    "id": "401f1b0d4878"
+    "id": "401f1b0d4878",
+    "level": 4
   },
   {
     "category": "Search and replace",
@@ -1213,7 +1363,8 @@
     "solution": [
       ":noh"
     ],
-    "id": "214298f2e87b"
+    "id": "214298f2e87b",
+    "level": 3
   },
   {
     "category": "Search and replace",
@@ -1221,7 +1372,8 @@
     "solution": [
       "*"
     ],
-    "id": "8b44147d280e"
+    "id": "8b44147d280e",
+    "level": 3
   },
   {
     "category": "Search and replace",
@@ -1229,7 +1381,8 @@
     "solution": [
       "#"
     ],
-    "id": "606716519b5f"
+    "id": "606716519b5f",
+    "level": 3
   },
   {
     "category": "Search and replace",
@@ -1237,7 +1390,8 @@
     "solution": [
       "g*"
     ],
-    "id": "71a3971eb874"
+    "id": "71a3971eb874",
+    "level": 4
   },
   {
     "category": "Search and replace",
@@ -1245,7 +1399,8 @@
     "solution": [
       "g#"
     ],
-    "id": "e0d4bda2290e"
+    "id": "e0d4bda2290e",
+    "level": 4
   },
   {
     "category": "Search in multiple files",
@@ -1253,7 +1408,8 @@
     "solution": [
       ":vimgrep /pattern/ {file}"
     ],
-    "id": "f0062dd2af57"
+    "id": "f0062dd2af57",
+    "level": 6
   },
   {
     "category": "Search in multiple files",
@@ -1261,7 +1417,8 @@
     "solution": [
       ":cn"
     ],
-    "id": "7aceedfb2f81"
+    "id": "7aceedfb2f81",
+    "level": 6
   },
   {
     "category": "Search in multiple files",
@@ -1269,7 +1426,8 @@
     "solution": [
       ":cp"
     ],
-    "id": "cc2cf34df970"
+    "id": "cc2cf34df970",
+    "level": 6
   },
   {
     "category": "Search in multiple files",
@@ -1277,7 +1435,8 @@
     "solution": [
       ":copen"
     ],
-    "id": "c0eab233627b"
+    "id": "c0eab233627b",
+    "level": 6
   },
   {
     "category": "Vim for programmers",
@@ -1285,7 +1444,8 @@
     "solution": [
       "gd"
     ],
-    "id": "306d350c61a9"
+    "id": "306d350c61a9",
+    "level": 5
   },
   {
     "category": "Vim for programmers",
@@ -1293,7 +1453,8 @@
     "solution": [
       "gD"
     ],
-    "id": "0dc6e458a487"
+    "id": "0dc6e458a487",
+    "level": 5
   },
   {
     "category": "Working with multiple files",
@@ -1301,7 +1462,8 @@
     "solution": [
       ":e"
     ],
-    "id": "de8aaba5ea28"
+    "id": "de8aaba5ea28",
+    "level": 3
   },
   {
     "category": "Working with multiple files",
@@ -1309,7 +1471,8 @@
     "solution": [
       ":e file"
     ],
-    "id": "b210740e0163"
+    "id": "b210740e0163",
+    "level": 4
   },
   {
     "category": "Working with multiple files",
@@ -1318,7 +1481,8 @@
       ":r file",
       ":read file"
     ],
-    "id": "f5ddc1bcacaf"
+    "id": "f5ddc1bcacaf",
+    "level": 5
   },
   {
     "category": "Working with multiple files",
@@ -1327,7 +1491,8 @@
       ":0r file",
       ":0read file"
     ],
-    "id": "71cf586af011"
+    "id": "71cf586af011",
+    "level": 5
   },
   {
     "category": "Working with multiple files",
@@ -1335,7 +1500,8 @@
     "solution": [
       ":r !{cmd}"
     ],
-    "id": "5a30167fca1b"
+    "id": "5a30167fca1b",
+    "level": 6
   },
   {
     "category": "Working with multiple files",
@@ -1344,7 +1510,8 @@
       ":bnext",
       ":bn"
     ],
-    "id": "94984e73dea1"
+    "id": "94984e73dea1",
+    "level": 4
   },
   {
     "category": "Working with multiple files",
@@ -1353,7 +1520,8 @@
       ":bprev",
       ":bp"
     ],
-    "id": "ae3ce941a9ea"
+    "id": "ae3ce941a9ea",
+    "level": 4
   },
   {
     "category": "Working with multiple files",
@@ -1361,7 +1529,8 @@
     "solution": [
       ":bd"
     ],
-    "id": "6643d75cb741"
+    "id": "6643d75cb741",
+    "level": 4
   },
   {
     "category": "Working with multiple files",
@@ -1369,7 +1538,8 @@
     "solution": [
       ":ls"
     ],
-    "id": "368787c7a95d"
+    "id": "368787c7a95d",
+    "level": 4
   },
   {
     "category": "Working with multiple files",
@@ -1377,7 +1547,8 @@
     "solution": [
       ":sp file"
     ],
-    "id": "baed4066efc5"
+    "id": "baed4066efc5",
+    "level": 4
   },
   {
     "category": "Working with multiple files",
@@ -1385,7 +1556,8 @@
     "solution": [
       ":vsp file"
     ],
-    "id": "99db921c4b1e"
+    "id": "99db921c4b1e",
+    "level": 4
   },
   {
     "category": "Working with multiple files",
@@ -1394,7 +1566,8 @@
       ":sv file",
       ":sview file"
     ],
-    "id": "0a7c1b824aa5"
+    "id": "0a7c1b824aa5",
+    "level": 5
   },
   {
     "category": "Working with multiple files",
@@ -1402,7 +1575,8 @@
     "solution": [
       ":vert sv file"
     ],
-    "id": "3e4e02235f54"
+    "id": "3e4e02235f54",
+    "level": 5
   },
   {
     "category": "Split window",
@@ -1410,7 +1584,8 @@
     "solution": [
       "ctrl-ws"
     ],
-    "id": "3d9c187d7fa8"
+    "id": "3d9c187d7fa8",
+    "level": 4
   },
   {
     "category": "Split window",
@@ -1418,7 +1593,8 @@
     "solution": [
       "ctrl-wv"
     ],
-    "id": "72e5715206af"
+    "id": "72e5715206af",
+    "level": 4
   },
   {
     "category": "Split window",
@@ -1426,7 +1602,8 @@
     "solution": [
       "ctrl-ww"
     ],
-    "id": "eecb920ce667"
+    "id": "eecb920ce667",
+    "level": 4
   },
   {
     "category": "Split window",
@@ -1434,7 +1611,8 @@
     "solution": [
       "ctrl-wq"
     ],
-    "id": "da25c0440718"
+    "id": "da25c0440718",
+    "level": 4
   },
   {
     "category": "Split window",
@@ -1442,7 +1620,8 @@
     "solution": [
       "ctrl-wr"
     ],
-    "id": "21a7c6c06ea2"
+    "id": "21a7c6c06ea2",
+    "level": 5
   },
   {
     "category": "Split window",
@@ -1450,7 +1629,8 @@
     "solution": [
       "ctrl-wh"
     ],
-    "id": "57de3f620fd5"
+    "id": "57de3f620fd5",
+    "level": 4
   },
   {
     "category": "Split window",
@@ -1458,7 +1638,8 @@
     "solution": [
       "ctrl-wl"
     ],
-    "id": "8cba53a610a5"
+    "id": "8cba53a610a5",
+    "level": 4
   },
   {
     "category": "Split window",
@@ -1466,7 +1647,8 @@
     "solution": [
       "ctrl-wj"
     ],
-    "id": "9a83c3d3c7ad"
+    "id": "9a83c3d3c7ad",
+    "level": 4
   },
   {
     "category": "Split window",
@@ -1474,7 +1656,8 @@
     "solution": [
       "ctrl-wk"
     ],
-    "id": "b14526ae4242"
+    "id": "b14526ae4242",
+    "level": 4
   },
   {
     "category": "Split window",
@@ -1482,7 +1665,8 @@
     "solution": [
       "ctrl-w_"
     ],
-    "id": "a4aab5d46b56"
+    "id": "a4aab5d46b56",
+    "level": 5
   },
   {
     "category": "Split window",
@@ -1490,7 +1674,8 @@
     "solution": [
       "ctrl-w|"
     ],
-    "id": "5e3f16ab60a6"
+    "id": "5e3f16ab60a6",
+    "level": 5
   },
   {
     "category": "Split window",
@@ -1498,7 +1683,8 @@
     "solution": [
       "ctrl-w="
     ],
-    "id": "25499ad00214"
+    "id": "25499ad00214",
+    "level": 5
   },
   {
     "category": "Split window",
@@ -1507,7 +1693,8 @@
       ":res +/-num",
       "numctrl-w+/-"
     ],
-    "id": "ca87f8e8e726"
+    "id": "ca87f8e8e726",
+    "level": 6
   },
   {
     "category": "Split window",
@@ -1516,7 +1703,8 @@
       ":vert res +/-num",
       "numctrl-w</>"
     ],
-    "id": "9f0b8c2abe8c"
+    "id": "9f0b8c2abe8c",
+    "level": 6
   },
   {
     "category": "Tabs",
@@ -1526,7 +1714,8 @@
       ":tabnew",
       ":tabnew file"
     ],
-    "id": "11d65645ee79"
+    "id": "11d65645ee79",
+    "level": 4
   },
   {
     "category": "Tabs",
@@ -1534,7 +1723,8 @@
     "solution": [
       "ctrl-wT"
     ],
-    "id": "4ab4eebea846"
+    "id": "4ab4eebea846",
+    "level": 5
   },
   {
     "category": "Tabs",
@@ -1544,7 +1734,8 @@
       ":tabnext",
       ":tabn"
     ],
-    "id": "c150136f4667"
+    "id": "c150136f4667",
+    "level": 4
   },
   {
     "category": "Tabs",
@@ -1554,7 +1745,8 @@
       ":tabprev",
       ":tabp"
     ],
-    "id": "2bb7fde67a22"
+    "id": "2bb7fde67a22",
+    "level": 4
   },
   {
     "category": "Tabs",
@@ -1562,7 +1754,8 @@
     "solution": [
       "NUMgt"
     ],
-    "id": "b1ef50c07474"
+    "id": "b1ef50c07474",
+    "level": 5
   },
   {
     "category": "Tabs",
@@ -1571,7 +1764,8 @@
       ":tabm NUM",
       ":tabmove NUM"
     ],
-    "id": "81fa5294ae65"
+    "id": "81fa5294ae65",
+    "level": 5
   },
   {
     "category": "Tabs",
@@ -1580,7 +1774,8 @@
       ":tabc",
       ":tabclose"
     ],
-    "id": "a2ea378a808c"
+    "id": "a2ea378a808c",
+    "level": 4
   },
   {
     "category": "Tabs",
@@ -1589,7 +1784,8 @@
       ":tabo",
       ":tabonly"
     ],
-    "id": "732028fd6e33"
+    "id": "732028fd6e33",
+    "level": 5
   },
   {
     "category": "Tabs",
@@ -1597,7 +1793,8 @@
     "solution": [
       ":tabdo command"
     ],
-    "id": "ccfa4951cafd"
+    "id": "ccfa4951cafd",
+    "level": 6
   },
   {
     "category": "Extra",
@@ -1605,7 +1802,8 @@
     "solution": [
       "ctrl-n"
     ],
-    "id": "22bdd1bf617d"
+    "id": "22bdd1bf617d",
+    "level": 3
   },
   {
     "category": "Extra",
@@ -1613,7 +1811,8 @@
     "solution": [
       "ctrl-g"
     ],
-    "id": "e152319ebcbc"
+    "id": "e152319ebcbc",
+    "level": 4
   },
   {
     "category": "Extra",
@@ -1621,7 +1820,8 @@
     "solution": [
       "ctrl-o"
     ],
-    "id": "77759ca1f905"
+    "id": "77759ca1f905",
+    "level": 5
   },
   {
     "category": "Extra",
@@ -1629,7 +1829,8 @@
     "solution": [
       ":term"
     ],
-    "id": "4e4b22ec2977"
+    "id": "4e4b22ec2977",
+    "level": 5
   },
   {
     "category": "Open vim specially",
@@ -1637,7 +1838,8 @@
     "solution": [
       "vim file1 file2"
     ],
-    "id": "8493cdd351c7"
+    "id": "8493cdd351c7",
+    "level": 3
   },
   {
     "category": "Open vim specially",
@@ -1645,7 +1847,8 @@
     "solution": [
       "vim -p file1 file2"
     ],
-    "id": "76674f179bd7"
+    "id": "76674f179bd7",
+    "level": 4
   },
   {
     "category": "Open vim specially",
@@ -1653,7 +1856,8 @@
     "solution": [
       "vim -o file1 file2"
     ],
-    "id": "6679c9836abf"
+    "id": "6679c9836abf",
+    "level": 4
   },
   {
     "category": "Open vim specially",
@@ -1661,7 +1865,8 @@
     "solution": [
       "vim -O file1 file2"
     ],
-    "id": "6c5cd5956e70"
+    "id": "6c5cd5956e70",
+    "level": 4
   },
   {
     "category": "Open vim specially",
@@ -1669,7 +1874,18 @@
     "solution": [
       "vim file +number"
     ],
-    "id": "8f21f70d6f8f"
+    "id": "8f21f70d6f8f",
+    "level": 4
+  },
+  {
+    "category": "Vim sessions",
+    "question": "Your current session of open tabs will be stored in a file `workproject.vim`",
+    "solution": [
+      ":mks workproject.vim",
+      ":mksession workproject.vim"
+    ],
+    "id": "f8e292921304",
+    "level": 6
   },
   {
     "category": "Vim sessions",
@@ -1677,7 +1893,8 @@
     "solution": [
       "vim -S workproject.vim"
     ],
-    "id": "117db5434154"
+    "id": "117db5434154",
+    "level": 6
   },
   {
     "category": "Vim sessions",
@@ -1685,7 +1902,8 @@
     "solution": [
       ":source workproject.vim"
     ],
-    "id": "8aae52d606e4"
+    "id": "8aae52d606e4",
+    "level": 6
   },
   {
     "category": "Vim sessions",
@@ -1693,7 +1911,8 @@
     "solution": [
       ":mks! workproject.vim"
     ],
-    "id": "faca3fe0667b"
+    "id": "faca3fe0667b",
+    "level": 7
   },
   {
     "category": "Command line history",
@@ -1701,7 +1920,8 @@
     "solution": [
       "q:"
     ],
-    "id": "21680837e78a"
+    "id": "21680837e78a",
+    "level": 5
   },
   {
     "category": "Command line history",
@@ -1709,7 +1929,8 @@
     "solution": [
       "q/"
     ],
-    "id": "37c169a57cd4"
+    "id": "37c169a57cd4",
+    "level": 5
   },
   {
     "category": "Command line history",
@@ -1717,7 +1938,8 @@
     "solution": [
       ":"
     ],
-    "id": "ce794513cd84"
+    "id": "ce794513cd84",
+    "level": 4
   },
   {
     "category": "Folding",
@@ -1725,7 +1947,8 @@
     "solution": [
       "za"
     ],
-    "id": "4099b72ad5c0"
+    "id": "4099b72ad5c0",
+    "level": 5
   },
   {
     "category": "Folding",
@@ -1733,7 +1956,8 @@
     "solution": [
       ":set foldcolumn=NUM"
     ],
-    "id": "760430c95485"
+    "id": "760430c95485",
+    "level": 6
   },
   {
     "category": "Folding",
@@ -1741,7 +1965,8 @@
     "solution": [
       "zfip"
     ],
-    "id": "34cf02d318a1"
+    "id": "34cf02d318a1",
+    "level": 6
   },
   {
     "category": "Folding",
@@ -1749,7 +1974,8 @@
     "solution": [
       "zf/string"
     ],
-    "id": "2f7b863e53a3"
+    "id": "2f7b863e53a3",
+    "level": 7
   },
   {
     "category": "Folding",
@@ -1757,7 +1983,8 @@
     "solution": [
       "zd"
     ],
-    "id": "5ecaed4b01a2"
+    "id": "5ecaed4b01a2",
+    "level": 6
   },
   {
     "category": "Folding",
@@ -1765,7 +1992,8 @@
     "solution": [
       "zE"
     ],
-    "id": "9f5e3193ef48"
+    "id": "9f5e3193ef48",
+    "level": 6
   },
   {
     "category": "Folding",
@@ -1773,7 +2001,8 @@
     "solution": [
       "zf20j"
     ],
-    "id": "2da7c9d167ef"
+    "id": "2da7c9d167ef",
+    "level": 7
   },
   {
     "category": "Folding",
@@ -1781,7 +2010,8 @@
     "solution": [
       "zf`a"
     ],
-    "id": "c94046cb8c7f"
+    "id": "c94046cb8c7f",
+    "level": 7
   },
   {
     "category": "Folding",
@@ -1789,7 +2019,8 @@
     "solution": [
       "zR"
     ],
-    "id": "3a8a20aef70a"
+    "id": "3a8a20aef70a",
+    "level": 5
   },
   {
     "category": "Folding",
@@ -1797,7 +2028,8 @@
     "solution": [
       "zM"
     ],
-    "id": "5ea787ba1b54"
+    "id": "5ea787ba1b54",
+    "level": 5
   },
   {
     "category": "Folding",
@@ -1805,7 +2037,8 @@
     "solution": [
       ":mkview"
     ],
-    "id": "469a28d0cfdb"
+    "id": "469a28d0cfdb",
+    "level": 7
   },
   {
     "category": "Folding",
@@ -1813,7 +2046,26 @@
     "solution": [
       ":loadview"
     ],
-    "id": "4687a5f517d6"
+    "id": "4687a5f517d6",
+    "level": 7
+  },
+  {
+    "category": "Tips and tricks",
+    "question": "wrap brackets around visually selected text (select text in visual mode first)",
+    "solution": [
+      "xi()<esc>P"
+    ],
+    "id": "0fa087877699",
+    "level": 8
+  },
+  {
+    "category": "Tips and tricks",
+    "question": "search for visually selected text (select text in visual mode first)",
+    "solution": [
+      "y/ctrl-r\""
+    ],
+    "id": "52c1567eae8a",
+    "level": 8
   },
   {
     "category": "Tips and tricks",
@@ -1821,7 +2073,8 @@
     "solution": [
       ":w !diff % -"
     ],
-    "id": "a84f3c57d2cd"
+    "id": "a84f3c57d2cd",
+    "level": 7
   },
   {
     "category": "Tips and tricks",
@@ -1829,6 +2082,7 @@
     "solution": [
       ":g/pattern/norm @o"
     ],
-    "id": "d9c029025e8e"
+    "id": "d9c029025e8e",
+    "level": 8
   }
 ]

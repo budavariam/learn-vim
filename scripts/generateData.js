@@ -24,18 +24,22 @@ function parseMarkdownData(markdownContent) {
     const result = [];
     const lines = markdownContent.split('\n');
 
-    // Regex patterns matching your Python script
-    const taskRegexp = /^\s*\*\s+(`.*`)\s+-\s+(.*)$/;
+    // Regex patterns
+    // Format: * LEVEL - `cmd1`, `cmd2` - description
+    const taskRegexp = /^\s*\*\s+(\d+)\s+-\s+(`.*`)\s+-\s+(.*)$/;
+    // Fallback for entries without a level number (backwards-compatible)
+    const taskRegexpNoLevel = /^\s*\*\s+(`.*`)\s+-\s+(.*)$/;
     const categoryRegexp = /^##\s(.*)$/;
 
     let currentCategory = "";
 
     for (const line of lines) {
         const taskMatch = taskRegexp.exec(line);
+        const taskMatchNoLevel = !taskMatch && taskRegexpNoLevel.exec(line);
 
-        if (taskMatch) {
+        if (taskMatch || taskMatchNoLevel) {
             // Parse answers
-            let answersString = taskMatch[1];
+            let answersString = taskMatch ? taskMatch[2] : taskMatchNoLevel[1];
             answersString = answersString.replace(/```/g, '').replace(/``/g, '');
 
             const answers = answersString.split(', ').map(answer => {
@@ -46,13 +50,15 @@ function parseMarkdownData(markdownContent) {
                 return trimmed;
             });
 
-            const question = taskMatch[2];
+            const level = taskMatch ? parseInt(taskMatch[1], 10) : 0;
+            const question = taskMatch ? taskMatch[3] : taskMatchNoLevel[2];
             const item = {
                 category: currentCategory,
                 question: question,
                 solution: answers
             }
             item.id = generateId(item);
+            item.level = level;
             result.push(item);
         } else {
             const categoryMatch = categoryRegexp.exec(line);

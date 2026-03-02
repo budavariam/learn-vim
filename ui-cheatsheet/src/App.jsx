@@ -2,6 +2,7 @@ import data from './data.json'
 import { useState, useEffect } from 'react'
 import Fuse from 'fuse.js'
 import parse from 'html-react-parser'
+import DualRangeSlider from './DualRangeSlider'
 
 const options = {
   includeScore: true,
@@ -46,6 +47,7 @@ function App() {
   const [darkMode, setDarkMode] = useState(false)
   const [knownItems, setKnownItems] = useState(new Set());
   const [showUnknownOnly, setShowUnknownOnly] = useState(false);
+  const [levelRange, setLevelRange] = useState([0, 9]);
 
   const [collapsedCategories, setCollapsedCategories] = useState(new Set())
 
@@ -73,14 +75,26 @@ function App() {
     localStorage.setItem('knownItems', JSON.stringify([...knownItems]));
   }, [knownItems]);
 
+  useEffect(() => {
+    const saved = localStorage.getItem('levelRange');
+    if (saved) setLevelRange(JSON.parse(saved));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('levelRange', JSON.stringify(levelRange));
+  }, [levelRange]);
+
 
   const result = search === "" ? preparedData : fuzzy(search, fuse)
   let filteredData = result;
   if (showUnknownOnly) {
-    filteredData = result.filter((item) =>
+    filteredData = filteredData.filter((item) =>
       !knownItems.has(item.id)
     );
   }
+  filteredData = filteredData.filter(
+    item => item.level >= levelRange[0] && item.level <= levelRange[1]
+  );
 
   const groupedData = groupByCategory(filteredData)
 
@@ -250,8 +264,26 @@ function App() {
           <p className="text-gray-600 dark:text-gray-400 text-xs mb-2">
             {search && `${result.length} commands found`}
             {search && result.length === 0 && " (try adjusting your search)"}
-            {!search && Object.keys(groupedData).length > 0 && `${Object.keys(groupedData).length} categories • ${result.length} total commands`}
+            {!search && Object.keys(groupedData).length > 0 && `${Object.keys(groupedData).length} categories • ${filteredData.length} commands shown`}
           </p>
+
+          {/* Level range slider */}
+          <div className="max-w-md mx-auto mb-3 px-2">
+            <DualRangeSlider
+              min={0}
+              max={9}
+              value={levelRange}
+              onChange={setLevelRange}
+            />
+            {(levelRange[0] !== 0 || levelRange[1] !== 9) && (
+              <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-1">
+                Filtering to levels {levelRange[0]}–{levelRange[1]} •{' '}
+                <button onClick={() => setLevelRange([0, 9])} className="underline hover:text-gray-700 dark:hover:text-gray-300">
+                  show all
+                </button>
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -295,12 +327,15 @@ function App() {
                             : 'bg-yellow-50 dark:bg-yellow-900 border-yellow-400'
                             }`}
                         >
-                          <div className="flex flex-wrap gap-1 mb-2">
+                          <div className="flex flex-wrap gap-1 mb-2 items-center">
                             {item.solution.map((combo, comboIndex) => (
                               <code key={comboIndex} className="keycombo text-xs">
                                 {combo}
                               </code>
                             ))}
+                            <span className="ml-auto text-xs font-mono text-gray-400 dark:text-gray-500 opacity-70">
+                              {item.level}
+                            </span>
                           </div>
 
                           <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed">

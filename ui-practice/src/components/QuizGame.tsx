@@ -21,6 +21,7 @@ export interface QuizQuestion {
     category: string;
     question: string;
     solution: string[];
+    level: number;
 }
 
 
@@ -62,6 +63,8 @@ interface State {
     showFlashAnswer: boolean;
     knownItems: Set<string>;
     customQuestionCount: number | null;
+    levelRange: [number, number];
+    showLevelBadge: boolean;
 }
 
 
@@ -83,6 +86,8 @@ type Action =
     | { type: 'SHOW_FLASH_ANSWER' }
     | { type: 'RELOAD_KNOWN_ITEMS' }
     | { type: 'SET_CUSTOM_QUESTION_COUNT'; payload: number }
+    | { type: 'SET_LEVEL_RANGE'; payload: [number, number] }
+    | { type: 'TOGGLE_LEVEL_BADGE' }
     | { type: 'RESTORE_STATE'; payload: Partial<State> };
 
 
@@ -302,6 +307,24 @@ export const saveKnownItems = (knownItems: Set<string>) => {
 };
 
 
+export const getLevelRange = (): [number, number] => {
+    try {
+        const saved = localStorage.getItem('levelRange');
+        return saved ? JSON.parse(saved) : [0, 9];
+    } catch {
+        return [0, 9];
+    }
+};
+
+export const saveLevelRange = (range: [number, number]) => {
+    try {
+        localStorage.setItem('levelRange', JSON.stringify(range));
+    } catch (error) {
+        console.error('Error saving levelRange to localStorage:', error);
+    }
+};
+
+
 export const calculateImpacts = (results: QuizResult[]) => {
     const knownItems = getKnownItems();
     const correctAnswers = results.filter(r => r.isCorrect);
@@ -322,13 +345,16 @@ export const calculateImpacts = (results: QuizResult[]) => {
 const getAvailableQuestionsForMode = (
     mode: GameMode,
     allQuestions: QuizQuestion[],
-    knownItems: Set<string>
+    knownItems: Set<string>,
+    levelRange: [number, number] = [0, 9]
 ): QuizQuestion[] => {
-    let filteredQuestions = allQuestions;
+    let filteredQuestions = allQuestions.filter(
+        q => q.level >= levelRange[0] && q.level <= levelRange[1]
+    );
     if (mode === 'flashcard-unknown') {
-        filteredQuestions = allQuestions.filter(q => !knownItems.has(q.id || ''));
+        filteredQuestions = filteredQuestions.filter(q => !knownItems.has(q.id || ''));
     } else if (mode === 'flashcard-repeat') {
-        filteredQuestions = allQuestions.filter(q => knownItems.has(q.id || ''));
+        filteredQuestions = filteredQuestions.filter(q => knownItems.has(q.id || ''));
     }
     return shuffle(filteredQuestions);
 };
@@ -338,9 +364,10 @@ const getQuestionsForMode = (
     mode: GameMode,
     allQuestions: QuizQuestion[],
     knownItems: Set<string>,
-    customCount?: number
+    customCount?: number,
+    levelRange: [number, number] = [0, 9]
 ): QuizQuestion[] => {
-    const availableQuestions = getAvailableQuestionsForMode(mode, allQuestions, knownItems);
+    const availableQuestions = getAvailableQuestionsForMode(mode, allQuestions, knownItems, levelRange);
     const configCount = gameModes[mode].questionCount;
     let effectiveCount: number;
     if (mode === 'flash' || mode === 'regular' || mode === 'all') {
@@ -416,7 +443,9 @@ const initialState: State = {
     flashcardResponses: new Map(),
     showFlashAnswer: false,
     knownItems: getKnownItems(),
-    customQuestionCount: null
+    customQuestionCount: null,
+    levelRange: getLevelRange(),
+    showLevelBadge: false
 };
 
 
@@ -436,7 +465,8 @@ function reducer(state: State, action: Action): State {
             const availableQuestions = getAvailableQuestionsForMode(
                 action.payload,
                 quizData as QuizQuestion[],
-                state.knownItems
+                state.knownItems,
+                state.levelRange
             );
             const isMCMode = action.payload.startsWith('mc-');
             return {
@@ -465,7 +495,8 @@ function reducer(state: State, action: Action): State {
                     state.gameMode,
                     quizData as QuizQuestion[],
                     state.knownItems,
-                    state.customQuestionCount ?? undefined
+                    state.customQuestionCount ?? undefined,
+                    state.levelRange
                 )
                 : state.questions;
             let startGameState: GameState = 'playing';
@@ -714,8 +745,19 @@ function reducer(state: State, action: Action): State {
                 flashcardResponses: new Map(),
                 showFlashAnswer: false,
                 knownItems: getKnownItems(),
-                customQuestionCount: null
+                customQuestionCount: null,
+                levelRange: state.levelRange,
+                showLevelBadge: state.showLevelBadge
             };
+        }
+
+        case 'SET_LEVEL_RANGE': {
+            saveLevelRange(action.payload);
+            return { ...state, levelRange: action.payload };
+        }
+
+        case 'TOGGLE_LEVEL_BADGE': {
+            return { ...state, showLevelBadge: !state.showLevelBadge };
         }
 
         default:
@@ -816,7 +858,7 @@ const QuizGame: React.FC = () => {
     const {
         gameState, gameMode, questions, currentIndex,
         score, userAnswer, isCorrect, showAnswer, results, mcOptions,
-        showFlashAnswer, knownItems, customQuestionCount
+        showFlashAnswer, knownItems, customQuestionCount, levelRange, showLevelBadge
     } = state;
 
     /* ──────────────── handlers ─────────────── */
@@ -935,7 +977,13 @@ const QuizGame: React.FC = () => {
     /* ────────────────── Render ─────────────────── */
 
     if (gameState === 'intro') {
-        return <IntroScreen onModeSelect={handleModeSelect} />;
+        return (
+            <IntroScreen
+                onModeSelect={handleModeSelect}
+                levelRange={levelRange}
+                onLevelRangeChange={(range) => dispatch({ type: 'SET_LEVEL_RANGE', payload: range })}
+            />
+        );
     }
 
     if (gameState === 'mode-select' && gameMode) {
@@ -964,6 +1012,8 @@ const QuizGame: React.FC = () => {
                 onQuit={handleQuitGame}
                 flashcardResponse={state.flashcardResponses.get(questions[currentIndex]?.id || '')}
                 onHome={handleHome}
+                showLevelBadge={showLevelBadge}
+                onToggleLevelBadge={() => dispatch({ type: 'TOGGLE_LEVEL_BADGE' })}
             />
         );
     }
@@ -984,6 +1034,8 @@ const QuizGame: React.FC = () => {
                 onNext={handleNextQuestion}
                 onQuit={handleQuitGame}
                 onHome={handleHome}
+                showLevelBadge={showLevelBadge}
+                onToggleLevelBadge={() => dispatch({ type: 'TOGGLE_LEVEL_BADGE' })}
             />
         );
     }
@@ -1036,6 +1088,8 @@ const QuizGame: React.FC = () => {
             onQuit={handleQuitGame}
             knownItems={knownItems}
             onToggleKnown={(id) => id && dispatch({ type: 'TOGGLE_KNOWN_ITEM', payload: id })}
+            showLevelBadge={showLevelBadge}
+            onToggleLevelBadge={() => dispatch({ type: 'TOGGLE_LEVEL_BADGE' })}
         />
     );
 };

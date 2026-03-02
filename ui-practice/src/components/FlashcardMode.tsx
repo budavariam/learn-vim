@@ -11,10 +11,12 @@ interface FlashcardModeProps {
     totalQuestions: number;
     gameMode: GameMode | null;
     showFlashAnswer: boolean;
+    showLevelBadge: boolean;
     onShowAnswer: () => void;
     onFlashcardKnown: (known: boolean) => void;
     onQuit: () => void;
     onHome: () => void;
+    onToggleLevelBadge: () => void;
     flashcardResponse?: boolean;
 }
 
@@ -24,10 +26,12 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
     totalQuestions,
     gameMode,
     showFlashAnswer,
+    showLevelBadge,
     onShowAnswer,
     onFlashcardKnown,
     onQuit,
     onHome,
+    onToggleLevelBadge,
     flashcardResponse
 }) => {
     const config = gameMode ? gameModes[gameMode] : null;
@@ -50,6 +54,13 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
                             <span className="color-blue">Card: </span>
                             <span className="color-cyan font-bold">{currentIndex + 1}/{totalQuestions}</span>
                         </div>
+                        <button
+                            onClick={onToggleLevelBadge}
+                            title={showLevelBadge ? 'Hide difficulty level' : 'Show difficulty level'}
+                            className={`text-xs font-mono px-2 py-1 rounded border transition-colors ${showLevelBadge ? 'border-cyan-500 color-cyan bg-cyan-500/10' : 'border-gray-400 dark:border-gray-600 text-gray-400 dark:text-gray-500'}`}
+                        >
+                            Lv
+                        </button>
                         <ThemeToggle size="sm" showText={false} />
                     </div>
                 </div>
@@ -63,9 +74,16 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
 
                 <div className="quiz-card fade-in space-y-6">
                     <div className="text-center">
-                        <h2 className="text-2xl font-bold color-yellow mb-2">
-                            {question.category}
-                        </h2>
+                        <div className="flex items-center justify-center gap-2 mb-2">
+                            <h2 className="text-2xl font-bold color-yellow">
+                                {question.category}
+                            </h2>
+                            {showLevelBadge && (
+                                <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-100 dark:bg-cyan-900/40 color-cyan font-mono border border-cyan-300 dark:border-cyan-700">
+                                    Lv.{question.level}
+                                </span>
+                            )}
+                        </div>
                         <div className="theme-divider" />
                     </div>
 

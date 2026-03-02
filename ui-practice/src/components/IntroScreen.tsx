@@ -3,16 +3,25 @@ import { gameModes, getKnownItems, GameMode } from './QuizGame';
 import type { QuizQuestion } from './QuizGame';
 import ThemeToggle from './ThemeToggle';
 import TypingText from './TypingText';
+import DualRangeSlider from './DualRangeSlider';
 import quizData from '../data.json';
 
 interface IntroScreenProps {
     onModeSelect: (mode: GameMode) => void;
+    levelRange: [number, number];
+    onLevelRangeChange: (range: [number, number]) => void;
 }
 
-const IntroScreen: React.FC<IntroScreenProps> = ({ onModeSelect }) => {
+const IntroScreen: React.FC<IntroScreenProps> = ({ onModeSelect, levelRange, onLevelRangeChange }) => {
     const quizModes = Object.entries(gameModes).filter(([_, config]) => config.category === 'quiz');
     const practiceModes = Object.entries(gameModes).filter(([_, config]) => config.category === 'practice');
     const testModes = Object.entries(gameModes).filter(([_, config]) => config.category === 'test');
+
+    const allQuestions = quizData as QuizQuestion[];
+    const filteredCount = allQuestions.filter(
+        q => q.level >= levelRange[0] && q.level <= levelRange[1]
+    ).length;
+    const isAllRange = levelRange[0] === 0 && levelRange[1] === 9;
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4 md:p-6 overflow-x-hidden">
@@ -31,6 +40,24 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onModeSelect }) => {
                 <p className="text-lg md:text-xl color-yellow px-4">
                     Test your Vim knowledge with different challenge modes
                 </p>
+
+                {/* Skill Level Filter */}
+                <div className="max-w-xl mx-auto px-4 w-full">
+                    <div className="p-4 md:p-6 space-y-3 !mb-0">
+                        <h2 className="text-base md:text-lg font-bold color-cyan text-center">
+                            🎯 Skill Level Filter
+                        </h2>
+                        <DualRangeSlider
+                            min={0}
+                            max={9}
+                            value={levelRange}
+                            onChange={onLevelRangeChange}
+                        />
+                        <p className="text-xs terminal-text color-cyan opacity-70 text-center">
+                            {filteredCount} commands in range{isAllRange ? ' (all commands)' : ` — ${allQuestions.length - filteredCount} hidden`}
+                        </p>
+                    </div>
+                </div>
 
                 <div className="space-y-4 max-w-md mx-auto px-4">
                     <p className="terminal-text color-green text-sm md:text-base">
@@ -86,8 +113,11 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onModeSelect }) => {
                         {practiceModes.map(([mode, config]) => {
                             const IconComponent = config.icon;
                             const knownItems = getKnownItems();
-                            const unknownCount = (quizData as QuizQuestion[]).filter(q => !knownItems.has(q.id || '')).length;
-                            const knownCount = (quizData as QuizQuestion[]).filter(q => knownItems.has(q.id || '')).length;
+                            const levelFiltered = allQuestions.filter(
+                                q => q.level >= levelRange[0] && q.level <= levelRange[1]
+                            );
+                            const unknownCount = levelFiltered.filter(q => !knownItems.has(q.id || '')).length;
+                            const knownCount = levelFiltered.filter(q => knownItems.has(q.id || '')).length;
 
                             let displayCount = config.questionCount;
                             if (mode === 'flashcard-unknown') displayCount = unknownCount;
