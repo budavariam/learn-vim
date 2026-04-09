@@ -6,6 +6,7 @@
 * [Editing](#editing)
 * [Marking text (visual mode)](#marking-text-visual-mode)
 * [Visual commands](#visual-commands)
+* [Text objects](#text-objects)
 * [Registers](#registers)
 * [Marks](#marks)
 * [Macros](#macros)
@@ -15,6 +16,7 @@
 * [Search in multiple files](#search-in-multiple-files)
 * [Vim for programmers](#vim-for-programmers)
 * [Working with multiple files](#working-with-multiple-files)
+* [Argument list](#argument-list)
 * [Split window](#split-window)
 * [Tabs](#tabs)
 * [Extra](#extra)
@@ -23,8 +25,7 @@
 * [Command line history](#command-line-history)
 * [Folding](#folding)
 * [Tips and tricks](#tips-and-tricks)
-
-* multiple sources, like [this](https://vim.rtorr.com/), and [this](https://www.fprintf.net/vimCheatSheet.html) great cheatsheets.
+* [Spell checking](#spell-checking)
 
 ## Global
 
@@ -81,6 +82,10 @@
 * 2 - `ctrl-u` - move back 1/2 a screen (up half page)
 * 4 - `ctrl-o` - retrace previous cursor position
 * 4 - `ctrl-i` - retrace next cursor position
+* 3 - `gj` - move down by display line (useful with wrapped lines)
+* 3 - `gk` - move up by display line (useful with wrapped lines)
+* 5 - `g;` - jump to previous change position (change list)
+* 5 - `g,` - jump to next change position (change list)
 
 > Tip: Prefix a cursor movement command with a number to repeat it. For example, 4j moves down 4 lines.
 
@@ -94,6 +99,10 @@
 * 2 - `O` - append (open) a new line above the current line
 * 3 - `ea` - insert (append) at the end of the word (so they can be chained with moves)
 * 0 - `Esc` - exit insert mode
+* 4 - `ctrl-w` - delete word before cursor
+* 4 - `ctrl-u` - delete to start of line
+* 5 - `ctrl-t` - indent current line one shiftwidth
+* 5 - `ctrl-d` - dedent current line one shiftwidth
 * 4 - `gi` - go to the last place where insert mode was finished
 * 6 - `ctrl-r REG` - insert the contents of `REG` register in insert mode.
 
@@ -117,6 +126,10 @@
 * 2 - `ctrl-r` - redo
 * 3 - `:red` - redo in command mode
 * 2 - `.` - repeat last command
+* 3 - `>>` - indent line one shiftwidth
+* 3 - `<<` - dedent line one shiftwidth
+* 4 - `= + motion` - auto-indent `motion` (e.g. `=ip` for current paragraph)
+* 5 - `gg=G` - auto-indent the entire file
 * 4 - `ctrl-a` - increase a number
 * 4 - `ctrl-x` - decrease a number (practice: 4)
 * 5 - `gu + movement` - make `movement` lowercase
@@ -143,6 +156,7 @@
 * 4 - `ib` - mark inner block with ()
 * 4 - `iB` - mark inner block with {}
 * 2 - `Esc` - exit visual mode
+* 4 - `gv` - reselect the last visual selection
 
 > Practice here to select inner block (like this)
 > Or {an inner block} of this.
@@ -155,12 +169,34 @@
 * 3 - `d` - delete marked text
 * 4 - `~` - switch case
 
+## Text objects
+
+Text objects describe structured regions of text. They only work after an operator (`c`, `d`, `y`, `v`, etc.). `i` = inner (without surrounding delimiter), `a` = around (includes delimiter/whitespace).
+
+* 3 - `iw` / `aw` - inner word / around word (includes surrounding space)
+* 3 - `is` / `as` - inner sentence / around sentence
+* 4 - `ip` / `ap` - inner paragraph / around paragraph
+* 3 - `i"` / `a"` - inside / around double quotes
+* 3 - `i'` / `a'` - inside / around single quotes
+* 4 - `` i` `` / `` a` `` - inside / around backticks
+* 3 - `i)` / `a)` - inside / around parentheses (also `ib` / `ab`)
+* 3 - `i]` / `a]` - inside / around square brackets
+* 3 - `i}` / `a}` - inside / around curly braces (also `iB` / `aB`)
+* 4 - `i>` / `a>` - inside / around angle brackets
+* 4 - `it` / `at` - inside / around HTML/XML tag
+
+> Examples: `ci"` changes text inside quotes, `da)` deletes including parentheses, `yip` yanks the paragraph, `vat` selects the whole HTML tag.
+
 ## Registers
 
 * 5 - `:reg` - show registers content (can append selectors of which registers to show)
 * 6 - `"xy` - yank into register `x`
 * 6 - `"xp` - paste contents of register `x`
 * 7 - `"Xp` - append contents to register `x`
+* 4 - `"+y` - yank into system clipboard
+* 4 - `"+p` - paste from system clipboard
+* 5 - `"*y` / `"*p` - yank/paste using primary selection (X11 middle-click buffer)
+* 4 - `"_d` - delete into black hole register (does not affect clipboard or other registers)
 
 > Tip: Registers are being stored in ~/.viminfo, and will be loaded again on next restart of vim.
 > Tip: Register 0 always contains the value of the last yank command.
@@ -240,6 +276,26 @@
 
 * 5 - `gd` - go to local declaration
 * 5 - `gD` - go to global declaration
+* 5 - `[{` - jump to start of enclosing `{` block
+* 5 - `]}` - jump to end of enclosing `}` block
+* 5 - `[(` - jump to start of enclosing `(`
+* 5 - `])` - jump to end of enclosing `)`
+* 6 - `[m` / `]m` - jump to start of previous / next method (Java, C++, etc.)
+* 6 - `[M` / `]M` - jump to end of previous / next method
+* 6 - `ctrl-]` - jump to tag definition under cursor (requires ctags)
+* 6 - `ctrl-t` - pop tag stack (jump back after `ctrl-]`)
+* 6 - `:ts {word}`, `:tselect {word}` - list and choose between matching tags
+* 6 - `:tn` / `:tp` - jump to next / previous matching tag
+* 5 - `ctrl-n` / `ctrl-p` - next / previous keyword autocomplete suggestion (insert mode)
+* 6 - `ctrl-x ctrl-o` - trigger omni completion (language-aware, e.g. LSP/filetype plugin)
+* 6 - `ctrl-x ctrl-f` - filename completion
+* 6 - `ctrl-x ctrl-n` - keyword completion from current buffer only
+* 6 - `ctrl-x ctrl-]` - tag-based completion
+* 6 - `ctrl-x ctrl-l` - whole-line completion
+* 5 - `:make` - run `make` and load errors into the quickfix list
+* 5 - `:compiler {name}` - set the compiler (error format) for `:make`
+* 6 - `[/` - jump to start of current `/* */` comment
+* 6 - `]/` - jump to end of current `/* */` comment
 
 ## Working with multiple files
 
@@ -252,10 +308,33 @@
 * 4 - `:bprev`, `:bp` - go to the previous buffer
 * 4 - `:bd` - delete a buffer (close a file)
 * 4 - `:ls` - list all open buffers
+* 4 - `ctrl-^`, `ctrl-6` - switch to the alternate (last edited) buffer
 * 4 - `:sp file` - open a `file` in a new buffer and split window
 * 4 - `:vsp file` - open a `file` in a new buffer and vertically split window
 * 5 - `:sv file`, `:sview file` - open a `file` in a new buffer, but readonly
 * 5 - `:vert sv file` - vertically open a `file` as readonly as a split
+
+## Argument list
+
+The argument list is the set of files passed to vim on startup (or set with `:args`). It's a stable, explicit list — unlike buffers, which grow as you open files. Great for batch editing across a specific set of files.
+
+* 4 - `:args` - display the current argument list (active file shown in `[]`)
+* 5 - `:args file1 file2` - set the argument list to `file1 file2`
+* 5 - `:args **/*.txt` - set the argument list with a glob pattern
+* 5 - `:argadd file` - add `file` to the argument list
+* 6 - `:argdelete file` - remove `file` from the argument list
+* 4 - `:next`, `:n` - go to the next file in the argument list
+* 4 - `:prev`, `:previous` - go to the previous file in the argument list
+* 5 - `:first`, `:rewind` - go to the first file in the argument list
+* 5 - `:last` - go to the last file in the argument list
+* 5 - `:wnext`, `:wn` - write current file and move to the next in the argument list
+* 5 - `:wprevious`, `:wp` - write current file and move to the previous in the argument list
+* 6 - `:wfirst` - write current file and go to the first in the argument list
+* 6 - `:wlast` - write current file and go to the last in the argument list
+* 6 - `:argdo command` - run `command` on every file in the argument list (e.g. `:argdo %s/foo/bar/ge | update`)
+
+> Tip: `:wn` and `:wp` are the quickest way to save-and-step through a set of files you opened with `vim file1 file2 ...`
+> Tip: Use `:argdo update` after `:argdo` substitutions to write only files that were changed.
 
 ## Split window
 
@@ -339,3 +418,15 @@ Tabs should be imagined as layouts. They can show different window arrangements 
 * 8 - `y/ctrl-r"` - search for visually selected text (select text in visual mode first)
 * 7 - `:w !diff % -` - show the diffs with `diff` command since last save. (It saves the output to stdin and loads the differences between the current filename and standard input)
 * 8 - `:g/pattern/norm @o` - run the previously recorded `o` macro on all lines that match `pattern`
+
+## Spell checking
+
+* 5 - `:set spell` - enable spell checking
+* 5 - `:set nospell` - disable spell checking
+* 5 - `:set spelllang=en_us` - set spell language (e.g. `en`, `en_us`, `de`)
+* 5 - `]s` - jump to next misspelled word
+* 5 - `[s` - jump to previous misspelled word
+* 5 - `z=` - show correction suggestions for word under cursor
+* 6 - `zg` - add word under cursor to spell dictionary (good word)
+* 6 - `zw` - mark word under cursor as misspelled (wrong word)
+* 6 - `zug` / `zuw` - undo `zg` / `zw`
