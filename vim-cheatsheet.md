@@ -56,6 +56,7 @@
 * 1 - `0` - jump to the start of the line
 * 2 - `^` - jump to the first non-blank character of the line
 * 1 - `$` - jump to the end of the line
+* 1 - `_` - jump to the first non-blank character of the line
 * 3 - `g_` - jump to the last non-blank character of the line
 * 1 - `gg` - go to the first line of the document
 * 1 - `G` - go to the last line of the document
