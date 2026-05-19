@@ -7,7 +7,8 @@ import DualRangeSlider from './DualRangeSlider'
 const options = {
   includeScore: true,
   shouldSort: true,
-  threshold: 0.15,
+  threshold: 0.4,
+  ignoreFieldNorm: true,
   keys: [
     { name: 'solution', weight: 0.4 },
     { name: 'question', weight: 0.4 },
@@ -18,7 +19,7 @@ const options = {
 const fuzzy = (search, fuse) => {
   const result = fuse.search(search)
   return result
-    .filter(item => (1 - item.score) >= 0.85)
+    .filter(item => (1 - item.score) >= 0.6)
     .map(line => ({ ...line.item, score: line.score }))
 }
 
@@ -262,8 +263,13 @@ function App() {
           </div>
 
           <p className="text-gray-600 dark:text-gray-400 text-xs mb-2">
-            {search && `${result.length} commands found`}
-            {search && result.length === 0 && " (try adjusting your search)"}
+            {search && (
+              <>
+                {result.length} commands found
+                {filteredData.length < result.length && ` (${filteredData.length} shown, others hidden by filters)`}
+                {result.length === 0 && " (try adjusting your search)"}
+              </>
+            )}
             {!search && Object.keys(groupedData).length > 0 && `${Object.keys(groupedData).length} categories • ${filteredData.length} commands shown`}
           </p>
 
