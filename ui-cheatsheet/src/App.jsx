@@ -1,8 +1,9 @@
 import data from './data.json'
-import { useState, useEffect } from 'react'
+import { useEffect, useReducer } from 'react'
 import Fuse from 'fuse.js'
 import parse from 'html-react-parser'
 import DualRangeSlider from './DualRangeSlider'
+import TableOfContents from './components/TableOfContents'
 
 const options = {
   includeScore: true,
@@ -43,19 +44,75 @@ const groupByCategory = (data) => {
   }, {})
 }
 
-function App() {
-  const [search, setSearch] = useState("")
-  const [darkMode, setDarkMode] = useState(false)
-  const [knownItems, setKnownItems] = useState(new Set());
-  const [showUnknownOnly, setShowUnknownOnly] = useState(false);
-  const [levelRange, setLevelRange] = useState([0, 9]);
+const slugify = (text) => {
+  return text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
+}
 
-  const [collapsedCategories, setCollapsedCategories] = useState(new Set())
+/* ──────────────────── reducer ──────────────────── */
+
+const initialState = {
+  search: "",
+  darkMode: false,
+  knownItems: new Set(),
+  showUnknownOnly: false,
+  levelRange: [0, 9],
+  isTocOpen: false,
+  isSideTocCollapsed: false,
+  collapsedCategories: new Set()
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'SET_SEARCH':
+      return { ...state, search: action.payload, collapsedCategories: new Set() };
+    case 'SET_DARK_MODE':
+      return { ...state, darkMode: action.payload };
+    case 'SET_KNOWN_ITEMS':
+      return { ...state, knownItems: action.payload };
+    case 'TOGGLE_KNOWN': {
+      const newSet = new Set(state.knownItems);
+      if (newSet.has(action.payload)) {
+        newSet.delete(action.payload);
+      } else {
+        newSet.add(action.payload);
+      }
+      return { ...state, knownItems: newSet };
+    }
+    case 'TOGGLE_SHOW_UNKNOWN':
+      return { ...state, showUnknownOnly: !state.showUnknownOnly };
+    case 'SET_LEVEL_RANGE':
+      return { ...state, levelRange: action.payload };
+    case 'SET_TOC_OPEN':
+      return { ...state, isTocOpen: action.payload };
+    case 'TOGGLE_SIDE_TOC':
+      return { ...state, isSideTocCollapsed: !state.isSideTocCollapsed };
+    case 'TOGGLE_CATEGORY': {
+      const newSet = new Set(state.collapsedCategories);
+      if (newSet.has(action.payload)) {
+        newSet.delete(action.payload);
+      } else {
+        newSet.add(action.payload);
+      }
+      return { ...state, collapsedCategories: newSet };
+    }
+    case 'SET_COLLAPSED_CATEGORIES':
+      return { ...state, collapsedCategories: action.payload };
+    default:
+      return state;
+  }
+}
+
+function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const {
+    search, darkMode, knownItems, showUnknownOnly,
+    levelRange, isTocOpen, isSideTocCollapsed, collapsedCategories
+  } = state;
 
   useEffect(() => {
     const saved = localStorage.getItem('darkMode')
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    setDarkMode(saved ? JSON.parse(saved) : prefersDark)
+    dispatch({ type: 'SET_DARK_MODE', payload: saved ? JSON.parse(saved) : prefersDark });
   }, [])
 
   useEffect(() => {
@@ -69,7 +126,7 @@ function App() {
 
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('knownItems') || '[]');
-    setKnownItems(new Set(saved));
+    dispatch({ type: 'SET_KNOWN_ITEMS', payload: new Set(saved) });
   }, []);
 
   useEffect(() => {
@@ -78,7 +135,7 @@ function App() {
 
   useEffect(() => {
     const saved = localStorage.getItem('levelRange');
-    if (saved) setLevelRange(JSON.parse(saved));
+    if (saved) dispatch({ type: 'SET_LEVEL_RANGE', payload: JSON.parse(saved) });
   }, []);
 
   useEffect(() => {
@@ -98,54 +155,46 @@ function App() {
   );
 
   const groupedData = groupByCategory(filteredData)
+  const categories = Object.keys(groupedData)
 
   const toggleDarkMode = () => {
-    setDarkMode(!darkMode)
+    dispatch({ type: 'SET_DARK_MODE', payload: !darkMode });
   }
 
   const toggleCategory = (category) => {
-    setCollapsedCategories(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(category)) {
-        newSet.delete(category)
-      } else {
-        newSet.add(category)
-      }
-      return newSet
-    })
+    dispatch({ type: 'TOGGLE_CATEGORY', payload: category });
   }
-
-  useEffect(() => {
-    if (search) {
-      setCollapsedCategories(new Set())
-    }
-  }, [search])
 
   const toggleAllCategories = () => {
     const allCategories = Object.keys(groupedData)
     if (collapsedCategories.size === allCategories.length) {
-      setCollapsedCategories(new Set())
+      dispatch({ type: 'SET_COLLAPSED_CATEGORIES', payload: new Set() });
     } else {
-      setCollapsedCategories(new Set(allCategories))
+      dispatch({ type: 'SET_COLLAPSED_CATEGORIES', payload: new Set(allCategories) });
     }
   }
 
   const toggleKnown = (id) => {
-    setKnownItems(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
+    dispatch({ type: 'TOGGLE_KNOWN', payload: id });
   };
 
+  const showDesktopToc = categories.length > 1
+  const viewportGutters = showDesktopToc ? 'xl:px-60' : 'xl:px-3'
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-      <div className="container mx-auto px-3 py-4 max-w-7xl relative">
+      <TableOfContents
+        categories={categories}
+        getHref={(category) => `#${slugify(category)}`}
+        getCount={(category) => groupedData[category]?.length ?? 0}
+        mobileOpen={isTocOpen}
+        setMobileOpen={(open) => dispatch({ type: 'SET_TOC_OPEN', payload: open })}
+        desktopCollapsed={isSideTocCollapsed}
+        toggleDesktopCollapsed={() => dispatch({ type: 'TOGGLE_SIDE_TOC' })}
+      />
+
+      <div className={`w-full px-3 py-4 ${viewportGutters}`}>
+        <div className="mx-auto max-w-7xl relative">
         <a
           href="https://github.com/budavariam/learn-vim"
           target="_blank"
@@ -169,7 +218,7 @@ function App() {
                 placeholder="Type to search commands..."
                 className="w-full px-3 py-2 pl-9 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => dispatch({ type: 'SET_SEARCH', payload: e.target.value })}
                 autoFocus
               />
               <svg className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,7 +227,19 @@ function App() {
             </div>
 
             <div className="flex items-center gap-2">
-              {!search && Object.keys(groupedData).length > 0 && (
+              {categories.length > 0 && (
+                <button
+                  onClick={() => dispatch({ type: 'SET_TOC_OPEN', payload: !isTocOpen })}
+                  className="xl:hidden p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors duration-200"
+                  title="Table of Contents"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+              )}
+
+              {Object.keys(groupedData).length > 0 && (
                 <button
                   onClick={toggleAllCategories}
                   className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
@@ -212,7 +273,7 @@ function App() {
                 )}
               </button>
               <button
-                onClick={() => setShowUnknownOnly(v => !v)}
+                onClick={() => dispatch({ type: 'TOGGLE_SHOW_UNKNOWN' })}
                 className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
                 title={showUnknownOnly ? "Show all commands" : "Show only unknown"}
               >
@@ -228,9 +289,9 @@ function App() {
                   const allKnown = [...allItemIds].every(id => knownItems.has(id));
 
                   if (allKnown) {
-                    setKnownItems(new Set()); // Reset - mark all as unknown
+                    dispatch({ type: 'SET_KNOWN_ITEMS', payload: new Set() });
                   } else {
-                    setKnownItems(allItemIds); // Mark all as known
+                    dispatch({ type: 'SET_KNOWN_ITEMS', payload: allItemIds });
                   }
                 }}
                 className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
@@ -279,12 +340,12 @@ function App() {
               min={0}
               max={9}
               value={levelRange}
-              onChange={setLevelRange}
+              onChange={(range) => dispatch({ type: 'SET_LEVEL_RANGE', payload: range })}
             />
             {(levelRange[0] !== 0 || levelRange[1] !== 9) && (
               <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-1">
                 Filtering to levels {levelRange[0]}–{levelRange[1]} •{' '}
-                <button onClick={() => setLevelRange([0, 9])} className="underline hover:text-gray-700 dark:hover:text-gray-300">
+                <button onClick={() => dispatch({ type: 'SET_LEVEL_RANGE', payload: [0, 9] })} className="underline hover:text-gray-700 dark:hover:text-gray-300">
                   show all
                 </button>
               </p>
@@ -297,7 +358,11 @@ function App() {
             const isCollapsed = collapsedCategories.has(category)
 
             return (
-              <div key={category} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div
+                key={category}
+                id={slugify(category)}
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden scroll-mt-20"
+              >
                 <button
                   onClick={() => toggleCategory(category)}
                   className="w-full bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 px-4 py-2 border-b border-gray-200 dark:border-gray-600 hover:from-gray-100 hover:to-gray-150 dark:hover:from-gray-650 dark:hover:to-gray-750 transition-all duration-200"
@@ -327,10 +392,9 @@ function App() {
                         <div
                           onClick={() => toggleKnown(item.id)}
                           key={index}
-                          // className="group p-2.5 rounded-md border border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md transition-all duration-200 bg-gray-50 dark:bg-gray-800"
                           className={`group p-2.5 rounded-md border cursor-pointer transition-all duration-200 ${knownItems.has(item.id)
-                            ? 'opacity-50 bg-gray-200 dark:bg-gray-700'
-                            : 'bg-yellow-50 dark:bg-yellow-900 border-yellow-400'
+                            ? 'opacity-50 bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600'
+                            : 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-400 dark:border-yellow-700/50 shadow-sm'
                             }`}
                         >
                           <div className="flex flex-wrap gap-1 mb-2 items-center">
@@ -374,6 +438,7 @@ function App() {
             </p>
           </div>
         )}
+        </div>
       </div>
     </div>
   )

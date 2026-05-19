@@ -1,5 +1,3 @@
-import { useRef } from 'react'
-
 const LEVEL_LABELS = ['Novice', 'Beginner', 'Basic', 'Familiar', 'Intermediate', 'Proficient', 'Advanced', 'Expert', 'Master', 'Wizard']
 
 export default function DualRangeSlider({ min, max, value, onChange, className = '' }) {
