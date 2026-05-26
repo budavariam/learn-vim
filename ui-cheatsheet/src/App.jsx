@@ -1,5 +1,5 @@
 import data from './data.json'
-import { useEffect, useReducer } from 'react'
+import { useEffect, useReducer, useRef } from 'react'
 import Fuse from 'fuse.js'
 import parse from 'html-react-parser'
 import DualRangeSlider from './DualRangeSlider'
@@ -108,6 +108,7 @@ function App() {
     search, darkMode, knownItems, showUnknownOnly,
     levelRange, isTocOpen, isSideTocCollapsed, collapsedCategories
   } = state;
+  const searchInputRef = useRef(null)
 
   useEffect(() => {
     const saved = localStorage.getItem('darkMode')
@@ -216,14 +217,31 @@ function App() {
               <input
                 type="text"
                 placeholder="Type to search commands..."
-                className="w-full px-3 py-2 pl-9 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                className={`w-full px-3 py-2 pl-9 ${search ? 'pr-9' : ''} bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
                 value={search}
                 onChange={(e) => dispatch({ type: 'SET_SEARCH', payload: e.target.value })}
                 autoFocus
+                ref={searchInputRef}
               />
               <svg className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    dispatch({ type: 'SET_SEARCH', payload: '' })
+                    searchInputRef.current?.focus()
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors duration-200"
+                  title="Clear search"
+                  aria-label="Clear search"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
