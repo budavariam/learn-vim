@@ -48,12 +48,25 @@ const slugify = (text) => {
   return text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
 }
 
+const MEMORY_ITEMS_KEY = 'memorizeItems'
+
+const getMemoryItems = () => {
+  try {
+    if (typeof localStorage === 'undefined') return []
+    return JSON.parse(localStorage.getItem(MEMORY_ITEMS_KEY) || '[]')
+  } catch {
+    return []
+  }
+}
+
 /* ──────────────────── reducer ──────────────────── */
 
 const initialState = {
   search: "",
   darkMode: false,
   knownItems: new Set(),
+  memoryItemIds: getMemoryItems(),
+  isMemoryModalOpen: false,
   showUnknownOnly: false,
   levelRange: [0, 9],
   isTocOpen: false,
@@ -69,6 +82,25 @@ function reducer(state, action) {
       return { ...state, darkMode: action.payload };
     case 'SET_KNOWN_ITEMS':
       return { ...state, knownItems: action.payload };
+    case 'SET_MEMORY_ITEMS':
+      return { ...state, memoryItemIds: action.payload };
+    case 'ADD_MEMORY_ITEM': {
+      if (state.memoryItemIds.includes(action.payload)) return state;
+      return { ...state, memoryItemIds: [...state.memoryItemIds, action.payload] };
+    }
+    case 'REMOVE_MEMORY_ITEM':
+      return {
+        ...state,
+        memoryItemIds: state.memoryItemIds.filter(id => id !== action.payload)
+      };
+    case 'MOVE_MEMORY_ITEM': {
+      const items = [...state.memoryItemIds];
+      const [movedItem] = items.splice(action.payload.from, 1);
+      items.splice(action.payload.to, 0, movedItem);
+      return { ...state, memoryItemIds: items };
+    }
+    case 'SET_MEMORY_MODAL_OPEN':
+      return { ...state, isMemoryModalOpen: action.payload };
     case 'TOGGLE_KNOWN': {
       const newSet = new Set(state.knownItems);
       if (newSet.has(action.payload)) {
@@ -105,10 +137,11 @@ function reducer(state, action) {
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
-    search, darkMode, knownItems, showUnknownOnly,
+    search, darkMode, knownItems, memoryItemIds, isMemoryModalOpen, showUnknownOnly,
     levelRange, isTocOpen, isSideTocCollapsed, collapsedCategories
   } = state;
   const searchInputRef = useRef(null)
+  const draggedMemoryIndexRef = useRef(null)
 
   useEffect(() => {
     const saved = localStorage.getItem('darkMode')
@@ -135,6 +168,10 @@ function App() {
   }, [knownItems]);
 
   useEffect(() => {
+    localStorage.setItem(MEMORY_ITEMS_KEY, JSON.stringify(memoryItemIds));
+  }, [memoryItemIds]);
+
+  useEffect(() => {
     const saved = localStorage.getItem('levelRange');
     if (saved) dispatch({ type: 'SET_LEVEL_RANGE', payload: JSON.parse(saved) });
   }, []);
@@ -157,6 +194,10 @@ function App() {
 
   const groupedData = groupByCategory(filteredData)
   const categories = Object.keys(groupedData)
+  const itemsById = new Map(preparedData.map(item => [item.id, item]))
+  const memoryItems = memoryItemIds
+    .map(id => itemsById.get(id))
+    .filter(Boolean)
 
   const toggleDarkMode = () => {
     dispatch({ type: 'SET_DARK_MODE', payload: !darkMode });
@@ -178,6 +219,37 @@ function App() {
   const toggleKnown = (id) => {
     dispatch({ type: 'TOGGLE_KNOWN', payload: id });
   };
+
+  const removeMemoryItem = (id) => {
+    dispatch({ type: 'REMOVE_MEMORY_ITEM', payload: id });
+  }
+
+  const toggleMemoryItem = (id) => {
+    dispatch({
+      type: memoryItemIds.includes(id) ? 'REMOVE_MEMORY_ITEM' : 'ADD_MEMORY_ITEM',
+      payload: id
+    })
+  }
+
+  const handleCardClick = (event, id) => {
+    if (event.altKey) {
+      event.preventDefault()
+      toggleMemoryItem(id)
+      return
+    }
+    toggleKnown(id)
+  }
+
+  const handleMemoryDragStart = (index) => {
+    draggedMemoryIndexRef.current = index
+  }
+
+  const handleMemoryDrop = (index) => {
+    const from = draggedMemoryIndexRef.current
+    draggedMemoryIndexRef.current = null
+    if (from === null || from === index) return
+    dispatch({ type: 'MOVE_MEMORY_ITEM', payload: { from, to: index } })
+  }
 
   const showDesktopToc = categories.length > 1
   const viewportGutters = showDesktopToc ? 'xl:px-60' : 'xl:px-3'
@@ -332,6 +404,18 @@ function App() {
               >
                 Vimtutor
               </a>
+              <button
+                type="button"
+                onClick={() => dispatch({ type: 'SET_MEMORY_MODAL_OPEN', payload: true })}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-200 dark:bg-amber-700 hover:bg-amber-300 dark:hover:bg-amber-600 text-amber-900 dark:text-amber-50 font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-xs uppercase tracking-wide"
+                title="Open short-term memorize list"
+                aria-label={`Open short-term memorize list with ${memoryItems.length} cards`}
+              >
+                <span>Memorize</span>
+                <span className="rounded-full bg-white/70 dark:bg-gray-900/40 px-1.5 py-0.5 text-[10px] leading-none">
+                  {memoryItems.length}
+                </span>
+              </button>
               <a
                 href="/learn-vim/game"
                 className="inline-block px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 text-xs uppercase tracking-wide"
@@ -350,6 +434,9 @@ function App() {
               </>
             )}
             {!search && Object.keys(groupedData).length > 0 && `${Object.keys(groupedData).length} categories • ${filteredData.length} commands shown`}
+          </p>
+          <p className="text-gray-500 dark:text-gray-400 text-xs mb-2">
+            Option-click a command to add or remove it from Memorize.
           </p>
 
           {/* Level range slider */}
@@ -408,9 +495,13 @@ function App() {
                     <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                       {items.map((item, index) => (
                         <div
-                          onClick={() => toggleKnown(item.id)}
+                          onClick={(event) => handleCardClick(event, item.id)}
                           key={index}
-                          className={`group p-2.5 rounded-md border cursor-pointer transition-all duration-200 ${knownItems.has(item.id)
+                          title="Click to toggle learned. Option-click to toggle memorize mark."
+                          className={`group p-2.5 rounded-md border cursor-pointer transition-all duration-200 ${memoryItemIds.includes(item.id)
+                            ? 'ring-2 ring-amber-400 dark:ring-amber-500'
+                            : ''
+                            } ${knownItems.has(item.id)
                             ? 'opacity-50 bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600'
                             : 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-400 dark:border-yellow-700/50 shadow-sm'
                             }`}
@@ -424,6 +515,11 @@ function App() {
                             <span className="ml-auto text-xs font-mono text-gray-400 dark:text-gray-500 opacity-70">
                               {item.level}
                             </span>
+                            {memoryItemIds.includes(item.id) && (
+                              <span className="text-[10px] font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
+                                Memo
+                              </span>
+                            )}
                           </div>
 
                           <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed">
@@ -458,6 +554,94 @@ function App() {
         )}
         </div>
       </div>
+
+      {isMemoryModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center bg-gray-950/40 px-3 py-8 backdrop-blur-sm sm:items-center"
+          onClick={() => dispatch({ type: 'SET_MEMORY_MODAL_OPEN', payload: false })}
+        >
+          <section
+            className="max-h-[85vh] w-full max-w-3xl overflow-hidden rounded-lg border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800"
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="memory-modal-title"
+          >
+            <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-700">
+              <div>
+                <h2 id="memory-modal-title" className="text-base font-semibold text-gray-900 dark:text-white">
+                  Memorize
+                </h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  {memoryItems.length} short-term card{memoryItems.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => dispatch({ type: 'SET_MEMORY_MODAL_OPEN', payload: false })}
+                className="rounded-md p-1.5 text-gray-500 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-100"
+                aria-label="Close memorize list"
+                title="Close"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="max-h-[calc(85vh-74px)] overflow-y-auto p-4">
+              {memoryItems.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-gray-300 px-4 py-10 text-center text-sm text-gray-500 dark:border-gray-600 dark:text-gray-400">
+                  Option-click commands to collect them here.
+                </div>
+              ) : (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {memoryItems.map((item, index) => (
+                    <article
+                      key={item.id}
+                      draggable
+                      onDragStart={() => handleMemoryDragStart(index)}
+                      onDragOver={(event) => event.preventDefault()}
+                      onDrop={() => handleMemoryDrop(index)}
+                      className="rounded-md border border-amber-300 bg-amber-50 p-3 shadow-sm transition-colors duration-200 hover:border-amber-400 dark:border-amber-700/70 dark:bg-amber-900/20"
+                    >
+                      <div className="mb-2 flex items-start gap-2">
+                        <span className="cursor-grab rounded bg-amber-100 px-1.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-800/60 dark:text-amber-100" title="Drag to reorder">
+                          {index + 1}
+                        </span>
+                        <div className="flex flex-1 flex-wrap gap-1">
+                          {item.solution.map((combo, comboIndex) => (
+                            <code key={comboIndex} className="keycombo text-xs">
+                              {combo}
+                            </code>
+                          ))}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeMemoryItem(item.id)}
+                          className="rounded p-1 text-gray-500 transition-colors duration-200 hover:bg-red-100 hover:text-red-700 dark:text-gray-400 dark:hover:bg-red-900/40 dark:hover:text-red-300"
+                          aria-label={`Remove ${item.solution.join(', ')} from memorize list`}
+                          title="Remove mark"
+                        >
+                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                      <p className="text-xs leading-relaxed text-gray-700 dark:text-gray-300">
+                        {parse(item.question)}
+                      </p>
+                      <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        {item.category} • Level {item.level}
+                      </p>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   )
 }

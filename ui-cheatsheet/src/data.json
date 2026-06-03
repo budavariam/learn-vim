@@ -218,6 +218,15 @@
   },
   {
     "category": "Cursor movement",
+    "question": "jump to the first non-blank character of the line",
+    "solution": [
+      "_"
+    ],
+    "id": "56820d49985d",
+    "level": 1
+  },
+  {
+    "category": "Cursor movement",
     "question": "jump to the last non-blank character of the line",
     "solution": [
       "g_"
@@ -451,6 +460,42 @@
     "level": 4
   },
   {
+    "category": "Cursor movement",
+    "question": "move down by display line (useful with wrapped lines)",
+    "solution": [
+      "gj"
+    ],
+    "id": "17927c0c58f2",
+    "level": 3
+  },
+  {
+    "category": "Cursor movement",
+    "question": "move up by display line (useful with wrapped lines)",
+    "solution": [
+      "gk"
+    ],
+    "id": "39660be90ec2",
+    "level": 3
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump to previous change position (change list)",
+    "solution": [
+      "g;"
+    ],
+    "id": "648bc811bd0f",
+    "level": 5
+  },
+  {
+    "category": "Cursor movement",
+    "question": "jump to next change position (change list)",
+    "solution": [
+      "g,"
+    ],
+    "id": "519aa2b85fc1",
+    "level": 5
+  },
+  {
     "category": "Insert mode, inserting/appending text",
     "question": "insert before the cursor",
     "solution": [
@@ -521,6 +566,42 @@
     ],
     "id": "4f67d4849636",
     "level": 0
+  },
+  {
+    "category": "Insert mode, inserting/appending text",
+    "question": "delete word before cursor",
+    "solution": [
+      "ctrl-w"
+    ],
+    "id": "190ad4ed8729",
+    "level": 4
+  },
+  {
+    "category": "Insert mode, inserting/appending text",
+    "question": "delete to start of line",
+    "solution": [
+      "ctrl-u"
+    ],
+    "id": "544c43f29b7c",
+    "level": 4
+  },
+  {
+    "category": "Insert mode, inserting/appending text",
+    "question": "indent current line one shiftwidth",
+    "solution": [
+      "ctrl-t"
+    ],
+    "id": "4cf41b967f86",
+    "level": 5
+  },
+  {
+    "category": "Insert mode, inserting/appending text",
+    "question": "dedent current line one shiftwidth",
+    "solution": [
+      "ctrl-d"
+    ],
+    "id": "b3dd6d96f0ef",
+    "level": 5
   },
   {
     "category": "Insert mode, inserting/appending text",
@@ -702,6 +783,42 @@
     ],
     "id": "21ea54f7b5f1",
     "level": 2
+  },
+  {
+    "category": "Editing",
+    "question": "indent line one shiftwidth",
+    "solution": [
+      ">>"
+    ],
+    "id": "b51412f2df33",
+    "level": 3
+  },
+  {
+    "category": "Editing",
+    "question": "dedent line one shiftwidth",
+    "solution": [
+      "<<"
+    ],
+    "id": "8899cbe3278e",
+    "level": 3
+  },
+  {
+    "category": "Editing",
+    "question": "auto-indent `motion` (e.g. `=ip` for current paragraph)",
+    "solution": [
+      "= + motion"
+    ],
+    "id": "b4d2127e3729",
+    "level": 4
+  },
+  {
+    "category": "Editing",
+    "question": "auto-indent the entire file",
+    "solution": [
+      "gg=G"
+    ],
+    "id": "6ad3ae9520bf",
+    "level": 5
   },
   {
     "category": "Editing",
@@ -911,6 +1028,15 @@
     "level": 2
   },
   {
+    "category": "Marking text (visual mode)",
+    "question": "reselect the last visual selection",
+    "solution": [
+      "gv"
+    ],
+    "id": "666d85500dce",
+    "level": 4
+  },
+  {
     "category": "Visual commands",
     "question": "shift text right",
     "solution": [
@@ -956,6 +1082,105 @@
     "level": 4
   },
   {
+    "category": "Text objects",
+    "question": "inner word / around word (includes surrounding space)",
+    "solution": [
+      "iw` / `aw"
+    ],
+    "id": "d05544b00cfb",
+    "level": 3
+  },
+  {
+    "category": "Text objects",
+    "question": "inner sentence / around sentence",
+    "solution": [
+      "is` / `as"
+    ],
+    "id": "fe0e7f4d395e",
+    "level": 3
+  },
+  {
+    "category": "Text objects",
+    "question": "inner paragraph / around paragraph",
+    "solution": [
+      "ip` / `ap"
+    ],
+    "id": "f69b589afeb4",
+    "level": 4
+  },
+  {
+    "category": "Text objects",
+    "question": "inside / around double quotes",
+    "solution": [
+      "i\"` / `a\""
+    ],
+    "id": "8552d2d3420e",
+    "level": 3
+  },
+  {
+    "category": "Text objects",
+    "question": "inside / around single quotes",
+    "solution": [
+      "i'` / `a'"
+    ],
+    "id": "2f219bc39f68",
+    "level": 3
+  },
+  {
+    "category": "Text objects",
+    "question": "inside / around backticks",
+    "solution": [
+      "i`  /  a`"
+    ],
+    "id": "a7c436bab495",
+    "level": 4
+  },
+  {
+    "category": "Text objects",
+    "question": "inside / around parentheses (also `ib` / `ab`)",
+    "solution": [
+      "i)` / `a)"
+    ],
+    "id": "43aa70b3e072",
+    "level": 3
+  },
+  {
+    "category": "Text objects",
+    "question": "inside / around square brackets",
+    "solution": [
+      "i]` / `a]"
+    ],
+    "id": "eeb12bd0bd6d",
+    "level": 3
+  },
+  {
+    "category": "Text objects",
+    "question": "inside / around curly braces (also `iB` / `aB`)",
+    "solution": [
+      "i}` / `a}"
+    ],
+    "id": "c2c9f338dc82",
+    "level": 3
+  },
+  {
+    "category": "Text objects",
+    "question": "inside / around angle brackets",
+    "solution": [
+      "i>` / `a>"
+    ],
+    "id": "8390cd711c1c",
+    "level": 4
+  },
+  {
+    "category": "Text objects",
+    "question": "inside / around HTML/XML tag",
+    "solution": [
+      "it` / `at"
+    ],
+    "id": "61f3a9b54cb7",
+    "level": 4
+  },
+  {
     "category": "Registers",
     "question": "show registers content (can append selectors of which registers to show)",
     "solution": [
@@ -990,6 +1215,42 @@
     ],
     "id": "b392288492d3",
     "level": 7
+  },
+  {
+    "category": "Registers",
+    "question": "yank into system clipboard",
+    "solution": [
+      "\"+y"
+    ],
+    "id": "822fd4338b28",
+    "level": 4
+  },
+  {
+    "category": "Registers",
+    "question": "paste from system clipboard",
+    "solution": [
+      "\"+p"
+    ],
+    "id": "dc9cfd80fe69",
+    "level": 4
+  },
+  {
+    "category": "Registers",
+    "question": "yank/paste using primary selection (X11 middle-click buffer)",
+    "solution": [
+      "\"*y` / `\"*p"
+    ],
+    "id": "b1c154c23a6a",
+    "level": 5
+  },
+  {
+    "category": "Registers",
+    "question": "delete into black hole register (does not affect clipboard or other registers)",
+    "solution": [
+      "\"_d"
+    ],
+    "id": "9eb4ffb1dae3",
+    "level": 4
   },
   {
     "category": "Marks",
@@ -1457,6 +1718,187 @@
     "level": 5
   },
   {
+    "category": "Vim for programmers",
+    "question": "jump to start of enclosing `{` block",
+    "solution": [
+      "[{"
+    ],
+    "id": "4fb84796d86a",
+    "level": 5
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "jump to end of enclosing `}` block",
+    "solution": [
+      "]}"
+    ],
+    "id": "3b2e4d290873",
+    "level": 5
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "jump to start of enclosing `(`",
+    "solution": [
+      "[("
+    ],
+    "id": "cc86968c4d15",
+    "level": 5
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "jump to end of enclosing `)`",
+    "solution": [
+      "])"
+    ],
+    "id": "c72a1df2c8b9",
+    "level": 5
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "jump to start of previous / next method (Java, C++, etc.)",
+    "solution": [
+      "[m` / `]m"
+    ],
+    "id": "7b1f8ae73d24",
+    "level": 6
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "jump to end of previous / next method",
+    "solution": [
+      "[M` / `]M"
+    ],
+    "id": "0d0f69fe764a",
+    "level": 6
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "jump to tag definition under cursor (requires ctags)",
+    "solution": [
+      "ctrl-]"
+    ],
+    "id": "51441c018171",
+    "level": 6
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "pop tag stack (jump back after `ctrl-]`)",
+    "solution": [
+      "ctrl-t"
+    ],
+    "id": "5cd53aceb0d6",
+    "level": 6
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "list and choose between matching tags",
+    "solution": [
+      ":ts {word}",
+      ":tselect {word}"
+    ],
+    "id": "4f4b83911db9",
+    "level": 6
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "jump to next / previous matching tag",
+    "solution": [
+      ":tn` / `:tp"
+    ],
+    "id": "392ef866cc12",
+    "level": 6
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "next / previous keyword autocomplete suggestion (insert mode)",
+    "solution": [
+      "ctrl-n` / `ctrl-p"
+    ],
+    "id": "a715f5f554f2",
+    "level": 5
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "trigger omni completion (language-aware, e.g. LSP/filetype plugin)",
+    "solution": [
+      "ctrl-x ctrl-o"
+    ],
+    "id": "96cec432805e",
+    "level": 6
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "filename completion",
+    "solution": [
+      "ctrl-x ctrl-f"
+    ],
+    "id": "75b2c98558fb",
+    "level": 6
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "keyword completion from current buffer only",
+    "solution": [
+      "ctrl-x ctrl-n"
+    ],
+    "id": "22bf5c41f1dd",
+    "level": 6
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "tag-based completion",
+    "solution": [
+      "ctrl-x ctrl-]"
+    ],
+    "id": "03a47961abd9",
+    "level": 6
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "whole-line completion",
+    "solution": [
+      "ctrl-x ctrl-l"
+    ],
+    "id": "09e274cf5a30",
+    "level": 6
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "run `make` and load errors into the quickfix list",
+    "solution": [
+      ":make"
+    ],
+    "id": "d136409a4d0e",
+    "level": 5
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "set the compiler (error format) for `:make`",
+    "solution": [
+      ":compiler {name}"
+    ],
+    "id": "9c448c66b8ff",
+    "level": 5
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "jump to start of current `/* */` comment",
+    "solution": [
+      "[/"
+    ],
+    "id": "ff165b268367",
+    "level": 6
+  },
+  {
+    "category": "Vim for programmers",
+    "question": "jump to end of current `/* */` comment",
+    "solution": [
+      "]/"
+    ],
+    "id": "4528a06a11b6",
+    "level": 6
+  },
+  {
     "category": "Working with multiple files",
     "question": "reload current file",
     "solution": [
@@ -1543,6 +1985,16 @@
   },
   {
     "category": "Working with multiple files",
+    "question": "switch to the alternate (last edited) buffer",
+    "solution": [
+      "ctrl-^",
+      "ctrl-6"
+    ],
+    "id": "f7a5f3f964a5",
+    "level": 4
+  },
+  {
+    "category": "Working with multiple files",
     "question": "open a `file` in a new buffer and split window",
     "solution": [
       ":sp file"
@@ -1577,6 +2029,137 @@
     ],
     "id": "3e4e02235f54",
     "level": 5
+  },
+  {
+    "category": "Argument list",
+    "question": "display the current argument list (active file shown in `[]`)",
+    "solution": [
+      ":args"
+    ],
+    "id": "69447cc6fd7f",
+    "level": 4
+  },
+  {
+    "category": "Argument list",
+    "question": "set the argument list to `file1 file2`",
+    "solution": [
+      ":args file1 file2"
+    ],
+    "id": "4f149689c75e",
+    "level": 5
+  },
+  {
+    "category": "Argument list",
+    "question": "set the argument list with a glob pattern",
+    "solution": [
+      ":args **/*.txt"
+    ],
+    "id": "94369853e513",
+    "level": 5
+  },
+  {
+    "category": "Argument list",
+    "question": "add `file` to the argument list",
+    "solution": [
+      ":argadd file"
+    ],
+    "id": "d55244d1294a",
+    "level": 5
+  },
+  {
+    "category": "Argument list",
+    "question": "remove `file` from the argument list",
+    "solution": [
+      ":argdelete file"
+    ],
+    "id": "694084cf53f4",
+    "level": 6
+  },
+  {
+    "category": "Argument list",
+    "question": "go to the next file in the argument list",
+    "solution": [
+      ":next",
+      ":n"
+    ],
+    "id": "7c36ee18c26f",
+    "level": 4
+  },
+  {
+    "category": "Argument list",
+    "question": "go to the previous file in the argument list",
+    "solution": [
+      ":prev",
+      ":previous"
+    ],
+    "id": "25f1037a0d1c",
+    "level": 4
+  },
+  {
+    "category": "Argument list",
+    "question": "go to the first file in the argument list",
+    "solution": [
+      ":first",
+      ":rewind"
+    ],
+    "id": "1cbe01a8452e",
+    "level": 5
+  },
+  {
+    "category": "Argument list",
+    "question": "go to the last file in the argument list",
+    "solution": [
+      ":last"
+    ],
+    "id": "c009e5b41262",
+    "level": 5
+  },
+  {
+    "category": "Argument list",
+    "question": "write current file and move to the next in the argument list",
+    "solution": [
+      ":wnext",
+      ":wn"
+    ],
+    "id": "251e7739d991",
+    "level": 5
+  },
+  {
+    "category": "Argument list",
+    "question": "write current file and move to the previous in the argument list",
+    "solution": [
+      ":wprevious",
+      ":wp"
+    ],
+    "id": "602e39d9ae68",
+    "level": 5
+  },
+  {
+    "category": "Argument list",
+    "question": "write current file and go to the first in the argument list",
+    "solution": [
+      ":wfirst"
+    ],
+    "id": "e3df31406539",
+    "level": 6
+  },
+  {
+    "category": "Argument list",
+    "question": "write current file and go to the last in the argument list",
+    "solution": [
+      ":wlast"
+    ],
+    "id": "1d36f0c871a5",
+    "level": 6
+  },
+  {
+    "category": "Argument list",
+    "question": "run `command` on every file in the argument list (e.g. `:argdo %s/foo/bar/ge | update`)",
+    "solution": [
+      ":argdo command"
+    ],
+    "id": "5c4e0f94deca",
+    "level": 6
   },
   {
     "category": "Split window",
@@ -2084,5 +2667,86 @@
     ],
     "id": "d9c029025e8e",
     "level": 8
+  },
+  {
+    "category": "Spell checking",
+    "question": "enable spell checking",
+    "solution": [
+      ":set spell"
+    ],
+    "id": "dda33ed4a6b2",
+    "level": 5
+  },
+  {
+    "category": "Spell checking",
+    "question": "disable spell checking",
+    "solution": [
+      ":set nospell"
+    ],
+    "id": "eb12030ef12e",
+    "level": 5
+  },
+  {
+    "category": "Spell checking",
+    "question": "set spell language (e.g. `en`, `en_us`, `de`)",
+    "solution": [
+      ":set spelllang=en_us"
+    ],
+    "id": "514fe84103e0",
+    "level": 5
+  },
+  {
+    "category": "Spell checking",
+    "question": "jump to next misspelled word",
+    "solution": [
+      "]s"
+    ],
+    "id": "137e3923ea0a",
+    "level": 5
+  },
+  {
+    "category": "Spell checking",
+    "question": "jump to previous misspelled word",
+    "solution": [
+      "[s"
+    ],
+    "id": "aee58a142ac2",
+    "level": 5
+  },
+  {
+    "category": "Spell checking",
+    "question": "show correction suggestions for word under cursor",
+    "solution": [
+      "z="
+    ],
+    "id": "a8c78cd39fb7",
+    "level": 5
+  },
+  {
+    "category": "Spell checking",
+    "question": "add word under cursor to spell dictionary (good word)",
+    "solution": [
+      "zg"
+    ],
+    "id": "68b47586360b",
+    "level": 6
+  },
+  {
+    "category": "Spell checking",
+    "question": "mark word under cursor as misspelled (wrong word)",
+    "solution": [
+      "zw"
+    ],
+    "id": "064281a89dcf",
+    "level": 6
+  },
+  {
+    "category": "Spell checking",
+    "question": "undo `zg` / `zw`",
+    "solution": [
+      "zug` / `zuw"
+    ],
+    "id": "c11a09c7dac5",
+    "level": 6
   }
 ]
