@@ -174,17 +174,17 @@
 
 Text objects describe structured regions of text. They only work after an operator (`c`, `d`, `y`, `v`, etc.). `i` = inner (without surrounding delimiter), `a` = around (includes delimiter/whitespace).
 
-* 3 - `iw` / `aw` - inner word / around word (includes surrounding space)
-* 3 - `is` / `as` - inner sentence / around sentence
-* 4 - `ip` / `ap` - inner paragraph / around paragraph
-* 3 - `i"` / `a"` - inside / around double quotes
-* 3 - `i'` / `a'` - inside / around single quotes
-* 4 - `` i` `` / `` a` `` - inside / around backticks
-* 3 - `i)` / `a)` - inside / around parentheses (also `ib` / `ab`)
-* 3 - `i]` / `a]` - inside / around square brackets
-* 3 - `i}` / `a}` - inside / around curly braces (also `iB` / `aB`)
-* 4 - `i>` / `a>` - inside / around angle brackets
-* 4 - `it` / `at` - inside / around HTML/XML tag
+* 3 - `iw`, `aw` - inner word / around word (includes surrounding space)
+* 3 - `is`, `as` - inner sentence / around sentence
+* 4 - `ip`, `ap` - inner paragraph / around paragraph
+* 3 - `i"`, `a"` - inside / around double quotes
+* 3 - `i'`, `a'` - inside / around single quotes
+* 4 - `` i` ``, `` a` `` - inside / around backticks
+* 3 - `i)`, `a)` - inside / around parentheses (also `ib`, `ab`)
+* 3 - `i]`, `a]` - inside / around square brackets
+* 3 - `i}`, `a}` - inside / around curly braces (also `iB`, `aB`)
+* 4 - `i>`, `a>` - inside / around angle brackets
+* 4 - `it`, `at` - inside / around HTML/XML tag
 
 > Examples: `ci"` changes text inside quotes, `da)` deletes including parentheses, `yip` yanks the paragraph, `vat` selects the whole HTML tag.
 
@@ -196,7 +196,7 @@ Text objects describe structured regions of text. They only work after an operat
 * 7 - `"Xp` - append contents to register `x`
 * 4 - `"+y` - yank into system clipboard
 * 4 - `"+p` - paste from system clipboard
-* 5 - `"*y` / `"*p` - yank/paste using primary selection (X11 middle-click buffer)
+* 5 - `"*y`, `"*p` - yank/paste using primary selection (X11 middle-click buffer)
 * 4 - `"_d` - delete into black hole register (does not affect clipboard or other registers)
 
 > Tip: Registers are being stored in ~/.viminfo, and will be loaded again on next restart of vim.
@@ -281,13 +281,13 @@ Text objects describe structured regions of text. They only work after an operat
 * 5 - `]}` - jump to end of enclosing `}` block
 * 5 - `[(` - jump to start of enclosing `(`
 * 5 - `])` - jump to end of enclosing `)`
-* 6 - `[m` / `]m` - jump to start of previous / next method (Java, C++, etc.)
-* 6 - `[M` / `]M` - jump to end of previous / next method
+* 6 - `[m`, `]m` - jump to start of previous / next method (Java, C++, etc.)
+* 6 - `[M`, `]M` - jump to end of previous / next method
 * 6 - `ctrl-]` - jump to tag definition under cursor (requires ctags)
 * 6 - `ctrl-t` - pop tag stack (jump back after `ctrl-]`)
 * 6 - `:ts {word}`, `:tselect {word}` - list and choose between matching tags
-* 6 - `:tn` / `:tp` - jump to next / previous matching tag
-* 5 - `ctrl-n` / `ctrl-p` - next / previous keyword autocomplete suggestion (insert mode)
+* 6 - `:tn`, `:tp` - jump to next / previous matching tag
+* 5 - `ctrl-n`, `ctrl-p` - next / previous keyword autocomplete suggestion (insert mode)
 * 6 - `ctrl-x ctrl-o` - trigger omni completion (language-aware, e.g. LSP/filetype plugin)
 * 6 - `ctrl-x ctrl-f` - filename completion
 * 6 - `ctrl-x ctrl-n` - keyword completion from current buffer only
@@ -430,4 +430,4 @@ Tabs should be imagined as layouts. They can show different window arrangements 
 * 5 - `z=` - show correction suggestions for word under cursor
 * 6 - `zg` - add word under cursor to spell dictionary (good word)
 * 6 - `zw` - mark word under cursor as misspelled (wrong word)
-* 6 - `zug` / `zuw` - undo `zg` / `zw`
+* 6 - `zug`, `zuw` - undo `zg`, `zw`

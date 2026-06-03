@@ -1,27 +1,48 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
-function TocList({ categories, getHref, getCount, onNavigate, variant }) {
-  const linkClassName =
-    variant === 'mobile'
-      ? 'block px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors duration-200'
-      : 'block px-2 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded transition-colors duration-200'
-
+function TocList({ categories, getHref, getCount, onNavigate, variant, activeCategory }) {
+  const activeLinkRef = useRef(null)
   const countClassName = variant === 'mobile' ? 'ml-2 text-xs opacity-50' : 'ml-1 opacity-50 text-[10px]'
+
+  useEffect(() => {
+    activeLinkRef.current?.scrollIntoView({
+      block: 'nearest',
+      inline: 'nearest'
+    })
+  }, [activeCategory])
 
   return (
     <ul className={variant === 'mobile' ? 'space-y-2' : 'space-y-1'}>
-      {categories.map((category) => (
-        <li key={category}>
-          <a
-            href={getHref(category)}
-            onClick={onNavigate}
-            className={linkClassName}
-          >
-            {category}
-            <span className={countClassName}>({getCount(category)})</span>
-          </a>
-        </li>
-      ))}
+      {categories.map((category) => {
+        const isActive = category === activeCategory
+        const baseClassName =
+          variant === 'mobile'
+            ? 'block px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200'
+            : 'block px-2 py-1.5 text-xs font-medium rounded transition-colors duration-200'
+        const activeClassName =
+          variant === 'mobile'
+            ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200'
+            : 'bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-200'
+        const inactiveClassName =
+          variant === 'mobile'
+            ? 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700/50'
+            : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30'
+
+        return (
+          <li key={category}>
+            <a
+              href={getHref(category)}
+              onClick={onNavigate}
+              ref={isActive ? activeLinkRef : undefined}
+              aria-current={isActive ? 'location' : undefined}
+              className={`${baseClassName} ${isActive ? activeClassName : inactiveClassName}`}
+            >
+              {category}
+              <span className={countClassName}>({getCount(category)})</span>
+            </a>
+          </li>
+        )
+      })}
     </ul>
   )
 }
@@ -34,6 +55,7 @@ export default function TableOfContents({
   setMobileOpen,
   desktopCollapsed,
   toggleDesktopCollapsed,
+  activeCategory,
 }) {
   const hasItems = categories.length > 0
 
@@ -112,6 +134,7 @@ export default function TableOfContents({
                 getCount={getCount}
                 onNavigate={undefined}
                 variant="desktop"
+                activeCategory={activeCategory}
               />
             </div>
           )}
@@ -161,6 +184,7 @@ export default function TableOfContents({
                 getCount={getCount}
                 onNavigate={() => setMobileOpen(false)}
                 variant="mobile"
+                activeCategory={activeCategory}
               />
             ) : (
               <div className="text-sm text-gray-600 dark:text-gray-300">

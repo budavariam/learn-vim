@@ -71,6 +71,7 @@ const initialState = {
   levelRange: [0, 9],
   isTocOpen: false,
   isSideTocCollapsed: false,
+  activeCategory: null,
   collapsedCategories: new Set()
 };
 
@@ -118,6 +119,9 @@ function reducer(state, action) {
       return { ...state, isTocOpen: action.payload };
     case 'TOGGLE_SIDE_TOC':
       return { ...state, isSideTocCollapsed: !state.isSideTocCollapsed };
+    case 'SET_ACTIVE_CATEGORY':
+      if (state.activeCategory === action.payload) return state;
+      return { ...state, activeCategory: action.payload };
     case 'TOGGLE_CATEGORY': {
       const newSet = new Set(state.collapsedCategories);
       if (newSet.has(action.payload)) {
@@ -138,7 +142,7 @@ function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     search, darkMode, knownItems, memoryItemIds, isMemoryModalOpen, showUnknownOnly,
-    levelRange, isTocOpen, isSideTocCollapsed, collapsedCategories
+    levelRange, isTocOpen, isSideTocCollapsed, activeCategory, collapsedCategories
   } = state;
   const searchInputRef = useRef(null)
   const draggedMemoryIndexRef = useRef(null)
@@ -194,10 +198,42 @@ function App() {
 
   const groupedData = groupByCategory(filteredData)
   const categories = Object.keys(groupedData)
+  const categoryKey = categories.join('|')
   const itemsById = new Map(preparedData.map(item => [item.id, item]))
   const memoryItems = memoryItemIds
     .map(id => itemsById.get(id))
     .filter(Boolean)
+
+  useEffect(() => {
+    const trackedCategories = categoryKey ? categoryKey.split('|') : []
+
+    const updateActiveCategory = () => {
+      if (trackedCategories.length === 0) {
+        dispatch({ type: 'SET_ACTIVE_CATEGORY', payload: null })
+        return
+      }
+
+      const currentCategory = trackedCategories.reduce((active, category) => {
+        const section = document.getElementById(slugify(category))
+        if (!section) return active
+
+        const top = section.getBoundingClientRect().top
+        if (top <= 140) return category
+        return active
+      }, trackedCategories[0])
+
+      dispatch({ type: 'SET_ACTIVE_CATEGORY', payload: currentCategory })
+    }
+
+    updateActiveCategory()
+    window.addEventListener('scroll', updateActiveCategory, { passive: true })
+    window.addEventListener('resize', updateActiveCategory)
+
+    return () => {
+      window.removeEventListener('scroll', updateActiveCategory)
+      window.removeEventListener('resize', updateActiveCategory)
+    }
+  }, [categoryKey])
 
   const toggleDarkMode = () => {
     dispatch({ type: 'SET_DARK_MODE', payload: !darkMode });
@@ -264,6 +300,7 @@ function App() {
         setMobileOpen={(open) => dispatch({ type: 'SET_TOC_OPEN', payload: open })}
         desktopCollapsed={isSideTocCollapsed}
         toggleDesktopCollapsed={() => dispatch({ type: 'TOGGLE_SIDE_TOC' })}
+        activeCategory={activeCategory}
       />
 
       <div className={`w-full px-3 py-4 ${viewportGutters}`}>

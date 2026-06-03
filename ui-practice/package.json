@@ -9,7 +9,7 @@
     "dev": "vite --base /learn-vim/game/",
     "build": "vite build && tsc --noEmit",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "generate-data": "node ../scripts/generateData.js",
+    "generate-data": "node ../scripts/generateData.js ui-practice",
     "generate-icon": "npx @vite-pwa/assets-generator --preset minimal public/Vimlogo.svg",
     "type-check": "tsc --noEmit"
   },
