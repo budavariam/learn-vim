@@ -51,6 +51,10 @@ end
 function M.get_state()
   if M._state then return M._state end
   local path = vim.fn.expand(M.config.state_path)
+  if vim.fn.filereadable(path) == 0 then
+    M._state = { known = {} }
+    return M._state
+  end
   local lines = vim.fn.readfile(path)
   if lines and #lines > 0 then
     local ok, s = pcall(vim.json.decode, table.concat(lines, '\n'))
