@@ -1085,99 +1085,110 @@
     "category": "Text objects",
     "question": "inner word / around word (includes surrounding space)",
     "solution": [
-      "iw` / `aw"
+      "iw",
+      "aw"
     ],
-    "id": "d05544b00cfb",
+    "id": "7c789a3bfd4d",
     "level": 3
   },
   {
     "category": "Text objects",
     "question": "inner sentence / around sentence",
     "solution": [
-      "is` / `as"
+      "is",
+      "as"
     ],
-    "id": "fe0e7f4d395e",
+    "id": "ed8ae2c72e71",
     "level": 3
   },
   {
     "category": "Text objects",
     "question": "inner paragraph / around paragraph",
     "solution": [
-      "ip` / `ap"
+      "ip",
+      "ap"
     ],
-    "id": "f69b589afeb4",
+    "id": "4a25793c1eea",
     "level": 4
   },
   {
     "category": "Text objects",
     "question": "inside / around double quotes",
     "solution": [
-      "i\"` / `a\""
+      "i\"",
+      "a\""
     ],
-    "id": "8552d2d3420e",
+    "id": "f8c981c1fe61",
     "level": 3
   },
   {
     "category": "Text objects",
     "question": "inside / around single quotes",
     "solution": [
-      "i'` / `a'"
+      "i'",
+      "a'"
     ],
-    "id": "2f219bc39f68",
+    "id": "5595af025bb6",
     "level": 3
   },
   {
     "category": "Text objects",
     "question": "inside / around backticks",
     "solution": [
-      "i`  /  a`"
+      "i`",
+      "a`"
     ],
-    "id": "a7c436bab495",
+    "id": "5f2890b682d9",
     "level": 4
   },
   {
     "category": "Text objects",
-    "question": "inside / around parentheses (also `ib` / `ab`)",
+    "question": "inside / around parentheses (also `ib`, `ab`)",
     "solution": [
-      "i)` / `a)"
+      "i)",
+      "a)"
     ],
-    "id": "43aa70b3e072",
+    "id": "c19b7b167b06",
     "level": 3
   },
   {
     "category": "Text objects",
     "question": "inside / around square brackets",
     "solution": [
-      "i]` / `a]"
+      "i]",
+      "a]"
     ],
-    "id": "eeb12bd0bd6d",
+    "id": "c1e76782d647",
     "level": 3
   },
   {
     "category": "Text objects",
-    "question": "inside / around curly braces (also `iB` / `aB`)",
+    "question": "inside / around curly braces (also `iB`, `aB`)",
     "solution": [
-      "i}` / `a}"
+      "i}",
+      "a}"
     ],
-    "id": "c2c9f338dc82",
+    "id": "6b2906bbf00a",
     "level": 3
   },
   {
     "category": "Text objects",
     "question": "inside / around angle brackets",
     "solution": [
-      "i>` / `a>"
+      "i>",
+      "a>"
     ],
-    "id": "8390cd711c1c",
+    "id": "b8a084b54eb4",
     "level": 4
   },
   {
     "category": "Text objects",
     "question": "inside / around HTML/XML tag",
     "solution": [
-      "it` / `at"
+      "it",
+      "at"
     ],
-    "id": "61f3a9b54cb7",
+    "id": "473fd857f139",
     "level": 4
   },
   {
@@ -1238,9 +1249,10 @@
     "category": "Registers",
     "question": "yank/paste using primary selection (X11 middle-click buffer)",
     "solution": [
-      "\"*y` / `\"*p"
+      "\"*y",
+      "\"*p"
     ],
-    "id": "b1c154c23a6a",
+    "id": "3dea21922a0a",
     "level": 5
   },
   {
@@ -1757,18 +1769,20 @@
     "category": "Vim for programmers",
     "question": "jump to start of previous / next method (Java, C++, etc.)",
     "solution": [
-      "[m` / `]m"
+      "[m",
+      "]m"
     ],
-    "id": "7b1f8ae73d24",
+    "id": "1398cd6ae83f",
     "level": 6
   },
   {
     "category": "Vim for programmers",
     "question": "jump to end of previous / next method",
     "solution": [
-      "[M` / `]M"
+      "[M",
+      "]M"
     ],
-    "id": "0d0f69fe764a",
+    "id": "ecd3eea5ba32",
     "level": 6
   },
   {
@@ -1803,18 +1817,20 @@
     "category": "Vim for programmers",
     "question": "jump to next / previous matching tag",
     "solution": [
-      ":tn` / `:tp"
+      ":tn",
+      ":tp"
     ],
-    "id": "392ef866cc12",
+    "id": "0d4a79ddf6be",
     "level": 6
   },
   {
     "category": "Vim for programmers",
     "question": "next / previous keyword autocomplete suggestion (insert mode)",
     "solution": [
-      "ctrl-n` / `ctrl-p"
+      "ctrl-n",
+      "ctrl-p"
     ],
-    "id": "a715f5f554f2",
+    "id": "b34defd61569",
     "level": 5
   },
   {
@@ -2742,11 +2758,12 @@
   },
   {
     "category": "Spell checking",
-    "question": "undo `zg` / `zw`",
+    "question": "undo `zg`, `zw`",
     "solution": [
-      "zug` / `zuw"
+      "zug",
+      "zuw"
     ],
-    "id": "c11a09c7dac5",
+    "id": "bd5441ec7688",
     "level": 6
   }
 ]

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { getCategoryColor } from '../constants'
 
 function TocList({ categories, getHref, getCount, onNavigate, variant, activeCategory }) {
   const activeLinkRef = useRef(null)
@@ -28,6 +29,8 @@ function TocList({ categories, getHref, getCount, onNavigate, variant, activeCat
             ? 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-700/50'
             : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30'
 
+        const color = getCategoryColor(category)
+
         return (
           <li key={category}>
             <a
@@ -35,9 +38,15 @@ function TocList({ categories, getHref, getCount, onNavigate, variant, activeCat
               onClick={onNavigate}
               ref={isActive ? activeLinkRef : undefined}
               aria-current={isActive ? 'location' : undefined}
-              className={`${baseClassName} ${isActive ? activeClassName : inactiveClassName}`}
+              className={`${baseClassName} ${isActive ? activeClassName : inactiveClassName} flex items-center gap-1.5`}
             >
-              {category}
+              {color && (
+                <span
+                  className="flex-shrink-0 rounded-full"
+                  style={{ width: '6px', height: '6px', backgroundColor: color }}
+                />
+              )}
+              <span className="flex-1">{category}</span>
               <span className={countClassName}>({getCount(category)})</span>
             </a>
           </li>

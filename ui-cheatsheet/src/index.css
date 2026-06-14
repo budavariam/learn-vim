@@ -72,6 +72,17 @@ body {
   border-color: #1e293b;
 }
 
-.dark .dual-range-input::-moz-range-thumb {
-  border-color: #1e293b;
+/* react-simple-keyboard dark mode overrides */
+.dark .vim-keyboard.hg-theme-default {
+  background: transparent !important;
+}
+.dark .vim-keyboard .hg-button {
+  background: #374151 !important;
+  color: #e5e7eb !important;
+  border-color: #4b5563 !important;
+  box-shadow: none !important;
+}
+.dark .vim-keyboard .hg-button:hover,
+.dark .vim-keyboard .hg-button:active {
+  background: #4b5563 !important;
 }
