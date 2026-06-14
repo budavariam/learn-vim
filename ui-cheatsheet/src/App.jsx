@@ -318,6 +318,19 @@ function App() {
         onKeyboardOpen={() => dispatch({ type: 'SET_KEYBOARD_OPEN', payload: true })}
         onMemorizeOpen={() => dispatch({ type: 'SET_MEMORY_MODAL_OPEN', payload: true })}
         onInfoOpen={() => dispatch({ type: 'SET_INFO_OPEN', payload: true })}
+        search={search}
+        onSearchChange={(v) => dispatch({ type: 'SET_SEARCH', payload: v })}
+        showUnknownOnly={showUnknownOnly}
+        onToggleUnknown={() => dispatch({ type: 'TOGGLE_SHOW_UNKNOWN' })}
+        allKnown={(() => { const ids = new Set(preparedData.map(i => i.id)); return [...ids].every(id => knownItems.has(id)) })()}
+        onMarkAll={() => {
+          const ids = new Set(preparedData.map(i => i.id))
+          const allKnown = [...ids].every(id => knownItems.has(id))
+          dispatch({ type: 'SET_KNOWN_ITEMS', payload: allKnown ? new Set() : ids })
+        }}
+        hasGroupedData={Object.keys(groupedData).length > 0}
+        allCollapsed={collapsedCategories.size === Object.keys(groupedData).length}
+        onToggleAll={toggleAllCategories}
       />
 
       <TableOfContents
@@ -335,91 +348,87 @@ function App() {
         <div className="mx-auto max-w-7xl">
 
           {/* ── Filter bar ── */}
-          <div className="flex flex-col sm:flex-row items-center gap-2 mb-4">
-
+          {/* Search + utility buttons: mobile only (desktop has them in the navbar) */}
+          <div className="flex sm:hidden items-center gap-1.5 mb-3">
             {/* Search */}
-            <div className="relative flex-1 w-full max-w-md">
+            <div className="relative flex-1 min-w-0">
               <input
                 type="text"
-                placeholder="Type to search commands..."
-                className={`w-full px-3 py-2 pl-9 ${search ? 'pr-9' : ''} bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200`}
+                placeholder="Search commands…"
+                className={`w-full py-1.5 pl-8 ${search ? 'pr-8' : 'pr-3'} text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
                 value={search}
                 onChange={(e) => dispatch({ type: 'SET_SEARCH', payload: e.target.value })}
-                autoFocus
                 ref={searchInputRef}
               />
-              <svg className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               {search && (
                 <button
                   type="button"
                   onClick={() => { dispatch({ type: 'SET_SEARCH', payload: '' }); searchInputRef.current?.focus() }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                   aria-label="Clear search"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               )}
             </div>
 
-            {/* Utility buttons */}
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              {/* Mobile TOC toggle */}
-              {categories.length > 0 && (
-                <button
-                  onClick={() => dispatch({ type: 'SET_TOC_OPEN', payload: !isTocOpen })}
-                  className="xl:hidden p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors"
-                  title="Table of Contents"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                  </svg>
-                </button>
-              )}
-
-              {/* Collapse all categories */}
-              {Object.keys(groupedData).length > 0 && (
-                <button
-                  onClick={toggleAllCategories}
-                  className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                  title={collapsedCategories.size === Object.keys(groupedData).length ? 'Expand all' : 'Collapse all'}
-                >
-                  {collapsedCategories.size === Object.keys(groupedData).length
-                    ? <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                    : <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" /></svg>
-                  }
-                </button>
-              )}
-
-              {/* Unknown only */}
+            {/* Mobile TOC toggle */}
+            {categories.length > 0 && (
               <button
-                onClick={() => dispatch({ type: 'TOGGLE_SHOW_UNKNOWN' })}
-                className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                title={showUnknownOnly ? 'Show all commands' : 'Show only unknown'}
+                onClick={() => dispatch({ type: 'SET_TOC_OPEN', payload: !isTocOpen })}
+                className="xl:hidden p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors flex-shrink-0"
+                title="Table of Contents"
               >
-                <svg className={`w-4 h-4 ${showUnknownOnly ? 'text-yellow-500' : 'text-gray-600 dark:text-gray-300'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2a7 7 0 00-7 7c0 2.485 1.355 4.66 3.367 5.828L8 20h8l-.367-5.172A7.002 7.002 0 0019 9a7 7 0 00-7-7z" />
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
+            )}
 
-              {/* Mark all / reset */}
-              {(() => {
-                const allItemIds = new Set(preparedData.map(item => item.id))
-                const allKnown = [...allItemIds].every(id => knownItems.has(id))
-                return (
-                  <button
-                    onClick={() => dispatch({ type: 'SET_KNOWN_ITEMS', payload: allKnown ? new Set() : allItemIds })}
-                    className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm"
-                    title={allKnown ? 'Reset — mark all as unknown' : 'Mark all as known'}
-                  >
-                    {allKnown ? '🔄' : '✅'}
-                  </button>
-                )
-              })()}
-            </div>
+            {/* Unknown only */}
+            <button
+              onClick={() => dispatch({ type: 'TOGGLE_SHOW_UNKNOWN' })}
+              className={`p-1.5 rounded-lg transition-colors flex-shrink-0 ${showUnknownOnly ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-600' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+              title={showUnknownOnly ? 'Show all commands' : 'Show only unknown'}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2a7 7 0 00-7 7c0 2.485 1.355 4.66 3.367 5.828L8 20h8l-.367-5.172A7.002 7.002 0 0019 9a7 7 0 00-7-7z" />
+              </svg>
+            </button>
+
+            {/* Mark all / reset */}
+            {(() => {
+              const allItemIds = new Set(preparedData.map(item => item.id))
+              const allKnown = [...allItemIds].every(id => knownItems.has(id))
+              return (
+                <button
+                  onClick={() => dispatch({ type: 'SET_KNOWN_ITEMS', payload: allKnown ? new Set() : allItemIds })}
+                  className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm flex-shrink-0"
+                  title={allKnown ? 'Reset — mark all as unknown' : 'Mark all as known'}
+                >
+                  {allKnown ? '🔄' : '✅'}
+                </button>
+              )
+            })()}
+
+            {/* Collapse all */}
+            {Object.keys(groupedData).length > 0 && (
+              <button
+                onClick={toggleAllCategories}
+                className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex-shrink-0"
+                title={collapsedCategories.size === Object.keys(groupedData).length ? 'Expand all' : 'Collapse all'}
+              >
+                {collapsedCategories.size === Object.keys(groupedData).length
+                  ? <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                  : <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" /></svg>
+                }
+              </button>
+            )}
           </div>
 
           <p className="text-gray-600 dark:text-gray-400 text-xs mb-2">
