@@ -672,4 +672,23 @@ function M.close()
   state.items = {}
 end
 
+-- Exposed only for unit tests.
+M._test_api = {
+  level_bar        = level_bar,
+  cats_to_list     = cats_to_list,
+  list_to_cats     = list_to_cats,
+  count_items      = count_items,
+  split_items      = split_items,
+  toggle_category  = toggle_category,
+  get_all_presets  = get_all_presets,
+  save_preset      = save_user_preset,
+  delete_preset    = delete_user_preset,
+  -- allow tests to configure the setup state directly
+  set_setup        = function(s)
+    if s.cfg      then setup.cfg     = s.cfg     end
+    if s.cat_all  then setup.cat_all = s.cat_all end
+  end,
+  get_setup_cfg    = function() return setup.cfg end,
+}
+
 return M

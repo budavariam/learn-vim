@@ -1,0 +1,13 @@
+[
+  {"id":"id001","category":"Cursor movement","question":"move cursor left","solution":["h"],"level":0},
+  {"id":"id002","category":"Cursor movement","question":"move cursor down","solution":["j"],"level":0},
+  {"id":"id003","category":"Cursor movement","question":"go to last line","solution":["G"],"level":1},
+  {"id":"id004","category":"Cursor movement","question":"scroll screen down","solution":["ctrl-e"],"level":3},
+  {"id":"id005","category":"Insert mode","question":"insert before cursor","solution":["i"],"level":0},
+  {"id":"id006","category":"Insert mode","question":"append at end of line","solution":["A"],"level":1},
+  {"id":"id007","category":"Editing","question":"undo","solution":["u"],"level":0},
+  {"id":"id008","category":"Editing","question":"delete line","solution":["dd"],"level":1},
+  {"id":"id009","category":"Global","question":"open help","solution":[":help keyword",":h keyword"],"level":1},
+  {"id":"id010","category":"Advanced","question":"record a macro","solution":["q{register}"],"level":7},
+  {"id":"id011","category":"Advanced","question":"play a macro","solution":["@{register}"],"level":7}
+]

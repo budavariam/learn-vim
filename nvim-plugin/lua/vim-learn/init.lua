@@ -143,4 +143,7 @@ function M.get_category_hl(cat)
   return M._cat_hl[cat] or 'Normal'
 end
 
+-- Exposed only for unit tests.
+M._test_api = { hsl_to_hex = hsl_to_hex }
+
 return M

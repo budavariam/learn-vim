@@ -414,4 +414,14 @@ function M.close()
   state.search_buf = nil
 end
 
+-- Exposed only for unit tests.
+M._test_api = {
+  fuzzy_match          = fuzzy_match,
+  trunc_pad            = trunc_pad,
+  filtered_sorted_data = filtered_sorted_data,
+  set_state            = function(s)
+    for k, v in pairs(s) do state[k] = v end
+  end,
+}
+
 return M
