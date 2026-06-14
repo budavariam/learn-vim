@@ -17,12 +17,15 @@ mode without leaving the editor.
 
 | Key | Action |
 |-----|--------|
+| `/` | Open fuzzy search bar (live filter as you type) |
+| `CR` | Confirm search and return focus to list |
+| `Esc` in search | Clear query and return focus |
 | `f` | Cycle filter (all → unknown → known) |
 | `Space` / `CR` | Toggle "known" for item under cursor |
-| `/` | Native Neovim search |
+| `Esc` in list | Clear active search query (or close if none) |
 | `R` | Reload data.json |
 | `Q` | Switch to quiz mode |
-| `q` / `Esc` | Close |
+| `q` | Close |
 
 ### Quiz (`<leader>vq`)
 
