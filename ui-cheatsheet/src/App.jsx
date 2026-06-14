@@ -4,6 +4,8 @@ import Fuse from 'fuse.js'
 import parse from 'html-react-parser'
 import DualRangeSlider from './DualRangeSlider'
 import TableOfContents from './components/TableOfContents'
+import KeyboardModal from './components/KeyboardModal'
+import { getCategoryColor } from './constants'
 
 const options = {
   includeScore: true,
@@ -67,12 +69,14 @@ const initialState = {
   knownItems: new Set(),
   memoryItemIds: getMemoryItems(),
   isMemoryModalOpen: false,
+  isKeyboardOpen: false,
   showUnknownOnly: false,
   levelRange: [0, 9],
   isTocOpen: false,
   isSideTocCollapsed: false,
   activeCategory: null,
-  collapsedCategories: new Set()
+  collapsedCategories: new Set(),
+  activeSectionFilter: null,
 };
 
 function reducer(state, action) {
@@ -102,6 +106,10 @@ function reducer(state, action) {
     }
     case 'SET_MEMORY_MODAL_OPEN':
       return { ...state, isMemoryModalOpen: action.payload };
+    case 'SET_KEYBOARD_OPEN':
+      return { ...state, isKeyboardOpen: action.payload };
+    case 'SET_SECTION_FILTER':
+      return { ...state, activeSectionFilter: action.payload };
     case 'TOGGLE_KNOWN': {
       const newSet = new Set(state.knownItems);
       if (newSet.has(action.payload)) {
@@ -141,8 +149,9 @@ function reducer(state, action) {
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
-    search, darkMode, knownItems, memoryItemIds, isMemoryModalOpen, showUnknownOnly,
-    levelRange, isTocOpen, isSideTocCollapsed, activeCategory, collapsedCategories
+    search, darkMode, knownItems, memoryItemIds, isMemoryModalOpen, isKeyboardOpen,
+    showUnknownOnly, levelRange, isTocOpen, isSideTocCollapsed, activeCategory,
+    collapsedCategories, activeSectionFilter
   } = state;
   const searchInputRef = useRef(null)
   const draggedMemoryIndexRef = useRef(null)
@@ -195,10 +204,14 @@ function App() {
   filteredData = filteredData.filter(
     item => item.level >= levelRange[0] && item.level <= levelRange[1]
   );
+  if (activeSectionFilter) {
+    filteredData = filteredData.filter(item => item.category === activeSectionFilter)
+  }
 
   const groupedData = groupByCategory(filteredData)
   const categories = Object.keys(groupedData)
   const categoryKey = categories.join('|')
+  const allCategories = [...new Set(preparedData.map(item => item.category))]
   const itemsById = new Map(preparedData.map(item => [item.id, item]))
   const memoryItems = memoryItemIds
     .map(id => itemsById.get(id))
@@ -443,13 +456,27 @@ function App() {
               </a>
               <button
                 type="button"
+                onClick={() => dispatch({ type: 'SET_KEYBOARD_OPEN', payload: true })}
+                className="inline-flex items-center p-1.5 bg-sky-200 dark:bg-sky-700 hover:bg-sky-300 dark:hover:bg-sky-600 text-sky-900 dark:text-sky-50 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+                title="Open interactive keyboard view"
+                aria-label="Open interactive keyboard view"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <rect x="2" y="5" width="20" height="14" rx="2" strokeWidth="2"/>
+                  <path strokeLinecap="round" strokeWidth="2" d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M8 13h.01M12 13h.01M16 13h.01M7 17h10"/>
+                </svg>
+              </button>
+              <button
+                type="button"
                 onClick={() => dispatch({ type: 'SET_MEMORY_MODAL_OPEN', payload: true })}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-200 dark:bg-amber-700 hover:bg-amber-300 dark:hover:bg-amber-600 text-amber-900 dark:text-amber-50 font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200 text-xs uppercase tracking-wide"
+                className="inline-flex items-center gap-1 p-1.5 bg-amber-200 dark:bg-amber-700 hover:bg-amber-300 dark:hover:bg-amber-600 text-amber-900 dark:text-amber-50 rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
                 title="Open short-term memorize list"
                 aria-label={`Open short-term memorize list with ${memoryItems.length} cards`}
               >
-                <span>Memorize</span>
-                <span className="rounded-full bg-white/70 dark:bg-gray-900/40 px-1.5 py-0.5 text-[10px] leading-none">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01m-.01 4h.01"/>
+                </svg>
+                <span className="rounded-full bg-white/70 dark:bg-gray-900/40 px-1.5 py-0.5 text-[10px] leading-none font-medium">
                   {memoryItems.length}
                 </span>
               </button>
@@ -493,6 +520,32 @@ function App() {
               </p>
             )}
           </div>
+
+          {/* Category filter */}
+          <div className="flex items-center justify-center gap-2 mb-1">
+            <label htmlFor="category-filter" className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+              Category:
+            </label>
+            <select
+              id="category-filter"
+              value={activeSectionFilter ?? ''}
+              onChange={e => dispatch({ type: 'SET_SECTION_FILTER', payload: e.target.value || null })}
+              className="text-xs px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">All categories</option>
+              {allCategories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+            {activeSectionFilter && (
+              <button
+                onClick={() => dispatch({ type: 'SET_SECTION_FILTER', payload: null })}
+                className="text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -519,7 +572,10 @@ function App() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
 
-                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
+                    <span
+                      className="w-1.5 h-1.5 rounded-full mr-2 flex-shrink-0"
+                      style={{ backgroundColor: getCategoryColor(category) }}
+                    />
                     {category}
                     <span className="ml-auto text-xs font-normal text-gray-500 dark:text-gray-400">
                       {items.length} command{items.length !== 1 ? 's' : ''}
@@ -535,6 +591,7 @@ function App() {
                           onClick={(event) => handleCardClick(event, item.id)}
                           key={index}
                           title="Click to toggle learned. Option-click to toggle memorize mark."
+                          style={{ borderLeftColor: getCategoryColor(category), borderLeftWidth: '3px' }}
                           className={`group p-2.5 rounded-md border cursor-pointer transition-all duration-200 ${memoryItemIds.includes(item.id)
                             ? 'ring-2 ring-amber-400 dark:ring-amber-500'
                             : ''
@@ -591,6 +648,15 @@ function App() {
         )}
         </div>
       </div>
+
+      {isKeyboardOpen && (
+        <KeyboardModal
+          data={preparedData}
+          knownItems={knownItems}
+          memoryItemIds={memoryItemIds}
+          onClose={() => dispatch({ type: 'SET_KEYBOARD_OPEN', payload: false })}
+        />
+      )}
 
       {isMemoryModalOpen && (
         <div
