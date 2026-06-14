@@ -5,6 +5,7 @@ import parse from 'html-react-parser'
 import DualRangeSlider from './DualRangeSlider'
 import TableOfContents from './components/TableOfContents'
 import KeyboardModal from './components/KeyboardModal'
+import InfoModal from './components/InfoModal'
 import { getCategoryColor } from './constants'
 
 const options = {
@@ -70,6 +71,7 @@ const initialState = {
   memoryItemIds: getMemoryItems(),
   isMemoryModalOpen: false,
   isKeyboardOpen: false,
+  isInfoOpen: false,
   showUnknownOnly: false,
   levelRange: [0, 9],
   isTocOpen: false,
@@ -108,6 +110,8 @@ function reducer(state, action) {
       return { ...state, isMemoryModalOpen: action.payload };
     case 'SET_KEYBOARD_OPEN':
       return { ...state, isKeyboardOpen: action.payload };
+    case 'SET_INFO_OPEN':
+      return { ...state, isInfoOpen: action.payload };
     case 'SET_SECTION_FILTER':
       return { ...state, activeSectionFilter: action.payload };
     case 'TOGGLE_KNOWN': {
@@ -149,7 +153,7 @@ function reducer(state, action) {
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
-    search, darkMode, knownItems, memoryItemIds, isMemoryModalOpen, isKeyboardOpen,
+    search, darkMode, knownItems, memoryItemIds, isMemoryModalOpen, isKeyboardOpen, isInfoOpen,
     showUnknownOnly, levelRange, isTocOpen, isSideTocCollapsed, activeCategory,
     collapsedCategories, activeSectionFilter
   } = state;
@@ -486,6 +490,15 @@ function App() {
               >
                 Quiz
               </a>
+              <button
+                type="button"
+                onClick={() => dispatch({ type: 'SET_INFO_OPEN', payload: true })}
+                className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 font-semibold text-sm text-gray-600 dark:text-gray-300"
+                title="About this project"
+                aria-label="About this project"
+              >
+                ?
+              </button>
             </div>
           </div>
 
@@ -656,6 +669,10 @@ function App() {
           memoryItemIds={memoryItemIds}
           onClose={() => dispatch({ type: 'SET_KEYBOARD_OPEN', payload: false })}
         />
+      )}
+
+      {isInfoOpen && (
+        <InfoModal onClose={() => dispatch({ type: 'SET_INFO_OPEN', payload: false })} />
       )}
 
       {isMemoryModalOpen && (
