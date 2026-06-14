@@ -353,9 +353,9 @@ function App() {
 
           {/* ── Filter bar ── */}
           {/* Search + utility buttons: mobile only (desktop has them in the navbar) */}
-          <div className="flex sm:hidden items-center gap-1.5 mb-3">
-            {/* Search */}
-            <div className="relative flex-1 min-w-0">
+          <div className="flex sm:hidden flex-wrap items-center gap-1.5 mb-3">
+            {/* Search — full width, forces buttons to next line */}
+            <div className="relative w-full min-w-0">
               <input
                 type="text"
                 placeholder="Search commands…"
