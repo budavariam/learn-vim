@@ -114,7 +114,10 @@ function reducer(state, action) {
     case 'SET_INFO_OPEN':
       return { ...state, isInfoOpen: action.payload };
     case 'SET_SECTION_FILTER':
-      return { ...state, activeSectionFilter: action.payload };
+      // payload: array of selected category strings, or null to clear
+      if (!action.payload || action.payload.length === 0)
+        return { ...state, activeSectionFilter: null }
+      return { ...state, activeSectionFilter: new Set(action.payload) }
     case 'TOGGLE_KNOWN': {
       const newSet = new Set(state.knownItems);
       if (newSet.has(action.payload)) {
@@ -210,7 +213,7 @@ function App() {
     item => item.level >= levelRange[0] && item.level <= levelRange[1]
   );
   if (activeSectionFilter) {
-    filteredData = filteredData.filter(item => item.category === activeSectionFilter)
+    filteredData = filteredData.filter(item => activeSectionFilter.has(item.category))
   }
 
   const groupedData = groupByCategory(filteredData)
@@ -464,17 +467,21 @@ function App() {
           </div>
 
           {/* Category filter */}
-          <div className="flex items-center justify-center gap-2 mb-1">
-            <label htmlFor="category-filter" className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+          <div className="flex items-start gap-2 mb-3">
+            <label htmlFor="category-filter" className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap pt-1.5">
               Category:
             </label>
             <select
               id="category-filter"
-              value={activeSectionFilter ?? ''}
-              onChange={e => dispatch({ type: 'SET_SECTION_FILTER', payload: e.target.value || null })}
-              className="text-xs px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              multiple
+              size={4}
+              value={activeSectionFilter ? [...activeSectionFilter] : []}
+              onChange={e => {
+                const selected = [...e.target.selectedOptions].map(o => o.value)
+                dispatch({ type: 'SET_SECTION_FILTER', payload: selected })
+              }}
+              className="text-xs px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent max-h-24 min-w-[10rem]"
             >
-              <option value="">All categories</option>
               {allCategories.map(cat => (
                 <option key={cat} value={cat}>{cat}</option>
               ))}
@@ -482,7 +489,7 @@ function App() {
             {activeSectionFilter && (
               <button
                 onClick={() => dispatch({ type: 'SET_SECTION_FILTER', payload: null })}
-                className="text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                className="text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors mt-0.5"
               >
                 Clear
               </button>
