@@ -443,10 +443,6 @@ function App() {
                 {result.length === 0 && " (try adjusting your search)"}
               </>
             )}
-            {!search && Object.keys(groupedData).length > 0 && `${Object.keys(groupedData).length} categories • ${filteredData.length} commands shown`}
-          </p>
-          <p className="text-gray-500 dark:text-gray-400 text-xs mb-2">
-            Option-click a command to add or remove it from Memorize.
           </p>
 
           {/* Level range slider */}
@@ -477,6 +473,9 @@ function App() {
               selected={activeSectionFilter}
               onChange={(val) => dispatch({ type: 'SET_SECTION_FILTER', payload: val ? [...val] : [] })}
             />
+            <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">
+              {filteredData.length} commands
+            </span>
           </div>
 
           <div className="space-y-2">
