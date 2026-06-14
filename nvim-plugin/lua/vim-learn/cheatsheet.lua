@@ -28,6 +28,12 @@ local function win_dims()
   return w, main_h, col, row
 end
 
+local function rpad(s, n)
+  local len = vim.fn.strdisplaywidth(s)
+  if len >= n then return s end
+  return s .. string.rep(' ', n - len)
+end
+
 local function fuzzy_match(text, query)
   if query == '' then return true end
   text  = text:lower()
@@ -115,8 +121,7 @@ local function render()
 
     local lnum = #lines
     emap[lnum] = item.id
-    local line = string.format(' %s  %-' .. sol_w .. 's  %-' .. q_w .. 's  [%d]',
-      mark, sols, question, item.level)
+    local line = ' ' .. mark .. '  ' .. rpad(sols, sol_w) .. '  ' .. rpad(question, q_w) .. '  [' .. item.level .. ']'
     table.insert(lines, line)
 
     if known then
