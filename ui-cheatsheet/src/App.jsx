@@ -7,6 +7,7 @@ import Navbar from './components/Navbar'
 import TableOfContents from './components/TableOfContents'
 import KeyboardModal from './components/KeyboardModal'
 import InfoModal from './components/InfoModal'
+import CategorySelect from './components/CategorySelect'
 import { getCategoryColor } from './constants'
 
 const options = {
@@ -467,33 +468,15 @@ function App() {
           </div>
 
           {/* Category filter */}
-          <div className="flex items-start gap-2 mb-3">
-            <label htmlFor="category-filter" className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap pt-1.5">
+          <div className="flex items-center gap-2 mb-3">
+            <label className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
               Category:
             </label>
-            <select
-              id="category-filter"
-              multiple
-              size={4}
-              value={activeSectionFilter ? [...activeSectionFilter] : []}
-              onChange={e => {
-                const selected = [...e.target.selectedOptions].map(o => o.value)
-                dispatch({ type: 'SET_SECTION_FILTER', payload: selected })
-              }}
-              className="text-xs px-2 py-1 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent max-h-24 min-w-[10rem]"
-            >
-              {allCategories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-            {activeSectionFilter && (
-              <button
-                onClick={() => dispatch({ type: 'SET_SECTION_FILTER', payload: null })}
-                className="text-xs px-2 py-1 rounded bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors mt-0.5"
-              >
-                Clear
-              </button>
-            )}
+            <CategorySelect
+              categories={allCategories}
+              selected={activeSectionFilter}
+              onChange={(val) => dispatch({ type: 'SET_SECTION_FILTER', payload: val ? [...val] : [] })}
+            />
           </div>
 
           <div className="space-y-2">
