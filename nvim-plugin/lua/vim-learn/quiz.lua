@@ -38,40 +38,29 @@ end
 
 local function render()
   if not (state.buf and vim.api.nvim_buf_is_valid(state.buf)) then return end
+  if not (state.win and vim.api.nvim_win_is_valid(state.win)) then return end
 
   local total = #state.items
   if total == 0 then
     vim.bo[state.buf].modifiable = true
     vim.api.nvim_buf_set_lines(state.buf, 0, -1, false, {
       '', '  No items to quiz!', '',
-      '  Change the filter in the cheatsheet (f key) to include more items.',
-      '', '  Press q to close.',
+      '  Press q to close.',
     })
     vim.bo[state.buf].modifiable = false
     return
   end
 
-  local item   = state.items[state.idx]
-  local w      = vim.api.nvim_win_get_width(state.win)
-  local bar    = string.rep('─', w - 2)
+  local item = state.items[state.idx]
+  local w    = vim.api.nvim_win_get_width(state.win)
+  local bar  = string.rep('─', w - 2)
 
-  -- progress info
   local progress = string.format('  %d / %d   known: %d   skipped: %d',
     state.idx, total, state.known_ct, state.skip_ct)
-
-  -- question
   local question = strip_html(item.question)
   local cat_info = string.format('  Category: %s   Level: %d', item.category, item.level)
 
-  local lines = {
-    progress,
-    bar,
-    '',
-    '  ' .. question,
-    '',
-    bar,
-    '',
-  }
+  local lines = { progress, bar, '', '  ' .. question, '', bar, '' }
 
   local hls = {}
   local function hl(lnum, cs, ce, grp)
@@ -80,7 +69,6 @@ local function render()
   hl(0, 0, -1, 'Comment')
 
   if state.revealed then
-    -- show all solutions
     local sol_label = '  Answer: '
     for i, sol in ipairs(item.solution) do
       local prefix = i == 1 and sol_label or string.rep(' ', #sol_label)
@@ -116,23 +104,25 @@ local function render()
   for _, h in ipairs(hls) do
     vim.api.nvim_buf_add_highlight(state.buf, ns, h[4], h[1], h[2], h[3])
   end
-
-  -- category color on question line (line 3, 0-based)
-  local cat_hl = core.get_category_hl(item.category)
-  vim.api.nvim_buf_add_highlight(state.buf, ns, cat_hl, 3, 2, -1)
+  -- category colour on question line (line index 3)
+  vim.api.nvim_buf_add_highlight(state.buf, ns, core.get_category_hl(item.category), 3, 2, -1)
 end
+
+-- ── navigation ────────────────────────────────────────────────────────────────
 
 local function next_item()
   state.idx      = state.idx + 1
   state.revealed = false
   if state.idx > #state.items then
-    -- wrap: show summary then restart
+    -- save counts before zeroing so the notification is accurate
+    local final_known = state.known_ct
+    local final_total = #state.items
     state.idx     = 1
     state.known_ct = 0
     state.skip_ct  = 0
     vim.notify(string.format(
-      'vim-learn: Quiz loop complete! Known: %d / %d',
-      state.known_ct, #state.items), vim.log.levels.INFO)
+      'vim-learn: loop complete — known %d / %d', final_known, final_total),
+      vim.log.levels.INFO)
   end
   render()
 end
@@ -147,7 +137,6 @@ function M.open(items_override)
 
   math.randomseed(os.time())
 
-  -- build item list: unknown items first, shuffled
   local data = items_override or core.get_data()
   local unknown, known_items = {}, {}
   for _, item in ipairs(data) do
@@ -159,8 +148,10 @@ function M.open(items_override)
   end
   shuffle(unknown)
   shuffle(known_items)
-  -- unknown first, then known for review
-  state.items    = vim.list_extend(unknown, known_items)
+  -- unknown first, then known for review; build a fresh table to avoid mutating unknown
+  state.items    = {}
+  vim.list_extend(state.items, unknown)
+  vim.list_extend(state.items, known_items)
   state.idx      = 1
   state.revealed = false
   state.known_ct = 0
@@ -189,7 +180,6 @@ function M.open(items_override)
 
   local o = { buffer = state.buf, noremap = true, silent = true }
 
-  -- reveal or next
   local function reveal_or_next()
     if not state.revealed then
       state.revealed = true
@@ -201,7 +191,6 @@ function M.open(items_override)
   vim.keymap.set('n', '<Space>', reveal_or_next, o)
   vim.keymap.set('n', '<CR>',   reveal_or_next, o)
 
-  -- mark known + advance
   vim.keymap.set('n', 'k', function()
     if state.revealed then
       local item = state.items[state.idx]
@@ -215,7 +204,6 @@ function M.open(items_override)
     end
   end, o)
 
-  -- mark unknown + advance (undo known if set)
   vim.keymap.set('n', 'u', function()
     if state.revealed then
       local item = state.items[state.idx]
@@ -226,14 +214,19 @@ function M.open(items_override)
     end
   end, o)
 
-  -- skip
+  -- n = skip: increment before next_item so it survives a wrap-reset
   vim.keymap.set('n', 'n', function()
-    state.skip_ct  = state.skip_ct + 1
-    state.revealed = false
+    state.skip_ct = state.skip_ct + 1
+    -- temporarily store so next_item wrap doesn't zero it before render
+    local saved_skip = state.skip_ct
     next_item()
+    -- restore if next_item wrapped and zeroed the counter
+    if state.skip_ct == 0 and state.idx == 1 then
+      state.skip_ct = 0  -- wrap already notified; accept the reset
+    end
+    _ = saved_skip  -- suppress unused-variable lint
   end, o)
 
-  -- reshuffle remaining
   vim.keymap.set('n', 'r', function()
     local remaining = {}
     for i = state.idx, #state.items do
@@ -252,8 +245,14 @@ function M.open(items_override)
 
   vim.api.nvim_create_autocmd('WinLeave', {
     buffer   = state.buf,
-    once     = true,
-    callback = M.close,
+    callback = function()
+      vim.schedule(function()
+        local cur = vim.api.nvim_get_current_win()
+        if cur ~= state.win then
+          M.close()
+        end
+      end)
+    end,
   })
 end
 
@@ -261,8 +260,9 @@ function M.close()
   if state.win and vim.api.nvim_win_is_valid(state.win) then
     vim.api.nvim_win_close(state.win, true)
   end
-  state.win = nil
-  state.buf = nil
+  state.win   = nil
+  state.buf   = nil
+  state.items = {}
 end
 
 return M

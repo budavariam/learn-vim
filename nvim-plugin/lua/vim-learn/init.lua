@@ -10,16 +10,17 @@ function M.setup(opts)
   M._data  = nil
   M._state = nil
 
+  -- force = true so re-sourcing / lazy re-setup doesn't raise E174
   vim.api.nvim_create_user_command('VimLearnCheatsheet', function()
     require('vim-learn.cheatsheet').open()
-  end, { desc = 'Open Vim cheatsheet overlay' })
+  end, { desc = 'Open Vim cheatsheet overlay', force = true })
 
   vim.api.nvim_create_user_command('VimLearnQuiz', function()
     require('vim-learn.quiz').open()
-  end, { desc = 'Open Vim quiz overlay' })
+  end, { desc = 'Open Vim quiz overlay', force = true })
 end
 
--- ── data ────────────────────────────────────────────────────────────────────
+-- ── data ─────────────────────────────────────────────────────────────────────
 
 function M.get_data()
   if M._data then return M._data end
@@ -27,13 +28,18 @@ function M.get_data()
     vim.notify('vim-learn: data_path not configured', vim.log.levels.ERROR)
     return {}
   end
-  local lines = vim.fn.readfile(vim.fn.expand(M.config.data_path))
-  if not lines then
-    vim.notify('vim-learn: cannot read ' .. M.config.data_path, vim.log.levels.ERROR)
+  local path = vim.fn.expand(M.config.data_path)
+  if vim.fn.filereadable(path) == 0 then
+    vim.notify('vim-learn: cannot read ' .. path, vim.log.levels.ERROR)
     return {}
   end
-  local ok, data = pcall(vim.json.decode, table.concat(lines, '\n'))
-  if not ok then
+  local ok_r, lines = pcall(vim.fn.readfile, path)
+  if not ok_r then
+    vim.notify('vim-learn: readfile error – ' .. tostring(lines), vim.log.levels.ERROR)
+    return {}
+  end
+  local ok_j, data = pcall(vim.json.decode, table.concat(lines, '\n'))
+  if not ok_j then
     vim.notify('vim-learn: invalid JSON – ' .. tostring(data), vim.log.levels.ERROR)
     return {}
   end
@@ -46,7 +52,7 @@ function M.reload_data()
   return M.get_data()
 end
 
--- ── persistent state (known items) ──────────────────────────────────────────
+-- ── persistent state (known items) ───────────────────────────────────────────
 
 function M.get_state()
   if M._state then return M._state end
@@ -55,10 +61,10 @@ function M.get_state()
     M._state = { known = {} }
     return M._state
   end
-  local lines = vim.fn.readfile(path)
-  if lines and #lines > 0 then
-    local ok, s = pcall(vim.json.decode, table.concat(lines, '\n'))
-    if ok and s then
+  local ok_r, lines = pcall(vim.fn.readfile, path)
+  if ok_r and lines and #lines > 0 then
+    local ok_j, s = pcall(vim.json.decode, table.concat(lines, '\n'))
+    if ok_j and s then
       M._state = s
       return s
     end
@@ -87,7 +93,7 @@ function M.toggle_known(id)
   M.save_state()
 end
 
--- ── category colors (same hue algorithm as the web cheatsheet) ──────────────
+-- ── category colours (same hue algorithm as the web cheatsheet) ──────────────
 
 local function hsl_to_hex(h, s, l)
   s = s / 100
@@ -110,18 +116,19 @@ local function hsl_to_hex(h, s, l)
 end
 
 function M.setup_category_highlights()
-  local data  = M.get_data()
-  local cats  = {}
-  local seen  = {}
+  local data = M.get_data()
+  local cats, seen = {}, {}
   for _, item in ipairs(data) do
-    if not seen[item.category] then
-      seen[item.category] = true
-      table.insert(cats, item.category)
+    local cat = item.category
+    if cat and not seen[cat] then
+      seen[cat] = true
+      table.insert(cats, cat)
     end
   end
   table.sort(cats)
   local n = #cats
   M._cat_hl = {}
+  if n == 0 then return end
   for i, cat in ipairs(cats) do
     local hue = math.floor(((i - 1) / n) * 360)
     local hex  = hsl_to_hex(hue, 70, 52)

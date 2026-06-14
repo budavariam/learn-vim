@@ -11,27 +11,33 @@ local state = {
   search_buf   = nil,
   filter_idx   = 1,
   search_query = '',
-  entry_map    = {},   -- lnum (0-based) -> item id
+  entry_map    = {},
 }
 
 -- ── helpers ───────────────────────────────────────────────────────────────────
 
--- Returns (width, main_height, col, row).
--- Reserves 3 extra rows below main for the search bar (1 line + 2 borders).
 local function win_dims()
   local w      = math.max(80, math.floor(vim.o.columns * 0.85))
   local avail  = math.floor(vim.o.lines * 0.88)
-  local main_h = math.max(15, avail - 3)   -- 3 = search content(1) + 2 borders
+  local main_h = math.max(15, avail - 3)
   local col    = math.floor((vim.o.columns - w) / 2)
-  -- centre the combined block: main (main_h+2) + search (1+2) = main_h+5
   local row    = math.max(0, math.floor((vim.o.lines - (main_h + 5)) / 2))
   return w, main_h, col, row
 end
 
-local function rpad(s, n)
-  local len = vim.fn.strdisplaywidth(s)
-  if len >= n then return s end
-  return s .. string.rep(' ', n - len)
+-- Truncate string to at most `n` display columns, then right-pad to exactly `n`.
+local function trunc_pad(s, n)
+  local w = vim.fn.strdisplaywidth(s)
+  if w > n then
+    -- trim by characters until it fits
+    s = vim.fn.strcharpart(s, 0, n)
+    while vim.fn.strdisplaywidth(s) > n do
+      s = vim.fn.strcharpart(s, 0, vim.fn.strchars(s) - 1)
+    end
+    s = s:sub(1, -2) .. '…'   -- replace last char with ellipsis indicator
+    w = vim.fn.strdisplaywidth(s)
+  end
+  return s .. string.rep(' ', n - w)
 end
 
 local function fuzzy_match(text, query)
@@ -74,6 +80,7 @@ end
 
 local function render()
   if not (state.buf and vim.api.nvim_buf_is_valid(state.buf)) then return end
+  if not (state.win and vim.api.nvim_win_is_valid(state.win)) then return end
 
   local data  = filtered_data()
   local mode  = FILTERS[state.filter_idx]
@@ -90,44 +97,46 @@ local function render()
     table.insert(hls, { lnum, cs, ce, grp })
   end
 
-  -- header line
+  -- header
   local query_hint = state.search_query ~= ''
     and ('  /' .. state.search_query)
     or  '  /search'
-  local header = string.format(
-    ' filter:%-7s  %d shown%s',
-    mode, #data, query_hint)
+  local header = string.format(' filter:%-7s  %d shown%s', mode, #data, query_hint)
   table.insert(lines, header)
   hl(0, 0, -1, 'Title')
   table.insert(lines, string.rep('─', w - 2))
 
   local cur_cat = nil
   for _, item in ipairs(data) do
+    -- category header: blank line then label
     if item.category ~= cur_cat then
       cur_cat = item.category
-      table.insert(lines, '')
-      local cat_lnum = #lines - 1
-      local cat_line = '  ' .. item.category
-      table.insert(lines, cat_line)
+      table.insert(lines, '')        -- blank separator
+      table.insert(lines, '  ' .. item.category)
+      local cat_lnum = #lines - 1   -- 0-based index of the category line (after insert)
       hl(cat_lnum, 2, 2 + #item.category, core.get_category_hl(item.category))
     end
 
+    -- entry
     local known    = core.is_known(item.id)
     local mark     = known and '✓' or ' '
     local sols     = table.concat(item.solution, '  ')
-    if #sols > sol_w then sols = sols:sub(1, sol_w - 1) .. '…' end
     local question = strip_html(item.question)
-    if #question > q_w then question = question:sub(1, q_w - 1) .. '…' end
 
     local lnum = #lines
     emap[lnum] = item.id
-    local line = ' ' .. mark .. '  ' .. rpad(sols, sol_w) .. '  ' .. rpad(question, q_w) .. '  [' .. item.level .. ']'
+    local sol_col  = 5   -- byte offset where solution text starts in the line
+    local sols_disp = trunc_pad(sols, sol_w)
+    local q_disp    = trunc_pad(question, q_w)
+    local line = ' ' .. mark .. '  ' .. sols_disp .. '  ' .. q_disp .. '  [' .. item.level .. ']'
     table.insert(lines, line)
 
     if known then
       hl(lnum, 0, -1, 'Comment')
     else
-      hl(lnum, 5, 5 + #sols, 'Keyword')
+      -- byte offset for the solution highlight (mark=' '(1) + '  '(2) = 3 bytes before sol)
+      local sol_end = sol_col + vim.fn.strdisplaywidth(sols_disp)
+      hl(lnum, sol_col, sol_end, 'Keyword')
     end
   end
 
@@ -148,8 +157,7 @@ end
 local function update_query()
   if not (state.search_buf and vim.api.nvim_buf_is_valid(state.search_buf)) then return end
   local line = vim.api.nvim_buf_get_lines(state.search_buf, 0, 1, false)[1] or ''
-  -- strip the leading "> " prefix we set as a prompt indicator
-  state.search_query = line:gsub('^>%s*', '')
+  state.search_query = line
   render()
 end
 
@@ -160,8 +168,12 @@ local function open_search()
     return
   end
 
-  local w, main_h, col, row = win_dims()
-  local search_row = row + main_h + 2   -- main content(main_h) + top-border(1) + bottom-border(1)
+  -- derive position from actual main window, not a fresh win_dims() call
+  local win_pos = vim.api.nvim_win_get_position(state.win)
+  local main_h  = vim.api.nvim_win_get_height(state.win)
+  local w       = vim.api.nvim_win_get_width(state.win)
+  local col     = win_pos[2]
+  local search_row = win_pos[1] + main_h + 2   -- below main's bottom border
 
   state.search_buf = vim.api.nvim_create_buf(false, true)
   vim.bo[state.search_buf].bufhidden = 'wipe'
@@ -174,14 +186,14 @@ local function open_search()
     row       = search_row,
     style     = 'minimal',
     border    = 'rounded',
-    title     = ' fuzzy search ',
+    title     = ' fuzzy search (Enter: confirm  Esc: clear) ',
     title_pos = 'left',
   })
 
-  -- seed with current query so user can edit it
-  local seed = '> ' .. state.search_query
-  vim.api.nvim_buf_set_lines(state.search_buf, 0, -1, false, { seed })
-  vim.api.nvim_win_set_cursor(state.search_win, { 1, #seed })
+  -- seed with the current query so the user can refine it
+  vim.api.nvim_buf_set_lines(state.search_buf, 0, -1, false, { state.search_query })
+  local cur_len = #state.search_query
+  vim.api.nvim_win_set_cursor(state.search_win, { 1, cur_len })
   vim.cmd('startinsert!')
 
   vim.api.nvim_create_autocmd('TextChangedI', {
@@ -191,7 +203,6 @@ local function open_search()
 
   local o = { buffer = state.search_buf, noremap = true, silent = true }
 
-  -- confirm: close search bar, return focus to main
   local function confirm()
     update_query()
     if state.search_win and vim.api.nvim_win_is_valid(state.search_win) then
@@ -205,7 +216,6 @@ local function open_search()
     end
   end
 
-  -- clear: reset query, close bar
   local function clear_search()
     state.search_query = ''
     if state.search_win and vim.api.nvim_win_is_valid(state.search_win) then
@@ -220,8 +230,8 @@ local function open_search()
     end
   end
 
-  vim.keymap.set({ 'i', 'n' }, '<CR>',  confirm,      o)
-  vim.keymap.set({ 'i', 'n' }, '<Esc>', clear_search,  o)
+  vim.keymap.set({ 'i', 'n' }, '<CR>',  confirm,     o)
+  vim.keymap.set({ 'i', 'n' }, '<Esc>', clear_search, o)
 end
 
 -- ── public ────────────────────────────────────────────────────────────────────
@@ -232,7 +242,10 @@ function M.open()
     return
   end
 
+  -- reset transient state on every open
   state.search_query = ''
+  state.filter_idx   = 1
+  state.entry_map    = {}
 
   state.buf = vim.api.nvim_create_buf(false, true)
   vim.bo[state.buf].bufhidden = 'wipe'
@@ -259,9 +272,8 @@ function M.open()
 
   local o = { buffer = state.buf, noremap = true, silent = true }
 
-  vim.keymap.set('n', 'q',     M.close, o)
+  vim.keymap.set('n', 'q', M.close, o)
   vim.keymap.set('n', '<Esc>', function()
-    -- if there's an active query, clear it first; else close
     if state.search_query ~= '' then
       state.search_query = ''
       render()
@@ -290,8 +302,10 @@ function M.open()
   end, o)
 
   vim.keymap.set('n', 'R', function()
-    core.reload_data(); core._cat_hl = nil
-    core.setup_category_highlights(); render()
+    core.reload_data()
+    core._cat_hl = nil
+    core.setup_category_highlights()
+    render()
   end, o)
 
   vim.keymap.set('n', 'Q', function()
@@ -299,10 +313,19 @@ function M.open()
     require('vim-learn.quiz').open()
   end, o)
 
+  -- Close when focus leaves to a window that is not our own search bar.
+  -- vim.schedule defers the check until after the WinEnter of the new window
+  -- so state.search_win is already set when the callback runs.
   vim.api.nvim_create_autocmd('WinLeave', {
     buffer   = state.buf,
-    once     = true,
-    callback = M.close,
+    callback = function()
+      vim.schedule(function()
+        local cur = vim.api.nvim_get_current_win()
+        if cur ~= state.win and cur ~= state.search_win then
+          M.close()
+        end
+      end)
+    end,
   })
 end
 
