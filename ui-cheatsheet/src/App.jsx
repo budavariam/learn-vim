@@ -507,7 +507,7 @@ function App() {
                       style={{ backgroundColor: getCategoryColor(category) }}
                     />
                     {category}
-                    <span className="ml-auto text-xs font-normal text-gray-500 dark:text-gray-400">
+                    <span className="ml-auto text-xs font-normal text-gray-500 dark:text-gray-400 hidden sm:inline">
                       {items.length} command{items.length !== 1 ? 's' : ''}
                     </span>
                   </h2>
