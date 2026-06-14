@@ -464,8 +464,8 @@ function App() {
           </div>
 
           {/* Category filter */}
-          <div className="flex items-center gap-2 mb-3">
-            <label className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <label className="text-xs text-gray-500 dark:text-gray-400">
               Category:
             </label>
             <CategorySelect
