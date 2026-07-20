@@ -114,6 +114,7 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
   const [ctrl, setCtrl] = useState(false)
   const [locale, setLocale] = useState(() => localStorage.getItem('keyboardLocale') || 'EN')
   const [filterMode, setFilterMode] = useState('all')
+  const [showAllVariants, setShowAllVariants] = useState(false)
   const keyboardRef = useRef(null)
 
   const filteredData = useMemo(() => {
@@ -277,6 +278,13 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
               Ctrl
             </span>
             <button
+              onClick={() => setShowAllVariants(v => !v)}
+              className={`px-2 py-0.5 rounded text-xs font-mono transition-colors ${showAllVariants ? 'bg-purple-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+              title={showAllVariants ? 'Showing all variants — click to filter by active modifier' : 'Filtering by modifier — click to show all variants'}
+            >
+              All
+            </button>
+            <button
               onClick={onClose}
               className="p-1.5 rounded text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               aria-label="Close keyboard view"
@@ -342,21 +350,28 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
         <div className="px-4 pb-4 min-h-[6rem]">
           {activeKey && activeCommands ? (
             <div className="space-y-1.5">
-              {activeCommands.plain.map(item => (
+              {(showAllVariants || (!ctrl && !shift)) && activeCommands.plain.map(item => (
                 <CommandLine key={`plain-${item.id}`} label={activeCommands.plainLabel} item={item} />
               ))}
-              {activeCommands.shift.map(item => (
+              {(showAllVariants || (!ctrl && shift)) && activeCommands.shift.map(item => (
                 <CommandLine key={`shift-${item.id}`} label={activeCommands.shiftLabel} item={item} />
               ))}
-              {activeCommands.ctrl.map(item => (
+              {(showAllVariants || ctrl) && activeCommands.ctrl.map(item => (
                 <CommandLine key={`ctrl-${item.id}`} label={activeCommands.ctrlLabel} item={item} />
               ))}
-              {!activeCommands.plain.length && !activeCommands.shift.length && !activeCommands.ctrl.length && (
-                <p className="text-xs text-gray-400 dark:text-gray-500 py-2">
-                  No single-key Vim commands for{' '}
-                  <code className="font-mono">{displayKeyToChar(activeKey)}</code>
-                </p>
-              )}
+              {(() => {
+                const hasVisible =
+                  ((showAllVariants || (!ctrl && !shift)) && activeCommands.plain.length > 0) ||
+                  ((showAllVariants || (!ctrl && shift)) && activeCommands.shift.length > 0) ||
+                  ((showAllVariants || ctrl) && activeCommands.ctrl.length > 0)
+                return !hasVisible && (
+                  <p className="text-xs text-gray-400 dark:text-gray-500 py-2">
+                    No single-key Vim commands for{' '}
+                    <code className="font-mono">{displayKeyToChar(activeKey)}</code>
+                    {ctrl ? ' with Ctrl' : shift ? ' with Shift' : ''}
+                  </p>
+                )
+              })()}
             </div>
           ) : (
             <p className="text-xs text-gray-400 dark:text-gray-500 py-2">

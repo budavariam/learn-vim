@@ -43,16 +43,29 @@ local function trunc_pad(s, n)
   return s .. string.rep(' ', n - w)
 end
 
-local function fuzzy_match(text, query)
-  if query == '' then return true end
+-- Returns nil on no match, or 1-100 score (100 = consecutive/exact match).
+local function fuzzy_score(text, query)
+  if query == '' then return 100 end
   text  = text:lower()
   query = query:lower()
   local ti, qi = 1, 1
+  local first_match, last_match
   while ti <= #text and qi <= #query do
-    if text:sub(ti, ti) == query:sub(qi, qi) then qi = qi + 1 end
+    if text:sub(ti, ti) == query:sub(qi, qi) then
+      if not first_match then first_match = ti end
+      last_match = ti
+      qi = qi + 1
+    end
     ti = ti + 1
   end
-  return qi > #query
+  if qi <= #query then return nil end
+  local span = last_match - first_match + 1
+  return math.min(100, math.floor((#query / span) * 100))
+end
+
+local function fuzzy_match(text, query)
+  if query == '' then return true end
+  return fuzzy_score(text, query) ~= nil
 end
 
 local function strip_html(s)
@@ -133,7 +146,8 @@ local function render()
   local w     = vim.api.nvim_win_get_width(state.win)
   local sol_w = 22
   local lvl_w = 4   -- '[N]' max width (levels 0-9 = 3, but reserve 4 for padding)
-  local q_w   = math.max(20, w - sol_w - lvl_w - 8)
+  local pct_w = state.search_query ~= '' and 5 or 0  -- ' 87%' = 5 chars when searching
+  local q_w   = math.max(20, w - sol_w - lvl_w - pct_w - 8)
 
   local lines = {}
   local hls   = {}
@@ -182,7 +196,15 @@ local function render()
 
     local lnum = #lines
     emap[lnum] = item.id
-    local line = ' ' .. mark .. '  ' .. sols_disp .. '  ' .. q_disp .. '  ' .. lvl_disp
+
+    local pct_disp = ''
+    if state.search_query ~= '' then
+      local hay = table.concat(item.solution, ' ') .. ' ' .. item.question .. ' ' .. item.category
+      local sc  = fuzzy_score(hay, state.search_query) or 0
+      pct_disp  = string.format(' %3d%%', sc)
+    end
+
+    local line = ' ' .. mark .. '  ' .. sols_disp .. '  ' .. q_disp .. pct_disp .. '  ' .. lvl_disp
     table.insert(lines, line)
 
     if known then
@@ -190,6 +212,11 @@ local function render()
     else
       -- highlight solution text (starts at byte 5: ' '(1)+'mark'(1)+'  '(2)+sol at 5)
       hl(lnum, 5, 5 + vim.fn.strdisplaywidth(sols_disp), 'Keyword')
+      -- highlight percentage score when searching
+      if pct_disp ~= '' then
+        local pct_byte_start = #line - #lvl_disp - 2 - #pct_disp
+        hl(lnum, pct_byte_start, pct_byte_start + #pct_disp, 'Number')
+      end
       -- dim the level on the right
       local lvl_byte_start = #line - #lvl_disp
       hl(lnum, lvl_byte_start, -1, 'Comment')
@@ -416,6 +443,7 @@ end
 
 -- Exposed only for unit tests.
 M._test_api = {
+  fuzzy_score          = fuzzy_score,
   fuzzy_match          = fuzzy_match,
   trunc_pad            = trunc_pad,
   filtered_sorted_data = filtered_sorted_data,

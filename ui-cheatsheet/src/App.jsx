@@ -330,6 +330,7 @@ function App() {
         onMarkAll={() => {
           const ids = new Set(preparedData.map(i => i.id))
           const allKnown = [...ids].every(id => knownItems.has(id))
+          if (allKnown && !window.confirm('Reset all items to unknown?')) return
           dispatch({ type: 'SET_KNOWN_ITEMS', payload: allKnown ? new Set() : ids })
         }}
         hasGroupedData={Object.keys(groupedData).length > 0}
@@ -411,7 +412,10 @@ function App() {
               const allKnown = [...allItemIds].every(id => knownItems.has(id))
               return (
                 <button
-                  onClick={() => dispatch({ type: 'SET_KNOWN_ITEMS', payload: allKnown ? new Set() : allItemIds })}
+                  onClick={() => {
+                    if (allKnown && !window.confirm('Reset all items to unknown?')) return
+                    dispatch({ type: 'SET_KNOWN_ITEMS', payload: allKnown ? new Set() : allItemIds })
+                  }}
                   className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm flex-shrink-0"
                   title={allKnown ? 'Reset — mark all as unknown' : 'Mark all as known'}
                 >
@@ -520,7 +524,7 @@ function App() {
                         <div
                           onClick={(event) => handleCardClick(event, item.id)}
                           key={index}
-                          title="Click to toggle learned. Option-click to toggle memorize mark."
+                          title="Click to toggle learned. Alt-click or use the pin button to memorize."
                           style={{ borderLeftColor: getCategoryColor(category), borderLeftWidth: '3px' }}
                           className={`group p-2.5 rounded-md border cursor-pointer transition-all duration-200 ${memoryItemIds.includes(item.id)
                             ? 'ring-2 ring-amber-400 dark:ring-amber-500'
@@ -539,11 +543,16 @@ function App() {
                             <span className="ml-auto text-xs font-mono text-gray-400 dark:text-gray-500 opacity-70">
                               {item.level}
                             </span>
-                            {memoryItemIds.includes(item.id) && (
-                              <span className="text-[10px] font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
-                                Memo
-                              </span>
-                            )}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); toggleMemoryItem(item.id) }}
+                              className={`p-0.5 rounded transition-colors sm:opacity-0 sm:group-hover:opacity-100 ${memoryItemIds.includes(item.id) ? 'text-amber-500 dark:text-amber-400 !opacity-100' : 'text-gray-300 dark:text-gray-600 hover:text-amber-400'}`}
+                              title="Toggle memorize"
+                              aria-label="Toggle memorize"
+                            >
+                              <svg className="w-3.5 h-3.5" fill={memoryItemIds.includes(item.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                              </svg>
+                            </button>
                           </div>
 
                           <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed">

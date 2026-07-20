@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Grid3x3, CheckCircle, XCircle } from 'lucide-react';
 import { gameModes, GameMode } from './QuizGame';
 import type { QuizQuestion } from './QuizGame';
@@ -41,22 +41,37 @@ const MultipleChoiceMode: React.FC<MultipleChoiceModeProps> = ({
     onToggleLevelBadge
 }) => {
     const config = gameMode ? gameModes[gameMode] : null;
+    const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+    const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // Reset selection when question changes
+    useEffect(() => {
+        setSelectedAnswer(null);
+        if (timerRef.current) clearTimeout(timerRef.current);
+    }, [currentIndex]);
+
+    const handleAnswer = useCallback((option: string) => {
+        if (selectedAnswer) return;
+        setSelectedAnswer(option);
+        timerRef.current = setTimeout(() => {
+            onMCAnswer(option);
+        }, 1000);
+    }, [selectedAnswer, onMCAnswer]);
 
     // Keyboard support for 1-4 keys
     useEffect(() => {
         const handleKeyPress = (e: KeyboardEvent) => {
-            if (!showAnswer && mcOptions.length > 0) {
+            if (!showAnswer && !selectedAnswer && mcOptions.length > 0) {
                 const keyNum = parseInt(e.key);
                 if (keyNum >= 1 && keyNum <= 4 && keyNum <= mcOptions.length) {
-                    const selectedOption = mcOptions[keyNum - 1];
-                    onMCAnswer(selectedOption);
+                    handleAnswer(mcOptions[keyNum - 1]);
                 }
             }
         };
 
         window.addEventListener('keydown', handleKeyPress);
         return () => window.removeEventListener('keydown', handleKeyPress);
-    }, [showAnswer, mcOptions, onMCAnswer]);
+    }, [showAnswer, selectedAnswer, mcOptions, handleAnswer]);
 
     return (
         <div className="min-h-screen p-6">
@@ -123,20 +138,45 @@ const MultipleChoiceMode: React.FC<MultipleChoiceModeProps> = ({
                                     <p className="text-center text-sm terminal-text color-cyan opacity-70 mb-4">
                                         Press 1-4 or click to select
                                     </p>
-                                    {mcOptions.map((option, index) => (
-                                        <button
-                                            key={`mc-${currentIndex}-${index}`}
-                                            onClick={() => onMCAnswer(option)}
-                                            className="w-full text-left px-6 py-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 hover:shadow-md text-gray-800 dark:text-gray-200"
-                                        >
-                                            <span className="inline-flex items-center gap-3">
-                                                <span className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-bold text-sm">
-                                                    {index + 1}
+                                    {mcOptions.map((option, index) => {
+                                        const isCorrectOption = question.solution.includes(option);
+                                        const isSelected = selectedAnswer === option;
+                                        let btnClass = 'w-full text-left px-6 py-4 rounded-lg border-2 transition-all duration-300 ';
+                                        if (selectedAnswer) {
+                                            if (isCorrectOption) {
+                                                btnClass += 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-900 dark:text-green-100';
+                                            } else if (isSelected) {
+                                                btnClass += 'border-red-500 bg-red-50 dark:bg-red-900/30 text-red-900 dark:text-red-100';
+                                            } else {
+                                                btnClass += 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-400 dark:text-gray-500 opacity-50';
+                                            }
+                                        } else {
+                                            btnClass += 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-md text-gray-800 dark:text-gray-200';
+                                        }
+                                        return (
+                                            <button
+                                                key={`mc-${currentIndex}-${index}`}
+                                                onClick={() => handleAnswer(option)}
+                                                disabled={!!selectedAnswer}
+                                                className={btnClass}
+                                            >
+                                                <span className="inline-flex items-center gap-3">
+                                                    <span className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm transition-colors duration-300 ${
+                                                        selectedAnswer
+                                                            ? isCorrectOption
+                                                                ? 'bg-green-200 dark:bg-green-700 text-green-900 dark:text-green-100'
+                                                                : isSelected
+                                                                    ? 'bg-red-200 dark:bg-red-700 text-red-900 dark:text-red-100'
+                                                                    : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'
+                                                            : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                                                    }`}>
+                                                        {index + 1}
+                                                    </span>
+                                                    <span className="text-lg">{option}</span>
                                                 </span>
-                                                <span className="text-lg">{option}</span>
-                                            </span>
-                                        </button>
-                                    ))}
+                                            </button>
+                                        );
+                                    })}
                                 </>
                             ) : (
                                 <div className="text-center py-8">
