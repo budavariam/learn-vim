@@ -1018,7 +1018,7 @@ const QuizGame: React.FC = () => {
         );
     }
 
-    if (gameState === 'multiple-choice') {
+    if (gameState === 'multiple-choice' || (gameState === 'answered' && gameMode?.startsWith('mc-'))) {
         return (
             <MultipleChoiceMode
                 question={questions[currentIndex]}
