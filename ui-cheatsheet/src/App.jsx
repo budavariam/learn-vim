@@ -331,6 +331,7 @@ function App() {
           const ids = new Set(preparedData.map(i => i.id))
           const allKnown = [...ids].every(id => knownItems.has(id))
           if (allKnown && !window.confirm('Reset all items to unknown?')) return
+          if (!allKnown && !window.confirm('Mark all items as known?')) return
           dispatch({ type: 'SET_KNOWN_ITEMS', payload: allKnown ? new Set() : ids })
         }}
         hasGroupedData={Object.keys(groupedData).length > 0}
@@ -414,6 +415,7 @@ function App() {
                 <button
                   onClick={() => {
                     if (allKnown && !window.confirm('Reset all items to unknown?')) return
+                    if (!allKnown && !window.confirm('Mark all items as known?')) return
                     dispatch({ type: 'SET_KNOWN_ITEMS', payload: allKnown ? new Set() : allItemIds })
                   }}
                   className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm flex-shrink-0"
