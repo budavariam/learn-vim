@@ -1028,12 +1028,12 @@ const QuizGame: React.FC = () => {
                 gameMode={gameMode}
                 mcOptions={mcOptions}
                 showAnswer={showAnswer}
-                isCorrect={isCorrect}
-                userAnswer={userAnswer}
+                knownItems={knownItems}
                 onMCAnswer={handleMCAnswer}
                 onNext={handleNextQuestion}
                 onQuit={handleQuitGame}
                 onHome={handleHome}
+                onToggleKnown={(id) => id && dispatch({ type: 'TOGGLE_KNOWN_ITEM', payload: id })}
                 showLevelBadge={showLevelBadge}
                 onToggleLevelBadge={() => dispatch({ type: 'TOGGLE_LEVEL_BADGE' })}
             />
