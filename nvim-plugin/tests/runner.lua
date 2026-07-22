@@ -88,6 +88,7 @@ local test_files = {
   tests_dir .. '/test_core.lua',
   tests_dir .. '/test_cheatsheet.lua',
   tests_dir .. '/test_quiz.lua',
+  tests_dir .. '/test_arcade.lua',
 }
 
 for _, f in ipairs(test_files) do

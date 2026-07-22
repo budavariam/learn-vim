@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #0d1117;
+  color: #f0f6fc;
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+}
+
+/* ── Notification toasts ── */
+@keyframes toast-in {
+  from { transform: translateX(110%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes toast-out {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(110%); opacity: 0; }
+}
+
+.toast-enter  { animation: toast-in  0.18s ease-out forwards; }
+.toast-exit   { animation: toast-out 0.22s ease-in  forwards; }
+
+/* ── Challenge card state flashes ── */
+@keyframes flash-green {
+  0%   { background-color: rgba(34,197,94,0.0); }
+  30%  { background-color: rgba(34,197,94,0.25); }
+  100% { background-color: rgba(34,197,94,0.0); }
+}
+@keyframes flash-red {
+  0%   { background-color: rgba(239,68,68,0.0); }
+  30%  { background-color: rgba(239,68,68,0.25); }
+  100% { background-color: rgba(239,68,68,0.0); }
+}
+
+.challenge-completed { animation: flash-green 0.5s ease-out forwards; }
+.challenge-failed    { animation: flash-red   0.5s ease-out forwards; }
+
+/* ── Level-up banner ── */
+@keyframes levelup-pop {
+  0%   { transform: scale(0.7); opacity: 0; }
+  60%  { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1);   opacity: 1; }
+}
+.levelup-banner { animation: levelup-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
+/* Ensure all interactive elements show a visible focus ring for keyboard users */
+:focus-visible {
+  outline: 2px solid #60a5fa; /* blue-400 */
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+/* ── Goal Mode diff gutter markers ── */
+/* Applied via linesDecorationsClassName — coloured bar in the line number gutter. */
+.goal-diff-changed  { border-left: 3px solid #f59e0b; }   /* amber  — line exists but differs */
+.goal-diff-added    { border-left: 3px solid #22c55e; }   /* green  — needs to be added       */
+.goal-diff-removed  { border-left: 3px solid #ef4444; }   /* red    — needs to be removed     */
+
+/* Suppress the ring only on elements that have custom focus styling */
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
+}

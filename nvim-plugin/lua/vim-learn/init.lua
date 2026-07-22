@@ -18,6 +18,10 @@ function M.setup(opts)
   vim.api.nvim_create_user_command('VimLearnQuiz', function()
     require('vim-learn.quiz').open()
   end, { desc = 'Open Vim quiz overlay', force = true })
+
+  vim.api.nvim_create_user_command('VimLearnArcade', function()
+    require('vim-learn.arcade').open_arcade()
+  end, { desc = 'Open Vim arcade overlay', force = true })
 end
 
 -- ── data ─────────────────────────────────────────────────────────────────────

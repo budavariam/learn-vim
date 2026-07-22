@@ -1,0 +1,59 @@
+# Root docker-compose for learn-vim
+# vimtutor has its own compose at vimtutor/docker-compose.yml
+#
+# Profiles:
+#   dev    — hot-reload Vite dev server  (default)
+#   prod   — production nginx build
+#
+# Usage:
+#   dev:  docker compose --profile dev up
+#   prod: docker compose --profile prod up --build
+
+version: '3.9'
+
+services:
+  # ── ui-arcade dev ─────────────────────────────────────────────────────────
+  # Mounts source for hot-reload; data.json is generated at startup.
+  ui-arcade-dev:
+    image: node:20-alpine
+    profiles: [dev]
+    working_dir: /app/ui-arcade
+    volumes:
+      - .:/app
+      - /app/ui-arcade/node_modules   # anonymous volume keeps node_modules inside container
+    ports:
+      - "5174:5174"
+    environment:
+      - NODE_ENV=development
+    command: >
+      sh -c "npm install &&
+             node ../scripts/generateData.js ui-arcade &&
+             npx vite --base /learn-vim/arcade/ --host 0.0.0.0 --port 5174"
+
+  # ── ui-arcade production ──────────────────────────────────────────────────
+  # Multi-stage build: Vite build → nginx static server.
+  # The Dockerfile copies the shared scripts/ and vim-cheatsheet.md into the
+  # build context, so the Docker build is run from the repo root.
+  ui-arcade:
+    profiles: [prod]
+    build:
+      context: .               # repo root — gives access to scripts/ and vim-cheatsheet.md
+      dockerfile: ui-arcade/Dockerfile.repo   # see note below
+    ports:
+      - "3001:80"
+    restart: unless-stopped
+
+  # ── ui-cheatsheet dev (optional) ──────────────────────────────────────────
+  ui-cheatsheet-dev:
+    image: node:20-alpine
+    profiles: [dev]
+    working_dir: /app/ui-cheatsheet
+    volumes:
+      - .:/app
+      - /app/ui-cheatsheet/node_modules
+    ports:
+      - "5173:5173"
+    command: >
+      sh -c "npm install &&
+             node ../scripts/generateData.js ui-cheatsheet &&
+             npx vite --host 0.0.0.0 --port 5173"
