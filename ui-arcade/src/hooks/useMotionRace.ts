@@ -6,10 +6,11 @@ import type { Language } from '../engine/types'
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface MotionRaceConfig {
-  language:    Language
-  mode:        'count' | 'timed'
-  targetCount: number   // 3–30 (count mode)
-  durationMs:  number   // 60_000 | 120_000 | 300_000 | 600_000 (timed mode)
+  language:          Language
+  mode:              'count' | 'timed'
+  targetCount:       number   // 3–30 (count mode)
+  durationMs:        number   // 60_000 | 120_000 | 300_000 | 600_000 (timed mode)
+  startFromPrevious: boolean  // true = new path starts where last one ended
 }
 
 export interface CompletedPath {
@@ -48,7 +49,7 @@ const ZERO: Pos = { lineNumber: 1, column: 1 }
 
 const BLANK: MotionRaceGameState = {
   status:         'playing',
-  config:         { language: 'typescript', mode: 'count', targetCount: 5, durationMs: 60_000 },
+  config:         { language: 'typescript', mode: 'count', targetCount: 5, durationMs: 60_000, startFromPrevious: true },
   from:           ZERO,
   to:             ZERO,
   currentPos:     ZERO,
@@ -92,33 +93,34 @@ function raceReducer(state: MotionRaceGameState, action: RaceAction): MotionRace
 
 // ── Position generation ───────────────────────────────────────────────────────
 
-function generatePath(content: string): { from: Pos; to: Pos } | null {
-  const lines = content.split('\n')
+function buildValidLines(content: string) {
+  return content.split('\n').map((line, i) => {
+    const cols: number[] = []
+    for (let j = 0; j < line.length; j++) {
+      if (line[j].trim() !== '') cols.push(j + 1)
+    }
+    return { n: i + 1, cols }
+  }).filter(({ cols }) => cols.length > 0)
+}
 
-  // For each line collect the 1-based columns of non-whitespace characters only.
-  // This guarantees positions land on real tokens, never on leading indent or gaps.
-  const valid = lines
-    .map((line, i) => {
-      const cols: number[] = []
-      for (let j = 0; j < line.length; j++) {
-        if (line[j].trim() !== '') cols.push(j + 1)
-      }
-      return { n: i + 1, cols }
-    })
-    .filter(({ cols }) => cols.length > 0)
+function pickFrom(cols: number[], n: number): Pos {
+  return { lineNumber: n, column: cols[Math.floor(Math.random() * cols.length)] }
+}
 
+function generatePath(content: string, fixedFrom?: Pos): { from: Pos; to: Pos } | null {
+  const valid = buildValidLines(content)
   if (valid.length < 2) return null
 
-  const pickPos = ({ n, cols }: { n: number; cols: number[] }): Pos => ({
-    lineNumber: n,
-    column:     cols[Math.floor(Math.random() * cols.length)],
-  })
+  // Determine from position
+  const from: Pos = fixedFrom
+    ?? (() => { const e = valid[Math.floor(Math.random() * valid.length)]; return pickFrom(e.cols, e.n) })()
 
-  const fi = Math.floor(Math.random() * valid.length)
-  let ti: number
-  do { ti = Math.floor(Math.random() * valid.length) } while (ti === fi)
+  // Pick to on a different line than from
+  const toEntries = valid.filter(({ n }) => n !== from.lineNumber)
+  if (toEntries.length === 0) return null
+  const toEntry = toEntries[Math.floor(Math.random() * toEntries.length)]
 
-  return { from: pickPos(valid[fi]), to: pickPos(valid[ti]) }
+  return { from, to: pickFrom(toEntry.cols, toEntry.n) }
 }
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
@@ -179,8 +181,10 @@ export function useMotionRace(): UseMotionRaceReturn {
       return
     }
 
-    // Generate next path
-    const path = generatePath(fileContentRef.current)
+    // Generate next path — start from where the user just landed if configured
+    const prevEnd = toRef.current
+    const fixedFrom = config.startFromPrevious ? prevEnd : undefined
+    const path = generatePath(fileContentRef.current, fixedFrom)
     if (!path) return
 
     contentValidRef.current = true

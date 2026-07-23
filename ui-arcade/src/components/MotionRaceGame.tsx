@@ -29,13 +29,14 @@ interface SetupProps {
 }
 
 function MotionRaceSetup({ onStart, onBack }: SetupProps) {
-  const [lang,       setLang]       = useState<Language>('typescript')
-  const [mode,       setMode]       = useState<'count' | 'timed'>('timed')
-  const [count,      setCount]      = useState(10)
-  const [durationMs, setDurationMs] = useState(60_000)
+  const [lang,              setLang]              = useState<Language>('typescript')
+  const [mode,              setMode]              = useState<'count' | 'timed'>('timed')
+  const [count,             setCount]             = useState(10)
+  const [durationMs,        setDurationMs]        = useState(60_000)
+  const [startFromPrevious, setStartFromPrevious] = useState(true)
 
   function handleStart() {
-    onStart({ language: lang, mode, targetCount: count, durationMs })
+    onStart({ language: lang, mode, targetCount: count, durationMs, startFromPrevious })
   }
 
   return (
@@ -130,6 +131,29 @@ function MotionRaceSetup({ onStart, onBack }: SetupProps) {
             </div>
           </div>
         )}
+
+        {/* Start position */}
+        <div className="mb-6">
+          <p className="text-xs uppercase tracking-wider text-gray-400 mb-2">Start position</p>
+          <div className="grid grid-cols-2 gap-2">
+            {([true, false] as const).map(v => (
+              <button
+                key={String(v)}
+                onClick={() => setStartFromPrevious(v)}
+                className={`py-3 rounded border text-sm transition-colors ${
+                  startFromPrevious === v
+                    ? 'bg-green-800 border-green-600 text-white font-bold'
+                    : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'
+                }`}
+              >
+                {v ? '⛓ Continue from last' : '🎲 Random each time'}
+                <div className="text-xs text-gray-400 font-normal mt-0.5">
+                  {v ? 'Chain paths — cursor stays where you ended' : 'Jump to a fresh start each path'}
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
 
         <div className="flex gap-3 mt-8">
           <button
