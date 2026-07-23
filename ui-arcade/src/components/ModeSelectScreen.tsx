@@ -1,9 +1,10 @@
 interface ModeSelectScreenProps {
-  onSelectArcade:  () => void
-  onSelectVimGolf: () => void
-  onSelectGoal:    () => void
-  onSelectDev:     () => void
-  onHighScores:    () => void
+  onSelectArcade:      () => void
+  onSelectVimGolf:     () => void
+  onSelectGoal:        () => void
+  onSelectMotionRace:  () => void
+  onSelectDev:         () => void
+  onHighScores:        () => void
 }
 
 interface ModeCard {
@@ -17,6 +18,7 @@ export function ModeSelectScreen({
   onSelectArcade,
   onSelectVimGolf,
   onSelectGoal,
+  onSelectMotionRace,
   onSelectDev,
   onHighScores,
 }: ModeSelectScreenProps) {
@@ -38,6 +40,12 @@ export function ModeSelectScreen({
       name:    'Goal Mode',
       tagline: 'Transform text under time pressure — real editing challenges',
       onClick: onSelectGoal,
+    },
+    {
+      icon:    '🏃',
+      name:    'Motion Race',
+      tagline: 'Navigate to highlighted positions — pure vim movement, no editing',
+      onClick: onSelectMotionRace,
     },
     {
       icon:    '🔬',

@@ -13,6 +13,7 @@ import { GoalGame } from './components/GoalGame'
 import { useGoalGame } from './hooks/useGoalGame'
 import { DevModeScreen } from './components/DevModeScreen'
 import { ModeSelectScreen } from './components/ModeSelectScreen'
+import { MotionRaceWrapper } from './components/MotionRaceGame'
 import { BUILTIN_CHALLENGES } from './engine/vimgolfChallenges'
 import type { GoalModeConfig } from './engine/types'
 
@@ -116,6 +117,7 @@ function App() {
             onSelectArcade={() => navigate('/arcade')}
             onSelectVimGolf={() => navigate('/vimgolf')}
             onSelectGoal={() => navigate('/goal')}
+            onSelectMotionRace={() => navigate('/motion-race')}
             onSelectDev={() => navigate('/dev')}
             onHighScores={() => navigate('/high-scores')}
           />
@@ -190,6 +192,10 @@ function App() {
       <Route
         path="/goal"
         element={<GoalModeWrapper onBack={() => navigate('/')} />}
+      />
+      <Route
+        path="/motion-race"
+        element={<MotionRaceWrapper onBack={() => navigate('/')} />}
       />
       <Route
         path="/dev"

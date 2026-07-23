@@ -68,3 +68,25 @@ button:focus:not(:focus-visible),
 a:focus:not(:focus-visible) {
   outline: none;
 }
+
+/* ── Motion Race target position highlight ── */
+.motion-race-target         { background: rgba(234,179,8,0.35); border-radius: 2px; }
+.motion-race-target-gutter  { border-left: 3px solid #eab308; }
+
+/* ── Diff view whitespace markers ── */
+/* The span holds the real space (so selection/copy works); the ::before
+   renders the visible dot without being selectable. */
+.diff-ws {
+  display: inline-block;
+  position: relative;
+  min-width: 0.5ch;
+}
+.diff-ws::before {
+  content: '·';
+  position: absolute;
+  inset: 0;
+  text-align: center;
+  color: rgba(148, 163, 184, 0.4); /* slate-300 at low opacity */
+  pointer-events: none;
+  user-select: none;
+}

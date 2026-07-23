@@ -146,11 +146,17 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
   const selectedRef     = useRef(selected)
   // Stable ref to focusEditor so advanceDrill (defined before useMonacoEditor) can call it
   const focusEditorRef  = useRef<() => void>(() => {})
+  // Guard against double-firing: both handleKeyDisplay and handleCommandExecuted
+  // can call onSolutionMatched for the same keystroke, causing two advanceDrill calls.
+  const solutionHandledRef = useRef(false)
 
   // Keep refs in sync with reducer state (needed for closures inside callbacks/timers)
   useEffect(() => { autoAdvanceRef.current = autoAdvance }, [autoAdvance])
   useEffect(() => { isDrillRef.current = isDrill }, [isDrill])
-  useEffect(() => { selectedRef.current = selected }, [selected])
+  useEffect(() => {
+    selectedRef.current = selected
+    solutionHandledRef.current = false  // reset guard for new command
+  }, [selected])
 
   const logEndRef      = useRef<HTMLDivElement>(null)
   const selectedRowRef = useRef<HTMLButtonElement | null>(null)
@@ -231,6 +237,8 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
   // Extracted so both handleKeyDisplay (normal/multi-key) and
   // handleCommandExecuted (ex commands) use the same logic.
   const onSolutionMatched = useCallback((_matchedCmd: string) => {
+    if (solutionHandledRef.current) return
+    solutionHandledRef.current = true
     const cmd = selectedRef.current
     dispatch({ type: 'SET_COMPLETED', value: true })
     if (cmd && unsupported.has(cmd.id)) {

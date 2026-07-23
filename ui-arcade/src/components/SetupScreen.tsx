@@ -108,12 +108,12 @@ function makeInitialState(lastConfig: GameConfig | null): SetupState {
   return {
     lang:            lastConfig?.language ?? 'typescript',
     level:           lastConfig?.startingLevel ?? 0,
-    mode:            lastConfig?.mode ?? 'general',
-    duration:        (lastConfig?.timedDurationMs ? lastConfig.timedDurationMs / 60_000 : 5) as TimedChallengeDuration,
+    mode:            lastConfig?.mode ?? 'timed_challenge',
+    duration:        (lastConfig?.timedDurationMs ? lastConfig.timedDurationMs / 60_000 : 1) as TimedChallengeDuration,
     repetition:      lastConfig?.repetitionTarget ?? 2,
     guided:          lastConfig?.guidedMode ?? 'none',
     categories:      lastConfig?.categories ?? [...DEFAULT_CATEGORIES],
-    assistEnabled:   lastConfig?.dynamicAssist !== null && lastConfig?.dynamicAssist !== undefined,
+    assistEnabled:   lastConfig ? (lastConfig.dynamicAssist !== null && lastConfig.dynamicAssist !== undefined) : true,
     assistPct:       lastConfig?.dynamicAssist ?? 100,
     skipUnsupported: (() => {
       try {

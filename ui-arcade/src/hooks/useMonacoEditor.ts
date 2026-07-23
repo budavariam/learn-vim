@@ -20,6 +20,11 @@ export interface UseMonacoEditorOptions {
   onAnyKey?: () => void
   /** Called for every keydown with full context (debug bar, dev mode). */
   onKeyDisplay?: (event: KeyDisplayEvent) => void
+  /** Called once after Monaco + vim mode finish initialising. */
+  onReady?: () => void
+  onCursorChange?: (position: { lineNumber: number; column: number }) => void
+  /** Called whenever the editor content changes (after each model edit). */
+  onContentChange?: (content: string) => void
   language?: string
   /** Initial buffer content — applied at editor creation time (async-safe). */
   defaultValue?: string
@@ -34,12 +39,14 @@ export interface UseMonacoEditorOptions {
 }
 
 export interface UseMonacoEditorReturn {
-  editorRef:    React.RefObject<HTMLDivElement>
-  statusRef:    React.RefObject<HTMLDivElement>
-  setContent:   (content: string) => void
-  resetCursor:  () => void
-  getContent:   () => string
-  focusEditor:  () => void
+  editorRef:          React.RefObject<HTMLDivElement>
+  statusRef:          React.RefObject<HTMLDivElement>
+  setContent:         (content: string) => void
+  resetCursor:        () => void
+  getContent:         () => string
+  focusEditor:        () => void
+  positionCursor:     (pos: { lineNumber: number; column: number }) => void
+  setTargetHighlight: (pos: { lineNumber: number; column: number } | null) => void
 }
 
 // ---------------------------------------------------------------------------
@@ -58,6 +65,15 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
   const onKeyDisplayRef = useRef(options.onKeyDisplay)
   useEffect(() => { onKeyDisplayRef.current = options.onKeyDisplay }, [options.onKeyDisplay])
 
+  const onCursorChangeRef = useRef(options.onCursorChange)
+  useEffect(() => { onCursorChangeRef.current = options.onCursorChange }, [options.onCursorChange])
+
+  const onReadyRef = useRef(options.onReady)
+  useEffect(() => { onReadyRef.current = options.onReady }, [options.onReady])
+
+  const onContentChangeRef = useRef(options.onContentChange)
+  useEffect(() => { onContentChangeRef.current = options.onContentChange }, [options.onContentChange])
+
   const defaultValueRef = useRef(options.defaultValue ?? '')
   const targetContentRef = useRef(options.targetContent ?? '')
   const editorRef       = useRef<HTMLDivElement>(null)
@@ -66,6 +82,10 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
   const editorInstanceRef = useRef<any>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const vimModeRef        = useRef<any>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const monacoRef              = useRef<any>(null)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const targetHighlightColRef  = useRef<any>(null)
 
   const setContent   = useCallback((content: string) => {
     editorInstanceRef.current?.setValue(content)
@@ -78,6 +98,26 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
   }, [])
   const getContent   = useCallback((): string => editorInstanceRef.current?.getValue() ?? '', [])
   const focusEditor  = useCallback(() => { editorInstanceRef.current?.focus() }, [])
+  const positionCursor = useCallback((pos: { lineNumber: number; column: number }) => {
+    const ed = editorInstanceRef.current
+    if (!ed) return
+    ed.setPosition(pos)
+    ed.revealPositionInCenter(pos)
+  }, [])
+  const setTargetHighlight = useCallback((pos: { lineNumber: number; column: number } | null) => {
+    const col = targetHighlightColRef.current
+    const m   = monacoRef.current
+    if (!col || !m) return
+    if (!pos) { col.set([]); return }
+    col.set([{
+      range: new m.Range(pos.lineNumber, pos.column, pos.lineNumber, pos.column + 1),
+      options: {
+        inlineClassName:        'motion-race-target',
+        linesDecorationsClassName: 'motion-race-target-gutter',
+        description:            'motion-race-target',
+      },
+    }])
+  }, [])
 
   // Apply new defaultValue immediately if Monaco is already running (e.g. language switch)
   useEffect(() => {
@@ -125,6 +165,7 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
           automaticLayout:     true,
           wordWrap:            'off',
           inlineSuggest:       { enabled: false },
+          renderWhitespace:    'all',
         })
         editorInstanceRef.current = editor
 
@@ -151,6 +192,7 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
             scrollbar:           { vertical: 'hidden', horizontal: 'hidden' },
             overviewRulerBorder: false,
             hideCursorInOverviewRuler: true,
+            renderWhitespace:    'all',
           })
           // Expose on the container element so the targetContent effect can reach it
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -217,6 +259,16 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
 
         if (targetContentRef.current) updateDiffDecorations()
         const diffContentListener = editor.onDidChangeModelContent(updateDiffDecorations)
+
+        monacoRef.current = monaco
+        targetHighlightColRef.current = editor.createDecorationsCollection([])
+
+        const cursorListener  = editor.onDidChangeCursorPosition(e => {
+          onCursorChangeRef.current?.(e.position)
+        })
+        const contentListener = editor.onDidChangeModelContent(() => {
+          onContentChangeRef.current?.(editor.getValue())
+        })
 
         const statusEl = statusRef.current ?? document.createElement('div')
         const vimMode  = initVimMode(editor, statusEl)
@@ -375,9 +427,14 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
         cleanupKeydown  = () => {
           document.removeEventListener('keydown', handleKeydown, { capture: true })
           statusEl.removeEventListener('input', handleStatusInput)
+          cursorListener.dispose()
+          contentListener.dispose()
           diffContentListener.dispose()
           editDecols.clear()
           targetDecols?.clear()
+          targetHighlightColRef.current?.clear()
+          targetHighlightColRef.current = null
+          monacoRef.current = null
           if (targetEditor) {
             try { targetEditor.dispose() } catch (_) { /* */ }
             if (options.targetEditorRef?.current) {
@@ -388,6 +445,7 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
         }
         cleanupObserver = () => modeObserver.disconnect()
 
+        onReadyRef.current?.()
         editor.focus()
       } catch (err) {
         console.error('[useMonacoEditor] init failed — vim mode will not work:', err)
@@ -421,5 +479,5 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
     })
   }, [language])
 
-  return { editorRef, statusRef, setContent, resetCursor, getContent, focusEditor }
+  return { editorRef, statusRef, setContent, resetCursor, getContent, focusEditor, positionCursor, setTargetHighlight }
 }
