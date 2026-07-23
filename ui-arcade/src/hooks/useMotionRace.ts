@@ -193,16 +193,25 @@ export function useMotionRace(): UseMotionRaceReturn {
     toRef.current           = path.to
     completedRef.current    = completed
 
-    // Restore content then position cursor — setValue is sync in Monaco, but
-    // the cursor position change from setValue fires onCursorChange, so we
-    // flush that first by deferring the repositioning one microtask.
-    isRestoringRef.current = true
-    setContentEditorRef.current(fileContentRef.current)
-    Promise.resolve().then(() => {
+    if (!valid) {
+      // Content was modified — restore it, then reposition the cursor.
+      // setValue moves the cursor to 1,1 so we defer the setPosition one
+      // microtask to let Monaco flush the model-change event first.
+      isRestoringRef.current = true
+      setContentEditorRef.current(fileContentRef.current)
+      Promise.resolve().then(() => {
+        positionCursorRef.current(path.from)
+        isRestoringRef.current = false
+        focusEditorRef.current()
+      })
+    } else if (!config.startFromPrevious) {
+      // Random start — cursor is elsewhere, move and center it.
       positionCursorRef.current(path.from)
-      isRestoringRef.current = false
       focusEditorRef.current()
-    })
+    }
+    // startFromPrevious && valid: cursor is already at path.from, leave the
+    // view untouched so the user doesn't get a jarring re-center.
+
     setTargetHighlightRef.current(path.to)
 
     dispatch({ type: 'NEXT_PATH', from: path.from, to: path.to, completed, totalMs })
