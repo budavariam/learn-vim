@@ -21,7 +21,10 @@ function emptyProg(): LevelProgress[number] {
   return { seen: new Set(), completionCounts: new Map(), failureCounts: new Map() }
 }
 
-function prog(completions: Record<string, number> = {}, failures: Record<string, number> = {}): LevelProgress[number] {
+function prog(
+  completions: Record<string, number> = {},
+  failures: Record<string, number> = {}
+): LevelProgress[number] {
   return {
     seen: new Set(Object.keys(completions)),
     completionCounts: new Map(Object.entries(completions)),
@@ -32,7 +35,14 @@ function prog(completions: Record<string, number> = {}, failures: Record<string,
 // ── shouldShowSolution ────────────────────────────────────────────────────────
 
 describe('shouldShowSolution', () => {
-  const MODES: GuidedMode[] = ['none', 'all', 'first_only', 'alternating', 'after_failure', 'first_then_failure']
+  const MODES: GuidedMode[] = [
+    'none',
+    'all',
+    'first_only',
+    'alternating',
+    'after_failure',
+    'first_then_failure',
+  ]
 
   it('is_verification → always false regardless of mode', () => {
     for (const mode of MODES) {
@@ -42,13 +52,13 @@ describe('shouldShowSolution', () => {
 
   it('none → never show', () => {
     expect(shouldShowSolution('none', 0, false, false)).toBe(false)
-    expect(shouldShowSolution('none', 0, true,  false)).toBe(false)
-    expect(shouldShowSolution('none', 5, true,  false)).toBe(false)
+    expect(shouldShowSolution('none', 0, true, false)).toBe(false)
+    expect(shouldShowSolution('none', 5, true, false)).toBe(false)
   })
 
   it('all → always show', () => {
     expect(shouldShowSolution('all', 0, false, false)).toBe(true)
-    expect(shouldShowSolution('all', 5, true,  false)).toBe(true)
+    expect(shouldShowSolution('all', 5, true, false)).toBe(true)
   })
 
   it('first_only → show only on occurrence 0', () => {
@@ -66,15 +76,15 @@ describe('shouldShowSolution', () => {
 
   it('after_failure → false without failure, true with failure', () => {
     expect(shouldShowSolution('after_failure', 0, false, false)).toBe(false)
-    expect(shouldShowSolution('after_failure', 0, true,  false)).toBe(true)
-    expect(shouldShowSolution('after_failure', 5, true,  false)).toBe(true)
+    expect(shouldShowSolution('after_failure', 0, true, false)).toBe(true)
+    expect(shouldShowSolution('after_failure', 5, true, false)).toBe(true)
   })
 
   it('first_then_failure → true on first OR after failure', () => {
-    expect(shouldShowSolution('first_then_failure', 0, false, false)).toBe(true)  // first
+    expect(shouldShowSolution('first_then_failure', 0, false, false)).toBe(true) // first
     expect(shouldShowSolution('first_then_failure', 1, false, false)).toBe(false) // not first, no fail
-    expect(shouldShowSolution('first_then_failure', 1, true,  false)).toBe(true)  // failure
-    expect(shouldShowSolution('first_then_failure', 3, true,  false)).toBe(true)  // failure
+    expect(shouldShowSolution('first_then_failure', 1, true, false)).toBe(true) // failure
+    expect(shouldShowSolution('first_then_failure', 3, true, false)).toBe(true) // failure
   })
 })
 
@@ -108,9 +118,14 @@ describe('pickChallengeLevel', () => {
 
 describe('getWarmupCount', () => {
   it.each<[number, number]>([
-    [0, 3], [1, 3],
-    [2, 2], [3, 2], [4, 2],
-    [5, 1], [6, 1], [9, 1],
+    [0, 3],
+    [1, 3],
+    [2, 2],
+    [3, 2],
+    [4, 2],
+    [5, 1],
+    [6, 1],
+    [9, 1],
   ])('level %i → %i warmups', (level, expected) => {
     expect(getWarmupCount(level)).toBe(expected)
   })
@@ -184,15 +199,15 @@ describe('getLevelCompletion', () => {
 describe('tryAdvanceCeiling', () => {
   it('stays when below threshold', () => {
     // 5/8 = 62.5% < 75%
-    const cmds = [1,2,3,4,5,6,7,8].map(i => cmd('c'+i, 2))
-    const lp: LevelProgress = { 2: prog({ c1:1,c2:1,c3:1,c4:1,c5:1 }) }
+    const cmds = [1, 2, 3, 4, 5, 6, 7, 8].map(i => cmd('c' + i, 2))
+    const lp: LevelProgress = { 2: prog({ c1: 1, c2: 1, c3: 1, c4: 1, c5: 1 }) }
     expect(tryAdvanceCeiling(2, lp, cmds, 1)).toBe(2)
   })
 
   it('advances at threshold', () => {
     // 3/4 = 75% = threshold
-    const cmds = [1,2,3,4].map(i => cmd('c'+i, 2))
-    const lp: LevelProgress = { 2: prog({ c1:1, c2:1, c3:1 }) }
+    const cmds = [1, 2, 3, 4].map(i => cmd('c' + i, 2))
+    const lp: LevelProgress = { 2: prog({ c1: 1, c2: 1, c3: 1 }) }
     expect(tryAdvanceCeiling(2, lp, cmds, 1)).toBe(3)
   })
 

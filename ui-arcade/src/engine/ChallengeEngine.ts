@@ -1,14 +1,29 @@
 import type {
-  GameState, ActiveChallenge, VimCommandData, LevelProgress,
-  Notification, NotificationType, GameConfig, GameSettings,
+  GameState,
+  ActiveChallenge,
+  VimCommandData,
+  LevelProgress,
+  Notification,
+  NotificationType,
+  GameConfig,
+  GameSettings,
 } from './types'
 import { normaliseVimKey } from './vimKeyUtils'
 import {
-  getBasePoints, getTimeLimit, getTimeRating, getComboMultiplier, calculatePoints,
+  getBasePoints,
+  getTimeLimit,
+  getTimeRating,
+  getComboMultiplier,
+  calculatePoints,
 } from './ScoreEngine'
 import {
-  tryAdvanceCeiling, pickChallengeLevel, getWarmupCount, shouldIncreaseConcurrent,
-  getLevelCompletion, shouldShowSolution, pickNextCommand,
+  tryAdvanceCeiling,
+  pickChallengeLevel,
+  getWarmupCount,
+  shouldIncreaseConcurrent,
+  getLevelCompletion,
+  shouldShowSolution,
+  pickNextCommand,
 } from './LevelEngine'
 
 function makeNotification(
@@ -86,7 +101,8 @@ export function createChallenge(
   commandTimeMultiplier = 1
 ): ActiveChallenge {
   const timeLimit = getTimeLimit(cmd.level, ceiling, mode, commandTimeMultiplier)
-  const occurrenceIndex = (progress[cmd.level]?.seen?.has(cmd.id) ? 1 : 0) +
+  const occurrenceIndex =
+    (progress[cmd.level]?.seen?.has(cmd.id) ? 1 : 0) +
     (progress[cmd.level]?.completionCounts?.get(cmd.id) ?? 0)
   const hasFailure = (progress[cmd.level]?.failureCounts?.get(cmd.id) ?? 0) > 0
   const showSolution = shouldShowSolution(guidedMode, occurrenceIndex, hasFailure, isVerification)
@@ -132,7 +148,12 @@ export function handleCommandExecuted(
   const newComboCount = state.combo.count + 1
   const comboMultiplier = getComboMultiplier(newComboCount)
   const basePoints = getBasePoints(challenge.level)
-  const points = calculatePoints(basePoints, timeMultiplier, comboMultiplier, challenge.showSolution)
+  const points = calculatePoints(
+    basePoints,
+    timeMultiplier,
+    comboMultiplier,
+    challenge.showSolution
+  )
 
   const newLevelProgress = cloneLevelProgress(state.levelProgress)
   if (!newLevelProgress[challenge.level]) newLevelProgress[challenge.level] = emptyLevelEntry()
@@ -144,12 +165,17 @@ export function handleCommandExecuted(
   )
 
   const newCeiling = tryAdvanceCeiling(
-    state.ceiling, newLevelProgress, commands, state.config.repetitionTarget
+    state.ceiling,
+    newLevelProgress,
+    commands,
+    state.config.repetitionTarget
   )
   const leveledUp = newCeiling > state.ceiling
 
   const updatedChallenges = state.activeChallenges.map((c, i) =>
-    i === matchingIdx ? { ...c, status: 'completed' as const, pointsEarned: points, doneAt: now } : c
+    i === matchingIdx
+      ? { ...c, status: 'completed' as const, pointsEarned: points, doneAt: now }
+      : c
   )
 
   const activeNotifications = state.recentNotifications.filter(n => n.expiresAt > now)
@@ -168,17 +194,21 @@ export function handleCommandExecuted(
 
   // Schedule a blind verification if the challenge was guided (first_only / first_then_failure)
   let newPending = [...state.pendingVerifications]
-  if (challenge.showSolution &&
-      (state.liveSettings.guidedMode === 'first_only' ||
-       state.liveSettings.guidedMode === 'first_then_failure') &&
-      !challenge.isVerification) {
+  if (
+    challenge.showSolution &&
+    (state.liveSettings.guidedMode === 'first_only' ||
+      state.liveSettings.guidedMode === 'first_then_failure') &&
+    !challenge.isVerification
+  ) {
     newPending.push(challenge.commandId)
   }
 
-  const levelPct = getLevelCompletion(newCeiling, newLevelProgress, commands, state.config.repetitionTarget) * 100
+  const levelPct =
+    getLevelCompletion(newCeiling, newLevelProgress, commands, state.config.repetitionTarget) * 100
 
   const warmupTarget = getWarmupCount(state.startingLevel)
-  const newStatus = state.status === 'warmup' && newCompleted >= warmupTarget ? 'playing' : state.status
+  const newStatus =
+    state.status === 'warmup' && newCompleted >= warmupTarget ? 'playing' : state.status
 
   return {
     ...state,
@@ -225,23 +255,25 @@ export function tick(state: GameState, commands: VimCommandData[], now: number):
 
   // Dynamic assist: auto-reveal solution when the configured % of the time limit is reached.
   // In survival mode cap at 100 % — revealing after the failure threshold is pointless.
-  const assistPct = state.config.dynamicAssist !== null
-    ? (state.config.mode === 'survival'
+  const assistPct =
+    state.config.dynamicAssist !== null
+      ? state.config.mode === 'survival'
         ? Math.min(100, state.config.dynamicAssist)
-        : state.config.dynamicAssist)
-    : null
+        : state.config.dynamicAssist
+      : null
 
-  const assistedChallenges = assistPct !== null
-    ? state.activeChallenges.map(c => {
-        if (c.status === 'active' && !c.showSolution) {
-          const elapsed = now - c.startedAt
-          if (elapsed >= c.timeLimit * (assistPct / 100)) {
-            return { ...c, showSolution: true }
+  const assistedChallenges =
+    assistPct !== null
+      ? state.activeChallenges.map(c => {
+          if (c.status === 'active' && !c.showSolution) {
+            const elapsed = now - c.startedAt
+            if (elapsed >= c.timeLimit * (assistPct / 100)) {
+              return { ...c, showSolution: true }
+            }
           }
-        }
-        return c
-      })
-    : state.activeChallenges
+          return c
+        })
+      : state.activeChallenges
 
   // Clone level-progress ONCE up front — shared by survival early-return and the
   // normal path so failure counts are never silently discarded (fix: Bug #3).
@@ -284,7 +316,7 @@ export function tick(state: GameState, commands: VimCommandData[], now: number):
         ...state,
         activeChallenges: updatedChallenges,
         combo: newCombo,
-        levelProgress: newLevelProgress,   // fix: Bug #3 — was spreading state.levelProgress
+        levelProgress: newLevelProgress, // fix: Bug #3 — was spreading state.levelProgress
         sessionStats: {
           ...newSessionStats,
           achievedTimeMs: sessionElapsedMs,
@@ -309,9 +341,8 @@ export function tick(state: GameState, commands: VimCommandData[], now: number):
 
   let newCeiling = state.ceiling
   const warmupTarget = getWarmupCount(state.startingLevel)
-  const warmupRemaining = state.status === 'warmup'
-    ? Math.max(0, warmupTarget - newSessionStats.completed)
-    : 0
+  const warmupRemaining =
+    state.status === 'warmup' ? Math.max(0, warmupTarget - newSessionStats.completed) : 0
   let newStatus = state.status === 'warmup' && warmupRemaining <= 0 ? 'playing' : state.status
 
   // Fill empty slots with new challenges
@@ -333,8 +364,12 @@ export function tick(state: GameState, commands: VimCommandData[], now: number):
 
       const isVerification = newPending.length > 0
       const cmd = pickNextCommand(
-        commands, targetLevel, allActiveIds, newLevelProgress,
-        state.config.repetitionTarget, newPending
+        commands,
+        targetLevel,
+        allActiveIds,
+        newLevelProgress,
+        state.config.repetitionTarget,
+        newPending
       )
 
       if (cmd) {
@@ -343,8 +378,13 @@ export function tick(state: GameState, commands: VimCommandData[], now: number):
         }
 
         const challenge = createChallenge(
-          cmd, newCeiling, state.config.mode,
-          state.liveSettings.guidedMode, newLevelProgress, isVerification, now,
+          cmd,
+          newCeiling,
+          state.config.mode,
+          state.liveSettings.guidedMode,
+          newLevelProgress,
+          isVerification,
+          now,
           state.config.commandTimeMultiplier ?? 1
         )
         addedChallenges.push(challenge)
@@ -364,7 +404,8 @@ export function tick(state: GameState, commands: VimCommandData[], now: number):
     state = { ...state, pendingVerifications: newPending }
   }
 
-  const levelPct = getLevelCompletion(newCeiling, newLevelProgress, commands, state.config.repetitionTarget) * 100
+  const levelPct =
+    getLevelCompletion(newCeiling, newLevelProgress, commands, state.config.repetitionTarget) * 100
 
   return {
     ...state,

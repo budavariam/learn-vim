@@ -1,5 +1,5 @@
 export const pythonFile = `"""
-utils.py – A collection of general-purpose Python utilities.
+utils.py - A collection of general-purpose Python utilities.
 """
 from __future__ import annotations
 

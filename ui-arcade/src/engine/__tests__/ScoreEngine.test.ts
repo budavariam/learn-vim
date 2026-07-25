@@ -12,17 +12,17 @@ import {
 
 describe('getTimeRating', () => {
   it.each<[number, number, TimeRating, number]>([
-    [200,  1000, 'lightning', 3.0],
-    [250,  1000, 'lightning', 3.0],  // boundary: ≤25%
-    [251,  1000, 'fast',      2.0],
-    [400,  1000, 'fast',      2.0],
-    [500,  1000, 'fast',      2.0],  // boundary: ≤50%
-    [501,  1000, 'good',      1.5],
-    [700,  1000, 'good',      1.5],
-    [750,  1000, 'good',      1.5],  // boundary: ≤75%
-    [751,  1000, 'completed', 1.0],
+    [200, 1000, 'lightning', 3.0],
+    [250, 1000, 'lightning', 3.0], // boundary: ≤25%
+    [251, 1000, 'fast', 2.0],
+    [400, 1000, 'fast', 2.0],
+    [500, 1000, 'fast', 2.0], // boundary: ≤50%
+    [501, 1000, 'good', 1.5],
+    [700, 1000, 'good', 1.5],
+    [750, 1000, 'good', 1.5], // boundary: ≤75%
+    [751, 1000, 'completed', 1.0],
     [1000, 1000, 'completed', 1.0],
-    [1500, 1000, 'completed', 1.0],  // over time — still completed
+    [1500, 1000, 'completed', 1.0], // over time — still completed
   ])('elapsed %i / limit %i → %s ×%d', (elapsed, limit, rating, mult) => {
     const r = getTimeRating(elapsed, limit)
     expect(r.rating).toBe(rating)
@@ -34,14 +34,14 @@ describe('getTimeRating', () => {
 
 describe('getComboMultiplier', () => {
   it.each<[number, number]>([
-    [0,  1.0],
-    [1,  1.0],
-    [2,  1.0],
-    [3,  1.5],
-    [4,  1.5],
-    [5,  2.0],
-    [7,  2.0],
-    [8,  2.5],
+    [0, 1.0],
+    [1, 1.0],
+    [2, 1.0],
+    [3, 1.5],
+    [4, 1.5],
+    [5, 2.0],
+    [7, 2.0],
+    [8, 2.5],
     [11, 2.5],
     [12, 3.0],
     [50, 3.0],
@@ -108,7 +108,7 @@ describe('getTimeLimit', () => {
   })
 
   it('survival mode applies 1.5× multiplier', () => {
-    const gen  = getTimeLimit(2, 2, 'general')
+    const gen = getTimeLimit(2, 2, 'general')
     const surv = getTimeLimit(2, 2, 'survival')
     expect(surv).toBe(Math.round(gen * 1.5))
   })

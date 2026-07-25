@@ -1,38 +1,40 @@
 import type { Language } from '../engine/types'
-import type { KeyDisplayEvent } from '../hooks/useMonacoEditor'
+import type { KeyDisplayEvent, MonacoAction } from '../hooks/useMonacoEditor'
 import { useMonacoEditor } from '../hooks/useMonacoEditor'
 import { getFile } from '../files/index'
 
 interface EditorProps {
-  language:           Language
-  onCommandExecuted:  (cmd: string) => void
-  onKeyDisplay?:      (event: KeyDisplayEvent) => void
+  language: Language
+  onCommandExecuted: (cmd: string) => void
+  onKeyDisplay?: (event: KeyDisplayEvent) => void
+  monacoActions?: MonacoAction[]
 }
 
 const MONACO_LANGUAGE: Record<Language, string> = {
-  go:         'go',
-  rust:       'rust',
-  python:     'python',
+  go: 'go',
+  rust: 'rust',
+  python: 'python',
   typescript: 'typescript',
-  c:          'c',
-  cpp:        'cpp',
+  c: 'c',
+  cpp: 'cpp',
 }
 
 const FILE_NAME: Record<Language, string> = {
-  go:         'utils.go',
-  rust:       'utils.rs',
-  python:     'utils.py',
+  go: 'utils.go',
+  rust: 'utils.rs',
+  python: 'utils.py',
   typescript: 'utils.ts',
-  c:          'utils.c',
-  cpp:        'utils.cpp',
+  c: 'utils.c',
+  cpp: 'utils.cpp',
 }
 
-export function Editor({ language, onCommandExecuted, onKeyDisplay }: EditorProps) {
+export function Editor({ language, onCommandExecuted, onKeyDisplay, monacoActions }: EditorProps) {
   const { editorRef, statusRef } = useMonacoEditor({
     onCommandExecuted,
     onKeyDisplay,
-    language:     MONACO_LANGUAGE[language],
+    language: MONACO_LANGUAGE[language],
     defaultValue: getFile(language),
+    monacoActions,
   })
 
   return (

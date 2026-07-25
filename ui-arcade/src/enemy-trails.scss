@@ -1,0 +1,51 @@
+// Enemy trail palettes — 6 hues distributed evenly around the HSL wheel.
+// Each palette generates cursor (age=0) + 8 fading trail steps.
+// Usage: trail-ec{palette}-{age}
+
+@use 'sass:color';
+@use 'sass:math';
+
+// Six equidistant hues: 0° orange, 60° yellow-green, 120° green,
+// 180° cyan, 240° blue-violet, 300° magenta
+$enemy-hues: (
+  0: 30,
+  // orange
+  1: 0,
+  // red
+  2: 280,
+  // violet
+  3: 185,
+  // cyan
+  4: 330,
+  // pink
+  5: 90, // lime
+);
+
+// Opacity steps for age 0 (cursor) down to age 8 (oldest trail)
+$age-alphas: (
+  0: 0.95,
+  1: 0.55,
+  2: 0.45,
+  3: 0.35,
+  4: 0.28,
+  5: 0.22,
+  6: 0.16,
+  7: 0.11,
+  8: 0.07,
+);
+
+@each $idx, $hue in $enemy-hues {
+  $base: hsl($hue, 90%, 58%);
+
+  @each $age, $alpha in $age-alphas {
+    .trail-ec#{$idx}-#{$age} {
+      background: color.adjust($base, $alpha: $alpha - 1);
+      border-radius: 2px;
+
+      @if $age == 0 {
+        // Cursor position: solid ring + bright fill for visibility
+        outline: 1px solid $base;
+      }
+    }
+  }
+}

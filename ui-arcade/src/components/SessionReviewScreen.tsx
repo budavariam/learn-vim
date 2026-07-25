@@ -15,7 +15,7 @@ export function SessionReviewScreen({ items, onDone }: SessionReviewScreenProps)
   )
 
   const suggested = items.filter(i => i.suggestKnown && !i.alreadyKnown)
-  const rest       = items.filter(i => !i.suggestKnown || i.alreadyKnown)
+  const rest = items.filter(i => !i.suggestKnown || i.alreadyKnown)
   const alreadyKnown = items.filter(i => i.alreadyKnown)
 
   function toggle(id: string) {
@@ -73,14 +73,16 @@ export function SessionReviewScreen({ items, onDone }: SessionReviewScreenProps)
               Still practicing
             </h2>
             <div className="space-y-2">
-              {rest.filter(i => !i.alreadyKnown).map(item => (
-                <ReviewRow
-                  key={item.commandId}
-                  item={item}
-                  checked={checked.has(item.commandId)}
-                  onToggle={() => toggle(item.commandId)}
-                />
-              ))}
+              {rest
+                .filter(i => !i.alreadyKnown)
+                .map(item => (
+                  <ReviewRow
+                    key={item.commandId}
+                    item={item}
+                    checked={checked.has(item.commandId)}
+                    onToggle={() => toggle(item.commandId)}
+                  />
+                ))}
             </div>
           </section>
         )}
@@ -111,9 +113,7 @@ export function SessionReviewScreen({ items, onDone }: SessionReviewScreenProps)
             onClick={handleSave}
             className="flex-1 py-3 bg-green-600 hover:bg-green-500 text-white font-mono font-bold rounded-lg transition-colors"
           >
-            {newlyMarked.length > 0
-              ? `Mark ${newlyMarked.length} as known & finish`
-              : 'Done'}
+            {newlyMarked.length > 0 ? `Mark ${newlyMarked.length} as known & finish` : 'Done'}
           </button>
           <button
             onClick={onDone}
@@ -137,9 +137,9 @@ interface ReviewRowProps {
 }
 
 function ReviewRow({ item, checked, onToggle, readonly = false }: ReviewRowProps) {
-  const total  = item.completions + item.failures
-  const pct    = total > 0 ? Math.round((item.completions / total) * 100) : 0
-  const color  = getCategoryColor(item.category)
+  const total = item.completions + item.failures
+  const pct = total > 0 ? Math.round((item.completions / total) * 100) : 0
+  const color = getCategoryColor(item.category)
 
   const barColor = pct >= 80 ? '#22c55e' : pct >= 50 ? '#f59e0b' : '#ef4444'
 
@@ -157,9 +157,11 @@ function ReviewRow({ item, checked, onToggle, readonly = false }: ReviewRowProps
       <div className="flex items-start gap-3">
         {/* Checkbox */}
         {!readonly && (
-          <div className={`mt-0.5 w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-            checked ? 'border-green-500 bg-green-500' : 'border-gray-600'
-          }`}>
+          <div
+            className={`mt-0.5 w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+              checked ? 'border-green-500 bg-green-500' : 'border-gray-600'
+            }`}
+          >
             {checked && <span className="text-white text-xs leading-none">✓</span>}
           </div>
         )}
@@ -173,7 +175,12 @@ function ReviewRow({ item, checked, onToggle, readonly = false }: ReviewRowProps
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <span
               className="text-xs px-2 py-0.5 rounded font-mono"
-              style={{ color, borderColor: color, border: '1px solid', backgroundColor: `${color}18` }}
+              style={{
+                color,
+                borderColor: color,
+                border: '1px solid',
+                backgroundColor: `${color}18`,
+              }}
             >
               {item.category}
             </span>
@@ -184,7 +191,10 @@ function ReviewRow({ item, checked, onToggle, readonly = false }: ReviewRowProps
             {/* Solution */}
             <div className="flex gap-1">
               {item.solution.slice(0, 3).map((sol, i) => (
-                <kbd key={i} className="px-1.5 py-0.5 bg-gray-700 text-yellow-300 font-mono text-xs rounded border border-gray-600">
+                <kbd
+                  key={i}
+                  className="px-1.5 py-0.5 bg-gray-700 text-yellow-300 font-mono text-xs rounded border border-gray-600"
+                >
                   {sol}
                 </kbd>
               ))}

@@ -10,9 +10,13 @@ interface VimGolfDiffProps {
 function renderWithWs(text: string) {
   if (!text) return ' '
   return text.split('').map((ch, i) =>
-    ch === ' '
-      ? <span key={i} className="diff-ws"> </span>
-      : ch
+    ch === ' ' ? (
+      <span key={i} className="diff-ws">
+        {' '}
+      </span>
+    ) : (
+      ch
+    )
   )
 }
 
@@ -51,8 +55,12 @@ export function VimGolfDiff({ diffLines, onClose, challenge }: VimGolfDiffProps)
             if (line.type === 'equal') {
               return (
                 <div key={idx} className="grid grid-cols-2 px-6 py-0.5">
-                  <span className="text-gray-500 whitespace-pre truncate">{renderWithWs(line.content)}</span>
-                  <span className="text-gray-500 whitespace-pre truncate">{renderWithWs(line.content)}</span>
+                  <span className="text-gray-500 whitespace-pre truncate">
+                    {renderWithWs(line.content)}
+                  </span>
+                  <span className="text-gray-500 whitespace-pre truncate">
+                    {renderWithWs(line.content)}
+                  </span>
                 </div>
               )
             }
@@ -60,7 +68,8 @@ export function VimGolfDiff({ diffLines, onClose, challenge }: VimGolfDiffProps)
               return (
                 <div key={idx} className="grid grid-cols-2 px-6 py-0.5 bg-red-900/40">
                   <span className="text-red-300 whitespace-pre truncate">
-                    <span className="text-red-500 mr-1">−</span>{renderWithWs(line.content)}
+                    <span className="text-red-500 mr-1">−</span>
+                    {renderWithWs(line.content)}
                   </span>
                   <span className="text-gray-600">—</span>
                 </div>
@@ -71,7 +80,8 @@ export function VimGolfDiff({ diffLines, onClose, challenge }: VimGolfDiffProps)
               <div key={idx} className="grid grid-cols-2 px-6 py-0.5 bg-green-900/40">
                 <span className="text-gray-600">—</span>
                 <span className="text-green-300 whitespace-pre truncate">
-                  <span className="text-green-500 mr-1">+</span>{renderWithWs(line.content)}
+                  <span className="text-green-500 mr-1">+</span>
+                  {renderWithWs(line.content)}
                 </span>
               </div>
             )
@@ -80,7 +90,9 @@ export function VimGolfDiff({ diffLines, onClose, challenge }: VimGolfDiffProps)
 
         {/* Expected result */}
         <div className="border-t border-gray-700 px-6 py-4">
-          <p className="font-mono text-xs uppercase tracking-wider text-gray-400 mb-2">Expected result</p>
+          <p className="font-mono text-xs uppercase tracking-wider text-gray-400 mb-2">
+            Expected result
+          </p>
           <pre className="bg-gray-800 rounded-lg p-3 text-green-300 font-mono text-sm overflow-x-auto max-h-40 overflow-y-auto whitespace-pre">
             {challenge.end}
           </pre>

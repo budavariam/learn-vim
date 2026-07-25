@@ -3,22 +3,40 @@ import type React from 'react'
 import type { GameSettings, GuidedMode } from '../engine/types'
 
 const GUIDED_OPTIONS: { id: GuidedMode; label: string }[] = [
-  { id: 'none',               label: 'None' },
-  { id: 'first_only',         label: 'First only' },
-  { id: 'after_failure',      label: 'After failure' },
+  { id: 'none', label: 'None' },
+  { id: 'first_only', label: 'First only' },
+  { id: 'after_failure', label: 'After failure' },
   { id: 'first_then_failure', label: 'First + on failure' },
-  { id: 'alternating',        label: 'Alternating' },
-  { id: 'all',                label: 'Always' },
+  { id: 'alternating', label: 'Alternating' },
+  { id: 'all', label: 'Always' },
 ]
 
 interface SettingsDrawerProps {
   settings: GameSettings
   onUpdate: (patch: Partial<GameSettings>) => void
   triggerRef?: React.RefObject<HTMLElement>
+  isOpen?: boolean
+  onToggle?: () => void
 }
 
-export function SettingsDrawer({ settings, onUpdate, triggerRef }: SettingsDrawerProps) {
-  const [open, setOpen] = useState(false)
+export function SettingsDrawer({
+  settings,
+  onUpdate,
+  triggerRef,
+  isOpen,
+  onToggle,
+}: SettingsDrawerProps) {
+  const [internalOpen, setInternalOpen] = useState(false)
+  const open = isOpen !== undefined ? isOpen : internalOpen
+  const setOpen = (val: boolean | ((prev: boolean) => boolean)) => {
+    if (isOpen !== undefined && onToggle) {
+      // controlled mode: only toggle, ignore the exact value from setter
+      const next = typeof val === 'function' ? val(open) : val
+      if (next !== open) onToggle()
+    } else {
+      setInternalOpen(val)
+    }
+  }
   const firstRadioRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -62,7 +80,7 @@ export function SettingsDrawer({ settings, onUpdate, triggerRef }: SettingsDrawe
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700">
           <span className="text-white font-mono font-bold text-sm">Settings</span>
           <div className="flex items-center gap-2">
-            <span className="text-gray-500 font-mono text-xs">⌘⇧P to close</span>
+            <span className="text-gray-500 font-mono text-xs">F1 palette · Esc to close</span>
             <button
               aria-label="Close settings"
               onClick={() => setOpen(false)}
@@ -75,7 +93,9 @@ export function SettingsDrawer({ settings, onUpdate, triggerRef }: SettingsDrawe
 
         <div className="p-4 space-y-4">
           <div>
-            <p className="text-gray-400 font-mono text-xs uppercase tracking-wider mb-2">Guided Mode</p>
+            <p className="text-gray-400 font-mono text-xs uppercase tracking-wider mb-2">
+              Guided Mode
+            </p>
             <div className="space-y-1">
               {GUIDED_OPTIONS.map((g, index) => (
                 <label
@@ -87,7 +107,8 @@ export function SettingsDrawer({ settings, onUpdate, triggerRef }: SettingsDrawe
                   }`}
                 >
                   <input
-                    type="radio" name="live-guided"
+                    type="radio"
+                    name="live-guided"
                     ref={index === 0 ? firstRadioRef : undefined}
                     checked={settings.guidedMode === g.id}
                     onChange={() => onUpdate({ guidedMode: g.id })}
@@ -102,21 +123,33 @@ export function SettingsDrawer({ settings, onUpdate, triggerRef }: SettingsDrawe
           <hr className="border-gray-700" />
 
           <div>
-            <p className="text-gray-400 font-mono text-xs uppercase tracking-wider mb-2">Keyboard Shortcuts</p>
+            <p className="text-gray-400 font-mono text-xs uppercase tracking-wider mb-2">
+              Keyboard Shortcuts
+            </p>
             <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 items-center">
-              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">⌘⇧P</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
+                ⌘⇧P
+              </kbd>
               <span className="font-mono text-xs text-gray-500">Open / close settings</span>
 
-              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">?</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
+                ?
+              </kbd>
               <span className="font-mono text-xs text-gray-500">Keyboard shortcuts overlay</span>
 
-              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">ℹ</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
+                ℹ
+              </kbd>
               <span className="font-mono text-xs text-gray-500">Game info modal</span>
 
-              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">✕ Quit</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
+                ✕ Quit
+              </kbd>
               <span className="font-mono text-xs text-gray-500">Return to setup screen</span>
 
-              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">Esc</kbd>
+              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
+                Esc
+              </kbd>
               <span className="font-mono text-xs text-gray-500">Close overlays</span>
             </div>
           </div>

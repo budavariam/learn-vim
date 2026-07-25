@@ -34,7 +34,7 @@ export function ShortcutsOverlay({ onClose }: ShortcutsOverlayProps) {
         aria-modal="true"
         aria-labelledby="shortcuts-title"
         className="bg-gray-900 border border-gray-600 rounded-xl p-6 max-w-md w-full mx-4 focus:outline-none"
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
         <h2 id="shortcuts-title" className="text-white font-mono font-bold text-lg mb-5">
           Keyboard Shortcuts

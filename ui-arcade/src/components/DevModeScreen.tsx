@@ -1,9 +1,16 @@
-import { useReducer, useCallback, useRef, useEffect, useMemo } from 'react'
+import { useReducer, useCallback, useRef, useEffect, useMemo, useState } from 'react'
+import { Zap, FastForward, Pause, Ban, CheckCircle, Star, Download } from 'lucide-react'
 import type { VimCommandData } from '../engine/types'
 import type { KeyDisplayEvent } from '../hooks/useMonacoEditor'
 import { useMonacoEditor } from '../hooks/useMonacoEditor'
 import { normaliseVimKey, VimSequenceMatcher } from '../engine/vimKeyUtils'
-import { loadUnsupported, markUnsupported, unmarkUnsupported, saveUnsupported, exportUnsupportedIds } from '../engine/UnsupportedEngine'
+import {
+  loadUnsupported,
+  markUnsupported,
+  unmarkUnsupported,
+  saveUnsupported,
+  downloadJson,
+} from '../engine/UnsupportedEngine'
 import { loadKnown, toggleKnown } from '../engine/KnownEngine'
 import rawData from '../data.json'
 
@@ -25,14 +32,14 @@ const result = items.map(x => x * 2);
 `
 
 interface LogEntry {
-  id:               number
-  key:              string
-  vimMode:          'normal' | 'other'
-  inSolutions:      boolean
-  matchResult:      string | null   // matched solution string, or null
+  id: number
+  key: string
+  vimMode: 'normal' | 'other'
+  inSolutions: boolean
+  matchResult: string | null // matched solution string, or null
   matchesChallenge: boolean | null
-  isEmitted:        boolean         // true = from onCommandExecuted (vs raw keypress)
-  timestamp:        number
+  isEmitted: boolean // true = from onCommandExecuted (vs raw keypress)
+  timestamp: number
 }
 
 let logIdCounter = 0
@@ -40,6 +47,7 @@ let logIdCounter = 0
 function matchesSearch(cmd: VimCommandData, q: string): boolean {
   const lq = q.toLowerCase()
   return (
+    cmd.id.toLowerCase().includes(lq) ||
     cmd.question.toLowerCase().includes(lq) ||
     cmd.category.toLowerCase().includes(lq) ||
     cmd.solution.some(s => s.toLowerCase().includes(lq))
@@ -49,16 +57,16 @@ function matchesSearch(cmd: VimCommandData, q: string): boolean {
 // ── Reducer ───────────────────────────────────────────────────────────────────
 
 type DevState = {
-  search:           string
-  selected:         VimCommandData | null
-  log:              LogEntry[]
-  completed:        boolean
-  unsupported:      Set<string>
-  known:            Set<string>
-  showUnsuppOnly:   boolean
-  showKnownFilter:  'all' | 'known' | 'unknown'
-  isDrill:          boolean
-  autoAdvance:      boolean
+  search: string
+  selected: VimCommandData | null
+  log: LogEntry[]
+  completed: boolean
+  unsupported: Set<string>
+  known: Set<string>
+  showUnsuppOnly: boolean
+  showKnownFilter: 'all' | 'known' | 'unknown'
+  isDrill: boolean
+  autoAdvance: boolean
 }
 
 type DevAction =
@@ -98,8 +106,11 @@ function devReducer(state: DevState, action: DevAction): DevState {
       return { ...state, showUnsuppOnly: !state.showUnsuppOnly }
     case 'CYCLE_KNOWN_FILTER': {
       const next =
-        state.showKnownFilter === 'all'     ? 'known' :
-        state.showKnownFilter === 'known'   ? 'unknown' : 'all'
+        state.showKnownFilter === 'all'
+          ? 'known'
+          : state.showKnownFilter === 'known'
+            ? 'unknown'
+            : 'all'
       return { ...state, showKnownFilter: next }
     }
     case 'START_DRILL':
@@ -119,46 +130,189 @@ function devReducer(state: DevState, action: DevAction): DevState {
 }
 
 const initialDevState: DevState = {
-  search:          '',
-  selected:        null,
-  log:             [],
-  completed:       false,
-  unsupported:     loadUnsupported(),
-  known:           loadKnown(),
-  showUnsuppOnly:  false,
+  search: '',
+  selected: null,
+  log: [],
+  completed: false,
+  unsupported: loadUnsupported(),
+  known: loadKnown(),
+  showUnsuppOnly: false,
   showKnownFilter: 'all',
-  isDrill:         false,
-  autoAdvance:     true,
+  isDrill: false,
+  autoAdvance: true,
 }
 
-export function DevModeScreen({ onBack }: { onBack: () => void }) {
+// ── Export modal ──────────────────────────────────────────────────────────────
+
+type ListField = 'question' | 'solution' | 'id'
+
+interface ExportModalProps {
+  unsupportedIds: string[]
+  allCmds: VimCommandData[]
+  onClose: () => void
+}
+
+type ExportFormat = 'id' | 'command' | 'description'
+
+function ExportModal({ unsupportedIds, allCmds, onClose }: ExportModalProps) {
+  const [copied, setCopied] = useState(false)
+  const [fmt, setFmt] = useState<ExportFormat>('id')
+
+  const json = useMemo(() => {
+    if (fmt === 'id') {
+      return JSON.stringify({ version: 'v1', unsupported: unsupportedIds }, null, 2)
+    }
+    const entries = unsupportedIds.map(id => {
+      const cmd = allCmds.find(c => c.id === id)
+      if (!cmd) return id
+      return fmt === 'command'
+        ? `${id}  // ${cmd.solution.join(', ')}`
+        : `${id}  // ${cmd.question}`
+    })
+    return JSON.stringify({ version: 'v1', unsupported: entries }, null, 2)
+  }, [unsupportedIds, allCmds, fmt])
+
+  function handleCopy() {
+    navigator.clipboard
+      .writeText(json)
+      .then(() => {
+        setCopied(true)
+        setTimeout(() => setCopied(false), 1500)
+      })
+      .catch(() => {})
+  }
+
+  function handleDownload() {
+    downloadJson(json, 'unsupported-defaults.json')
+  }
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-gray-900 border border-gray-600 rounded-xl shadow-2xl w-full max-w-2xl flex flex-col max-h-[80vh]"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700 flex-shrink-0">
+          <span className="text-white font-mono font-bold text-sm">
+            Export Unsupported ({unsupportedIds.length} entries)
+          </span>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white font-mono text-sm px-1 transition-colors"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Format selector */}
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-700 flex-shrink-0 bg-gray-800/50">
+          <span className="text-xs text-gray-400 font-mono">Export as:</span>
+          {[
+            { id: 'id' as ExportFormat, label: 'ID only' },
+            { id: 'command' as ExportFormat, label: '+ Command' },
+            { id: 'description' as ExportFormat, label: '+ Description' },
+          ].map(f => (
+            <button
+              key={f.id}
+              onClick={() => setFmt(f.id)}
+              className={`px-2 py-1 rounded text-xs border transition-colors ${
+                fmt === f.id
+                  ? 'bg-blue-800 border-blue-600 text-blue-200 font-bold'
+                  : 'bg-gray-700 border-gray-600 text-gray-400 hover:border-gray-400'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+          {fmt !== 'id' && (
+            <span className="text-xs text-gray-500 ml-1">Comments are stripped on import</span>
+          )}
+        </div>
+
+        {/* JSON preview */}
+        <pre className="flex-1 overflow-auto p-4 text-xs text-green-300 font-mono bg-gray-950 rounded-b-none">
+          {json}
+        </pre>
+
+        {/* Actions */}
+        <div className="flex gap-3 px-4 py-3 border-t border-gray-700 flex-shrink-0">
+          <button
+            onClick={handleCopy}
+            className={`flex-1 py-2 rounded text-sm font-mono font-bold transition-colors border ${
+              copied
+                ? 'bg-green-800 border-green-600 text-green-200'
+                : 'bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600'
+            }`}
+          >
+            {copied ? (
+              <>
+                <CheckCircle className="w-3.5 h-3.5 mr-1 inline" />
+                Copied!
+              </>
+            ) : (
+              '📋 Copy JSON'
+            )}
+          </button>
+          <button
+            onClick={handleDownload}
+            className="flex-1 py-2 rounded bg-blue-700 hover:bg-blue-600 text-white text-sm font-mono font-bold transition-colors border border-blue-600"
+          >
+            <>
+              <Download className="w-3.5 h-3.5 mr-1 inline" />
+              Download
+            </>
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
   const [state, dispatch] = useReducer(devReducer, initialDevState)
+  const [showExportModal, setShowExportModal] = useState(false)
+  const [listField, setListField] = useState<ListField>('question')
   const {
-    search, selected, log, completed,
-    unsupported, known,
-    showUnsuppOnly, showKnownFilter,
-    isDrill, autoAdvance,
+    search,
+    selected,
+    log,
+    completed,
+    unsupported,
+    known,
+    showUnsuppOnly,
+    showKnownFilter,
+    isDrill,
+    autoAdvance,
   } = state
 
   // Refs for stable closures
-  const autoAdvanceRef  = useRef(autoAdvance)
-  const isDrillRef      = useRef(isDrill)
-  const selectedRef     = useRef(selected)
+  const autoAdvanceRef = useRef(autoAdvance)
+  const isDrillRef = useRef(isDrill)
+  const selectedRef = useRef(selected)
   // Stable ref to focusEditor so advanceDrill (defined before useMonacoEditor) can call it
-  const focusEditorRef  = useRef<() => void>(() => {})
+  const focusEditorRef = useRef<() => void>(() => {})
   // Guard against double-firing: both handleKeyDisplay and handleCommandExecuted
   // can call onSolutionMatched for the same keystroke, causing two advanceDrill calls.
   const solutionHandledRef = useRef(false)
 
   // Keep refs in sync with reducer state (needed for closures inside callbacks/timers)
-  useEffect(() => { autoAdvanceRef.current = autoAdvance }, [autoAdvance])
-  useEffect(() => { isDrillRef.current = isDrill }, [isDrill])
+  useEffect(() => {
+    autoAdvanceRef.current = autoAdvance
+  }, [autoAdvance])
+  useEffect(() => {
+    isDrillRef.current = isDrill
+  }, [isDrill])
   useEffect(() => {
     selectedRef.current = selected
-    solutionHandledRef.current = false  // reset guard for new command
+    solutionHandledRef.current = false // reset guard for new command
   }, [selected])
 
-  const logEndRef      = useRef<HTMLDivElement>(null)
+  const logEndRef = useRef<HTMLDivElement>(null)
   const selectedRowRef = useRef<HTMLButtonElement | null>(null)
 
   // The shared sequence matcher — same logic used during actual gameplay
@@ -179,8 +333,8 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
   const filteredCommands = useMemo(() => {
     return allCommands.filter(cmd => {
       if (showUnsuppOnly && !unsupported.has(cmd.id)) return false
-      if (showKnownFilter === 'known'   && !known.has(cmd.id)) return false
-      if (showKnownFilter === 'unknown' &&  known.has(cmd.id)) return false
+      if (showKnownFilter === 'known' && !known.has(cmd.id)) return false
+      if (showKnownFilter === 'unknown' && known.has(cmd.id)) return false
       if (search && !matchesSearch(cmd, search)) return false
       return true
     })
@@ -191,13 +345,14 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
   const advanceDrill = useCallback(() => {
     dispatch({ type: 'ADVANCE_DRILL', commands: filteredCommands })
     matcherRef.current.reset()
-    focusEditorRef.current()   // use ref — avoids TDZ with focusEditor declared later
+    focusEditorRef.current() // use ref — avoids TDZ with focusEditor declared later
   }, [filteredCommands])
 
   function startDrill() {
-    const first = selected && filteredCommands.some(c => c.id === selected.id)
-      ? selected
-      : filteredCommands[0] ?? null
+    const first =
+      selected && filteredCommands.some(c => c.id === selected.id)
+        ? selected
+        : (filteredCommands[0] ?? null)
     dispatch({ type: 'SELECT_COMMAND', cmd: first })
     matcherRef.current.reset()
     dispatch({ type: 'START_DRILL' })
@@ -223,11 +378,18 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
   }
 
   function markAllUnsupported() {
+    if (
+      !window.confirm(
+        `Mark all ${allCommands.length} commands as unsupported? This cannot be undone automatically.`
+      )
+    )
+      return
     allCommands.forEach(c => markUnsupported(c.id))
     dispatch({ type: 'RELOAD_UNSUPPORTED' })
   }
 
   function clearAllUnsupported() {
+    if (!window.confirm(`Clear all ${unsupported.size} unsupported marks?`)) return
     saveUnsupported(new Set())
     dispatch({ type: 'RELOAD_UNSUPPORTED' })
   }
@@ -236,95 +398,102 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
 
   // Extracted so both handleKeyDisplay (normal/multi-key) and
   // handleCommandExecuted (ex commands) use the same logic.
-  const onSolutionMatched = useCallback((_matchedCmd: string) => {
-    if (solutionHandledRef.current) return
-    solutionHandledRef.current = true
-    const cmd = selectedRef.current
-    dispatch({ type: 'SET_COMPLETED', value: true })
-    if (cmd && unsupported.has(cmd.id)) {
-      unmarkUnsupported(cmd.id)
-      dispatch({ type: 'RELOAD_UNSUPPORTED' })
-    }
-    if (isDrillRef.current && autoAdvanceRef.current) {
-      setTimeout(() => advanceDrill(), 500)
-    } else {
-      setTimeout(() => dispatch({ type: 'SET_COMPLETED', value: false }), 1500)
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [advanceDrill])
+  const onSolutionMatched = useCallback(
+    (_matchedCmd: string) => {
+      if (solutionHandledRef.current) return
+      solutionHandledRef.current = true
+      const cmd = selectedRef.current
+      dispatch({ type: 'SET_COMPLETED', value: true })
+      if (cmd && unsupported.has(cmd.id)) {
+        unmarkUnsupported(cmd.id)
+        dispatch({ type: 'RELOAD_UNSUPPORTED' })
+      }
+      if (isDrillRef.current && autoAdvanceRef.current) {
+        setTimeout(() => advanceDrill(), 500)
+      } else {
+        setTimeout(() => dispatch({ type: 'SET_COMPLETED', value: false }), 1500)
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [advanceDrill]
+  )
 
   // ── onCommandExecuted: receives complete solutions including ex commands ──
   // The game engine's emitIfKnown() calls this for every matched solution.
   // In particular, ex commands like ':close' are emitted HERE (not via
   // onKeyDisplay's per-character matcher) because they're submitted as a unit.
 
-  const handleCommandExecuted = useCallback((emittedCmd: string) => {
-    const cmd = selectedRef.current
-    const solvedNorm = cmd?.solution.map(s => normaliseVimKey(s)) ?? []
-    const matchesChallenge = solvedNorm.includes(normaliseVimKey(emittedCmd))
+  const handleCommandExecuted = useCallback(
+    (emittedCmd: string) => {
+      const cmd = selectedRef.current
+      const solvedNorm = cmd?.solution.map(s => normaliseVimKey(s)) ?? []
+      const matchesChallenge = solvedNorm.includes(normaliseVimKey(emittedCmd))
 
-    const entry: LogEntry = {
-      id:               ++logIdCounter,
-      key:              emittedCmd,
-      vimMode:          'normal',
-      inSolutions:      true,
-      matchResult:      emittedCmd,
-      matchesChallenge,
-      isEmitted:        true,
-      timestamp:        Date.now(),
-    }
-    dispatch({ type: 'APPEND_LOG', entry })
+      const entry: LogEntry = {
+        id: ++logIdCounter,
+        key: emittedCmd,
+        vimMode: 'normal',
+        inSolutions: true,
+        matchResult: emittedCmd,
+        matchesChallenge,
+        isEmitted: true,
+        timestamp: Date.now(),
+      }
+      dispatch({ type: 'APPEND_LOG', entry })
 
-    if (matchesChallenge) onSolutionMatched(emittedCmd)
-  }, [onSolutionMatched])
+      if (matchesChallenge) onSolutionMatched(emittedCmd)
+    },
+    [onSolutionMatched]
+  )
 
   // ── keypress handler (uses VimSequenceMatcher — identical to gameplay) ────
 
-  const handleKeyDisplay = useCallback((event: KeyDisplayEvent) => {
-    if (!event.display) return
+  const handleKeyDisplay = useCallback(
+    (event: KeyDisplayEvent) => {
+      if (!event.display) return
 
-    // Reset matcher on mode change (same as gameplay); discard any flushed
-    // solution here — the game engine's onCommandExecuted will log it separately.
-    if (event.vimMode !== 'normal') {
-      matcherRef.current.reset()
-    }
+      // Reset matcher on mode change (same as gameplay); discard any flushed
+      // solution here — the game engine's onCommandExecuted will log it separately.
+      if (event.vimMode !== 'normal') {
+        matcherRef.current.reset()
+      }
 
-    // Run the sequence matcher — same logic as useMonacoEditor.
-    // push() returns 0-2 results: empty = still buffering, 1 = matched,
-    // 2 = flushed ambiguous buffer + new key match (dead-end case).
-    let matchResult: string | null = null
-    if (event.vimMode === 'normal') {
-      const matches = matcherRef.current.push(event.display)
-      // Take the last result for display (most recent match wins in the log row)
-      matchResult = matches.length > 0 ? matches[matches.length - 1] : null
-    }
+      // Run the sequence matcher — same logic as useMonacoEditor.
+      // push() returns 0-2 results: empty = still buffering, 1 = matched,
+      // 2 = flushed ambiguous buffer + new key match (dead-end case).
+      let matchResult: string | null = null
+      if (event.vimMode === 'normal') {
+        const matches = matcherRef.current.push(event.display)
+        // Take the last result for display (most recent match wins in the log row)
+        matchResult = matches.length > 0 ? matches[matches.length - 1] : null
+      }
 
-    // Check if the match is the selected challenge's solution
-    const cmd = selectedRef.current
-    const solvedNormalized = cmd?.solution.map(s => normaliseVimKey(s)) ?? []
-    const matchesChallenge = matchResult !== null
-      ? solvedNormalized.includes(matchResult)
-      : null
+      // Check if the match is the selected challenge's solution
+      const cmd = selectedRef.current
+      const solvedNormalized = cmd?.solution.map(s => normaliseVimKey(s)) ?? []
+      const matchesChallenge = matchResult !== null ? solvedNormalized.includes(matchResult) : null
 
-    const entry: LogEntry = {
-      id:               ++logIdCounter,
-      key:              event.display,
-      vimMode:          event.vimMode,
-      inSolutions:      event.inSolutions,
-      matchResult,
-      matchesChallenge,
-      isEmitted:        false,
-      timestamp:        Date.now(),
-    }
-    dispatch({ type: 'APPEND_LOG', entry })
+      const entry: LogEntry = {
+        id: ++logIdCounter,
+        key: event.display,
+        vimMode: event.vimMode,
+        inSolutions: event.inSolutions,
+        matchResult,
+        matchesChallenge,
+        isEmitted: false,
+        timestamp: Date.now(),
+      }
+      dispatch({ type: 'APPEND_LOG', entry })
 
-    if (matchesChallenge) onSolutionMatched(matchResult!)
-  }, [onSolutionMatched])
+      if (matchesChallenge) onSolutionMatched(matchResult!)
+    },
+    [onSolutionMatched]
+  )
 
   const { editorRef, statusRef, focusEditor } = useMonacoEditor({
-    language:          'plaintext',
-    defaultValue:      DEV_BUFFER,
-    onKeyDisplay:      handleKeyDisplay,
+    language: 'plaintext',
+    defaultValue: DEV_BUFFER,
+    onKeyDisplay: handleKeyDisplay,
     onCommandExecuted: handleCommandExecuted,
   })
   // Keep ref in sync so advanceDrill (defined before this hook) can call focusEditor
@@ -359,17 +528,19 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
   // ── render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="h-screen bg-gray-900 flex flex-col overflow-hidden font-mono">
+    <div className="h-full bg-gray-900 flex flex-col overflow-hidden font-mono">
+      {/* Header — no back button (global navbar handles home navigation) */}
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-800 border-b border-gray-700 flex-shrink-0 flex-wrap font-mono">
+        <h1 className="text-white font-bold text-base flex-shrink-0">Dev Mode</h1>
 
-      {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-2.5 bg-gray-800 border-b border-gray-700 flex-shrink-0 flex-wrap">
-        <button
-          onClick={onBack}
-          className="text-gray-400 hover:text-white text-sm px-3 py-1 rounded border border-gray-600 hover:border-gray-400 transition-colors"
-        >
-          ← Back
-        </button>
-        <h1 className="text-white font-bold text-base">Dev Mode</h1>
+        {/* Search — left side, close to the title */}
+        <input
+          type="text"
+          placeholder="Search…"
+          value={search}
+          onChange={e => dispatch({ type: 'SET_SEARCH', value: e.target.value })}
+          className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 w-40"
+        />
 
         <div className="flex items-center gap-2 ml-auto flex-wrap">
           {/* Drill toggle */}
@@ -382,7 +553,17 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
                 : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-400'
             }`}
           >
-            {isDrill ? `⚡ Drill ${drillIdx + 1}/${filteredCommands.length}` : '⚡ Start Drill'}
+            {isDrill ? (
+              <>
+                <Zap className="w-3.5 h-3.5 mr-1 inline" />
+                Drill {drillIdx + 1}/{filteredCommands.length}
+              </>
+            ) : (
+              <>
+                <Zap className="w-3.5 h-3.5 mr-1 inline" />
+                Start Drill
+              </>
+            )}
           </button>
 
           {/* Auto-advance toggle — only visible when drill is running */}
@@ -397,9 +578,18 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
                 }`}
                 title="Toggle auto-advance on match"
               >
-                {autoAdvance ? '⏩ Auto' : '⏸ Manual'}
+                {autoAdvance ? (
+                  <>
+                    <FastForward className="w-3.5 h-3.5 mr-1 inline" />
+                    Auto
+                  </>
+                ) : (
+                  <>
+                    <Pause className="w-3.5 h-3.5 mr-1 inline" />
+                    Manual
+                  </>
+                )}
               </button>
-              {/* Manual next button when auto-advance is off */}
               {!autoAdvance && (
                 <button
                   onClick={advanceDrill}
@@ -411,7 +601,7 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
             </>
           )}
 
-          {/* Known filter (cycles: All → Known → Unknown → All) */}
+          {/* Known filter */}
           <button
             onClick={() => dispatch({ type: 'CYCLE_KNOWN_FILTER' })}
             className={`px-3 py-1.5 rounded text-xs border transition-colors ${
@@ -422,11 +612,22 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
                   : 'bg-gray-700 border-gray-600 text-gray-400 hover:border-gray-500'
             }`}
           >
-            {showKnownFilter === 'known'
-              ? `★ Known only (${[...known].filter(id => allCommands.some(c => c.id === id)).length})`
-              : showKnownFilter === 'unknown'
-                ? '☆ Unknown only'
-                : `★ Known (${[...known].filter(id => allCommands.some(c => c.id === id)).length})`}
+            {showKnownFilter === 'known' ? (
+              <>
+                <Star className="w-3.5 h-3.5 mr-1 inline fill-yellow-500 text-yellow-500" />
+                Known only ({[...known].filter(id => allCommands.some(c => c.id === id)).length})
+              </>
+            ) : showKnownFilter === 'unknown' ? (
+              <>
+                <Star className="w-3.5 h-3.5 mr-1 inline" />
+                Unknown only
+              </>
+            ) : (
+              <>
+                <Star className="w-3.5 h-3.5 mr-1 inline fill-yellow-500 text-yellow-500" />
+                Known ({[...known].filter(id => allCommands.some(c => c.id === id)).length})
+              </>
+            )}
           </button>
 
           {/* Unsupported filter */}
@@ -438,55 +639,75 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
                 : 'bg-gray-700 border-gray-600 text-gray-400 hover:border-gray-500'
             }`}
           >
-            ⊘ Unsupported ({unsupportedCount})
+            <>
+              <Ban className="w-3.5 h-3.5 mr-1 inline" />
+              Unsupported ({unsupportedCount})
+            </>
           </button>
 
-          {/* Mark all unsupported */}
+          {/* Mark all unsupported — requires confirm */}
           <button
             onClick={markAllUnsupported}
             className="px-3 py-1.5 rounded text-xs border border-red-900 bg-red-950/30 text-red-500 hover:text-red-300 hover:border-red-700 transition-colors"
-            title="Mark every command as unsupported (then use drill mode to validate)"
+            title="Mark every command as unsupported (prompts for confirmation)"
           >
-            ⊘ Mark all
+            <>
+              <Ban className="w-3.5 h-3.5 mr-1 inline" />
+              Mark all
+            </>
           </button>
 
-          {/* Clear all unsupported */}
+          {/* Clear all unsupported — requires confirm */}
           {unsupportedCount > 0 && (
             <button
               onClick={clearAllUnsupported}
               className="px-3 py-1.5 rounded text-xs border border-gray-600 bg-gray-700 text-gray-400 hover:text-white transition-colors"
-              title="Remove all unsupported marks"
+              title="Remove all unsupported marks (prompts for confirmation)"
             >
-              ✓ Clear all
+              <>
+                <CheckCircle className="w-3.5 h-3.5 mr-1 inline" />
+                Clear all
+              </>
             </button>
           )}
 
-          {/* Export unsupported IDs — download unsupported-defaults.json */}
+          {/* Export */}
           {unsupportedCount > 0 && (
             <button
-              onClick={exportUnsupportedIds}
+              onClick={() => setShowExportModal(true)}
               className="px-3 py-1.5 rounded text-xs border border-gray-600 bg-gray-700 text-gray-400 hover:text-white transition-colors"
-              title="Download as unsupported-defaults.json — place in public/ to pre-seed new users"
+              title="Export unsupported list as JSON"
             >
-              ⬇ Export ({unsupportedCount})
+              <>
+                <Download className="w-3.5 h-3.5 mr-1 inline" />
+                Export ({unsupportedCount})
+              </>
             </button>
           )}
-
-          <input
-            type="text"
-            placeholder="Search…"
-            value={search}
-            onChange={e => dispatch({ type: 'SET_SEARCH', value: e.target.value })}
-            className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 w-36"
-          />
         </div>
       </div>
 
       {/* Body */}
       <div className="flex flex-1 overflow-hidden">
-
         {/* Left: command list */}
         <div className="w-72 flex-shrink-0 flex flex-col border-r border-gray-700 overflow-hidden">
+          {/* List field selector */}
+          <div className="flex items-center gap-1 px-2 py-1.5 bg-gray-800/70 border-b border-gray-700 flex-shrink-0">
+            <span className="text-gray-500 text-xs mr-1">Show:</span>
+            {(['question', 'solution', 'id'] as ListField[]).map(f => (
+              <button
+                key={f}
+                onClick={() => setListField(f)}
+                className={`px-2 py-0.5 rounded text-xs border transition-colors ${
+                  listField === f
+                    ? 'bg-blue-800 border-blue-600 text-blue-200 font-bold'
+                    : 'bg-gray-700 border-gray-600 text-gray-400 hover:border-gray-400'
+                }`}
+              >
+                {f === 'question' ? 'Desc' : f === 'solution' ? 'Cmd' : 'ID'}
+              </button>
+            ))}
+          </div>
           <div className="flex-1 overflow-y-auto text-xs">
             {filteredCommands.length === 0 && (
               <p className="text-gray-600 italic px-4 py-4">No commands match.</p>
@@ -499,13 +720,29 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
                 {byCategory[cat].map(cmd => {
                   const isUnsupported = unsupported.has(cmd.id)
                   const isActive = selected?.id === cmd.id
+                  const primaryLabel =
+                    listField === 'question'
+                      ? cmd.question
+                      : listField === 'solution'
+                        ? cmd.solution.join(', ')
+                        : cmd.id
+                  const secondaryLabel =
+                    listField === 'question'
+                      ? cmd.solution.join(', ')
+                      : listField === 'solution'
+                        ? cmd.question
+                        : cmd.question
                   return (
                     <div
                       key={cmd.id}
                       className={`flex items-center border-b border-gray-800 ${
                         isActive
-                          ? isDrill ? 'bg-orange-900/40 border-orange-800' : 'bg-blue-900/40 border-blue-800'
-                          : isUnsupported ? 'bg-red-950/30' : 'hover:bg-gray-800'
+                          ? isDrill
+                            ? 'bg-orange-900/40 border-orange-800'
+                            : 'bg-blue-900/40 border-blue-800'
+                          : isUnsupported
+                            ? 'bg-red-950/30'
+                            : 'hover:bg-gray-800'
                       }`}
                     >
                       <button
@@ -517,24 +754,37 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
                         }}
                         className="flex-1 text-left px-3 py-2 min-w-0"
                       >
-                        <div className={`truncate flex items-center gap-1 ${isUnsupported ? 'text-red-400' : isActive ? 'text-white' : 'text-gray-300'}`}>
+                        <div
+                          className={`truncate flex items-center gap-1 ${isUnsupported ? 'text-red-400' : isActive ? 'text-white' : 'text-gray-300'}`}
+                        >
                           {known.has(cmd.id) && (
-                            <span className="text-yellow-500 text-xs flex-shrink-0">★</span>
+                            <Star className="w-3 h-3 fill-yellow-500 text-yellow-500 flex-shrink-0" />
                           )}
-                          {cmd.question}
+                          {primaryLabel}
                         </div>
-                        <div className={`text-xs truncate ${isUnsupported ? 'text-red-600' : 'text-gray-500'}`}>
-                          {cmd.solution.join(', ')} · Lv{cmd.level}
+                        <div
+                          className={`text-xs truncate ${isUnsupported ? 'text-red-600' : 'text-gray-500'}`}
+                        >
+                          {secondaryLabel}
+                          {listField !== 'id'
+                            ? ` · Lv${cmd.level}`
+                            : ` · ${cmd.id} · Lv${cmd.level}`}
                         </div>
                       </button>
                       <button
-                        onClick={() => isDrill && isActive ? handleUnsupportedOnDrillItem(cmd.id) : toggleUnsupported(cmd.id)}
+                        onClick={() =>
+                          isDrill && isActive
+                            ? handleUnsupportedOnDrillItem(cmd.id)
+                            : toggleUnsupported(cmd.id)
+                        }
                         title={isUnsupported ? 'Remove from unsupported' : 'Mark as unsupported'}
                         className={`flex-shrink-0 px-2 py-2 transition-colors ${
-                          isUnsupported ? 'text-red-500 hover:text-red-300' : 'text-gray-700 hover:text-red-500'
+                          isUnsupported
+                            ? 'text-red-500 hover:text-red-300'
+                            : 'text-gray-700 hover:text-red-500'
                         }`}
                       >
-                        ⊘
+                        <Ban className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   )
@@ -546,13 +796,17 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
 
         {/* Centre: editor */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <div className={`flex-shrink-0 px-4 py-3 border-b border-gray-700 transition-colors ${
-            completed ? 'bg-green-900/40 border-green-700' : 'bg-gray-800'
-          }`}>
+          <div
+            className={`flex-shrink-0 px-4 py-3 border-b border-gray-700 transition-colors ${
+              completed ? 'bg-green-900/40 border-green-700' : 'bg-gray-800'
+            }`}
+          >
             {selected ? (
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className={`text-sm font-bold ${unsupported.has(selected.id) ? 'text-red-400' : 'text-white'}`}>
+                  <p
+                    className={`text-sm font-bold ${unsupported.has(selected.id) ? 'text-red-400' : 'text-white'}`}
+                  >
                     {selected.question}
                     {unsupported.has(selected.id) && (
                       <span className="ml-2 text-xs text-red-500 font-normal">(unsupported)</span>
@@ -560,13 +814,22 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
                   </p>
                   <div className="flex gap-2 mt-1 flex-wrap">
                     {selected.solution.map((s, i) => (
-                      <kbd key={i} className="px-2 py-0.5 bg-gray-700 text-yellow-300 text-xs rounded border border-gray-600">{s}</kbd>
+                      <kbd
+                        key={i}
+                        className="px-2 py-0.5 bg-gray-700 text-yellow-300 text-xs rounded border border-gray-600"
+                      >
+                        {s}
+                      </kbd>
                     ))}
-                    <span className="text-gray-500 text-xs self-center">· {selected.category} · Lv{selected.level}</span>
+                    <span className="text-gray-500 text-xs self-center">
+                      · {selected.category} · Lv{selected.level}
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  {completed && <span className="text-green-400 font-bold text-sm">✓ MATCHED!</span>}
+                  {completed && (
+                    <span className="text-green-400 font-bold text-sm">✓ MATCHED!</span>
+                  )}
                   {/* Known/unknown toggle */}
                   <button
                     onClick={() => handleToggleKnown(selected.id)}
@@ -576,18 +839,42 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
                         : 'bg-gray-700 border-gray-600 text-gray-400 hover:border-yellow-600 hover:text-yellow-400'
                     }`}
                   >
-                    {known.has(selected.id) ? '★ Known' : '☆ Unknown'}
+                    {known.has(selected.id) ? (
+                      <>
+                        <Star className="w-3.5 h-3.5 mr-1 inline fill-yellow-500 text-yellow-500" />
+                        Known
+                      </>
+                    ) : (
+                      <>
+                        <Star className="w-3.5 h-3.5 mr-1 inline" />
+                        Unknown
+                      </>
+                    )}
                   </button>
                   {/* Unsupported toggle */}
                   <button
-                    onClick={() => isDrill ? handleUnsupportedOnDrillItem(selected.id) : toggleUnsupported(selected.id)}
+                    onClick={() =>
+                      isDrill
+                        ? handleUnsupportedOnDrillItem(selected.id)
+                        : toggleUnsupported(selected.id)
+                    }
                     className={`px-2 py-1 rounded text-xs border transition-colors ${
                       unsupported.has(selected.id)
                         ? 'bg-red-900/50 border-red-700 text-red-300 hover:bg-red-900'
                         : 'bg-gray-700 border-gray-600 text-gray-400 hover:border-red-600 hover:text-red-400'
                     }`}
                   >
-                    {unsupported.has(selected.id) ? '✓ restore' : '⊘ unsupported'}
+                    {unsupported.has(selected.id) ? (
+                      <>
+                        <CheckCircle className="w-3.5 h-3.5 mr-1 inline" />
+                        restore
+                      </>
+                    ) : (
+                      <>
+                        <Ban className="w-3.5 h-3.5 mr-1 inline" />
+                        unsupported
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -609,7 +896,13 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
         <div className="w-80 flex-shrink-0 border-l border-gray-700 flex flex-col overflow-hidden">
           <div className="flex items-center justify-between px-3 py-2 bg-gray-800 border-b border-gray-700 flex-shrink-0">
             <span className="text-gray-400 text-xs uppercase tracking-wider">Keystroke Log</span>
-            <button onClick={() => { dispatch({ type: 'CLEAR_LOG' }); matcherRef.current.reset() }} className="text-gray-600 hover:text-gray-300 text-xs">
+            <button
+              onClick={() => {
+                dispatch({ type: 'CLEAR_LOG' })
+                matcherRef.current.reset()
+              }}
+              className="text-gray-600 hover:text-gray-300 text-xs"
+            >
               Clear
             </button>
           </div>
@@ -627,31 +920,32 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
                     ? 'bg-yellow-900/10'
                     : ''
               return (
-                <div
-                  key={entry.id}
-                  className={`px-2 py-0.5 font-mono text-xs leading-5 ${bg}`}
-                >
+                <div key={entry.id} className={`px-2 py-0.5 font-mono text-xs leading-5 ${bg}`}>
                   {/* Mode badge — stays inline so the whole line copies as one */}
-                  <span className={entry.vimMode === 'normal' ? 'text-gray-600' : 'text-indigo-500'}>
+                  <span
+                    className={entry.vimMode === 'normal' ? 'text-gray-600' : 'text-indigo-500'}
+                  >
                     [{modeShort}]
-                  </span>
-                  {' '}
+                  </span>{' '}
                   {/* Key (emitted entries shown in blue, matched in green, others white/dim) */}
-                  <span className={
-                    entry.isEmitted
-                      ? 'text-blue-300 font-bold'
-                      : entry.matchesChallenge
-                        ? 'text-green-300 font-bold'
-                        : entry.vimMode === 'normal'
-                          ? 'text-white'
-                          : 'text-indigo-300'
-                  }>
+                  <span
+                    className={
+                      entry.isEmitted
+                        ? 'text-blue-300 font-bold'
+                        : entry.matchesChallenge
+                          ? 'text-green-300 font-bold'
+                          : entry.vimMode === 'normal'
+                            ? 'text-white'
+                            : 'text-indigo-300'
+                    }
+                  >
                     {entry.key}
                   </span>
                   {/* Matched solution (only if different from key itself) */}
                   {entry.matchResult && entry.matchResult !== entry.key && (
                     <span className={entry.matchesChallenge ? 'text-green-500' : 'text-yellow-600'}>
-                      {' → '}{entry.matchResult}
+                      {' → '}
+                      {entry.matchResult}
                     </span>
                   )}
                   {/* Single-char solution indicator */}
@@ -659,9 +953,7 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
                     <span className="text-blue-600"> (sol)</span>
                   )}
                   {/* Match badge */}
-                  {entry.matchesChallenge && (
-                    <span className="text-green-400 font-bold"> ✓</span>
-                  )}
+                  {entry.matchesChallenge && <span className="text-green-400 font-bold"> ✓</span>}
                 </div>
               )
             })}
@@ -669,6 +961,14 @@ export function DevModeScreen({ onBack }: { onBack: () => void }) {
           </div>
         </div>
       </div>
+
+      {showExportModal && (
+        <ExportModal
+          unsupportedIds={[...unsupported].sort()}
+          allCmds={allCommands}
+          onClose={() => setShowExportModal(false)}
+        />
+      )}
     </div>
   )
 }

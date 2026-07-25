@@ -6,50 +6,96 @@
   box-sizing: border-box;
 }
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
   padding: 0;
   background-color: #0d1117;
   color: #f0f6fc;
   font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  overscroll-behavior: none;
 }
 
 /* ── Notification toasts ── */
 @keyframes toast-in {
-  from { transform: translateX(110%); opacity: 0; }
-  to   { transform: translateX(0);    opacity: 1; }
+  from {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 @keyframes toast-out {
-  from { transform: translateX(0);    opacity: 1; }
-  to   { transform: translateX(110%); opacity: 0; }
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(110%);
+    opacity: 0;
+  }
 }
 
-.toast-enter  { animation: toast-in  0.18s ease-out forwards; }
-.toast-exit   { animation: toast-out 0.22s ease-in  forwards; }
+.toast-enter {
+  animation: toast-in 0.18s ease-out forwards;
+}
+.toast-exit {
+  animation: toast-out 0.22s ease-in forwards;
+}
 
 /* ── Challenge card state flashes ── */
 @keyframes flash-green {
-  0%   { background-color: rgba(34,197,94,0.0); }
-  30%  { background-color: rgba(34,197,94,0.25); }
-  100% { background-color: rgba(34,197,94,0.0); }
+  0% {
+    background-color: rgba(34, 197, 94, 0);
+  }
+  30% {
+    background-color: rgba(34, 197, 94, 0.25);
+  }
+  100% {
+    background-color: rgba(34, 197, 94, 0);
+  }
 }
 @keyframes flash-red {
-  0%   { background-color: rgba(239,68,68,0.0); }
-  30%  { background-color: rgba(239,68,68,0.25); }
-  100% { background-color: rgba(239,68,68,0.0); }
+  0% {
+    background-color: rgba(239, 68, 68, 0);
+  }
+  30% {
+    background-color: rgba(239, 68, 68, 0.25);
+  }
+  100% {
+    background-color: rgba(239, 68, 68, 0);
+  }
 }
 
-.challenge-completed { animation: flash-green 0.5s ease-out forwards; }
-.challenge-failed    { animation: flash-red   0.5s ease-out forwards; }
+.challenge-completed {
+  animation: flash-green 0.5s ease-out forwards;
+}
+.challenge-failed {
+  animation: flash-red 0.5s ease-out forwards;
+}
 
 /* ── Level-up banner ── */
 @keyframes levelup-pop {
-  0%   { transform: scale(0.7); opacity: 0; }
-  60%  { transform: scale(1.1); opacity: 1; }
-  100% { transform: scale(1);   opacity: 1; }
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
-.levelup-banner { animation: levelup-pop 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+.levelup-banner {
+  animation: levelup-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
 
 /* Ensure all interactive elements show a visible focus ring for keyboard users */
 :focus-visible {
@@ -59,9 +105,15 @@ html, body, #root {
 }
 /* ── Goal Mode diff gutter markers ── */
 /* Applied via linesDecorationsClassName — coloured bar in the line number gutter. */
-.goal-diff-changed  { border-left: 3px solid #f59e0b; }   /* amber  — line exists but differs */
-.goal-diff-added    { border-left: 3px solid #22c55e; }   /* green  — needs to be added       */
-.goal-diff-removed  { border-left: 3px solid #ef4444; }   /* red    — needs to be removed     */
+.goal-diff-changed {
+  border-left: 3px solid #f59e0b;
+} /* amber  — line exists but differs */
+.goal-diff-added {
+  border-left: 3px solid #22c55e;
+} /* green  — needs to be added       */
+.goal-diff-removed {
+  border-left: 3px solid #ef4444;
+} /* red    — needs to be removed     */
 
 /* Suppress the ring only on elements that have custom focus styling */
 button:focus:not(:focus-visible),
@@ -70,8 +122,13 @@ a:focus:not(:focus-visible) {
 }
 
 /* ── Motion Race target position highlight ── */
-.motion-race-target         { background: rgba(234,179,8,0.35); border-radius: 2px; }
-.motion-race-target-gutter  { border-left: 3px solid #eab308; }
+.motion-race-target {
+  background: rgba(234, 179, 8, 0.35);
+  border-radius: 2px;
+}
+.motion-race-target-gutter {
+  border-left: 3px solid #eab308;
+}
 
 /* ── Diff view whitespace markers ── */
 /* The span holds the real space (so selection/copy works); the ::before
@@ -89,4 +146,97 @@ a:focus:not(:focus-visible) {
   color: rgba(148, 163, 184, 0.4); /* slate-300 at low opacity */
   pointer-events: none;
   user-select: none;
+}
+
+/* ── Motion Race snake trail (user) — blue, fading with age ── */
+.trail-user-1 {
+  background: rgba(59, 130, 246, 0.55);
+  border-radius: 2px;
+}
+.trail-user-2 {
+  background: rgba(59, 130, 246, 0.45);
+  border-radius: 2px;
+}
+.trail-user-3 {
+  background: rgba(59, 130, 246, 0.35);
+  border-radius: 2px;
+}
+.trail-user-4 {
+  background: rgba(59, 130, 246, 0.28);
+  border-radius: 2px;
+}
+.trail-user-5 {
+  background: rgba(59, 130, 246, 0.22);
+  border-radius: 2px;
+}
+.trail-user-6 {
+  background: rgba(59, 130, 246, 0.16);
+  border-radius: 2px;
+}
+.trail-user-7 {
+  background: rgba(59, 130, 246, 0.11);
+  border-radius: 2px;
+}
+.trail-user-8 {
+  background: rgba(59, 130, 246, 0.07);
+  border-radius: 2px;
+}
+
+/* ── Motion Race secondary/multi goals — teal highlight ── */
+.motion-race-goal-alt {
+  background: rgba(20, 184, 166, 0.3);
+  border-radius: 2px;
+}
+.motion-race-goal-alt-gutter {
+  border-left: 3px solid #14b8a6;
+}
+
+/* ── Motion Race visual effects (handicaps) ── */
+@keyframes snowfall {
+  0% {
+    transform: translateY(-5vh) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(105vh) translateX(20px);
+    opacity: 0;
+  }
+}
+.snow-flake {
+  animation: snowfall linear infinite;
+  pointer-events: none;
+  user-select: none;
+  position: absolute;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotate(var(--r)) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(200px) rotate(calc(var(--r) + 360deg)) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes penalty-flash {
+  0% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+.penalty-flash-anim {
+  animation: penalty-flash 0.8s ease-out forwards;
 }

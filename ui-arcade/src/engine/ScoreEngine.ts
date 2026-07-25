@@ -6,19 +6,22 @@ export const SURVIVAL_TIME_MULTIPLIER = 1.5
 // Guided challenges earn a fraction of normal points so blind completion feels rewarding
 export const GUIDED_POINTS_FRACTION = 0.2
 
-export function getTimeRating(elapsed: number, timeLimit: number): { multiplier: number; rating: TimeRating } {
+export function getTimeRating(
+  elapsed: number,
+  timeLimit: number
+): { multiplier: number; rating: TimeRating } {
   const fraction = elapsed / timeLimit
   if (fraction <= 0.25) return { multiplier: 3.0, rating: 'lightning' }
-  if (fraction <= 0.5)  return { multiplier: 2.0, rating: 'fast' }
+  if (fraction <= 0.5) return { multiplier: 2.0, rating: 'fast' }
   if (fraction <= 0.75) return { multiplier: 1.5, rating: 'good' }
   return { multiplier: 1.0, rating: 'completed' }
 }
 
 export function getComboMultiplier(comboCount: number): number {
   if (comboCount >= 12) return 3.0
-  if (comboCount >= 8)  return 2.5
-  if (comboCount >= 5)  return 2.0
-  if (comboCount >= 3)  return 1.5
+  if (comboCount >= 8) return 2.5
+  if (comboCount >= 5) return 2.0
+  if (comboCount >= 3) return 1.5
   return 1.0
 }
 

@@ -9,8 +9,22 @@ import rawData from '../data.json'
 
 /** Normalise data.json solution strings to the internal <C-x>/<Esc> format. */
 export function normaliseVimKey(raw: string): string {
-  const ctrlM = /^ctrl[-+\s](.+)/i.exec(raw)
-  if (ctrlM) return `<C-${ctrlM[1].toLowerCase()}>`
+  // Handle space-separated ctrl sequences like "ctrl-x ctrl-n" → "<C-x><C-n>"
+  // Only split if EACH part looks like a ctrl- sequence (not "gu + movement")
+  if (/\s/.test(raw.trim())) {
+    const parts = raw.trim().split(/\s+/)
+    if (parts.every(p => /^ctrl[-+]/i.test(p) || /^esc$/i.test(p))) {
+      return parts.map(normaliseVimKey).join('')
+    }
+  }
+
+  const ctrlM = /^ctrl[-+](.+)/i.exec(raw)
+  if (ctrlM) {
+    const rest = ctrlM[1].toLowerCase()
+    if (rest.length === 1) return `<C-${rest}>`
+    // ctrl-ws → <C-w>s, ctrl-wv → <C-w>v, etc.
+    return `<C-${rest[0]}>${rest.slice(1)}`
+  }
   if (/^esc$/i.test(raw)) return '<Esc>'
   // Strip " + movement", " + motion" etc. — documentation notation.
   // e.g. "gu + movement" → "gu", "= + motion" → "="
@@ -23,11 +37,11 @@ export function normaliseVimKey(raw: string): string {
  *  that carry no vim meaning (arrows, F-keys, …). */
 export function formatKeyEvent(e: KeyboardEvent): string {
   if (e.key === 'Escape' || (e.ctrlKey && !e.altKey && !e.metaKey && e.key === '[')) return '<Esc>'
-  if (e.key === 'Enter')     return '<CR>'
+  if (e.key === 'Enter') return '<CR>'
   if (e.key === 'Backspace') return '<BS>'
   // Tab in vim normal mode is identical to <C-i> (jump list forward).
-  if (e.key === 'Tab')       return '<C-i>'
-  if (e.key === 'Delete')    return '<Del>'
+  if (e.key === 'Tab') return '<C-i>'
+  if (e.key === 'Delete') return '<Del>'
   if (e.ctrlKey && !e.altKey && !e.metaKey) {
     if (e.key.length === 1 || e.key === ']' || e.key === '^') {
       return `<C-${e.key.toLowerCase()}>`
@@ -65,9 +79,9 @@ const MOTION_OPERATORS = new Set<string>()
 const TEXT_OBJECT_RE = /^[ai][wWbBspt"'`)([\]{}><]$/
 
 function _build() {
-  const solutions           = new Set<string>()
-  const prefixes            = new Set<string>()
-  const crossModeSolutions  = new Set<string>()
+  const solutions = new Set<string>()
+  const prefixes = new Set<string>()
+  const crossModeSolutions = new Set<string>()
 
   for (const cmd of _cmds) {
     for (const raw of cmd.solution) {
@@ -98,7 +112,11 @@ function _build() {
   return { solutions, prefixes, crossModeSolutions }
 }
 
-const { solutions: SOLUTIONS, prefixes: PREFIXES, crossModeSolutions: CROSS_MODE_SOLUTIONS } = _build()
+const {
+  solutions: SOLUTIONS,
+  prefixes: PREFIXES,
+  crossModeSolutions: CROSS_MODE_SOLUTIONS,
+} = _build()
 
 /**
  * Solutions that are also prefixes of OTHER, LONGER solutions — must be
@@ -172,6 +190,6 @@ export class VimSequenceMatcher {
     // Motion operators in the buffer: a mode change means the user executed the
     // operator (e.g. pressed 'gu' and vim is waiting for motion in normal mode).
     // Flush and emit — the motion was implicit in the mode transition context.
-    return (buf && SOLUTIONS.has(buf)) ? buf : null
+    return buf && SOLUTIONS.has(buf) ? buf : null
   }
 }

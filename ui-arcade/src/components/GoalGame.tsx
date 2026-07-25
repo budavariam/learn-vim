@@ -4,52 +4,62 @@ import type { GoalState } from '../hooks/useGoalGame'
 import { ChallengePanel } from './ChallengePanel'
 import { ScoreDisplay } from './ScoreDisplay'
 import { LevelIndicator } from './LevelIndicator'
+import { ArrowLeft, Check, ChevronRight, CheckCircle, XCircle } from 'lucide-react'
 interface GoalGameProps {
-  state:            GoalState
+  state: GoalState
   currentChallenge: VimGolfChallenge | null
-  editorRef:        React.RefObject<HTMLDivElement | null>
-  statusRef:        React.RefObject<HTMLDivElement | null>
-  targetEditorRef:  React.RefObject<HTMLDivElement | null>
-  onCheck:          () => void
-  onSkip:           () => void
-  onQuit:           () => void
+  editorRef: React.RefObject<HTMLDivElement | null>
+  statusRef: React.RefObject<HTMLDivElement | null>
+  targetEditorRef: React.RefObject<HTMLDivElement | null>
+  onCheck: () => void
+  onSkip: () => void
+  onQuit: () => void
   onMarkUnsupported?: (id: string) => void
 }
 
 const DIFFICULTY_BADGE: Record<VimGolfChallenge['difficulty'], string> = {
-  easy:   'bg-green-900/50 text-green-400 border border-green-700',
+  easy: 'bg-green-900/50 text-green-400 border border-green-700',
   medium: 'bg-yellow-900/50 text-yellow-400 border border-yellow-700',
-  hard:   'bg-red-900/50 text-red-400 border border-red-700',
+  hard: 'bg-red-900/50 text-red-400 border border-red-700',
 }
 
 function formatTime(ms: number): string {
   const total = Math.floor(ms / 1000)
-  const m = Math.floor(total / 60).toString().padStart(2, '0')
+  const m = Math.floor(total / 60)
+    .toString()
+    .padStart(2, '0')
   const s = (total % 60).toString().padStart(2, '0')
   return `${m}:${s}`
 }
 
 export function GoalGame({
-  state, currentChallenge,
-  editorRef, statusRef, targetEditorRef,
-  onCheck, onSkip, onQuit,
+  state,
+  currentChallenge,
+  editorRef,
+  statusRef,
+  targetEditorRef,
+  onCheck,
+  onSkip,
+  onQuit,
   onMarkUnsupported = () => {},
 }: GoalGameProps) {
-  const total       = state.challenges.length
-  const idx         = state.index
-  const limit       = state.config?.timeLimitMs ?? 0
+  const total = state.challenges.length
+  const idx = state.index
+  const limit = state.config?.timeLimitMs ?? 0
   const remainingMs = limit > 0 ? Math.max(0, limit - state.elapsedMs) : 0
-  const isLowTime   = limit > 0 && remainingMs < 10_000
+  const isLowTime = limit > 0 && remainingMs < 10_000
   const recentResults = state.results.slice(-3).reverse()
-  const arcade      = state.arcadeState
+  const arcade = state.arcadeState
 
   return (
-    <div className="h-screen bg-gray-900 flex flex-col overflow-hidden relative font-mono">
-
+    <div className="h-full bg-gray-900 flex flex-col overflow-hidden relative font-mono">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700 flex-shrink-0">
-        <button onClick={onQuit} className="text-gray-400 hover:text-white text-sm transition-colors">
-          ← Quit
+        <button
+          onClick={onQuit}
+          className="text-gray-400 hover:text-white text-sm transition-colors flex items-center gap-1"
+        >
+          <ArrowLeft className="w-4 h-4" /> Quit
         </button>
         <div className="flex items-center gap-6">
           {currentChallenge && (
@@ -58,7 +68,9 @@ export function GoalGame({
                 {idx + 1} / {total}
               </span>
               <span className="font-bold text-white text-sm">{currentChallenge.title}</span>
-              <span className={`px-1.5 py-0.5 rounded text-xs font-bold uppercase ${DIFFICULTY_BADGE[currentChallenge.difficulty]}`}>
+              <span
+                className={`px-1.5 py-0.5 rounded text-xs font-bold uppercase ${DIFFICULTY_BADGE[currentChallenge.difficulty]}`}
+              >
                 {currentChallenge.difficulty}
               </span>
             </div>
@@ -73,22 +85,21 @@ export function GoalGame({
         <div className="flex gap-2">
           <button
             onClick={onCheck}
-            className="px-4 py-1.5 bg-green-700 hover:bg-green-600 text-white text-sm rounded transition-colors"
+            className="px-4 py-1.5 bg-green-700 hover:bg-green-600 text-white text-sm rounded transition-colors flex items-center gap-1"
           >
-            Check ✓
+            <Check className="w-4 h-4" /> Check
           </button>
           <button
             onClick={onSkip}
-            className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded transition-colors"
+            className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded transition-colors flex items-center gap-1"
           >
-            Skip →
+            Skip <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       {/* Main: three-column layout */}
       <div className="flex flex-1 overflow-hidden">
-
         {/* ── Left (~40%): editable editor ── */}
         <div className="flex flex-col min-w-0 border-r border-gray-700" style={{ flex: '0 0 40%' }}>
           <div className="flex items-center px-3 py-1.5 bg-gray-800 border-b border-gray-700 flex-shrink-0">
@@ -109,7 +120,9 @@ export function GoalGame({
           <div className="flex items-center px-3 py-1.5 bg-gray-800 border-b border-gray-700 flex-shrink-0">
             <span className="text-gray-400 text-xs">target</span>
             {currentChallenge && (
-              <span className="ml-3 text-gray-600 text-xs truncate">{currentChallenge.description}</span>
+              <span className="ml-3 text-gray-600 text-xs truncate">
+                {currentChallenge.description}
+              </span>
             )}
           </div>
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
@@ -117,15 +130,24 @@ export function GoalGame({
           {/* Diff legend */}
           <div className="h-6 bg-gray-800 border-t border-gray-700 px-3 flex items-center gap-4 flex-shrink-0">
             <span className="flex items-center gap-1 text-xs text-gray-500">
-              <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: '#f59e0b' }} />
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-sm"
+                style={{ background: '#f59e0b' }}
+              />
               changed
             </span>
             <span className="flex items-center gap-1 text-xs text-gray-500">
-              <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: '#22c55e' }} />
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-sm"
+                style={{ background: '#22c55e' }}
+              />
               need to add
             </span>
             <span className="flex items-center gap-1 text-xs text-gray-500">
-              <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: '#ef4444' }} />
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-sm"
+                style={{ background: '#ef4444' }}
+              />
               need to remove
             </span>
           </div>
@@ -160,19 +182,18 @@ export function GoalGame({
           {recentResults.map((r, i) => (
             <div key={i} className="flex items-center gap-2">
               <span className="text-gray-500 truncate max-w-32">{r.title}</span>
-              {r.solved
-                ? <span className="text-green-400 font-bold">+{r.points}</span>
-                : <span className="text-red-400 font-bold">FAILED</span>
-              }
+              {r.solved ? (
+                <span className="text-green-400 font-bold">+{r.points}</span>
+              ) : (
+                <span className="text-red-400 font-bold">FAILED</span>
+              )}
             </div>
           ))}
         </div>
       )}
 
       {/* Results overlay */}
-      {state.status === 'results' && (
-        <ResultsOverlay state={state} onQuit={onQuit} />
-      )}
+      {state.status === 'results' && <ResultsOverlay state={state} onQuit={onQuit} />}
     </div>
   )
 }
@@ -183,7 +204,7 @@ export function GoalGame({
 
 function ResultsOverlay({ state, onQuit }: { state: GoalState; onQuit: () => void }) {
   const arcadeScore = state.arcadeState?.score ?? 0
-  const grandTotal  = state.totalScore + arcadeScore
+  const grandTotal = state.totalScore + arcadeScore
   return (
     <div className="absolute inset-0 bg-black/80 z-50 flex items-center justify-center overflow-auto">
       <div className="bg-gray-900 border border-gray-700 rounded-xl p-8 max-w-2xl w-full mx-4 font-mono">
@@ -222,16 +243,20 @@ function ResultsOverlay({ state, onQuit }: { state: GoalState; onQuit: () => voi
                 <tr key={i} className="border-t border-gray-800">
                   <td className="py-2 pr-3 text-gray-300 truncate max-w-48">{r.title}</td>
                   <td className="py-2 px-2 text-center">
-                    {r.solved
-                      ? <span className="text-green-400 font-bold">✓</span>
-                      : <span className="text-red-400 font-bold">✗</span>}
+                    {r.solved ? (
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                    ) : (
+                      <XCircle className="w-4 h-4 text-red-400" />
+                    )}
                   </td>
                   <td className="py-2 px-2 text-right text-gray-400">{r.keystrokes}</td>
                   <td className="py-2 px-2 text-right text-gray-400">{formatTime(r.elapsedMs)}</td>
                   <td className="py-2 pl-2 text-right font-bold">
-                    {r.solved
-                      ? <span className="text-yellow-400">+{r.points}</span>
-                      : <span className="text-gray-600">0</span>}
+                    {r.solved ? (
+                      <span className="text-yellow-400">+{r.points}</span>
+                    ) : (
+                      <span className="text-gray-600">0</span>
+                    )}
                   </td>
                 </tr>
               ))}

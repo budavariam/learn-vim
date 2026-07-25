@@ -14,12 +14,20 @@ import { useGoalGame } from './hooks/useGoalGame'
 import { DevModeScreen } from './components/DevModeScreen'
 import { ModeSelectScreen } from './components/ModeSelectScreen'
 import { MotionRaceWrapper } from './components/MotionRaceGame'
+import { Navbar } from './components/Navbar'
+import { PreferencesScreen } from './components/PreferencesScreen'
+import { AppReadmeScreen } from './components/AppReadmeScreen'
 import { BUILTIN_CHALLENGES } from './engine/vimgolfChallenges'
 import type { GoalModeConfig } from './engine/types'
-
 function VimGolfGameRoute() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { challengeId } = useParams<{ challengeId: string }>()
+
+  const challengeList: string[] = location.state?.challengeList || []
+  const currentIndex = challengeList.indexOf(challengeId || '')
+  const nextChallengeId = currentIndex >= 0 && currentIndex < challengeList.length - 1 ? challengeList[currentIndex + 1] : null
+  const prevChallengeId = currentIndex > 0 ? challengeList[currentIndex - 1] : null
 
   const challenge =
     BUILTIN_CHALLENGES.find(c => c.id === challengeId) ??
@@ -29,8 +37,19 @@ function VimGolfGameRoute() {
 
   return (
     <VimGolfGame
+      key={challenge.id}
       challenge={challenge}
-      onBack={() => navigate('/vimgolf')}
+      onNext={
+        nextChallengeId
+          ? () => navigate(`/vimgolf/${nextChallengeId}`, { state: location.state })
+          : undefined
+      }
+      onPrev={
+        prevChallengeId
+          ? () => navigate(`/vimgolf/${prevChallengeId}`, { state: location.state })
+          : undefined
+      }
+      onQuit={() => navigate('/vimgolf')}
     />
   )
 }
@@ -40,18 +59,16 @@ function GoalModeWrapper({ onBack }: { onBack: () => void }) {
   const [pendingConfig, setPendingConfig] = useState<GoalModeConfig | null>(null)
 
   if (!pendingConfig) {
-    return (
-      <GoalSetupScreen
-        onStart={setPendingConfig}
-        onBack={onBack}
-      />
-    )
+    return <GoalSetupScreen onStart={setPendingConfig} onBack={onBack} />
   }
 
   return (
     <GoalGameContainer
       config={pendingConfig}
-      onQuit={() => { setPendingConfig(null); onBack() }}
+      onQuit={() => {
+        setPendingConfig(null)
+        onBack()
+      }}
     />
   )
 }
@@ -59,12 +76,21 @@ function GoalModeWrapper({ onBack }: { onBack: () => void }) {
 // This component mounts AFTER the setup is done, so when useGoalGame's Monaco
 // init() effect fires the target <div> is already in the DOM.
 function GoalGameContainer({ config, onQuit }: { config: GoalModeConfig; onQuit: () => void }) {
-  const { state, currentChallenge, editorRef, statusRef, targetEditorRef, startGame, checkSolution, resetGame } = useGoalGame()
+  const {
+    state,
+    currentChallenge,
+    editorRef,
+    statusRef,
+    targetEditorRef,
+    startGame,
+    checkSolution,
+    resetGame,
+  } = useGoalGame()
 
   // Start the game as soon as this component mounts (config is already chosen)
   useEffect(() => {
     startGame(config)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
@@ -79,7 +105,10 @@ function GoalGameContainer({ config, onQuit }: { config: GoalModeConfig; onQuit:
         // Treat skip as a failed challenge — just call checkSolution which handles advancing
         checkSolution()
       }}
-      onQuit={() => { resetGame(); onQuit() }}
+      onQuit={() => {
+        resetGame()
+        onQuit()
+      }}
       onMarkUnsupported={() => {}}
     />
   )
@@ -96,7 +125,6 @@ function App() {
     onCommandExecuted,
     resetGame,
     updateSettings,
-    highScores,
     markChallengeUnsupported,
   } = useArcadeGame()
 
@@ -109,100 +137,111 @@ function App() {
   }, [state.status, location.pathname, navigate])
 
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <ModeSelectScreen
-            onSelectArcade={() => navigate('/arcade')}
-            onSelectVimGolf={() => navigate('/vimgolf')}
-            onSelectGoal={() => navigate('/goal')}
-            onSelectMotionRace={() => navigate('/motion-race')}
-            onSelectDev={() => navigate('/dev')}
-            onHighScores={() => navigate('/high-scores')}
-          />
-        }
-      />
-      <Route
-        path="/arcade"
-        element={
-          <SetupScreen
-            onStart={config => { startGame(config); navigate('/play') }}
-            onHighScores={() => navigate('/high-scores')}
-            lastConfig={lastConfig}
-          />
-        }
-      />
-      <Route
-        path="/play"
-        element={
-          state.status === 'setup'
-            ? <Navigate to="/arcade" replace />
-            : <ArcadeGame
-                state={state}
-                onCommandExecuted={onCommandExecuted}
-                onUpdateSettings={updateSettings}
-                onQuit={() => { resetGame(); navigate('/') }}
-                onMarkUnsupported={markChallengeUnsupported}
+    <div className="h-screen flex flex-col overflow-hidden">
+      <Navbar />
+      <div className="flex-1 min-h-0 overflow-y-auto">
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <ModeSelectScreen
+                onSelectArcade={() => navigate('/arcade')}
+                onSelectVimGolf={() => navigate('/vimgolf')}
+                onSelectGoal={() => navigate('/goal')}
+                onSelectMotionRace={() => navigate('/motion-race')}
               />
-        }
-      />
-      <Route
-        path="/results"
-        element={
-          state.status !== 'results'
-            ? <Navigate to="/" replace />
-            : <ResultsScreen
-                state={state}
-                onRestart={() => { resetGame(); navigate('/arcade') }}
+            }
+          />
+          <Route
+            path="/arcade"
+            element={
+              <SetupScreen
+                onStart={config => {
+                  startGame(config)
+                  navigate('/play')
+                }}
                 onHighScores={() => navigate('/high-scores')}
-                onReview={() => navigate('/review')}
-                reviewCount={reviewItems.length}
+                lastConfig={lastConfig}
               />
-        }
-      />
-      <Route
-        path="/review"
-        element={
-          reviewItems.length === 0
-            ? <Navigate to="/" replace />
-            : <SessionReviewScreen
-                items={reviewItems}
-                onDone={() => { resetGame(); navigate('/') }}
-              />
-        }
-      />
-      <Route
-        path="/high-scores"
-        element={<HighScoreScreen scores={highScores} onClose={() => navigate(-1)} />}
-      />
-      <Route
-        path="/vimgolf"
-        element={
-          <VimGolfScreen
-            onBack={() => navigate('/')}
-            onPlay={c => navigate(`/vimgolf/${c.id}`)}
+            }
           />
-        }
-      />
-      <Route
-        path="/vimgolf/:challengeId"
-        element={<VimGolfGameRoute />}
-      />
-      <Route
-        path="/goal"
-        element={<GoalModeWrapper onBack={() => navigate('/')} />}
-      />
-      <Route
-        path="/motion-race"
-        element={<MotionRaceWrapper onBack={() => navigate('/')} />}
-      />
-      <Route
-        path="/dev"
-        element={<DevModeScreen onBack={() => navigate('/')} />}
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+          <Route
+            path="/play"
+            element={
+              state.status === 'setup' ? (
+                <Navigate to="/arcade" replace />
+              ) : (
+                <ArcadeGame
+                  state={state}
+                  onCommandExecuted={onCommandExecuted}
+                  onUpdateSettings={updateSettings}
+                  onQuit={() => {
+                    resetGame()
+                    navigate('/')
+                  }}
+                  onMarkUnsupported={markChallengeUnsupported}
+                />
+              )
+            }
+          />
+          <Route
+            path="/results"
+            element={
+              state.status !== 'results' ? (
+                <Navigate to="/" replace />
+              ) : (
+                <ResultsScreen
+                  state={state}
+                  onRestart={() => {
+                    resetGame()
+                    navigate('/arcade')
+                  }}
+                  onHighScores={() => navigate('/high-scores')}
+                  onReview={() => navigate('/review')}
+                  reviewCount={reviewItems.length}
+                />
+              )
+            }
+          />
+          <Route
+            path="/review"
+            element={
+              reviewItems.length === 0 ? (
+                <Navigate to="/" replace />
+              ) : (
+                <SessionReviewScreen
+                  items={reviewItems}
+                  onDone={() => {
+                    resetGame()
+                    navigate('/')
+                  }}
+                />
+              )
+            }
+          />
+          <Route
+            path="/high-scores"
+            element={<HighScoreScreen />}
+          />
+          <Route
+            path="/vimgolf"
+            element={
+              <VimGolfScreen
+                onBack={() => navigate('/')}
+                onPlay={(c, list) => navigate(`/vimgolf/${c.id}`, { state: { challengeList: list.map(x => x.id) } })}
+              />
+            }
+          />
+          <Route path="/vimgolf/:challengeId" element={<VimGolfGameRoute />} />
+          <Route path="/goal" element={<GoalModeWrapper onBack={() => navigate('/')} />} />
+          <Route path="/motion-race" element={<MotionRaceWrapper onBack={() => navigate('/')} />} />
+          <Route path="/dev" element={<DevModeScreen onBack={() => navigate('/')} />} />
+          <Route path="/dev/readme" element={<AppReadmeScreen />} />
+          <Route path="/preferences" element={<PreferencesScreen />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </div>
   )
 }
 

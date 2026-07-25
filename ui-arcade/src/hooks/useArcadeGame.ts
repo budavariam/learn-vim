@@ -1,36 +1,56 @@
 import { useState, useReducer, useEffect, useRef, useCallback } from 'react'
-import type { GameState, GameConfig, GameSettings, HighScores, VimCommandData, ReviewItem } from '../engine/types'
-import { initGameState, tick, handleCommandExecuted, updateLiveSettings } from '../engine/ChallengeEngine'
-import { loadHighScores, saveHighScores, addHighScore, buildHighScoreEntry } from '../engine/HighScoreEngine'
+import type {
+  GameState,
+  GameConfig,
+  GameSettings,
+  HighScores,
+  VimCommandData,
+  ReviewItem,
+} from '../engine/types'
+import {
+  initGameState,
+  tick,
+  handleCommandExecuted,
+  updateLiveSettings,
+} from '../engine/ChallengeEngine'
+import {
+  loadHighScores,
+  saveHighScores,
+  addHighScore,
+  buildHighScoreEntry,
+} from '../engine/HighScoreEngine'
 import { shouldSuggestKnown, loadKnown } from '../engine/KnownEngine'
 import rawData from '../data.json'
 import { loadUnsupported, markUnsupported } from '../engine/UnsupportedEngine'
+import { STORAGE_KEYS } from '../engine/storageKeys'
 
 const allCommands = rawData as VimCommandData[]
 const TICK_INTERVAL_MS = 100
-const CONFIG_STORAGE_KEY = 'vim_arcade_last_config'
 
 function loadLastConfig(): GameConfig | null {
   try {
-    const raw = localStorage.getItem(CONFIG_STORAGE_KEY)
+    const raw = localStorage.getItem(STORAGE_KEYS.LAST_CONFIG)
     if (!raw) return null
     const config = JSON.parse(raw) as GameConfig
-    // Fix (Bug #9): configs saved before dynamicAssist was added have the field
-    // absent (undefined). undefined !== null, so the engine would compute
-    // Math.min(100, undefined) = NaN and silently break the assist logic.
-    config.dynamicAssist    = config.dynamicAssist ?? null
-    config.knowledgeFilter  = config.knowledgeFilter ?? 'all'
+    config.dynamicAssist = config.dynamicAssist ?? null
+    config.knowledgeFilter = config.knowledgeFilter ?? 'all'
     return config
-  } catch { return null }
+  } catch {
+    return null
+  }
 }
 
 function saveLastConfig(config: GameConfig) {
-  try { localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config)) } catch { /* ignore */ }
+  try {
+    localStorage.setItem(STORAGE_KEYS.LAST_CONFIG, JSON.stringify(config))
+  } catch {
+    /* ignore */
+  }
 }
 
 function buildReviewItems(state: GameState, sessionCommands: VimCommandData[]): ReviewItem[] {
   const known = loadKnown()
-  const seen  = new Map<string, VimCommandData>()
+  const seen = new Map<string, VimCommandData>()
   for (const cmd of sessionCommands) seen.set(cmd.id, cmd)
 
   const items: ReviewItem[] = []
@@ -41,13 +61,13 @@ function buildReviewItems(state: GameState, sessionCommands: VimCommandData[]): 
       const cmd = seen.get(id)
       if (!cmd) continue
       const completions = prog.completionCounts.get(id) ?? 0
-      const failures    = prog.failureCounts.get(id) ?? 0
+      const failures = prog.failureCounts.get(id) ?? 0
       items.push({
-        commandId:    id,
-        question:     cmd.question,
-        solution:     cmd.solution,
-        category:     cmd.category,
-        level:        Number(level),
+        commandId: id,
+        question: cmd.question,
+        solution: cmd.solution,
+        category: cmd.category,
+        level: Number(level),
         completions,
         failures,
         suggestKnown: shouldSuggestKnown(completions, failures),
@@ -159,9 +179,9 @@ function arcadeHookReducer(state: ArcadeHookState, action: ArcadeHookAction): Ar
 
 function makeInitialArcadeState(): ArcadeHookState {
   return {
-    gameState:         makeSetupState(),
-    highScores:        loadHighScores(),
-    reviewItems:       [],
+    gameState: makeSetupState(),
+    highScores: loadHighScores(),
+    reviewItems: [],
     showingHighScores: false,
   }
 }
@@ -180,13 +200,19 @@ export function useArcadeGame(): UseArcadeGameReturn {
   const activeCommandsRef = useRef<VimCommandData[]>(allCommands)
 
   const stopTick = useCallback(() => {
-    if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
   }, [])
 
   const startTick = useCallback(() => {
     stopTick()
     intervalRef.current = setInterval(() => {
-      dispatch({ type: 'SET_GAME_STATE_FN', fn: prev => tick(prev, activeCommandsRef.current, Date.now()) })
+      dispatch({
+        type: 'SET_GAME_STATE_FN',
+        fn: prev => tick(prev, activeCommandsRef.current, Date.now()),
+      })
     }, TICK_INTERVAL_MS)
   }, [stopTick])
 
@@ -196,7 +222,10 @@ export function useArcadeGame(): UseArcadeGameReturn {
   useEffect(() => {
     if (hs.gameState.status !== 'results') return
     stopTick()
-    dispatch({ type: 'SET_REVIEW_ITEMS', value: buildReviewItems(hs.gameState, activeCommandsRef.current) })
+    dispatch({
+      type: 'SET_REVIEW_ITEMS',
+      value: buildReviewItems(hs.gameState, activeCommandsRef.current),
+    })
     const entry = buildHighScoreEntry(hs.gameState)
     dispatch({
       type: 'SET_HIGH_SCORES_FN',
@@ -206,31 +235,34 @@ export function useArcadeGame(): UseArcadeGameReturn {
         return updated
       },
     })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hs.gameState.status])
 
-  const startGame = useCallback((config: GameConfig) => {
-    saveLastConfig(config)
-    activeCommandsRef.current = config.categories
-      ? allCommands.filter(c => config.categories!.includes(c.category))
-      : allCommands
-    if (config.skipUnsupported) {
-      const unsupported = loadUnsupported()
-      activeCommandsRef.current = activeCommandsRef.current.filter(c => !unsupported.has(c.id))
-    }
-    if (config.knowledgeFilter !== 'all') {
-      const known = loadKnown()
-      if (config.knowledgeFilter === 'known') {
-        activeCommandsRef.current = activeCommandsRef.current.filter(c => known.has(c.id))
-      } else {
-        activeCommandsRef.current = activeCommandsRef.current.filter(c => !known.has(c.id))
+  const startGame = useCallback(
+    (config: GameConfig) => {
+      saveLastConfig(config)
+      activeCommandsRef.current = config.categories
+        ? allCommands.filter(c => config.categories!.includes(c.category))
+        : allCommands
+      if (config.skipUnsupported) {
+        const unsupported = loadUnsupported()
+        activeCommandsRef.current = activeCommandsRef.current.filter(c => !unsupported.has(c.id))
       }
-    }
-    dispatch({ type: 'SET_REVIEW_ITEMS', value: [] })
-    const initial = initGameState(config, activeCommandsRef.current)
-    dispatch({ type: 'SET_GAME_STATE', value: initial })
-    startTick()
-  }, [startTick])
+      if (config.knowledgeFilter !== 'all') {
+        const known = loadKnown()
+        if (config.knowledgeFilter === 'known') {
+          activeCommandsRef.current = activeCommandsRef.current.filter(c => known.has(c.id))
+        } else {
+          activeCommandsRef.current = activeCommandsRef.current.filter(c => !known.has(c.id))
+        }
+      }
+      dispatch({ type: 'SET_REVIEW_ITEMS', value: [] })
+      const initial = initGameState(config, activeCommandsRef.current)
+      dispatch({ type: 'SET_GAME_STATE', value: initial })
+      startTick()
+    },
+    [startTick]
+  )
 
   const onCommandExecuted = useCallback((cmd: string) => {
     dispatch({
@@ -263,17 +295,17 @@ export function useArcadeGame(): UseArcadeGameReturn {
   }, [])
 
   return {
-    state:             hs.gameState,
+    state: hs.gameState,
     lastConfig,
-    reviewItems:       hs.reviewItems,
+    reviewItems: hs.reviewItems,
     startGame,
     onCommandExecuted,
     resetGame,
     updateSettings,
-    highScores:        hs.highScores,
+    highScores: hs.highScores,
     showingHighScores: hs.showingHighScores,
-    openHighScores:    () => dispatch({ type: 'SET_SHOWING_HIGH_SCORES', value: true }),
-    closeHighScores:   () => dispatch({ type: 'SET_SHOWING_HIGH_SCORES', value: false }),
+    openHighScores: () => dispatch({ type: 'SET_SHOWING_HIGH_SCORES', value: true }),
+    closeHighScores: () => dispatch({ type: 'SET_SHOWING_HIGH_SCORES', value: false }),
     markChallengeUnsupported,
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useCallback, useRef, useEffect, useMemo, useReducer } from 'react'
 import type { GameState } from '../engine/types'
 import { Editor } from './Editor'
 import { ChallengePanel } from './ChallengePanel'
@@ -9,7 +9,7 @@ import { SettingsDrawer } from './SettingsDrawer'
 import { KeystrokeDebug } from './KeystrokeDebug'
 import { ShortcutsOverlay } from './ShortcutsOverlay'
 import type { GameSettings } from '../engine/types'
-import type { KeyDisplayEvent } from '../hooks/useMonacoEditor'
+import type { KeyDisplayEvent, MonacoAction } from '../hooks/useMonacoEditor'
 
 const MAX_LOG_CHARS = 120
 
@@ -27,23 +27,81 @@ const MODE_LABELS: Record<string, string> = {
   survival: 'Survival',
 }
 
-export function ArcadeGame({ state, onCommandExecuted, onUpdateSettings, onQuit, onMarkUnsupported }: ArcadeGameProps) {
-  const [showInfo, setShowInfo] = useState(false)
-  const [showShortcuts, setShowShortcuts] = useState(false)
-  const [keystrokeLog, setKeystrokeLog] = useState('')
+type ArcadeUIState = {
+  showInfo: boolean
+  showShortcuts: boolean
+  keystrokeLog: string
+  settingsOpen: boolean
+}
+
+export function ArcadeGame({
+  state,
+  onCommandExecuted,
+  onUpdateSettings,
+  onQuit,
+  onMarkUnsupported,
+}: ArcadeGameProps) {
+  const [ui, setUi] = useReducer(
+    (
+      s: ArcadeUIState,
+      patch: Partial<ArcadeUIState> | ((prev: ArcadeUIState) => Partial<ArcadeUIState>)
+    ) => ({ ...s, ...(typeof patch === 'function' ? patch(s) : patch) }),
+    { showInfo: false, showShortcuts: false, keystrokeLog: '', settingsOpen: false }
+  )
   const panelRef = useRef<HTMLDivElement>(null)
   const infoButtonRef = useRef<HTMLButtonElement>(null)
   const settingsTriggerRef = useRef<HTMLElement>(null)
 
+  const settingsActions = useMemo<MonacoAction[]>(
+    () => [
+      {
+        id: 'vim-arcade.settings.open',
+        label: 'Vim Arcade: Open / Close Settings',
+        run: () => setUi(s => ({ settingsOpen: !s.settingsOpen })),
+      },
+      {
+        id: 'vim-arcade.guided.none',
+        label: 'Vim Arcade: Guided Mode — None',
+        run: () => onUpdateSettings({ guidedMode: 'none' }),
+      },
+      {
+        id: 'vim-arcade.guided.first_only',
+        label: 'Vim Arcade: Guided Mode — First only',
+        run: () => onUpdateSettings({ guidedMode: 'first_only' }),
+      },
+      {
+        id: 'vim-arcade.guided.after_failure',
+        label: 'Vim Arcade: Guided Mode — After failure',
+        run: () => onUpdateSettings({ guidedMode: 'after_failure' }),
+      },
+      {
+        id: 'vim-arcade.guided.first_then_failure',
+        label: 'Vim Arcade: Guided Mode — First + on failure',
+        run: () => onUpdateSettings({ guidedMode: 'first_then_failure' }),
+      },
+      {
+        id: 'vim-arcade.guided.alternating',
+        label: 'Vim Arcade: Guided Mode — Alternating',
+        run: () => onUpdateSettings({ guidedMode: 'alternating' }),
+      },
+      {
+        id: 'vim-arcade.guided.all',
+        label: 'Vim Arcade: Guided Mode — Always',
+        run: () => onUpdateSettings({ guidedMode: 'all' }),
+      },
+    ],
+    [onUpdateSettings]
+  )
+
   useEffect(() => {
-    if (showInfo) panelRef.current?.focus()
-  }, [showInfo])
+    if (ui.showInfo) panelRef.current?.focus()
+  }, [ui.showInfo])
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const target = e.target as HTMLElement
       if (e.key === '?' && target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
-        setShowShortcuts(prev => !prev)
+        setUi(s => ({ showShortcuts: !s.showShortcuts }))
       }
     }
     document.addEventListener('keydown', onKey)
@@ -52,31 +110,33 @@ export function ArcadeGame({ state, onCommandExecuted, onUpdateSettings, onQuit,
 
   const handleKeyDisplay = useCallback((event: KeyDisplayEvent) => {
     if (!event.display) return
-    setKeystrokeLog(prev => {
-      const next = prev + event.display
-      return next.length > MAX_LOG_CHARS ? next.slice(next.length - MAX_LOG_CHARS) : next
+    setUi(s => {
+      const next = s.keystrokeLog + event.display
+      return {
+        keystrokeLog: next.length > MAX_LOG_CHARS ? next.slice(next.length - MAX_LOG_CHARS) : next,
+      }
     })
   }, [])
 
   const isTimed = state.config.mode === 'timed_challenge'
   const isSurvival = state.config.mode === 'survival'
-  const timedPct = isTimed && state.config.timedDurationMs
-    ? Math.min(100, (state.sessionElapsedMs / state.config.timedDurationMs) * 100)
-    : 0
-  const timedRemaining = isTimed && state.config.timedDurationMs
-    ? Math.max(0, Math.ceil((state.config.timedDurationMs - state.sessionElapsedMs) / 1000))
-    : 0
+  const timedPct =
+    isTimed && state.config.timedDurationMs
+      ? Math.min(100, (state.sessionElapsedMs / state.config.timedDurationMs) * 100)
+      : 0
+  const timedRemaining =
+    isTimed && state.config.timedDurationMs
+      ? Math.max(0, Math.ceil((state.config.timedDurationMs - state.sessionElapsedMs) / 1000))
+      : 0
 
-  const dynamicAssistLabel = state.config.dynamicAssist === null
-    ? 'off'
-    : `${state.config.dynamicAssist}% of limit`
+  const dynamicAssistLabel =
+    state.config.dynamicAssist === null ? 'off' : `${state.config.dynamicAssist}% of limit`
 
-  const categoriesLabel = state.config.categories === null
-    ? 'All categories'
-    : state.config.categories.join(', ')
+  const categoriesLabel =
+    state.config.categories === null ? 'All categories' : state.config.categories.join(', ')
 
   return (
-    <div className="h-screen bg-gray-900 flex flex-col overflow-hidden relative">
+    <div className="h-full bg-gray-900 flex flex-col overflow-hidden relative">
       {isTimed && (
         <div className="w-full bg-gray-800 h-1.5 relative">
           <div
@@ -103,6 +163,7 @@ export function ArcadeGame({ state, onCommandExecuted, onUpdateSettings, onQuit,
             language={state.language}
             onCommandExecuted={onCommandExecuted}
             onKeyDisplay={handleKeyDisplay}
+            monacoActions={settingsActions}
           />
         </div>
 
@@ -120,14 +181,17 @@ export function ArcadeGame({ state, onCommandExecuted, onUpdateSettings, onQuit,
             </button>
             <button
               ref={infoButtonRef}
-              onClick={() => setShowInfo(true)}
+              onClick={() => setUi({ showInfo: true })}
               className="text-xs font-mono px-2 py-1 rounded bg-gray-800 text-gray-400 hover:bg-blue-900/50 hover:text-blue-300 border border-gray-700 transition-colors focus-visible:ring-2 focus-visible:ring-blue-400"
             >
               ℹ Info
             </button>
           </div>
           <div className="flex-1 overflow-y-auto p-4">
-            <ChallengePanel challenges={state.activeChallenges} onMarkUnsupported={onMarkUnsupported} />
+            <ChallengePanel
+              challenges={state.activeChallenges}
+              onMarkUnsupported={onMarkUnsupported}
+            />
           </div>
           <div className="px-4 pb-3 text-xs text-gray-600 font-mono text-center">
             ⌘⇧P settings · ? shortcuts
@@ -136,16 +200,27 @@ export function ArcadeGame({ state, onCommandExecuted, onUpdateSettings, onQuit,
       </div>
 
       <ComboNotification notifications={state.recentNotifications} />
-      <SettingsDrawer settings={state.liveSettings} onUpdate={onUpdateSettings} triggerRef={settingsTriggerRef} />
-      <KeystrokeDebug log={keystrokeLog} />
+      <SettingsDrawer
+        settings={state.liveSettings}
+        onUpdate={onUpdateSettings}
+        triggerRef={settingsTriggerRef}
+        isOpen={ui.settingsOpen}
+        onToggle={() => setUi(s => ({ settingsOpen: !s.settingsOpen }))}
+      />
+      <KeystrokeDebug log={ui.keystrokeLog} />
 
-      {showShortcuts && <ShortcutsOverlay onClose={() => setShowShortcuts(false)} />}
+      {ui.showShortcuts && <ShortcutsOverlay onClose={() => setUi({ showShortcuts: false })} />}
 
-      {showInfo && (
+      {ui.showInfo && (
         <div
           className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center"
-          onClick={() => setShowInfo(false)}
-          onKeyDown={(e) => { if (e.key === 'Escape') { setShowInfo(false); infoButtonRef.current?.focus() } }}
+          onClick={() => setUi({ showInfo: false })}
+          onKeyDown={e => {
+            if (e.key === 'Escape') {
+              setUi({ showInfo: false })
+              infoButtonRef.current?.focus()
+            }
+          }}
         >
           <div
             ref={panelRef}
@@ -154,12 +229,16 @@ export function ArcadeGame({ state, onCommandExecuted, onUpdateSettings, onQuit,
             aria-modal="true"
             aria-labelledby="info-modal-title"
             className="bg-gray-900 border border-gray-700 rounded-xl p-6 max-w-sm w-full mx-4 space-y-3"
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
           >
-            <h2 id="info-modal-title" className="text-white font-mono font-bold text-lg mb-4">Game Info</h2>
+            <h2 id="info-modal-title" className="text-white font-mono font-bold text-lg mb-4">
+              Game Info
+            </h2>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <span className="text-gray-400 text-xs font-mono">Mode</span>
-              <span className="text-white text-sm font-mono">{MODE_LABELS[state.config.mode] ?? state.config.mode}</span>
+              <span className="text-white text-sm font-mono">
+                {MODE_LABELS[state.config.mode] ?? state.config.mode}
+              </span>
 
               <span className="text-gray-400 text-xs font-mono">Language</span>
               <span className="text-white text-sm font-mono">{state.config.language}</span>
@@ -185,7 +264,9 @@ export function ArcadeGame({ state, onCommandExecuted, onUpdateSettings, onQuit,
               <span className="text-gray-400 text-xs font-mono">Concurrent challenges</span>
               <span className="text-white text-sm font-mono">{state.maxConcurrent}</span>
             </div>
-            <p className="text-gray-500 text-xs font-mono text-center mt-4">Click anywhere to close</p>
+            <p className="text-gray-500 text-xs font-mono text-center mt-4">
+              Click anywhere to close
+            </p>
           </div>
         </div>
       )}

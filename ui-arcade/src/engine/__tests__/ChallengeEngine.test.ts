@@ -88,20 +88,22 @@ describe('handleCommandExecuted', () => {
     // Manually inject a challenge for a predictable test
     state = {
       ...state,
-      activeChallenges: [{
-        id: 'ch1',
-        commandId: 'c1',
-        level: 0,
-        category: 'Motion',
-        question: 'move left',
-        solution: ['h'],
-        startedAt: Date.now() - 500,  // 500ms elapsed → 'fast' (50% of 10s)
-        timeLimit: 10_000,
-        status: 'active',
-        pointsEarned: 0,
-        showSolution: false,
-        isVerification: false,
-      }],
+      activeChallenges: [
+        {
+          id: 'ch1',
+          commandId: 'c1',
+          level: 0,
+          category: 'Motion',
+          question: 'move left',
+          solution: ['h'],
+          startedAt: Date.now() - 500, // 500ms elapsed → 'fast' (50% of 10s)
+          timeLimit: 10_000,
+          status: 'active',
+          pointsEarned: 0,
+          showSolution: false,
+          isVerification: false,
+        },
+      ],
     }
   })
 
@@ -134,12 +136,34 @@ describe('handleCommandExecuted', () => {
       ...s,
       activeChallenges: [
         ...s.activeChallenges,
-        { id: 'ch2', commandId: 'c2', level: 0, category: 'Motion', question: 'q', solution: ['j'],
-          startedAt: Date.now(), timeLimit: 10_000, status: 'active', pointsEarned: 0,
-          showSolution: false, isVerification: false },
-        { id: 'ch3', commandId: 'c3', level: 0, category: 'Motion', question: 'q', solution: ['k'],
-          startedAt: Date.now(), timeLimit: 10_000, status: 'active', pointsEarned: 0,
-          showSolution: false, isVerification: false },
+        {
+          id: 'ch2',
+          commandId: 'c2',
+          level: 0,
+          category: 'Motion',
+          question: 'q',
+          solution: ['j'],
+          startedAt: Date.now(),
+          timeLimit: 10_000,
+          status: 'active',
+          pointsEarned: 0,
+          showSolution: false,
+          isVerification: false,
+        },
+        {
+          id: 'ch3',
+          commandId: 'c3',
+          level: 0,
+          category: 'Motion',
+          question: 'q',
+          solution: ['k'],
+          startedAt: Date.now(),
+          timeLimit: 10_000,
+          status: 'active',
+          pointsEarned: 0,
+          showSolution: false,
+          isVerification: false,
+        },
       ],
     }
     const now = Date.now()
@@ -153,12 +177,14 @@ describe('handleCommandExecuted', () => {
   it('guided challenge earns fewer points than blind', () => {
     const guidedState = {
       ...state,
-      activeChallenges: [{
-        ...state.activeChallenges[0],
-        showSolution: true,
-      }],
+      activeChallenges: [
+        {
+          ...state.activeChallenges[0],
+          showSolution: true,
+        },
+      ],
     }
-    const blindNext  = handleCommandExecuted(state,       'h', CMDS, Date.now())
+    const blindNext = handleCommandExecuted(state, 'h', CMDS, Date.now())
     const guidedNext = handleCommandExecuted(guidedState, 'h', CMDS, Date.now())
     expect(guidedNext.score).toBeLessThan(blindNext.score)
   })
@@ -172,11 +198,13 @@ describe('handleCommandExecuted', () => {
     const guidedState: GameState = {
       ...state,
       liveSettings: { guidedMode: 'first_only' },
-      activeChallenges: [{
-        ...state.activeChallenges[0],
-        showSolution: true,
-        isVerification: false,
-      }],
+      activeChallenges: [
+        {
+          ...state.activeChallenges[0],
+          showSolution: true,
+          isVerification: false,
+        },
+      ],
     }
     const next = handleCommandExecuted(guidedState, 'h', CMDS, Date.now())
     expect(next.pendingVerifications).toContain('c1')
@@ -186,11 +214,22 @@ describe('handleCommandExecuted', () => {
     let s = initGameState(cfg({ startingLevel: 5 }), CMDS) // 1 warmup challenge
     s = {
       ...s,
-      activeChallenges: [{
-        id: 'w1', commandId: 'c1', level: 0, category: 'Motion', question: 'q',
-        solution: ['h'], startedAt: Date.now(), timeLimit: 10_000,
-        status: 'active', pointsEarned: 0, showSolution: false, isVerification: false,
-      }],
+      activeChallenges: [
+        {
+          id: 'w1',
+          commandId: 'c1',
+          level: 0,
+          category: 'Motion',
+          question: 'q',
+          solution: ['h'],
+          startedAt: Date.now(),
+          timeLimit: 10_000,
+          status: 'active',
+          pointsEarned: 0,
+          showSolution: false,
+          isVerification: false,
+        },
+      ],
       sessionStats: { ...s.sessionStats, completed: 0 },
     }
     const next = handleCommandExecuted(s, 'h', CMDS, Date.now())
@@ -215,11 +254,22 @@ describe('tick', () => {
     s = {
       ...s,
       status: 'playing',
-      activeChallenges: [{
-        id: 'ch1', commandId: 'c1', level: 0, category: 'Motion', question: 'q',
-        solution: ['h'], startedAt: now - 15_000, timeLimit: 10_000,
-        status: 'active', pointsEarned: 0, showSolution: false, isVerification: false,
-      }],
+      activeChallenges: [
+        {
+          id: 'ch1',
+          commandId: 'c1',
+          level: 0,
+          category: 'Motion',
+          question: 'q',
+          solution: ['h'],
+          startedAt: now - 15_000,
+          timeLimit: 10_000,
+          status: 'active',
+          pointsEarned: 0,
+          showSolution: false,
+          isVerification: false,
+        },
+      ],
     }
     const next = tick(s, CMDS, now)
     const ch = next.activeChallenges.find(c => c.id === 'ch1')
@@ -233,11 +283,22 @@ describe('tick', () => {
       ...s,
       status: 'playing',
       combo: { count: 5, multiplier: 2.0 },
-      activeChallenges: [{
-        id: 'ch1', commandId: 'c1', level: 0, category: 'Motion', question: 'q',
-        solution: ['h'], startedAt: now - 15_000, timeLimit: 10_000,
-        status: 'active', pointsEarned: 0, showSolution: false, isVerification: false,
-      }],
+      activeChallenges: [
+        {
+          id: 'ch1',
+          commandId: 'c1',
+          level: 0,
+          category: 'Motion',
+          question: 'q',
+          solution: ['h'],
+          startedAt: now - 15_000,
+          timeLimit: 10_000,
+          status: 'active',
+          pointsEarned: 0,
+          showSolution: false,
+          isVerification: false,
+        },
+      ],
     }
     const next = tick(s, CMDS, now)
     expect(next.combo.count).toBe(0)
@@ -250,11 +311,22 @@ describe('tick', () => {
     s = {
       ...s,
       status: 'playing',
-      activeChallenges: [{
-        id: 'ch1', commandId: 'c1', level: 0, category: 'Motion', question: 'q',
-        solution: ['h'], startedAt: now - 20_000, timeLimit: 10_000,
-        status: 'active', pointsEarned: 0, showSolution: false, isVerification: false,
-      }],
+      activeChallenges: [
+        {
+          id: 'ch1',
+          commandId: 'c1',
+          level: 0,
+          category: 'Motion',
+          question: 'q',
+          solution: ['h'],
+          startedAt: now - 20_000,
+          timeLimit: 10_000,
+          status: 'active',
+          pointsEarned: 0,
+          showSolution: false,
+          isVerification: false,
+        },
+      ],
     }
     const next = tick(s, CMDS, now)
     expect(next.status).toBe('results')
@@ -276,7 +348,7 @@ describe('tick', () => {
   it('timed_challenge does not end before duration', () => {
     let s = initGameState(cfg({ mode: 'timed_challenge', timedDurationMs: 60_000 }), CMDS)
     s = { ...s, status: 'playing', activeChallenges: [] }
-    const now = s.sessionStats.startedAt + 30_000  // only 30s in
+    const now = s.sessionStats.startedAt + 30_000 // only 30s in
     const next = tick(s, CMDS, now)
     expect(next.status).not.toBe('results')
   })
@@ -293,11 +365,22 @@ describe('tick', () => {
     let s = initGameState(cfg(), CMDS)
     s = { ...s, status: 'playing', maxConcurrent: 1 }
     // already has one active challenge
-    s.activeChallenges = [{
-      id: 'existing', commandId: 'c1', level: 0, category: 'Motion', question: 'q',
-      solution: ['h'], startedAt: Date.now(), timeLimit: 10_000,
-      status: 'active', pointsEarned: 0, showSolution: false, isVerification: false,
-    }]
+    s.activeChallenges = [
+      {
+        id: 'existing',
+        commandId: 'c1',
+        level: 0,
+        category: 'Motion',
+        question: 'q',
+        solution: ['h'],
+        startedAt: Date.now(),
+        timeLimit: 10_000,
+        status: 'active',
+        pointsEarned: 0,
+        showSolution: false,
+        isVerification: false,
+      },
+    ]
     const next = tick(s, CMDS, Date.now())
     const active = next.activeChallenges.filter(c => c.status === 'active')
     expect(active.length).toBe(1)

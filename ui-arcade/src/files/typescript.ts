@@ -1,5 +1,5 @@
 export const typescriptFile = `/**
- * utils.ts – General-purpose TypeScript utilities.
+ * utils.ts - General-purpose TypeScript utilities.
  */
 
 // ---------------------------------------------------------------------------

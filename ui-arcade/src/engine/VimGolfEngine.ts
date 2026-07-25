@@ -1,19 +1,25 @@
 import type { VimGolfHighScores, VimGolfEntry, VimGolfChallenge, DiffLine } from './types'
+import { STORAGE_KEYS } from './storageKeys'
 
-const VIMGOLF_KEY = 'vim_arcade_vimgolf_scores'
 export const VIMGOLF_MAX_ENTRIES = 10
 
-// ── high scores ───────────────────────────────────────────────────────────────
+// ── high scores (per-challenge leaderboard) ───────────────────────────────────
 
 export function loadVimGolfHighScores(): VimGolfHighScores {
   try {
-    const raw = localStorage.getItem(VIMGOLF_KEY)
+    const raw = localStorage.getItem(STORAGE_KEYS.VIMGOLF_SCORES)
     return raw ? (JSON.parse(raw) as VimGolfHighScores) : {}
-  } catch { return {} }
+  } catch {
+    return {}
+  }
 }
 
 export function saveVimGolfHighScores(scores: VimGolfHighScores): void {
-  try { localStorage.setItem(VIMGOLF_KEY, JSON.stringify(scores)) } catch { /* ignore */ }
+  try {
+    localStorage.setItem(STORAGE_KEYS.VIMGOLF_SCORES, JSON.stringify(scores))
+  } catch {
+    /* ignore */
+  }
 }
 
 // Sorted: keystrokes ASC, then timeMs ASC (lower is better for both)
@@ -23,13 +29,46 @@ export function addVimGolfEntry(
   entry: VimGolfEntry
 ): VimGolfHighScores {
   const list = [...(scores[challengeId] ?? []), entry]
-    .sort((a, b) => a.keystrokes !== b.keystrokes ? a.keystrokes - b.keystrokes : a.timeMs - b.timeMs)
+    .sort((a, b) =>
+      a.keystrokes !== b.keystrokes ? a.keystrokes - b.keystrokes : a.timeMs - b.timeMs
+    )
     .slice(0, VIMGOLF_MAX_ENTRIES)
   return { ...scores, [challengeId]: list }
 }
 
 export function getBestEntry(scores: VimGolfHighScores, challengeId: string): VimGolfEntry | null {
   return scores[challengeId]?.[0] ?? null
+}
+
+// ── personal-best records (lightweight map: challengeId → best keystrokes) ────
+// Stored separately from the leaderboard so it persists even if scores are cleared.
+
+export type VimGolfRecords = Record<string, number>
+
+export function loadVimGolfRecords(): VimGolfRecords {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.VIMGOLF_RECORDS)
+    return raw ? (JSON.parse(raw) as VimGolfRecords) : {}
+  } catch {
+    return {}
+  }
+}
+
+function saveVimGolfRecords(records: VimGolfRecords): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.VIMGOLF_RECORDS, JSON.stringify(records))
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Update the personal-best record for a challenge if keystrokes is a new best. */
+export function updateVimGolfRecord(challengeId: string, keystrokes: number): void {
+  const records = loadVimGolfRecords()
+  if (records[challengeId] === undefined || keystrokes < records[challengeId]) {
+    records[challengeId] = keystrokes
+    saveVimGolfRecords(records)
+  }
 }
 
 // ── content comparison ────────────────────────────────────────────────────────
@@ -57,26 +96,30 @@ export function quickCheck(current: string, expected: string): boolean {
 export function computeDiff(current: string, expected: string): DiffLine[] {
   const a = normalise(current).split('\n')
   const b = normalise(expected).split('\n')
-  const m = a.length, n = b.length
+  const m = a.length,
+    n = b.length
 
   // Build LCS table
   const dp: number[][] = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0))
   for (let i = 1; i <= m; i++)
     for (let j = 1; j <= n; j++)
-      dp[i][j] = a[i - 1] === b[j - 1]
-        ? dp[i - 1][j - 1] + 1
-        : Math.max(dp[i - 1][j], dp[i][j - 1])
+      dp[i][j] = a[i - 1] === b[j - 1] ? dp[i - 1][j - 1] + 1 : Math.max(dp[i - 1][j], dp[i][j - 1])
 
   // Backtrace iteratively
   const result: DiffLine[] = []
-  let i = m, j = n
+  let i = m,
+    j = n
   while (i > 0 || j > 0) {
     if (i > 0 && j > 0 && a[i - 1] === b[j - 1]) {
-      result.unshift({ type: 'equal',   content: a[i - 1] }); i--; j--
+      result.unshift({ type: 'equal', content: a[i - 1] })
+      i--
+      j--
     } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
-      result.unshift({ type: 'added',   content: b[j - 1] }); j--
+      result.unshift({ type: 'added', content: b[j - 1] })
+      j--
     } else {
-      result.unshift({ type: 'removed', content: a[i - 1] }); i--
+      result.unshift({ type: 'removed', content: a[i - 1] })
+      i--
     }
   }
   return result
@@ -93,23 +136,23 @@ export async function fetchVimGolfChallenge(id: string): Promise<Partial<VimGolf
     })
     if (!res.ok) return null
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = await res.json() as any
+    const data = (await res.json()) as any
     // The vimgolf JSON has different shapes depending on version:
     // New: { challenge: { title, description, in: { data }, out: { data } } }
     // Old: { in: { data }, out: { data } }
-    const ch   = data.challenge ?? data
-    const start = ch.in?.data  ?? ch.indata  ?? ''
-    const end   = ch.out?.data ?? ch.outdata ?? ''
+    const ch = data.challenge ?? data
+    const start = ch.in?.data ?? ch.indata ?? ''
+    const end = ch.out?.data ?? ch.outdata ?? ''
     if (!start || !end) return null
     return {
-      id:          `vgdotcom_${id}`,
-      vimgolfId:   id,
-      title:       ch.title       ?? `VimGolf #${id}`,
+      id: `vgdotcom_${id}`,
+      vimgolfId: id,
+      title: ch.title ?? `VimGolf #${id}`,
       description: ch.description ?? '',
       start,
       end,
-      difficulty:  'medium',
-      tags:        [],
+      difficulty: 'medium',
+      tags: [],
     }
   } catch {
     return null

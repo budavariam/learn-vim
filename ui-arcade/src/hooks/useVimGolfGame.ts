@@ -1,8 +1,13 @@
 import { useReducer, useEffect, useRef, useCallback } from 'react'
 import type { VimGolfChallenge, VimGolfEntry, DiffLine } from '../engine/types'
 import {
-  loadVimGolfHighScores, saveVimGolfHighScores, addVimGolfEntry,
-  getBestEntry, isContentCorrect, computeDiff,
+  loadVimGolfHighScores,
+  saveVimGolfHighScores,
+  addVimGolfEntry,
+  getBestEntry,
+  isContentCorrect,
+  computeDiff,
+  updateVimGolfRecord,
 } from '../engine/VimGolfEngine'
 import { useMonacoEditor } from './useMonacoEditor'
 
@@ -30,15 +35,15 @@ export interface UseVimGolfGameReturn {
 type VimGolfHighScores = ReturnType<typeof loadVimGolfHighScores>
 
 type VimGolfGameState = {
-  keystrokes:   number
-  elapsedMs:    number
-  resetCount:   number
-  status:       'playing' | 'solved'
+  keystrokes: number
+  elapsedMs: number
+  resetCount: number
+  status: 'playing' | 'solved'
   showSolution: boolean
-  showDiff:     boolean
-  diffLines:    DiffLine[]
-  isCorrect:    boolean | null
-  scores:       VimGolfHighScores
+  showDiff: boolean
+  diffLines: DiffLine[]
+  isCorrect: boolean | null
+  scores: VimGolfHighScores
 }
 
 type VimGolfGameAction =
@@ -60,12 +65,12 @@ function vimGolfGameReducer(state: VimGolfGameState, action: VimGolfGameAction):
     case 'RESET':
       return {
         ...state,
-        keystrokes:  0,
-        resetCount:  state.resetCount + 1,
-        status:      'playing',
-        isCorrect:   null,
-        diffLines:   [],
-        showDiff:    false,
+        keystrokes: 0,
+        resetCount: state.resetCount + 1,
+        status: 'playing',
+        isCorrect: null,
+        diffLines: [],
+        showDiff: false,
       }
     case 'SOLVE':
       return { ...state, status: 'solved', diffLines: [], showDiff: false }
@@ -83,6 +88,7 @@ function vimGolfGameReducer(state: VimGolfGameState, action: VimGolfGameAction):
     case 'SAVE_SCORE': {
       const updated = addVimGolfEntry(state.scores, action.challengeId, action.entry)
       saveVimGolfHighScores(updated)
+      updateVimGolfRecord(action.challengeId, action.entry.keystrokes)
       return { ...state, scores: updated }
     }
     default:
@@ -92,28 +98,35 @@ function vimGolfGameReducer(state: VimGolfGameState, action: VimGolfGameAction):
 
 export function useVimGolfGame(challenge: VimGolfChallenge): UseVimGolfGameReturn {
   const [state, dispatch] = useReducer(vimGolfGameReducer, undefined, () => ({
-    keystrokes:   0,
-    elapsedMs:    0,
-    resetCount:   0,
-    status:       'playing' as const,
-    showSolution: false,
-    showDiff:     false,
-    diffLines:    [],
-    isCorrect:    null,
-    scores:       loadVimGolfHighScores(),
+    keystrokes: 0,
+    elapsedMs: 0,
+    resetCount: 0,
+    status: 'playing' as const,
+    showSolution: true,
+    showDiff: false,
+    diffLines: [],
+    isCorrect: null,
+    scores: loadVimGolfHighScores(),
   }))
 
   const {
-    keystrokes, elapsedMs, resetCount, status,
-    showSolution, showDiff, diffLines, isCorrect, scores,
+    keystrokes,
+    elapsedMs,
+    resetCount,
+    status,
+    showSolution,
+    showDiff,
+    diffLines,
+    isCorrect,
+    scores,
   } = state
 
   // Refs for values read inside callbacks to avoid stale closures (fix: Bug #7)
   const keystrokesRef = useRef(0)
   const resetCountRef = useRef(0)
-  const startRef      = useRef(Date.now())
-  const timerRef      = useRef<ReturnType<typeof setInterval> | null>(null)
-  const solvedAtRef   = useRef<number | null>(null)
+  const startRef = useRef(Date.now())
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const solvedAtRef = useRef<number | null>(null)
 
   const bestEntry = getBestEntry(scores, challenge.id)
 
@@ -123,7 +136,9 @@ export function useVimGolfGame(challenge: VimGolfChallenge): UseVimGolfGameRetur
       if (solvedAtRef.current !== null) return
       dispatch({ type: 'SET_ELAPSED', ms: Date.now() - startRef.current })
     }, 100)
-    return () => { if (timerRef.current) clearInterval(timerRef.current) }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
   }, [])
 
   const { editorRef, statusRef, setContent, getContent } = useMonacoEditor({
@@ -150,7 +165,7 @@ export function useVimGolfGame(challenge: VimGolfChallenge): UseVimGolfGameRetur
       }
     }, 150)
     return () => clearInterval(id)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [challenge.id])
 
   const handleCheck = useCallback(() => {
@@ -180,12 +195,12 @@ export function useVimGolfGame(challenge: VimGolfChallenge): UseVimGolfGameRetur
   // Fix (Bug #7): Read from refs so the auto-submit effect always captures the
   // current values regardless of when the useCallback was last re-created.
   const handleSubmitScore = useCallback(() => {
-    if (solvedAtRef.current === null) return   // not solved yet
+    if (solvedAtRef.current === null) return // not solved yet
     const entry: VimGolfEntry = {
-      id:         crypto.randomUUID(),
-      timestamp:  Date.now(),
+      id: crypto.randomUUID(),
+      timestamp: Date.now(),
       keystrokes: keystrokesRef.current,
-      timeMs:     solvedAtRef.current - startRef.current,
+      timeMs: solvedAtRef.current - startRef.current,
       resetCount: resetCountRef.current,
     }
     dispatch({ type: 'SAVE_SCORE', entry, challengeId: challenge.id })
@@ -194,13 +209,21 @@ export function useVimGolfGame(challenge: VimGolfChallenge): UseVimGolfGameRetur
   // Auto-submit score when solved
   useEffect(() => {
     if (status === 'solved') handleSubmitScore()
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status])
 
   return {
-    editorRef, statusRef,
-    keystrokes, elapsedMs, resetCount, status,
-    showSolution, showDiff, diffLines, isCorrect, bestEntry,
+    editorRef,
+    statusRef,
+    keystrokes,
+    elapsedMs,
+    resetCount,
+    status,
+    showSolution,
+    showDiff,
+    diffLines,
+    isCorrect,
+    bestEntry,
     handleCheck,
     handleReset,
     toggleSolution: useCallback(() => dispatch({ type: 'TOGGLE_SOLUTION' }), []),

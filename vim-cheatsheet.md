@@ -400,16 +400,24 @@ Tabs should be imagined as layouts. They can show different window arrangements 
 
 ## Folding
 
-* 5 - `za` - toggle folding
+* 5 - `za` - toggle fold under cursor
+* 5 - `zo` - open fold under cursor
+* 5 - `zc` - close fold under cursor
+* 6 - `zO` - open fold under cursor recursively (all nested folds)
+* 6 - `zC` - close fold under cursor recursively (all nested folds)
+* 5 - `zR` - open all folds in buffer
+* 5 - `zM` - close all folds in buffer
+* 6 - `zr` - reduce fold level by one (open one level of folds)
+* 6 - `zm` - increase fold level by one (close one more level of folds)
+* 6 - `zj` - jump to the start of the next fold
+* 6 - `zk` - jump to the end of the previous fold
 * 6 - `:set foldcolumn=NUM` - visualize folds. show `NUM` lines of nested folds per line
 * 6 - `zfip` - fold the current paragraph
 * 7 - `zf/string` - fold until next occurrance of `string`
-* 6 - `zd` - delete fold
-* 6 - `zE` - delete all folds
+* 6 - `zd` - delete fold under cursor
+* 6 - `zE` - delete all folds in buffer
 * 7 - `zf20j` - fold the next `20` lines
 * 7 - `` zf`a `` - fold until wherever mark `a` is in the document
-* 5 - `zR` - open all folds
-* 5 - `zM` - close all folds
 * 7 - `:mkview` - save folding state
 * 7 - `:loadview` - load prev folding state
 

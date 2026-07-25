@@ -1,12 +1,20 @@
 import React, { useReducer, useEffect, useRef, useCallback, useState } from 'react'
-import type { GoalModeConfig, GoalChallengeResult, GameConfig, GameState, VimCommandData } from '../engine/types'
+import type {
+  GoalModeConfig,
+  GoalChallengeResult,
+  GameConfig,
+  GameState,
+  VimCommandData,
+} from '../engine/types'
 import type { VimGolfChallenge } from '../engine/types'
-import { BUILTIN_CHALLENGES } from '../engine/vimgolfChallenges'
+import { getCachedChallenges } from './useVimGolfChallenges'
 import { isContentCorrect } from '../engine/VimGolfEngine'
 import { getTimeRating, getBasePoints } from '../engine/ScoreEngine'
 import { useMonacoEditor } from './useMonacoEditor'
 import { initGameState, tick, handleCommandExecuted } from '../engine/ChallengeEngine'
 import { loadUnsupported } from '../engine/UnsupportedEngine'
+import { loadHighScores, saveHighScores, addGoalModeHighScore } from '../engine/HighScoreEngine'
+import type { GoalModeHighScoreEntry } from '../engine/types'
 import rawData from '../data.json'
 
 // Suppress unused import warning — React is needed for JSX in the same module
@@ -19,19 +27,24 @@ const allCommands = rawData as VimCommandData[]
 // ---------------------------------------------------------------------------
 
 export type GoalState = {
-  status:     'idle' | 'playing' | 'results'
+  status: 'idle' | 'playing' | 'results'
   challenges: VimGolfChallenge[]
-  index:      number
-  elapsedMs:  number
+  index: number
+  elapsedMs: number
   keystrokes: number
-  results:    GoalChallengeResult[]
+  results: GoalChallengeResult[]
   totalScore: number
-  config:     GoalModeConfig | null
+  config: GoalModeConfig | null
   arcadeState: GameState | null
 }
 
 type GoalAction =
-  | { type: 'START'; challenges: VimGolfChallenge[]; config: GoalModeConfig; arcadeState: GameState }
+  | {
+      type: 'START'
+      challenges: VimGolfChallenge[]
+      config: GoalModeConfig
+      arcadeState: GameState
+    }
   | { type: 'TICK'; ms: number }
   | { type: 'INCREMENT_KEY' }
   | { type: 'CHALLENGE_SOLVED'; result: GoalChallengeResult; arcadeState: GameState }
@@ -41,14 +54,14 @@ type GoalAction =
   | { type: 'RESET' }
 
 const blankState: GoalState = {
-  status:     'idle',
+  status: 'idle',
   challenges: [],
-  index:      0,
-  elapsedMs:  0,
+  index: 0,
+  elapsedMs: 0,
   keystrokes: 0,
-  results:    [],
+  results: [],
   totalScore: 0,
-  config:     null,
+  config: null,
   arcadeState: null,
 }
 
@@ -57,9 +70,9 @@ function goalReducer(state: GoalState, action: GoalAction): GoalState {
     case 'START':
       return {
         ...blankState,
-        status:     'playing',
+        status: 'playing',
         challenges: action.challenges,
-        config:     action.config,
+        config: action.config,
         arcadeState: action.arcadeState,
       }
     case 'TICK':
@@ -68,13 +81,21 @@ function goalReducer(state: GoalState, action: GoalAction): GoalState {
       return { ...state, keystrokes: state.keystrokes + 1 }
     case 'CHALLENGE_SOLVED':
     case 'CHALLENGE_FAILED': {
-      const results    = [...state.results, action.result]
+      const results = [...state.results, action.result]
       const totalScore = results.reduce((sum, r) => sum + r.points, 0)
-      const nextIndex  = state.index + 1
+      const nextIndex = state.index + 1
       if (nextIndex >= state.challenges.length) {
         return { ...state, results, totalScore, status: 'results', arcadeState: action.arcadeState }
       }
-      return { ...state, results, totalScore, index: nextIndex, elapsedMs: 0, keystrokes: 0, arcadeState: action.arcadeState }
+      return {
+        ...state,
+        results,
+        totalScore,
+        index: nextIndex,
+        elapsedMs: 0,
+        keystrokes: 0,
+        arcadeState: action.arcadeState,
+      }
     }
     case 'ARCADE_TICK':
     case 'ARCADE_COMMAND':
@@ -110,7 +131,7 @@ function buildArcadeConfig(config: GoalModeConfig): GameConfig {
     dynamicAssist: config.dynamicAssist,
     skipUnsupported: config.skipUnsupported,
     commandTimeMultiplier: config.commandTimeMultiplier,
-    knowledgeFilter: 'all',  // Goal Mode always uses all commands for the arcade panel
+    knowledgeFilter: 'all', // Goal Mode always uses all commands for the arcade panel
   }
 }
 
@@ -130,32 +151,32 @@ function filterCommands(config: GoalModeConfig): VimCommandData[] {
 // ---------------------------------------------------------------------------
 
 export interface UseGoalGameReturn {
-  editorRef:        React.RefObject<HTMLDivElement | null>
-  statusRef:        React.RefObject<HTMLDivElement | null>
-  targetEditorRef:  React.RefObject<HTMLDivElement | null>
-  state:            GoalState
+  editorRef: React.RefObject<HTMLDivElement | null>
+  statusRef: React.RefObject<HTMLDivElement | null>
+  targetEditorRef: React.RefObject<HTMLDivElement | null>
+  state: GoalState
   currentChallenge: VimGolfChallenge | null
-  startGame:        (config: GoalModeConfig) => void
-  checkSolution:    () => void
-  resetGame:        () => void
+  startGame: (config: GoalModeConfig) => void
+  checkSolution: () => void
+  resetGame: () => void
 }
 
 export function useGoalGame(): UseGoalGameReturn {
   const [state, dispatch] = useReducer(goalReducer, blankState)
   const [targetContent, setTargetContent] = useState<string | undefined>(undefined)
 
-  const startRef       = useRef(Date.now())
-  const timerRef       = useRef<ReturnType<typeof setInterval> | null>(null)
-  const keystrokesRef  = useRef(0)
-  const configRef      = useRef<GoalModeConfig | null>(null)
-  const indexRef       = useRef(0)
-  const challengesRef  = useRef<VimGolfChallenge[]>([])
-  const elapsedMsRef   = useRef(0)
-  const playingRef     = useRef(false)
+  const startRef = useRef(Date.now())
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const keystrokesRef = useRef(0)
+  const configRef = useRef<GoalModeConfig | null>(null)
+  const indexRef = useRef(0)
+  const challengesRef = useRef<VimGolfChallenge[]>([])
+  const elapsedMsRef = useRef(0)
+  const playingRef = useRef(false)
 
   // Arcade engine state refs (avoid stale closures in intervals)
   const arcadeStateRef = useRef<GameState | null>(null)
-  const arcadeCmdsRef  = useRef<VimCommandData[]>([])
+  const arcadeCmdsRef = useRef<VimCommandData[]>([])
   const arcadeConfigRef = useRef<GameConfig | null>(null)
 
   const targetEditorRef = useRef<HTMLDivElement | null>(null)
@@ -170,7 +191,12 @@ export function useGoalGame(): UseGoalGameReturn {
     }, []),
     onCommandExecuted: useCallback((cmd: string) => {
       if (!arcadeStateRef.current || !arcadeCmdsRef.current.length) return
-      const newState = handleCommandExecuted(arcadeStateRef.current, cmd, arcadeCmdsRef.current, Date.now())
+      const newState = handleCommandExecuted(
+        arcadeStateRef.current,
+        cmd,
+        arcadeCmdsRef.current,
+        Date.now()
+      )
       arcadeStateRef.current = newState
       dispatch({ type: 'ARCADE_COMMAND', newState })
     }, []),
@@ -187,7 +213,7 @@ export function useGoalGame(): UseGoalGameReturn {
       }
     }, 150)
     return () => clearInterval(pollId)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // advanceOrFinish reads only mutable refs so it doesn't need memoisation
@@ -217,9 +243,9 @@ export function useGoalGame(): UseGoalGameReturn {
     }
 
     const nextIdx = indexRef.current + 1
-    indexRef.current  = nextIdx
-    elapsedMsRef.current  = 0
-    startRef.current  = Date.now()
+    indexRef.current = nextIdx
+    elapsedMsRef.current = 0
+    startRef.current = Date.now()
     keystrokesRef.current = 0
     const nextChallenge = challengesRef.current[nextIdx]
     if (nextChallenge) loadChallenge(nextChallenge)
@@ -241,11 +267,11 @@ export function useGoalGame(): UseGoalGameReturn {
         if (!challenge) return
         const result: GoalChallengeResult = {
           challengeId: challenge.id,
-          title:       challenge.title,
-          solved:      false,
-          elapsedMs:   ms,
-          keystrokes:  keystrokesRef.current,
-          points:      0,
+          title: challenge.title,
+          solved: false,
+          elapsedMs: ms,
+          keystrokes: keystrokesRef.current,
+          points: 0,
         }
         advanceOrFinish(result)
       }
@@ -257,50 +283,73 @@ export function useGoalGame(): UseGoalGameReturn {
         dispatch({ type: 'ARCADE_TICK', newState: newArcade })
       }
     }, 100)
-    return () => { if (timerRef.current) clearInterval(timerRef.current) }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const startGame = useCallback((config: GoalModeConfig) => {
-    const pool = config.difficulty === 'all'
-      ? BUILTIN_CHALLENGES
-      : BUILTIN_CHALLENGES.filter(c => c.difficulty === config.difficulty)
-
-    const chosen = shuffle(pool).slice(0, config.challengeCount)
-
-    // Build arcade engine state
-    const arcadeGameConfig = buildArcadeConfig(config)
-    const cmds = filterCommands(config)
-    const initialArcade: GameState = {
-      ...initGameState(arcadeGameConfig, cmds),
-      maxConcurrent: config.concurrentChallenges,
+  useEffect(() => {
+    if (state.status === 'results' && state.config) {
+      const entry: GoalModeHighScoreEntry = {
+        id: crypto.randomUUID(),
+        timestamp: Date.now(),
+        challengeCount: state.config.challengeCount,
+        difficulty: state.config.difficulty,
+        solved: state.results.filter(r => r.solved).length,
+        totalKeystrokes: state.results.reduce((sum, r) => sum + r.keystrokes, 0),
+        totalElapsedMs: state.results.reduce((sum, r) => sum + r.elapsedMs, 0),
+        totalPoints: state.totalScore,
+      }
+      const scores = loadHighScores()
+      const updated = addGoalModeHighScore(scores, entry)
+      saveHighScores(updated)
     }
+  }, [state.status])
 
-    arcadeConfigRef.current = arcadeGameConfig
-    arcadeCmdsRef.current   = cmds
-    arcadeStateRef.current  = initialArcade
+  const startGame = useCallback(
+    (config: GoalModeConfig) => {
+      const all = getCachedChallenges()
+      const pool =
+        config.difficulty === 'all' ? all : all.filter(c => c.difficulty === config.difficulty)
 
-    configRef.current     = config
-    challengesRef.current = chosen
-    indexRef.current      = 0
-    elapsedMsRef.current  = 0
-    keystrokesRef.current = 0
-    startRef.current      = Date.now()
-    playingRef.current    = true
+      const chosen = shuffle(pool).slice(0, config.challengeCount)
 
-    dispatch({ type: 'START', challenges: chosen, config, arcadeState: initialArcade })
-    if (chosen[0]) loadChallenge(chosen[0])
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loadChallenge])
+      // Build arcade engine state
+      const arcadeGameConfig = buildArcadeConfig(config)
+      const cmds = filterCommands(config)
+      const initialArcade: GameState = {
+        ...initGameState(arcadeGameConfig, cmds),
+        maxConcurrent: config.concurrentChallenges,
+      }
+
+      arcadeConfigRef.current = arcadeGameConfig
+      arcadeCmdsRef.current = cmds
+      arcadeStateRef.current = initialArcade
+
+      configRef.current = config
+      challengesRef.current = chosen
+      indexRef.current = 0
+      elapsedMsRef.current = 0
+      keystrokesRef.current = 0
+      startRef.current = Date.now()
+      playingRef.current = true
+
+      dispatch({ type: 'START', challenges: chosen, config, arcadeState: initialArcade })
+      if (chosen[0]) loadChallenge(chosen[0])
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [loadChallenge]
+  )
 
   const checkSolution = useCallback(() => {
     const challenge = challengesRef.current[indexRef.current]
     if (!challenge || configRef.current === null || !playingRef.current) return
 
-    const current   = getContent()
-    const solved    = isContentCorrect(current, challenge.end)
+    const current = getContent()
+    const solved = isContentCorrect(current, challenge.end)
     const elapsedMs = elapsedMsRef.current
-    const limit     = configRef.current.timeLimitMs || 300_000
+    const limit = configRef.current.timeLimitMs || 300_000
 
     let points = 0
     if (solved) {
@@ -310,33 +359,41 @@ export function useGoalGame(): UseGoalGameReturn {
 
     const result: GoalChallengeResult = {
       challengeId: challenge.id,
-      title:       challenge.title,
+      title: challenge.title,
       solved,
       elapsedMs,
-      keystrokes:  keystrokesRef.current,
+      keystrokes: keystrokesRef.current,
       points,
     }
     advanceOrFinish(result)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getContent])
 
   const resetGame = useCallback(() => {
-    playingRef.current    = false
-    configRef.current     = null
+    playingRef.current = false
+    configRef.current = null
     challengesRef.current = []
-    indexRef.current      = 0
-    elapsedMsRef.current  = 0
+    indexRef.current = 0
+    elapsedMsRef.current = 0
     keystrokesRef.current = 0
     arcadeStateRef.current = null
-    arcadeCmdsRef.current  = []
+    arcadeCmdsRef.current = []
     arcadeConfigRef.current = null
     setTargetContent(undefined)
     dispatch({ type: 'RESET' })
   }, [])
 
-  const currentChallenge = state.status === 'playing'
-    ? (state.challenges[state.index] ?? null)
-    : null
+  const currentChallenge =
+    state.status === 'playing' ? (state.challenges[state.index] ?? null) : null
 
-  return { editorRef, statusRef, targetEditorRef, state, currentChallenge, startGame, checkSolution, resetGame }
+  return {
+    editorRef,
+    statusRef,
+    targetEditorRef,
+    state,
+    currentChallenge,
+    startGame,
+    checkSolution,
+    resetGame,
+  }
 }

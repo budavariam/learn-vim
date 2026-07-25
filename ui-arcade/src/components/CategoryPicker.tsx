@@ -117,7 +117,10 @@ export function CategoryPicker({ selected, onChange }: CategoryPickerProps) {
               onChange={e => setSavingName(e.target.value)}
               onKeyDown={e => {
                 if (e.key === 'Enter') handleSavePreset()
-                if (e.key === 'Escape') { setShowSaveInput(false); setSavingName('') }
+                if (e.key === 'Escape') {
+                  setShowSaveInput(false)
+                  setSavingName('')
+                }
               }}
               placeholder="Preset name…"
               className="px-2 py-1 rounded font-mono text-xs bg-gray-700 border border-gray-500 text-white placeholder-gray-500 w-32 focus:outline-none focus:border-green-500"
@@ -129,7 +132,10 @@ export function CategoryPicker({ selected, onChange }: CategoryPickerProps) {
               Save
             </button>
             <button
-              onClick={() => { setShowSaveInput(false); setSavingName('') }}
+              onClick={() => {
+                setShowSaveInput(false)
+                setSavingName('')
+              }}
               className="px-2 py-1 rounded font-mono text-xs border border-gray-600 text-gray-500 hover:text-gray-300 transition-all"
             >
               Cancel
@@ -150,14 +156,15 @@ export function CategoryPicker({ selected, onChange }: CategoryPickerProps) {
       <div className="flex flex-wrap gap-2">
         {ALL_CATEGORIES.map(cat => {
           const active = selSet.has(cat)
-          const color  = getCategoryColor(cat)
+          const color = getCategoryColor(cat)
           return (
             <button
               key={cat}
               onClick={() => toggle(cat)}
-              style={active
-                ? { borderColor: color, backgroundColor: `${color}28`, color }
-                : { borderColor: '#374151', color: '#6b7280' }
+              style={
+                active
+                  ? { borderColor: color, backgroundColor: `${color}28`, color }
+                  : { borderColor: '#374151', color: '#6b7280' }
               }
               className="px-3 py-1.5 rounded-lg border font-mono text-xs transition-all hover:opacity-90 flex items-center gap-1.5"
             >

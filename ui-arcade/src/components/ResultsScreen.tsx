@@ -5,14 +5,19 @@ interface ResultsScreenProps {
   onRestart: () => void
   onHighScores: () => void
   onReview: () => void
-  reviewCount: number  // how many items are reviewable
+  reviewCount: number // how many items are reviewable
 }
 
-export function ResultsScreen({ state, onRestart, onHighScores, onReview, reviewCount }: ResultsScreenProps) {
+export function ResultsScreen({
+  state,
+  onRestart,
+  onHighScores,
+  onReview,
+  reviewCount,
+}: ResultsScreenProps) {
   const { sessionStats: stats, score, config } = state
-  const accuracy = stats.totalChallenges > 0
-    ? Math.round((stats.completed / stats.totalChallenges) * 100)
-    : 0
+  const accuracy =
+    stats.totalChallenges > 0 ? Math.round((stats.completed / stats.totalChallenges) * 100) : 0
 
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center p-8">
@@ -21,9 +26,7 @@ export function ResultsScreen({ state, onRestart, onHighScores, onReview, review
           <h1 className="text-4xl font-bold text-white font-mono mb-1">
             {config.mode === 'survival' ? 'ELIMINATED' : 'GAME OVER'}
           </h1>
-          <p className="text-gray-500 font-mono text-sm">
-            {modeSubtitle(config.mode, state)}
-          </p>
+          <p className="text-gray-500 font-mono text-sm">{modeSubtitle(config.mode, state)}</p>
         </div>
 
         <div className="bg-gray-800 rounded-xl p-6 space-y-4">
@@ -37,12 +40,12 @@ export function ResultsScreen({ state, onRestart, onHighScores, onReview, review
           <hr className="border-gray-700" />
 
           <div className="grid grid-cols-2 gap-4">
-            <Stat label="Completed" value={stats.completed}          color="text-green-400" />
-            <Stat label="Failed"    value={stats.failed}             color="text-red-400" />
-            <Stat label="Accuracy"  value={`${accuracy}%`}           color="text-blue-400" />
-            <Stat label="Best Combo" value={`${stats.bestCombo}×`}   color="text-purple-400" />
-            <Stat label="Duration"  value={formatMs(state.sessionElapsedMs)} color="text-gray-300" />
-            <Stat label="Level"     value={`Lv${state.ceiling}`}     color="text-yellow-500" />
+            <Stat label="Completed" value={stats.completed} color="text-green-400" />
+            <Stat label="Failed" value={stats.failed} color="text-red-400" />
+            <Stat label="Accuracy" value={`${accuracy}%`} color="text-blue-400" />
+            <Stat label="Best Combo" value={`${stats.bestCombo}×`} color="text-purple-400" />
+            <Stat label="Duration" value={formatMs(state.sessionElapsedMs)} color="text-gray-300" />
+            <Stat label="Level" value={`Lv${state.ceiling}`} color="text-yellow-500" />
           </div>
 
           {config.mode === 'survival' && stats.achievedTimeMs > 0 && (

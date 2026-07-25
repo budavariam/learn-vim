@@ -8,14 +8,14 @@ interface ChallengePanelProps {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Motion:     'bg-blue-900   text-blue-300',
-  Edit:       'bg-green-900  text-green-300',
-  Search:     'bg-yellow-900 text-yellow-300',
-  Visual:     'bg-purple-900 text-purple-300',
-  Window:     'bg-red-900    text-red-300',
-  Insert:     'bg-cyan-900   text-cyan-300',
-  Delete:     'bg-orange-900 text-orange-300',
-  Yank:       'bg-teal-900   text-teal-300',
+  Motion: 'bg-blue-900   text-blue-300',
+  Edit: 'bg-green-900  text-green-300',
+  Search: 'bg-yellow-900 text-yellow-300',
+  Visual: 'bg-purple-900 text-purple-300',
+  Window: 'bg-red-900    text-red-300',
+  Insert: 'bg-cyan-900   text-cyan-300',
+  Delete: 'bg-orange-900 text-orange-300',
+  Yank: 'bg-teal-900   text-teal-300',
 }
 
 function getCategoryColor(category: string): string {
@@ -27,7 +27,7 @@ function getCategoryColor(category: string): string {
 
 export function ChallengePanel({ challenges, onMarkUnsupported }: ChallengePanelProps) {
   const active = challenges.filter(c => c.status === 'active')
-  const done   = challenges.filter(c => c.status !== 'active')
+  const done = challenges.filter(c => c.status !== 'active')
 
   return (
     <div className="space-y-3">
@@ -55,7 +55,13 @@ export function ChallengePanel({ challenges, onMarkUnsupported }: ChallengePanel
   )
 }
 
-function ChallengeCard({ challenge: c, onMarkUnsupported }: { challenge: ActiveChallenge; onMarkUnsupported: (commandId: string) => void }) {
+function ChallengeCard({
+  challenge: c,
+  onMarkUnsupported,
+}: {
+  challenge: ActiveChallenge
+  onMarkUnsupported: (commandId: string) => void
+}) {
   const prevStatus = useRef(c.status)
   const cardRef = useRef<HTMLDivElement | null>(null)
 
@@ -115,7 +121,10 @@ function ChallengeCard({ challenge: c, onMarkUnsupported }: { challenge: ActiveC
         <div className="mt-2 flex justify-end">
           <button
             className="text-xs font-mono px-1.5 py-0.5 rounded bg-transparent text-gray-600 hover:text-red-400 hover:bg-red-900/20 border border-transparent hover:border-red-800 transition-colors"
-            onClick={e => { e.stopPropagation(); onMarkUnsupported(c.commandId) }}
+            onClick={e => {
+              e.stopPropagation()
+              onMarkUnsupported(c.commandId)
+            }}
           >
             [✕ not supported]
           </button>
@@ -128,9 +137,11 @@ function ChallengeCard({ challenge: c, onMarkUnsupported }: { challenge: ActiveC
 function RecentCard({ challenge: c }: { challenge: ActiveChallenge }) {
   const isOk = c.status === 'completed'
   return (
-    <div className={`rounded-lg p-3 border flex gap-3 items-center opacity-60 ${
-      isOk ? 'border-green-800 bg-green-900/20' : 'border-red-800 bg-red-900/20'
-    }`}>
+    <div
+      className={`rounded-lg p-3 border flex gap-3 items-center opacity-60 ${
+        isOk ? 'border-green-800 bg-green-900/20' : 'border-red-800 bg-red-900/20'
+      }`}
+    >
       <span className="text-xl flex-shrink-0">{isOk ? '✓' : '✗'}</span>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-mono text-gray-400 truncate">{c.question}</p>

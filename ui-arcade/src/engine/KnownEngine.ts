@@ -1,23 +1,27 @@
-// Shared key with ui-practice so known state is consistent across both apps.
-const KNOWN_KEY    = 'knownItems'
-const PRESETS_KEY  = 'vim_arcade_category_presets'
+import { STORAGE_KEYS } from './storageKeys'
+
+// ── known items ───────────────────────────────────────────────────────────────
 
 export interface CategoryPresetStore {
   name: string
   categories: string[]
 }
 
-// ── known items ───────────────────────────────────────────────────────────────
-
 export function loadKnown(): Set<string> {
   try {
-    const raw = localStorage.getItem(KNOWN_KEY)
+    const raw = localStorage.getItem(STORAGE_KEYS.KNOWN_ITEMS)
     return new Set(raw ? (JSON.parse(raw) as string[]) : [])
-  } catch { return new Set() }
+  } catch {
+    return new Set()
+  }
 }
 
 export function saveKnown(known: Set<string>): void {
-  try { localStorage.setItem(KNOWN_KEY, JSON.stringify([...known])) } catch { /* ignore */ }
+  try {
+    localStorage.setItem(STORAGE_KEYS.KNOWN_ITEMS, JSON.stringify([...known]))
+  } catch {
+    /* ignore */
+  }
 }
 
 export function isKnown(id: string): boolean {
@@ -39,7 +43,6 @@ export function toggleKnown(id: string): void {
 
 // ── suggestion logic ──────────────────────────────────────────────────────────
 
-// Suggest "learned" when ≥3 attempts and success rate ≥60%
 export function shouldSuggestKnown(completions: number, failures: number): boolean {
   const total = completions + failures
   return total >= 3 && completions / total >= 0.6
@@ -49,13 +52,19 @@ export function shouldSuggestKnown(completions: number, failures: number): boole
 
 export function loadCategoryPresets(): CategoryPresetStore[] {
   try {
-    const raw = localStorage.getItem(PRESETS_KEY)
+    const raw = localStorage.getItem(STORAGE_KEYS.CATEGORY_PRESETS)
     return raw ? (JSON.parse(raw) as CategoryPresetStore[]) : []
-  } catch { return [] }
+  } catch {
+    return []
+  }
 }
 
 export function saveCategoryPresets(presets: CategoryPresetStore[]): void {
-  try { localStorage.setItem(PRESETS_KEY, JSON.stringify(presets)) } catch { /* ignore */ }
+  try {
+    localStorage.setItem(STORAGE_KEYS.CATEGORY_PRESETS, JSON.stringify(presets))
+  } catch {
+    /* ignore */
+  }
 }
 
 export function addCategoryPreset(name: string, categories: string[]): CategoryPresetStore[] {

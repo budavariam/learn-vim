@@ -1,23 +1,32 @@
-const UNSUPPORTED_KEY    = 'vim_arcade_unsupported'
-const DEFAULTS_VER_KEY   = 'vim_arcade_defaults_version'
+import { STORAGE_KEYS } from './storageKeys'
 
 export function loadUnsupported(): Set<string> {
   try {
-    const raw = localStorage.getItem(UNSUPPORTED_KEY)
+    const raw = localStorage.getItem(STORAGE_KEYS.UNSUPPORTED)
     return raw ? new Set(JSON.parse(raw) as string[]) : new Set()
-  } catch { return new Set() }
+  } catch {
+    return new Set()
+  }
 }
 
 export function saveUnsupported(ids: Set<string>): void {
-  try { localStorage.setItem(UNSUPPORTED_KEY, JSON.stringify([...ids])) } catch { /* ignore */ }
+  try {
+    localStorage.setItem(STORAGE_KEYS.UNSUPPORTED, JSON.stringify([...ids]))
+  } catch {
+    /* ignore */
+  }
 }
 
 export function markUnsupported(id: string): void {
-  const set = loadUnsupported(); set.add(id); saveUnsupported(set)
+  const set = loadUnsupported()
+  set.add(id)
+  saveUnsupported(set)
 }
 
 export function unmarkUnsupported(id: string): void {
-  const set = loadUnsupported(); set.delete(id); saveUnsupported(set)
+  const set = loadUnsupported()
+  set.delete(id)
+  saveUnsupported(set)
 }
 
 export function isUnsupported(id: string): boolean {
@@ -42,20 +51,25 @@ export async function loadAndMergeDefaults(): Promise<void> {
   try {
     const res = await fetch(`${import.meta.env.BASE_URL}unsupported-defaults.json`)
     if (!res.ok) return
-    const { version, unsupported: defaults } = await res.json() as DefaultsFile
+    const { version, unsupported: defaults } = (await res.json()) as DefaultsFile
 
-    const storedVer = localStorage.getItem(DEFAULTS_VER_KEY)
-    if (storedVer === version) return  // already applied this version
+    const storedVer = localStorage.getItem(STORAGE_KEYS.DEFAULTS_VERSION)
+    if (storedVer === version) return // already applied this version
 
     // Add any new default IDs the user hasn't seen yet
     const current = loadUnsupported()
     let changed = false
     for (const id of defaults) {
-      if (!current.has(id)) { current.add(id); changed = true }
+      if (!current.has(id)) {
+        current.add(id)
+        changed = true
+      }
     }
     if (changed) saveUnsupported(current)
-    localStorage.setItem(DEFAULTS_VER_KEY, version)
-  } catch { /* network / parse errors — proceed silently */ }
+    localStorage.setItem(STORAGE_KEYS.DEFAULTS_VERSION, version)
+  } catch {
+    /* network / parse errors — proceed silently */
+  }
 }
 
 // ── Export ─────────────────────────────────────────────────────────────────
@@ -69,11 +83,25 @@ export function exportUnsupportedIds(): void {
   const ids = [...loadUnsupported()].sort()
   const payload: DefaultsFile = { version: 'v1', unsupported: ids }
   const json = JSON.stringify(payload, null, 2)
-  const blob = new URL(
-    `data:application/json;charset=utf-8,${encodeURIComponent(json)}`
-  )
+  const blob = new URL(`data:application/json;charset=utf-8,${encodeURIComponent(json)}`)
   const a = document.createElement('a')
   a.href = blob.href
   a.download = 'unsupported-defaults.json'
+  a.click()
+}
+
+/** Return the export JSON string without triggering a download. */
+export function getExportJson(): string {
+  const ids = [...loadUnsupported()].sort()
+  const payload: DefaultsFile = { version: 'v1', unsupported: ids }
+  return JSON.stringify(payload, null, 2)
+}
+
+/** Trigger a download directly from a JSON string. */
+export function downloadJson(json: string, filename: string): void {
+  const blob = new URL(`data:application/json;charset=utf-8,${encodeURIComponent(json)}`)
+  const a = document.createElement('a')
+  a.href = blob.href
+  a.download = filename
   a.click()
 }

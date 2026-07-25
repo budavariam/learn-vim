@@ -66,6 +66,10 @@ describe('loadHighScores', () => {
       general: [entry({ id: 'x', score: 999 })],
       timed_challenge: [],
       survival: [],
+      motionrace_timed: [],
+      motionrace_survival: [],
+      motionrace_total_goals: [],
+      goal: [],
     }
     localStorage.setItem('vim_arcade_high_scores', JSON.stringify(stored))
     const loaded = loadHighScores()
@@ -89,6 +93,10 @@ describe('saveHighScores', () => {
       general: [entry({ id: 'save-test', score: 1234 })],
       timed_challenge: [],
       survival: [],
+      motionrace_timed: [],
+      motionrace_survival: [],
+      motionrace_total_goals: [],
+      goal: [],
     }
     saveHighScores(scores)
     const loaded = loadHighScores()
@@ -101,7 +109,7 @@ describe('saveHighScores', () => {
 describe('addHighScore', () => {
   it('adds an entry to the correct mode', () => {
     const scores = emptyHighScores()
-    const next   = addHighScore(scores, entry({ mode: 'general', id: 'g1' }))
+    const next = addHighScore(scores, entry({ mode: 'general', id: 'g1' }))
     expect(next.general.length).toBe(1)
     expect(next.timed_challenge.length).toBe(0)
     expect(next.survival.length).toBe(0)
@@ -158,9 +166,14 @@ describe('buildHighScoreEntry', () => {
     const base: GameState = {
       status: 'results',
       config: {
-        mode: 'general', language: 'go', startingLevel: 2,
-        repetitionTarget: 2, guidedMode: 'first_only',
-        categories: null, dynamicAssist: null, knowledgeFilter: 'all',
+        mode: 'general',
+        language: 'go',
+        startingLevel: 2,
+        repetitionTarget: 2,
+        guidedMode: 'first_only',
+        categories: null,
+        dynamicAssist: null,
+        knowledgeFilter: 'all',
       },
       liveSettings: { guidedMode: 'none' },
       language: 'go',

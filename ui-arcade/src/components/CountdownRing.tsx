@@ -35,14 +35,7 @@ export function CountdownRing({ startedAt, timeLimit, size = 44 }: CountdownRing
   return (
     <svg width={size} height={size} className="flex-shrink-0 -rotate-90">
       {/* Background circle */}
-      <circle
-        cx={size / 2}
-        cy={size / 2}
-        r={radius}
-        fill="none"
-        stroke="#374151"
-        strokeWidth={3}
-      />
+      <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#374151" strokeWidth={3} />
       {/* Progress arc */}
       <circle
         cx={size / 2}

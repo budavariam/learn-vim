@@ -58,15 +58,22 @@ export function shouldShowSolution(
   hasFailure: boolean,
   isVerification: boolean
 ): boolean {
-  if (isVerification) return false  // verification challenges are always blind
+  if (isVerification) return false // verification challenges are always blind
   switch (guidedMode) {
-    case 'none':               return false
-    case 'all':                return true
-    case 'first_only':         return occurrenceIndex === 0
-    case 'alternating':        return occurrenceIndex % 2 === 0
-    case 'after_failure':      return hasFailure
-    case 'first_then_failure': return occurrenceIndex === 0 || hasFailure
-    default:                   return false
+    case 'none':
+      return false
+    case 'all':
+      return true
+    case 'first_only':
+      return occurrenceIndex === 0
+    case 'alternating':
+      return occurrenceIndex % 2 === 0
+    case 'after_failure':
+      return hasFailure
+    case 'first_then_failure':
+      return occurrenceIndex === 0 || hasFailure
+    default:
+      return false
   }
 }
 
@@ -87,8 +94,7 @@ export function pickNextCommand(
 
   const notActive = commands.filter(c => !activeCommandIds.has(c.id))
 
-  const getCount = (c: VimCommandData) =>
-    progress[c.level]?.completionCounts?.get(c.id) ?? 0
+  const getCount = (c: VimCommandData) => progress[c.level]?.completionCounts?.get(c.id) ?? 0
 
   const atTargetLevel = notActive.filter(c => c.level === targetLevel)
 
@@ -113,7 +119,5 @@ export function pickNextCommand(
     return leastDone[Math.floor(Math.random() * leastDone.length)]
   }
 
-  return notActive.length > 0
-    ? notActive[Math.floor(Math.random() * notActive.length)]
-    : null
+  return notActive.length > 0 ? notActive[Math.floor(Math.random() * notActive.length)] : null
 }

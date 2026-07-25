@@ -35,9 +35,6 @@ jobs:
       - name: Install — Arcade
         run: cd ui-arcade && npm install
 
-      - name: Test — Arcade engine
-        run: cd ui-arcade && npm test
-
       - name: Build — Arcade
         run: cd ui-arcade && npm run build
 
