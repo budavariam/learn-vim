@@ -3,4 +3,4 @@
 	url = git@github.com:budavariam/vimtutor.git
 [submodule "ui-arcade/vim-golf-challenges"]
 	path = ui-arcade/vim-golf-challenges
-	url = git@github.com:budavariam/vim-golf-challenges.git
+	url = https://github.com/budavariam/vim-golf-challenges.git
