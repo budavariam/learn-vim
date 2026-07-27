@@ -219,7 +219,7 @@ export function AppReadmeScreen() {
           </Section>
 
           {/* ─── Dev Mode ────────────────────────────────── */}
-          <Section id="dev" title="🔬 Dev Mode" route="/dev">
+          <Section id="dev" title="🔬 Dev Mode" route="/help">
             <p>Test and debug command detection. Not needed for normal play.</p>
             <ul>
               <li>Live keystroke log with solution matching and mode tracking.</li>

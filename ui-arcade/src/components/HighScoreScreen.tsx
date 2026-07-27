@@ -1,5 +1,11 @@
 import { useState, useEffect } from 'react'
-import type { HighScores, HighScoreEntry, GameMode, MotionRaceHighScoreEntry, GoalModeHighScoreEntry } from '../engine/types'
+import type {
+  HighScores,
+  HighScoreEntry,
+  GameMode,
+  MotionRaceHighScoreEntry,
+  GoalModeHighScoreEntry,
+} from '../engine/types'
 import { loadHighScores, emptyHighScores } from '../engine/HighScoreEngine'
 import { loadUsername } from '../engine/UserPrefs'
 
@@ -36,18 +42,59 @@ const BOT_SEEDS: Record<GameMode, (HighScoreEntry & { isBot: boolean })[]> = {
     makeBot({ score: 1400, accuracy: 0.83, challengesCompleted: 28 }),
   ],
   timed_challenge: [
-    makeBot({ mode: 'timed_challenge', score: 2600, sessionDurationMs: 300_000, accuracy: 0.9, challengesCompleted: 52 }),
-    makeBot({ mode: 'timed_challenge', score: 1700, sessionDurationMs: 300_000, accuracy: 0.86, challengesCompleted: 34 }),
-    makeBot({ mode: 'timed_challenge', score: 1000, sessionDurationMs: 300_000, accuracy: 0.8, challengesCompleted: 20 }),
+    makeBot({
+      mode: 'timed_challenge',
+      score: 2600,
+      sessionDurationMs: 300_000,
+      accuracy: 0.9,
+      challengesCompleted: 52,
+    }),
+    makeBot({
+      mode: 'timed_challenge',
+      score: 1700,
+      sessionDurationMs: 300_000,
+      accuracy: 0.86,
+      challengesCompleted: 34,
+    }),
+    makeBot({
+      mode: 'timed_challenge',
+      score: 1000,
+      sessionDurationMs: 300_000,
+      accuracy: 0.8,
+      challengesCompleted: 20,
+    }),
   ],
   survival: [
-    makeBot({ mode: 'survival', score: 900, achievedTimeMs: 180_000, expectedTimeMs: 210_000, accuracy: 0.9, challengesCompleted: 18 }),
-    makeBot({ mode: 'survival', score: 600, achievedTimeMs: 120_000, expectedTimeMs: 145_000, accuracy: 0.85, challengesCompleted: 12 }),
-    makeBot({ mode: 'survival', score: 350, achievedTimeMs: 60_000, expectedTimeMs: 72_000, accuracy: 0.78, challengesCompleted: 7 }),
+    makeBot({
+      mode: 'survival',
+      score: 900,
+      achievedTimeMs: 180_000,
+      expectedTimeMs: 210_000,
+      accuracy: 0.9,
+      challengesCompleted: 18,
+    }),
+    makeBot({
+      mode: 'survival',
+      score: 600,
+      achievedTimeMs: 120_000,
+      expectedTimeMs: 145_000,
+      accuracy: 0.85,
+      challengesCompleted: 12,
+    }),
+    makeBot({
+      mode: 'survival',
+      score: 350,
+      achievedTimeMs: 60_000,
+      expectedTimeMs: 72_000,
+      accuracy: 0.78,
+      challengesCompleted: 7,
+    }),
   ],
 }
 
-function makeMRBot(overrides: Partial<MotionRaceHighScoreEntry>): MotionRaceHighScoreEntry & { isBot: true } {
+function makeMRBot(
+  overrides: Partial<MotionRaceHighScoreEntry>
+): MotionRaceHighScoreEntry & { isBot: true } {
   return {
     id: `bot-mr-${overrides.score}-${overrides.endGoal}`,
     username: 'vim-bot',
@@ -62,7 +109,10 @@ function makeMRBot(overrides: Partial<MotionRaceHighScoreEntry>): MotionRaceHigh
   }
 }
 
-const BOT_SEEDS_MR: Record<'timed'|'survival'|'total_goals', (MotionRaceHighScoreEntry & { isBot: boolean })[]> = {
+const BOT_SEEDS_MR: Record<
+  'timed' | 'survival' | 'total_goals',
+  (MotionRaceHighScoreEntry & { isBot: boolean })[]
+> = {
   timed: [
     makeMRBot({ endGoal: 'timed', score: 32, sessionDurationMs: 60_000, keystrokes: 240 }),
     makeMRBot({ endGoal: 'timed', score: 21, sessionDurationMs: 60_000, keystrokes: 180 }),
@@ -80,7 +130,9 @@ const BOT_SEEDS_MR: Record<'timed'|'survival'|'total_goals', (MotionRaceHighScor
   ],
 }
 
-function makeGoalBot(overrides: Partial<GoalModeHighScoreEntry>): GoalModeHighScoreEntry & { isBot: true } {
+function makeGoalBot(
+  overrides: Partial<GoalModeHighScoreEntry>
+): GoalModeHighScoreEntry & { isBot: true } {
   return {
     id: `bot-goal-${overrides.totalPoints}`,
     username: 'vim-bot',
@@ -111,33 +163,44 @@ function buildRows(mode: GameMode, real: HighScoreEntry[]): DisplayEntry[] {
     mode === 'survival' ? b.achievedTimeMs - a.achievedTimeMs : b.score - a.score
   )
   const bots = BOT_SEEDS[mode]
-  const combined = [...sortedReal, ...bots].sort((a, b) =>
-    mode === 'survival' ? b.achievedTimeMs - a.achievedTimeMs : b.score - a.score
-  ).slice(0, 10)
+  const combined = [...sortedReal, ...bots]
+    .sort((a, b) => (mode === 'survival' ? b.achievedTimeMs - a.achievedTimeMs : b.score - a.score))
+    .slice(0, 10)
   while (combined.length < 10) combined.push(null as any)
   return combined
 }
 
-function buildRowsMR(mode: 'timed'|'survival'|'total_goals', entries: MotionRaceHighScoreEntry[]): DisplayMREntry[] {
+function buildRowsMR(
+  mode: 'timed' | 'survival' | 'total_goals',
+  entries: MotionRaceHighScoreEntry[]
+): DisplayMREntry[] {
   const sortedReal = [...entries].sort((a, b) =>
-    mode === 'survival' ? b.sessionDurationMs - a.sessionDurationMs
-      : mode === 'total_goals' ? a.sessionDurationMs - b.sessionDurationMs
-      : b.score - a.score
+    mode === 'survival'
+      ? b.sessionDurationMs - a.sessionDurationMs
+      : mode === 'total_goals'
+        ? a.sessionDurationMs - b.sessionDurationMs
+        : b.score - a.score
   )
   const bots = BOT_SEEDS_MR[mode]
-  const combined: DisplayMREntry[] = [...sortedReal, ...bots].sort((a, b) =>
-    mode === 'survival' ? b.sessionDurationMs - a.sessionDurationMs
-      : mode === 'total_goals' ? a.sessionDurationMs - b.sessionDurationMs
-      : b.score - a.score
-  ).slice(0, 10)
-  
+  const combined: DisplayMREntry[] = [...sortedReal, ...bots]
+    .sort((a, b) =>
+      mode === 'survival'
+        ? b.sessionDurationMs - a.sessionDurationMs
+        : mode === 'total_goals'
+          ? a.sessionDurationMs - b.sessionDurationMs
+          : b.score - a.score
+    )
+    .slice(0, 10)
+
   while (combined.length < 10) combined.push(null)
   return combined
 }
 
 function buildRowsGoal(entries: GoalModeHighScoreEntry[]): DisplayGoalEntry[] {
   const sortedReal = [...entries].sort((a, b) => b.totalPoints - a.totalPoints)
-  const combined: DisplayGoalEntry[] = [...sortedReal, ...BOT_SEEDS_GOAL].sort((a, b) => b.totalPoints - a.totalPoints).slice(0, 10)
+  const combined: DisplayGoalEntry[] = [...sortedReal, ...BOT_SEEDS_GOAL]
+    .sort((a, b) => b.totalPoints - a.totalPoints)
+    .slice(0, 10)
   while (combined.length < 10) combined.push(null)
   return combined
 }
@@ -150,14 +213,26 @@ function fmt(ms: number) {
 
 function fmtDate(ts: number) {
   if (ts === 0) return '—'
-  return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' })
+  return new Date(ts).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    year: '2-digit',
+  })
 }
 
 const RANK_COLOR = ['text-yellow-400', 'text-gray-300', 'text-amber-600']
 
 // ── Arcade Table ─────────────────────────────────────────────────────────────
 
-function ScoreTable({ mode, rows, username }: { mode: GameMode, rows: DisplayEntry[], username: string }) {
+function ScoreTable({
+  mode,
+  rows,
+  username,
+}: {
+  mode: GameMode
+  rows: DisplayEntry[]
+  username: string
+}) {
   const isSurvival = mode === 'survival'
   return (
     <div className="overflow-x-auto">
@@ -167,7 +242,9 @@ function ScoreTable({ mode, rows, username }: { mode: GameMode, rows: DisplayEnt
             <th className="py-2 px-3 text-left w-8">#</th>
             <th className="py-2 px-3 text-left">Player</th>
             <th className="py-2 px-3 text-right">{isSurvival ? 'Survived' : 'Score'}</th>
-            <th className="py-2 px-3 text-right hidden sm:table-cell">{isSurvival ? 'Expected' : 'Session'}</th>
+            <th className="py-2 px-3 text-right hidden sm:table-cell">
+              {isSurvival ? 'Expected' : 'Session'}
+            </th>
             <th className="py-2 px-3 text-center hidden md:table-cell">Lang</th>
             <th className="py-2 px-3 text-center hidden md:table-cell">Lv</th>
             <th className="py-2 px-3 text-right hidden lg:table-cell">✓/✗</th>
@@ -179,19 +256,67 @@ function ScoreTable({ mode, rows, username }: { mode: GameMode, rows: DisplayEnt
           {rows.map((entry, i) => {
             const rankColor = i < 3 ? RANK_COLOR[i] : 'text-gray-600'
             const isMe = entry && !entry.isBot && (!entry.username || entry.username === username)
-            if (!entry) return <tr key={i} className="border-b border-gray-800/50"><td className={`py-2.5 px-3 font-bold ${rankColor}`}>{i + 1}</td><td colSpan={8} className="py-2.5 px-3 text-gray-700">—</td></tr>
+            if (!entry)
+              return (
+                <tr key={i} className="border-b border-gray-800/50">
+                  <td className={`py-2.5 px-3 font-bold ${rankColor}`}>{i + 1}</td>
+                  <td colSpan={8} className="py-2.5 px-3 text-gray-700">
+                    —
+                  </td>
+                </tr>
+              )
             const isBot = !!entry.isBot
             return (
-              <tr key={entry.id} className={`border-b border-gray-800 transition-colors ${isMe ? 'bg-blue-900/15' : isBot ? 'bg-gray-900' : 'hover:bg-gray-800/40'}`}>
+              <tr
+                key={entry.id}
+                className={`border-b border-gray-800 transition-colors ${isMe ? 'bg-blue-900/15' : isBot ? 'bg-gray-900' : 'hover:bg-gray-800/40'}`}
+              >
                 <td className={`py-2.5 px-3 font-bold text-sm ${rankColor}`}>{i + 1}</td>
-                <td className="py-2.5 px-3"><span className={isMe ? 'text-blue-300 font-bold' : isBot ? 'text-gray-500 italic' : 'text-gray-300'}>{entry.username ?? username}</span></td>
-                <td className="py-2.5 px-3 text-right font-bold">{isSurvival ? <span className="text-green-400">{fmt(entry.achievedTimeMs)}</span> : <span className={isMe ? 'text-blue-300' : isBot ? 'text-gray-400' : 'text-yellow-400'}>{entry.score.toLocaleString()}</span>}</td>
-                <td className="py-2.5 px-3 text-right text-gray-500 hidden sm:table-cell">{isSurvival ? fmt(entry.expectedTimeMs) : fmt(entry.sessionDurationMs)}</td>
-                <td className="py-2.5 px-3 text-center text-gray-400 hidden md:table-cell">{entry.language}</td>
-                <td className="py-2.5 px-3 text-center text-gray-400 hidden md:table-cell">{entry.startingLevel}</td>
-                <td className="py-2.5 px-3 text-right text-gray-500 hidden lg:table-cell"><span className="text-green-600">{entry.challengesCompleted}✓</span> <span className="text-red-700">{entry.challengesFailed}✗</span></td>
-                <td className="py-2.5 px-3 text-right text-gray-500 hidden lg:table-cell">{Math.round(entry.accuracy * 100)}%</td>
-                <td className="py-2.5 px-3 text-right text-gray-600 hidden xl:table-cell">{fmtDate(entry.timestamp)}</td>
+                <td className="py-2.5 px-3">
+                  <span
+                    className={
+                      isMe
+                        ? 'text-blue-300 font-bold'
+                        : isBot
+                          ? 'text-gray-500 italic'
+                          : 'text-gray-300'
+                    }
+                  >
+                    {entry.username ?? username}
+                  </span>
+                </td>
+                <td className="py-2.5 px-3 text-right font-bold">
+                  {isSurvival ? (
+                    <span className="text-green-400">{fmt(entry.achievedTimeMs)}</span>
+                  ) : (
+                    <span
+                      className={
+                        isMe ? 'text-blue-300' : isBot ? 'text-gray-400' : 'text-yellow-400'
+                      }
+                    >
+                      {entry.score.toLocaleString()}
+                    </span>
+                  )}
+                </td>
+                <td className="py-2.5 px-3 text-right text-gray-500 hidden sm:table-cell">
+                  {isSurvival ? fmt(entry.expectedTimeMs) : fmt(entry.sessionDurationMs)}
+                </td>
+                <td className="py-2.5 px-3 text-center text-gray-400 hidden md:table-cell">
+                  {entry.language}
+                </td>
+                <td className="py-2.5 px-3 text-center text-gray-400 hidden md:table-cell">
+                  {entry.startingLevel}
+                </td>
+                <td className="py-2.5 px-3 text-right text-gray-500 hidden lg:table-cell">
+                  <span className="text-green-600">{entry.challengesCompleted}✓</span>{' '}
+                  <span className="text-red-700">{entry.challengesFailed}✗</span>
+                </td>
+                <td className="py-2.5 px-3 text-right text-gray-500 hidden lg:table-cell">
+                  {Math.round(entry.accuracy * 100)}%
+                </td>
+                <td className="py-2.5 px-3 text-right text-gray-600 hidden xl:table-cell">
+                  {fmtDate(entry.timestamp)}
+                </td>
               </tr>
             )
           })}
@@ -202,7 +327,7 @@ function ScoreTable({ mode, rows, username }: { mode: GameMode, rows: DisplayEnt
 }
 
 // ── Motion Race Table ────────────────────────────────────────────────────────
-function MotionRaceTable({ rows, username }: { rows: DisplayMREntry[], username: string }) {
+function MotionRaceTable({ rows, username }: { rows: DisplayMREntry[]; username: string }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-xs font-mono border-collapse">
@@ -221,16 +346,41 @@ function MotionRaceTable({ rows, username }: { rows: DisplayMREntry[], username:
           {rows.map((entry, i) => {
             const rankColor = i < 3 ? RANK_COLOR[i] : 'text-gray-600'
             const isMe = entry && (!entry.username || entry.username === username)
-            if (!entry) return <tr key={i} className="border-b border-gray-800/50"><td className={`py-2.5 px-3 font-bold ${rankColor}`}>{i + 1}</td><td colSpan={6} className="py-2.5 px-3 text-gray-700">—</td></tr>
+            if (!entry)
+              return (
+                <tr key={i} className="border-b border-gray-800/50">
+                  <td className={`py-2.5 px-3 font-bold ${rankColor}`}>{i + 1}</td>
+                  <td colSpan={6} className="py-2.5 px-3 text-gray-700">
+                    —
+                  </td>
+                </tr>
+              )
             return (
-              <tr key={entry.id} className={`border-b border-gray-800 transition-colors ${isMe ? 'bg-blue-900/15' : 'hover:bg-gray-800/40'}`}>
+              <tr
+                key={entry.id}
+                className={`border-b border-gray-800 transition-colors ${isMe ? 'bg-blue-900/15' : 'hover:bg-gray-800/40'}`}
+              >
                 <td className={`py-2.5 px-3 font-bold text-sm ${rankColor}`}>{i + 1}</td>
-                <td className="py-2.5 px-3"><span className={isMe ? 'text-blue-300 font-bold' : 'text-gray-300'}>{entry.username ?? username}</span></td>
-                <td className="py-2.5 px-3 text-right font-bold"><span className="text-yellow-400">{entry.score}</span></td>
-                <td className="py-2.5 px-3 text-right text-green-400">{fmt(entry.sessionDurationMs)}</td>
-                <td className="py-2.5 px-3 text-center text-gray-500 hidden md:table-cell">{entry.keystrokes}</td>
-                <td className="py-2.5 px-3 text-center text-gray-500 hidden lg:table-cell">{entry.language}</td>
-                <td className="py-2.5 px-3 text-right text-gray-600 hidden lg:table-cell">{fmtDate(entry.timestamp)}</td>
+                <td className="py-2.5 px-3">
+                  <span className={isMe ? 'text-blue-300 font-bold' : 'text-gray-300'}>
+                    {entry.username ?? username}
+                  </span>
+                </td>
+                <td className="py-2.5 px-3 text-right font-bold">
+                  <span className="text-yellow-400">{entry.score}</span>
+                </td>
+                <td className="py-2.5 px-3 text-right text-green-400">
+                  {fmt(entry.sessionDurationMs)}
+                </td>
+                <td className="py-2.5 px-3 text-center text-gray-500 hidden md:table-cell">
+                  {entry.keystrokes}
+                </td>
+                <td className="py-2.5 px-3 text-center text-gray-500 hidden lg:table-cell">
+                  {entry.language}
+                </td>
+                <td className="py-2.5 px-3 text-right text-gray-600 hidden lg:table-cell">
+                  {fmtDate(entry.timestamp)}
+                </td>
               </tr>
             )
           })}
@@ -241,7 +391,7 @@ function MotionRaceTable({ rows, username }: { rows: DisplayMREntry[], username:
 }
 
 // ── Goal Mode Table ──────────────────────────────────────────────────────────
-function GoalTable({ rows, username }: { rows: DisplayGoalEntry[], username: string }) {
+function GoalTable({ rows, username }: { rows: DisplayGoalEntry[]; username: string }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-xs font-mono border-collapse">
@@ -261,17 +411,44 @@ function GoalTable({ rows, username }: { rows: DisplayGoalEntry[], username: str
           {rows.map((entry, i) => {
             const rankColor = i < 3 ? RANK_COLOR[i] : 'text-gray-600'
             const isMe = entry && (!entry.username || entry.username === username)
-            if (!entry) return <tr key={i} className="border-b border-gray-800/50"><td className={`py-2.5 px-3 font-bold ${rankColor}`}>{i + 1}</td><td colSpan={7} className="py-2.5 px-3 text-gray-700">—</td></tr>
+            if (!entry)
+              return (
+                <tr key={i} className="border-b border-gray-800/50">
+                  <td className={`py-2.5 px-3 font-bold ${rankColor}`}>{i + 1}</td>
+                  <td colSpan={7} className="py-2.5 px-3 text-gray-700">
+                    —
+                  </td>
+                </tr>
+              )
             return (
-              <tr key={entry.id} className={`border-b border-gray-800 transition-colors ${isMe ? 'bg-blue-900/15' : 'hover:bg-gray-800/40'}`}>
+              <tr
+                key={entry.id}
+                className={`border-b border-gray-800 transition-colors ${isMe ? 'bg-blue-900/15' : 'hover:bg-gray-800/40'}`}
+              >
                 <td className={`py-2.5 px-3 font-bold text-sm ${rankColor}`}>{i + 1}</td>
-                <td className="py-2.5 px-3"><span className={isMe ? 'text-blue-300 font-bold' : 'text-gray-300'}>{entry.username ?? username}</span></td>
-                <td className="py-2.5 px-3 text-right font-bold"><span className="text-yellow-400">{entry.totalPoints}</span></td>
-                <td className="py-2.5 px-3 text-center text-gray-500 hidden md:table-cell">{entry.difficulty}</td>
-                <td className="py-2.5 px-3 text-center text-green-400 hidden md:table-cell">{entry.solved} / {entry.challengeCount}</td>
-                <td className="py-2.5 px-3 text-right text-gray-500 hidden sm:table-cell">{fmt(entry.totalElapsedMs)}</td>
-                <td className="py-2.5 px-3 text-right text-gray-500 hidden lg:table-cell">{entry.totalKeystrokes}</td>
-                <td className="py-2.5 px-3 text-right text-gray-600 hidden lg:table-cell">{fmtDate(entry.timestamp)}</td>
+                <td className="py-2.5 px-3">
+                  <span className={isMe ? 'text-blue-300 font-bold' : 'text-gray-300'}>
+                    {entry.username ?? username}
+                  </span>
+                </td>
+                <td className="py-2.5 px-3 text-right font-bold">
+                  <span className="text-yellow-400">{entry.totalPoints}</span>
+                </td>
+                <td className="py-2.5 px-3 text-center text-gray-500 hidden md:table-cell">
+                  {entry.difficulty}
+                </td>
+                <td className="py-2.5 px-3 text-center text-green-400 hidden md:table-cell">
+                  {entry.solved} / {entry.challengeCount}
+                </td>
+                <td className="py-2.5 px-3 text-right text-gray-500 hidden sm:table-cell">
+                  {fmt(entry.totalElapsedMs)}
+                </td>
+                <td className="py-2.5 px-3 text-right text-gray-500 hidden lg:table-cell">
+                  {entry.totalKeystrokes}
+                </td>
+                <td className="py-2.5 px-3 text-right text-gray-600 hidden lg:table-cell">
+                  {fmtDate(entry.timestamp)}
+                </td>
               </tr>
             )
           })}
@@ -293,7 +470,7 @@ const TOP_LEVEL_TABS: { id: TopLevelCategory; label: string }[] = [
 
 export function HighScoreScreen() {
   const [topCategory, setTopCategory] = useState<TopLevelCategory>('motionrace')
-  const [mrTab, setMrTab] = useState<'timed'|'survival'|'total_goals'>('timed')
+  const [mrTab, setMrTab] = useState<'timed' | 'survival' | 'total_goals'>('timed')
   const [arcadeTab, setArcadeTab] = useState<GameMode>('general')
   const [scores, setScores] = useState<HighScores>(emptyHighScores())
   const username = loadUsername()
@@ -313,7 +490,6 @@ export function HighScoreScreen() {
             </p>
           </div>
         </div>
-
         {/* Top Level Category Tabs */}
         <div className="flex gap-2 mb-4 bg-gray-800 p-1 rounded-lg w-max">
           {TOP_LEVEL_TABS.map(tab => (
@@ -321,23 +497,30 @@ export function HighScoreScreen() {
               key={tab.id}
               onClick={() => setTopCategory(tab.id)}
               className={`px-4 py-2 text-sm font-bold rounded-md transition-colors ${
-                topCategory === tab.id ? 'bg-blue-600 text-white shadow' : 'text-gray-400 hover:text-gray-200'
+                topCategory === tab.id
+                  ? 'bg-blue-600 text-white shadow'
+                  : 'text-gray-400 hover:text-gray-200'
               }`}
             >
               {tab.label}
             </button>
           ))}
         </div>
-
         {/* Sub tabs depending on top category */}
         {topCategory === 'motionrace' && (
           <div className="flex gap-1 mb-6 border-b border-gray-700">
-            {[{id: 'timed', label: 'Timed'}, {id: 'survival', label: 'Survival'}, {id: 'total_goals', label: 'Total Goals'}].map(t => (
+            {[
+              { id: 'timed', label: 'Timed' },
+              { id: 'survival', label: 'Survival' },
+              { id: 'total_goals', label: 'Total Goals' },
+            ].map(t => (
               <button
                 key={t.id}
                 onClick={() => setMrTab(t.id as any)}
                 className={`px-4 py-2 text-sm font-mono transition-colors border-b-2 -mb-px ${
-                  mrTab === t.id ? 'border-green-500 text-green-300' : 'border-transparent text-gray-500 hover:text-gray-300'
+                  mrTab === t.id
+                    ? 'border-green-500 text-green-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-300'
                 }`}
               >
                 {t.label}
@@ -345,15 +528,20 @@ export function HighScoreScreen() {
             ))}
           </div>
         )}
-        
         {topCategory === 'arcade' && (
           <div className="flex gap-1 mb-6 border-b border-gray-700">
-            {[{id: 'general', label: 'General'}, {id: 'timed_challenge', label: 'Timed'}, {id: 'survival', label: 'Survival'}].map(t => (
+            {[
+              { id: 'general', label: 'General' },
+              { id: 'timed_challenge', label: 'Timed' },
+              { id: 'survival', label: 'Survival' },
+            ].map(t => (
               <button
                 key={t.id}
                 onClick={() => setArcadeTab(t.id as any)}
                 className={`px-4 py-2 text-sm font-mono transition-colors border-b-2 -mb-px ${
-                  arcadeTab === t.id ? 'border-green-500 text-green-300' : 'border-transparent text-gray-500 hover:text-gray-300'
+                  arcadeTab === t.id
+                    ? 'border-green-500 text-green-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-300'
                 }`}
               >
                 {t.label}
@@ -362,14 +550,20 @@ export function HighScoreScreen() {
           </div>
         )}
         {topCategory === 'goal' && <div className="mb-6" />} {/* Spacing for alignment */}
-
         {/* Table */}
         <div className="bg-gray-800/50 rounded-xl border border-gray-700 overflow-hidden">
           {topCategory === 'motionrace' && (
-            <MotionRaceTable rows={buildRowsMR(mrTab, scores[`motionrace_${mrTab}`])} username={username} />
+            <MotionRaceTable
+              rows={buildRowsMR(mrTab, scores[`motionrace_${mrTab}`])}
+              username={username}
+            />
           )}
           {topCategory === 'arcade' && (
-            <ScoreTable mode={arcadeTab} rows={buildRows(arcadeTab, scores[arcadeTab])} username={username} />
+            <ScoreTable
+              mode={arcadeTab}
+              rows={buildRows(arcadeTab, scores[arcadeTab])}
+              username={username}
+            />
           )}
           {topCategory === 'goal' && (
             <GoalTable rows={buildRowsGoal(scores.goal)} username={username} />

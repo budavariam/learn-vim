@@ -1362,7 +1362,11 @@ const QVIMX_SUB_MODE_OPTIONS: { id: QvimxSubMode; label: string; desc: string }[
 const QVIMX_BORDER_OPTIONS: { id: QvimxBorderShape; label: string; desc: string }[] = [
   { id: 'full-rect', label: 'Full Rect', desc: 'Rectangle around the entire file' },
   { id: 'code-right', label: 'Code Right', desc: 'Right edge hugs last character' },
-  { id: 'inverse-code', label: 'Inverse Code', desc: 'Code text is walls — play in the whitespace' },
+  {
+    id: 'inverse-code',
+    label: 'Inverse Code',
+    desc: 'Code text is walls — play in the whitespace',
+  },
   { id: 'sub-rect', label: 'Sub Rect', desc: 'Inner rectangle, outer code visible' },
   { id: 'rectangles', label: 'Rectangles', desc: 'Two stacked play areas' },
 ]

@@ -88,10 +88,13 @@ export function buildHighScoreEntry(state: GameState): HighScoreEntry {
   }
 }
 
-export function addMotionRaceHighScore(scores: HighScores, entry: MotionRaceHighScoreEntry): HighScores {
+export function addMotionRaceHighScore(
+  scores: HighScores,
+  entry: MotionRaceHighScoreEntry
+): HighScores {
   const key = `motionrace_${entry.endGoal}` as keyof HighScores
   const list = [...((scores[key] as MotionRaceHighScoreEntry[]) ?? []), entry]
-  
+
   list.sort((a, b) => {
     if (entry.endGoal === 'survival') {
       const diff = b.sessionDurationMs - a.sessionDurationMs
@@ -104,11 +107,14 @@ export function addMotionRaceHighScore(scores: HighScores, entry: MotionRaceHigh
     // timed
     return b.score - a.score
   })
-  
+
   return { ...scores, [key]: list.slice(0, MAX_PER_MODE) }
 }
 
-export function addGoalModeHighScore(scores: HighScores, entry: GoalModeHighScoreEntry): HighScores {
+export function addGoalModeHighScore(
+  scores: HighScores,
+  entry: GoalModeHighScoreEntry
+): HighScores {
   const list = [...(scores.goal ?? []), entry]
   list.sort((a, b) => b.totalPoints - a.totalPoints)
   return { ...scores, goal: list.slice(0, MAX_PER_MODE) }

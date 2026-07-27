@@ -598,11 +598,22 @@ export function useMotionRace(): UseMotionRaceReturn {
     const entries: TrailEntry[] = [
       ...trail.map(p => ({ ...p, type: 'user' as const, isSolid })),
       ...(showEnemiesInEditor
-        ? enemies.map(e => ({ ...e.pos, age: 0, type: 'enemy' as const, colorIdx: e.colorIdx, isSolid: enemyIsSolid }))
+        ? enemies.map(e => ({
+            ...e.pos,
+            age: 0,
+            type: 'enemy' as const,
+            colorIdx: e.colorIdx,
+            isSolid: enemyIsSolid,
+          }))
         : []),
       ...(showEnemiesInEditor
         ? enemies.flatMap(e =>
-            e.trail.map(p => ({ ...p, type: 'enemy' as const, colorIdx: e.colorIdx, isSolid: enemyIsSolid }))
+            e.trail.map(p => ({
+              ...p,
+              type: 'enemy' as const,
+              colorIdx: e.colorIdx,
+              isSolid: enemyIsSolid,
+            }))
           )
         : []),
     ]
@@ -646,14 +657,29 @@ export function useMotionRace(): UseMotionRaceReturn {
     const trail = trailRef.current
     const from =
       fixedFrom ?? generateFrom(fileContentRef.current, trail, validLinesRef.current) ?? ZERO
-    
-    const newGoals = config.goalDisplayMode === 'all'
-      ? generateInitialGoals(fileContentRef.current, from, config.multiGoalCount, trail, config.distanceMode, validLinesRef.current)
-      : (() => {
-          const g = generateGoal(fileContentRef.current, from, trail, config.distanceMode, [], validLinesRef.current)
-          return g ? [g] : []
-        })()
-    
+
+    const newGoals =
+      config.goalDisplayMode === 'all'
+        ? generateInitialGoals(
+            fileContentRef.current,
+            from,
+            config.multiGoalCount,
+            trail,
+            config.distanceMode,
+            validLinesRef.current
+          )
+        : (() => {
+            const g = generateGoal(
+              fileContentRef.current,
+              from,
+              trail,
+              config.distanceMode,
+              [],
+              validLinesRef.current
+            )
+            return g ? [g] : []
+          })()
+
     if (!newGoals.length) return
 
     contentValidRef.current = true
@@ -762,14 +788,16 @@ export function useMotionRace(): UseMotionRaceReturn {
       if (gameStatusRef.current !== 'playing') return
 
       const config = configRef.current!
-      
+
       const blockingTrail: TrailPos[] = [
         ...(config.snakeTrail ? trailRef.current : []),
-        ...(config.enemyTrail && config.enemyTrailSolid ? enemiesRef.current.flatMap(e => e.trail) : []),
+        ...(config.enemyTrail && config.enemyTrailSolid
+          ? enemiesRef.current.flatMap(e => e.trail)
+          : []),
       ]
       const isSurvivalMode = config.endGoal === 'survival'
       const hitTrail = isBlocked(pos, blockingTrail)
-      
+
       if (blockingTrail.length > 0 && hitTrail) {
         if (isSurvivalMode) {
           gameStatusRef.current = 'results'
@@ -788,7 +816,11 @@ export function useMotionRace(): UseMotionRaceReturn {
       currentPosRef.current = pos
 
       const newTrail = config.snakeTrail
-        ? advanceTrail(trailRef.current, pos, trailMax(userScoreRef.current, config.trailLengthMultiplier))
+        ? advanceTrail(
+            trailRef.current,
+            pos,
+            trailMax(userScoreRef.current, config.trailLengthMultiplier)
+          )
         : []
 
       // Update trail decorations
@@ -935,7 +967,9 @@ export function useMotionRace(): UseMotionRaceReturn {
       const rawPos = moveEnemyToward(enemy, targetGoal, userTrail, allTrails)
       // Snap to nearest valid character — enemies must never sit on blank space
       const newPos = snapToValidPos(rawPos, fileContentRef.current)
-      const maxTrailLen = config.enemyTrail ? trailMax(userScoreRef.current, config.trailLengthMultiplier) : 0
+      const maxTrailLen = config.enemyTrail
+        ? trailMax(userScoreRef.current, config.trailLengthMultiplier)
+        : 0
       const newTrail = maxTrailLen > 0 ? advanceTrail(enemy.trail, enemy.pos, maxTrailLen) : []
       const updated = [...allEnemies]
       updated[enemyIdx] = { ...enemy, pos: newPos, trail: newTrail }
@@ -1004,13 +1038,14 @@ export function useMotionRace(): UseMotionRaceReturn {
       const entry: MotionRaceHighScoreEntry = {
         id: crypto.randomUUID(),
         timestamp: Date.now(),
-        endGoal: state.config.endGoal === 'user_count' ? 'total_goals' : state.config.endGoal as any,
+        endGoal:
+          state.config.endGoal === 'user_count' ? 'total_goals' : (state.config.endGoal as any),
         score: state.userScore,
         keystrokes: state.keystrokes,
         sessionDurationMs: state.totalElapsedMs,
         language: state.config.language,
       }
-      
+
       const scores = loadHighScores()
       const updated = addMotionRaceHighScore(scores, entry)
       saveHighScores(updated)
@@ -1027,7 +1062,10 @@ export function useMotionRace(): UseMotionRaceReturn {
 
       let content = getFile(config.language)
       if (config.padEmptyLines) {
-        content = content.split('\n').map(line => line === '' ? ' ' : line).join('\n')
+        content = content
+          .split('\n')
+          .map(line => (line === '' ? ' ' : line))
+          .join('\n')
       }
       fileContentRef.current = content
       validLinesRef.current = buildValidLines(content)

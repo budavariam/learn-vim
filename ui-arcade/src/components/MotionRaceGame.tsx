@@ -402,16 +402,18 @@ function MotionRaceSetup({ onStart, onBack: _onBack }: SetupProps) {
           <div className="mt-2 flex items-center gap-2 mb-3">
             <span className="text-xs text-gray-400">Simultaneous goals:</span>
             {[2, 3, 4, 5]
-              .filter(n => !(s.endGoal === 'user_count' || s.endGoal === 'total_count') || n <= s.count)
+              .filter(
+                n => !(s.endGoal === 'user_count' || s.endGoal === 'total_count') || n <= s.count
+              )
               .map(n => (
-              <button
-                key={n}
-                onClick={() => set({ multiGoalCount: n })}
-                className={cls.pill(s.multiGoalCount === n)}
-              >
-                {n}
-              </button>
-            ))}
+                <button
+                  key={n}
+                  onClick={() => set({ multiGoalCount: n })}
+                  className={cls.pill(s.multiGoalCount === n)}
+                >
+                  {n}
+                </button>
+              ))}
             {(s.endGoal === 'user_count' || s.endGoal === 'total_count') && (
               <button
                 onClick={() => set({ multiGoalCount: 0 })}
@@ -730,14 +732,18 @@ function MotionRaceSetup({ onStart, onBack: _onBack }: SetupProps) {
                   value: s.penaltyFlash,
                   set: (v: boolean) => set({ penaltyFlash: v }),
                 },
-                ...(s.endGoal !== 'survival' ? [{
-                  key: 'solidTrails',
-                  icon: Waves,
-                  label: 'Solid trails',
-                  desc: 'Trails block movement',
-                  value: s.solidTrails,
-                  set: (v: boolean) => set({ solidTrails: v }),
-                }] : []),
+                ...(s.endGoal !== 'survival'
+                  ? [
+                      {
+                        key: 'solidTrails',
+                        icon: Waves,
+                        label: 'Solid trails',
+                        desc: 'Trails block movement',
+                        value: s.solidTrails,
+                        set: (v: boolean) => set({ solidTrails: v }),
+                      },
+                    ]
+                  : []),
               ] as const
             ).map(item => (
               <button
@@ -1362,7 +1368,7 @@ interface OpacityFadeOverlayProps {
 }
 
 function OpacityFadeOverlay({ cursorLine, getVisibleRange }: OpacityFadeOverlayProps) {
-  // We use useLayoutEffect or just calculate in render. 
+  // We use useLayoutEffect or just calculate in render.
   // However, getVisibleRange might change or become available after mount.
   // Since cursorLine changes on every move, a render calc is usually sufficient.
   let currentPct = 50

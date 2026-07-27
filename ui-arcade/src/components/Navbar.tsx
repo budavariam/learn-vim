@@ -2,18 +2,21 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { Trophy, Settings, HelpCircle } from 'lucide-react'
 
 const HELP_TABS = [
-  { path: '/dev', label: 'Dev Mode' },
-  { path: '/dev/readme', label: 'Readme' },
+  { path: '/help/readme', label: 'Readme' },
+  { path: '/help', label: 'Dev Mode', exact: true },
+  { path: '/help/vimgolf', label: 'VimGolf' },
 ]
 
 export function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const isActive = (path: string) =>
-    location.pathname === path || location.pathname.startsWith(path + '/')
+  const isActive = (path: string, exact?: boolean) =>
+    exact
+      ? location.pathname === path
+      : location.pathname === path || location.pathname.startsWith(path + '/')
 
-  const onHelp = isActive('/dev')
+  const onHelp = isActive('/help')
 
   const iconBtn = (path: string, active: string, idle: string) =>
     `px-2 py-1 rounded text-xs font-mono transition-colors ${isActive(path) ? active : idle}`
@@ -29,11 +32,13 @@ export function Navbar() {
           VIM ARCADE
         </button>
 
-        {/* Help sub-tabs — shown when on any /dev route */}
+        {/* Help sub-tabs — shown when on any /help route */}
         {onHelp && (
           <div className="flex items-center gap-0.5 ml-2">
             {HELP_TABS.map(tab => {
-              const active = location.pathname === tab.path
+              const active = tab.exact
+                ? location.pathname === tab.path
+                : location.pathname === tab.path
               return (
                 <button
                   key={tab.path}
@@ -78,11 +83,11 @@ export function Navbar() {
           <Settings className="w-4 h-4" />
         </button>
 
-        {/* Help — deemphasized */}
+        {/* Help — navigates to Readme first */}
         <button
-          onClick={() => navigate('/dev')}
+          onClick={() => navigate('/help/readme')}
           className={iconBtn(
-            '/dev',
+            '/help',
             'text-gray-300 bg-gray-700',
             'text-gray-600 hover:text-gray-400 hover:bg-gray-800'
           )}

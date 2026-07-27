@@ -185,7 +185,8 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
       return
     }
     const model = ed.getModel()
-    const maxCol = model && pos.lineNumber <= model.getLineCount() ? model.getLineMaxColumn(pos.lineNumber) : 1
+    const maxCol =
+      model && pos.lineNumber <= model.getLineCount() ? model.getLineMaxColumn(pos.lineNumber) : 1
     let startCol = pos.column
     let endCol = pos.column + 1
     const isPastEnd = startCol >= maxCol
@@ -199,7 +200,9 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
           inlineClassName: isPastEnd ? undefined : 'motion-race-target',
           linesDecorationsClassName: 'motion-race-target-gutter',
           description: 'motion-race-target',
-          ...(isPastEnd ? { after: { content: '\u00A0', inlineClassName: 'motion-race-target' } } : {})
+          ...(isPastEnd
+            ? { after: { content: '\u00A0', inlineClassName: 'motion-race-target' } }
+            : {}),
         },
       },
     ])
@@ -222,7 +225,8 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
     if (targetCol) {
       targetCol.set(
         goals.map(pos => {
-          const maxCol = pos.lineNumber <= model.getLineCount() ? model.getLineMaxColumn(pos.lineNumber) : 1
+          const maxCol =
+            pos.lineNumber <= model.getLineCount() ? model.getLineMaxColumn(pos.lineNumber) : 1
           let startCol = pos.column
           let endCol = pos.column + 1
           const isPastEnd = startCol >= maxCol
@@ -235,7 +239,9 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
               inlineClassName: isPastEnd ? undefined : 'motion-race-target',
               linesDecorationsClassName: 'motion-race-target-gutter',
               description: 'motion-race-target',
-              ...(isPastEnd ? { after: { content: '\u00A0', inlineClassName: 'motion-race-target' } } : {})
+              ...(isPastEnd
+                ? { after: { content: '\u00A0', inlineClassName: 'motion-race-target' } }
+                : {}),
             },
           }
         })
@@ -257,10 +263,10 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
     const decorations = trail.map(pos => {
       const maxAge = pos.isSolid ? 3 : 8
       const age = Math.min(pos.age, maxAge)
-      const cls =
-        pos.type === 'user' ? `trail-user-${age}` : `trail-ec${pos.colorIdx ?? 0}-${age}`
-      
-      const maxCol = pos.lineNumber <= model.getLineCount() ? model.getLineMaxColumn(pos.lineNumber) : 1
+      const cls = pos.type === 'user' ? `trail-user-${age}` : `trail-ec${pos.colorIdx ?? 0}-${age}`
+
+      const maxCol =
+        pos.lineNumber <= model.getLineCount() ? model.getLineMaxColumn(pos.lineNumber) : 1
       let startCol = pos.column
       let endCol = pos.column + 1
       const isPastEnd = startCol >= maxCol
@@ -270,14 +276,14 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
 
       return {
         range: new m.Range(pos.lineNumber, startCol, pos.lineNumber, endCol),
-        options: { 
-          inlineClassName: isPastEnd ? undefined : cls, 
+        options: {
+          inlineClassName: isPastEnd ? undefined : cls,
           description: 'motion-race-trail',
-          ...(isPastEnd ? { after: { content: '\u00A0', inlineClassName: cls } } : {})
+          ...(isPastEnd ? { after: { content: '\u00A0', inlineClassName: cls } } : {}),
         },
       }
     })
-    
+
     col.set(decorations)
   }, [])
 

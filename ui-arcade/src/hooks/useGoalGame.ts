@@ -8,7 +8,7 @@ import type {
 } from '../engine/types'
 import type { VimGolfChallenge } from '../engine/types'
 import { getCachedChallenges } from './useVimGolfChallenges'
-import { isContentCorrect } from '../engine/VimGolfEngine'
+import { isContentCorrect, loadExcludedChallenges } from '../engine/VimGolfEngine'
 import { getTimeRating, getBasePoints } from '../engine/ScoreEngine'
 import { useMonacoEditor } from './useMonacoEditor'
 import { initGameState, tick, handleCommandExecuted } from '../engine/ChallengeEngine'
@@ -310,8 +310,12 @@ export function useGoalGame(): UseGoalGameReturn {
   const startGame = useCallback(
     (config: GoalModeConfig) => {
       const all = getCachedChallenges()
+      const excluded = new Set(loadExcludedChallenges())
+      const available = all.filter(c => !excluded.has(c.id))
       const pool =
-        config.difficulty === 'all' ? all : all.filter(c => c.difficulty === config.difficulty)
+        config.difficulty === 'all'
+          ? available
+          : available.filter(c => c.difficulty === config.difficulty)
 
       const chosen = shuffle(pool).slice(0, config.challengeCount)
 

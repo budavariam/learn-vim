@@ -1,7 +1,8 @@
 // Pure computation — no React imports.
 
 export type Pos = { lineNumber: number; column: number }
-export type QvimxBorderShape = 'full-rect' | 'code-right' | 'inverse-code' | 'sub-rect' | 'rectangles'
+export type QvimxBorderShape =
+  'full-rect' | 'code-right' | 'inverse-code' | 'sub-rect' | 'rectangles'
 export type QvimxCodeSize = 'short' | 'medium' | 'long'
 export type CellKind = 'border' | 'interior' | 'outside'
 
@@ -44,7 +45,7 @@ function borderedSection(lines: string[], innerWidth: number): string[] {
 
 export function buildBorderedContent(
   rawContent: string,
-  shape: QvimxBorderShape,
+  shape: QvimxBorderShape
 ): { borderedContent: string; dims: BoardDimensions; allRectDims?: BoardDimensions[] } {
   const rawLines = rawContent.split('\n')
 
@@ -88,7 +89,10 @@ export function buildBorderedContent(
     const bottomLines = effectiveInner.slice(mid + gap)
 
     const topWidth = Math.max(...(topLines.length > 0 ? topLines : ['']).map(l => l.length), 1)
-    const bottomWidth = Math.max(...(bottomLines.length > 0 ? bottomLines : ['']).map(l => l.length), 1)
+    const bottomWidth = Math.max(
+      ...(bottomLines.length > 0 ? bottomLines : ['']).map(l => l.length),
+      1
+    )
 
     const topSection = borderedSection(topLines, topWidth)
     const bottomSection = borderedSection(bottomLines, bottomWidth)
@@ -147,9 +151,7 @@ export function buildBorderedContent(
   const content = [top, ...wrappedLines, bottom].join('\n')
 
   const lineContentWidths: number[] | undefined =
-    shape === 'inverse-code' || shape === 'code-right'
-      ? lines.map(l => l.length)
-      : undefined
+    shape === 'inverse-code' || shape === 'code-right' ? lines.map(l => l.length) : undefined
 
   const dims: BoardDimensions = {
     minLine: 1,
@@ -171,12 +173,7 @@ export function classifyCell(pos: Pos, dims: BoardDimensions): CellKind {
   if (ln < dims.minLine || ln > dims.maxLine || col < dims.minCol || col > dims.maxCol) {
     return 'outside'
   }
-  if (
-    ln === dims.minLine ||
-    ln === dims.maxLine ||
-    col === dims.minCol ||
-    col === dims.maxCol
-  ) {
+  if (ln === dims.minLine || ln === dims.maxLine || col === dims.minCol || col === dims.maxCol) {
     return 'border'
   }
   return 'interior'
@@ -239,7 +236,7 @@ export function floodFillClaim(
   tempLine: Pos[],
   entryBorderCell: Pos,
   exitBorderCell: Pos,
-  orderedBorder: Pos[],
+  orderedBorder: Pos[]
 ): Pos[] {
   if (!tempLine.length || !orderedBorder.length) return []
 
@@ -259,7 +256,12 @@ export function floodFillClaim(
     let head = 0
     while (head < queue.length) {
       const { lineNumber: ln, column: col } = queue[head++]
-      for (const [dl, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]] as [number, number][]) {
+      for (const [dl, dc] of [
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+        [0, 1],
+      ] as [number, number][]) {
         const np = { lineNumber: ln + dl, column: col + dc }
         const k = pkey(np)
         if (visited.has(k) || wallSet.has(k) || !interiorSet.has(k)) continue
@@ -278,7 +280,12 @@ export function floodFillClaim(
     let i = fromIdx
     for (;;) {
       const bp = orderedBorder[i]
-      for (const [dl, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]] as [number, number][]) {
+      for (const [dl, dc] of [
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+        [0, 1],
+      ] as [number, number][]) {
         const np = { lineNumber: bp.lineNumber + dl, column: bp.column + dc }
         const k = pkey(np)
         if (!seen.has(k) && !wallSet.has(k) && interiorSet.has(k)) {
@@ -299,7 +306,12 @@ export function floodFillClaim(
     const fallbackSeeds: Pos[] = []
     const seen = new Set<string>()
     for (const bp of orderedBorder) {
-      for (const [dl, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]] as [number, number][]) {
+      for (const [dl, dc] of [
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+        [0, 1],
+      ] as [number, number][]) {
         const np = { lineNumber: bp.lineNumber + dl, column: bp.column + dc }
         const k = pkey(np)
         if (!seen.has(k) && !wallSet.has(k) && interiorSet.has(k)) {
@@ -356,7 +368,7 @@ export function computeClosingLine(
   lastDrawnPos: Pos,
   primaryAxis: 'h' | 'v',
   dims: BoardDimensions,
-  tempLine: Pos[],
+  tempLine: Pos[]
 ): Pos[] {
   const tempSet = new Set<string>(tempLine.map(p => `${p.lineNumber},${p.column}`))
   const result: Pos[] = []

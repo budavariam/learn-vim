@@ -71,6 +71,35 @@ export function updateVimGolfRecord(challengeId: string, keystrokes: number): vo
   }
 }
 
+/** Delete all scores and the personal-best record for one challenge. */
+export function resetVimGolfScoresForChallenge(challengeId: string): void {
+  const scores = loadVimGolfHighScores()
+  delete scores[challengeId]
+  saveVimGolfHighScores(scores)
+  const records = loadVimGolfRecords()
+  delete records[challengeId]
+  saveVimGolfRecords(records)
+}
+
+// ── excluded challenges ───────────────────────────────────────────────────────
+
+export function loadExcludedChallenges(): string[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.EXCLUDED_VG_CHALLENGES)
+    return raw ? (JSON.parse(raw) as string[]) : []
+  } catch {
+    return []
+  }
+}
+
+export function saveExcludedChallenges(ids: string[]): void {
+  try {
+    localStorage.setItem(STORAGE_KEYS.EXCLUDED_VG_CHALLENGES, JSON.stringify(ids))
+  } catch {
+    /* ignore */
+  }
+}
+
 // ── content comparison ────────────────────────────────────────────────────────
 
 // Normalise by stripping a single trailing newline so Monaco's auto-newline

@@ -242,18 +242,35 @@ a:focus:not(:focus-visible) {
 }
 
 /* ── QVIMX decorations ──────────────────────────────────────────── */
-.qvimx-border         { background: rgba(100,116,139,0.30); color: #94a3b8; }
+.qvimx-border {
+  background: rgba(100, 116, 139, 0.3);
+  color: #94a3b8;
+}
 /* Neutral permanent walls — pre-claimed walls (code chars in inverse-code, whitespace in code-right) */
-.qvimx-neutral        { background: rgba(100,116,139,0.50); }
+.qvimx-neutral {
+  background: rgba(100, 116, 139, 0.5);
+}
 /* Claimed territory — background only, no per-cell outline so the fill is continuous */
-.qvimx-player-claimed { background: rgba(34,197,94,0.20); }
-.qvimx-enemy-claimed  { background: rgba(239,68,68,0.20); }
+.qvimx-player-claimed {
+  background: rgba(34, 197, 94, 0.2);
+}
+.qvimx-enemy-claimed {
+  background: rgba(239, 68, 68, 0.2);
+}
 /* Edge cells — brighter background distinguishes the territory boundary */
-.qvimx-player-edge    { background: rgba(34,197,94,0.45); }
-.qvimx-enemy-edge     { background: rgba(239,68,68,0.45); }
+.qvimx-player-edge {
+  background: rgba(34, 197, 94, 0.45);
+}
+.qvimx-enemy-edge {
+  background: rgba(239, 68, 68, 0.45);
+}
 /* Active temp-line — solid bright fill, no per-cell shadow */
-.qvimx-temp-line      { background: rgba(234,179,8,0.55); }
-.qvimx-enemy-temp-line { background: rgba(249,115,22,0.45); }
+.qvimx-temp-line {
+  background: rgba(234, 179, 8, 0.55);
+}
+.qvimx-enemy-temp-line {
+  background: rgba(249, 115, 22, 0.45);
+}
 /* Overlay character classes — hide the original char, show the symbol via ::before */
 .qvimx-ball-char {
   position: relative;
@@ -264,7 +281,8 @@ a:focus:not(:focus-visible) {
   color: #f97316;
   font-weight: bold;
   position: absolute;
-  left: 0; top: 0;
+  left: 0;
+  top: 0;
 }
 .qvimx-enemy-cursor {
   position: relative;
@@ -275,7 +293,8 @@ a:focus:not(:focus-visible) {
   color: #f43f5e;
   font-weight: bold;
   position: absolute;
-  left: 0; top: 0;
+  left: 0;
+  top: 0;
 }
 .qvimx-bomb-char {
   position: relative;
@@ -286,5 +305,6 @@ a:focus:not(:focus-visible) {
   color: #ef4444;
   font-weight: bold;
   position: absolute;
-  left: 0; top: 0;
+  left: 0;
+  top: 0;
 }

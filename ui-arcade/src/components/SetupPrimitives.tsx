@@ -710,9 +710,7 @@ export function UnifiedChallengeOptions({
                       : undefined
                   }
                   className={`px-3 py-1.5 rounded border text-xs font-mono transition-colors font-bold ${
-                    active
-                      ? ''
-                      : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500'
+                    active ? '' : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500'
                   } ${isLast ? 'opacity-60 cursor-default' : ''}`}
                 >
                   {cat}

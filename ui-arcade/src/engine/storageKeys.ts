@@ -14,6 +14,8 @@ export const STORAGE_KEYS = {
   DEFAULTS_VERSION: 'vimarcade_defaults_version',
   USERNAME: 'vimarcade_username',
   CUSTOM_VG_CHALLENGES: 'vimarcade_custom_vgchallenges',
+  /** Challenge IDs excluded from the VimGolf listing and goal mode pool. */
+  EXCLUDED_VG_CHALLENGES: 'vimarcade_excluded_vgchallenges',
   /** Shared with ui-practice — intentionally no vimarcade_ prefix. */
   KNOWN_ITEMS: 'knownItems',
   CATEGORY_PRESETS: 'vimarcade_category_presets',

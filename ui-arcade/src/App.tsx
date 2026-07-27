@@ -12,6 +12,7 @@ import { GoalSetupScreen } from './components/GoalSetupScreen'
 import { GoalGame } from './components/GoalGame'
 import { useGoalGame } from './hooks/useGoalGame'
 import { DevModeScreen } from './components/DevModeScreen'
+import { HelpVimGolfScreen } from './components/HelpVimGolfScreen'
 import { ModeSelectScreen } from './components/ModeSelectScreen'
 import { MotionRaceWrapper } from './components/MotionRaceGame'
 import { QvimxWrapper } from './components/QvimxGame'
@@ -27,7 +28,10 @@ function VimGolfGameRoute() {
 
   const challengeList: string[] = location.state?.challengeList || []
   const currentIndex = challengeList.indexOf(challengeId || '')
-  const nextChallengeId = currentIndex >= 0 && currentIndex < challengeList.length - 1 ? challengeList[currentIndex + 1] : null
+  const nextChallengeId =
+    currentIndex >= 0 && currentIndex < challengeList.length - 1
+      ? challengeList[currentIndex + 1]
+      : null
   const prevChallengeId = currentIndex > 0 ? challengeList[currentIndex - 1] : null
 
   const challenge =
@@ -221,16 +225,15 @@ function App() {
               )
             }
           />
-          <Route
-            path="/high-scores"
-            element={<HighScoreScreen />}
-          />
+          <Route path="/high-scores" element={<HighScoreScreen />} />
           <Route
             path="/vimgolf"
             element={
               <VimGolfScreen
                 onBack={() => navigate('/')}
-                onPlay={(c, list) => navigate(`/vimgolf/${c.id}`, { state: { challengeList: list.map(x => x.id) } })}
+                onPlay={(c, list) =>
+                  navigate(`/vimgolf/${c.id}`, { state: { challengeList: list.map(x => x.id) } })
+                }
               />
             }
           />
@@ -238,8 +241,11 @@ function App() {
           <Route path="/goal" element={<GoalModeWrapper onBack={() => navigate('/')} />} />
           <Route path="/motion-race" element={<MotionRaceWrapper onBack={() => navigate('/')} />} />
           <Route path="/qvimx" element={<QvimxWrapper onBack={() => navigate('/')} />} />
-          <Route path="/dev" element={<DevModeScreen onBack={() => navigate('/')} />} />
-          <Route path="/dev/readme" element={<AppReadmeScreen />} />
+          <Route path="/help" element={<DevModeScreen onBack={() => navigate('/')} />} />
+          <Route path="/help/readme" element={<AppReadmeScreen />} />
+          <Route path="/help/vimgolf" element={<HelpVimGolfScreen />} />
+          <Route path="/dev" element={<Navigate to="/help" replace />} />
+          <Route path="/dev/readme" element={<Navigate to="/help/readme" replace />} />
           <Route path="/preferences" element={<PreferencesScreen />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

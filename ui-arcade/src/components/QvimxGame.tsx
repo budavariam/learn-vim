@@ -120,15 +120,39 @@ const CODE_SIZE_OPTIONS: { id: QvimxCodeSize; label: string; desc: string }[] = 
 ]
 
 const BORDER_SHAPE_OPTIONS: { id: QvimxBorderShape; label: string; desc: string }[] = [
-  { id: 'full-rect', label: 'Full Rect', desc: 'Rectangle around the entire file — the classic board' },
-  { id: 'code-right', label: 'Code Right', desc: 'Right edge hugs each line\'s last character — irregular right border' },
-  { id: 'inverse-code', label: 'Inverse Code', desc: 'Code text is pre-claimed walls — play in the whitespace' },
-  { id: 'sub-rect', label: 'Sub Rect', desc: 'Inner rectangle (80% of file) — outer code visible but outside the board' },
-  { id: 'rectangles', label: 'Rectangles', desc: 'Two stacked bordered rectangles — top and bottom play areas' },
+  {
+    id: 'full-rect',
+    label: 'Full Rect',
+    desc: 'Rectangle around the entire file — the classic board',
+  },
+  {
+    id: 'code-right',
+    label: 'Code Right',
+    desc: "Right edge hugs each line's last character — irregular right border",
+  },
+  {
+    id: 'inverse-code',
+    label: 'Inverse Code',
+    desc: 'Code text is pre-claimed walls — play in the whitespace',
+  },
+  {
+    id: 'sub-rect',
+    label: 'Sub Rect',
+    desc: 'Inner rectangle (80% of file) — outer code visible but outside the board',
+  },
+  {
+    id: 'rectangles',
+    label: 'Rectangles',
+    desc: 'Two stacked bordered rectangles — top and bottom play areas',
+  },
 ]
 
 const SUB_MODE_OPTIONS: { id: QvimxSubMode; label: string; desc: string }[] = [
-  { id: 'classic', label: 'Classic', desc: 'Single level — highest territory % when the timer ends wins' },
+  {
+    id: 'classic',
+    label: 'Classic',
+    desc: 'Single level — highest territory % when the timer ends wins',
+  },
   {
     id: 'championship',
     label: 'Championship',
@@ -151,7 +175,11 @@ const ENEMY_AI_OPTIONS: { id: QvimxAILevel; label: string; desc: string }[] = [
   { id: 'wanderer', label: 'Wanderer', desc: 'Roams the border, occasionally claims a thin strip' },
   { id: 'hunter', label: 'Hunter', desc: 'Targets your claimed territory to block expansion' },
   { id: 'cutter', label: 'Cutter', desc: 'Actively intercepts your in-progress draw lines' },
-  { id: 'unstoppable', label: 'Unstoppable', desc: 'Cuts your lines AND hunts your territory — reacts instantly' },
+  {
+    id: 'unstoppable',
+    label: 'Unstoppable',
+    desc: 'Cuts your lines AND hunts your territory — reacts instantly',
+  },
 ]
 
 const BALL_SPEED_OPTIONS: { id: QvimxBallSpeed; label: string; desc: string }[] = [
@@ -355,13 +383,17 @@ function QvimxSetup({ onStart, onBack: _onBack }: SetupProps) {
       {/* Bombs (Border Patrol) */}
       <CollapseSection label="Bombs (Border Patrol)" icon={Shield} defaultOpen={false}>
         <p className="text-xs text-gray-500 mb-3">
-          Bombs patrol the border. If one reaches you while you're on the border — or
-          cuts across where you stepped off to start drawing — you lose a life. Based
-          on the Sparx enemies from the original Qix arcade game.
+          Bombs patrol the border. If one reaches you while you're on the border — or cuts across
+          where you stepped off to start drawing — you lose a life. Based on the Sparx enemies from
+          the original Qix arcade game.
         </p>
         <div className="flex gap-2 flex-wrap">
           {([0, 1, 2, 3] as const).map(n => (
-            <button key={n} onClick={() => set({ bombCount: n })} className={cls.pill(s.bombCount === n)}>
+            <button
+              key={n}
+              onClick={() => set({ bombCount: n })}
+              className={cls.pill(s.bombCount === n)}
+            >
               {n === 0 ? 'Off' : `${n} bomb${n > 1 ? 's' : ''}`}
             </button>
           ))}
@@ -433,15 +465,23 @@ function QvimxSetup({ onStart, onBack: _onBack }: SetupProps) {
       {/* Diagonal Mode */}
       <CollapseSection label="Diagonal Mode" icon={Maximize2} defaultOpen={false}>
         <p className="text-xs text-gray-500 mb-3">
-          Controls how your draw line is recorded when a motion moves diagonally (e.g. a search
-          that lands several lines away and several columns over). When off, the path is snapped to
-          the closest cardinal axis — a 45° move becomes vertical.
+          Controls how your draw line is recorded when a motion moves diagonally (e.g. a search that
+          lands several lines away and several columns over). When off, the path is snapped to the
+          closest cardinal axis — a 45° move becomes vertical.
         </p>
         <div className="flex flex-col gap-2">
           {(
             [
-              { v: false, label: 'Axis-aligned only', desc: 'Lines are always horizontal or vertical (45° → vertical)' },
-              { v: true, label: 'Diagonal allowed', desc: 'Diagonal paths are drawn as-is — more expressive but harder to predict' },
+              {
+                v: false,
+                label: 'Axis-aligned only',
+                desc: 'Lines are always horizontal or vertical (45° → vertical)',
+              },
+              {
+                v: true,
+                label: 'Diagonal allowed',
+                desc: 'Diagonal paths are drawn as-is — more expressive but harder to predict',
+              },
             ] as const
           ).map(({ v, label, desc }) => (
             <button

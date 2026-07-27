@@ -96,10 +96,10 @@ export interface QvimxGameState {
   endReason: 'time' | 'lives' | 'level-complete' | null
   // Penalty event — incremented each time the player loses a life; used by UI for toasts
   penaltySeq: number
-  penaltySource: string   // e.g. "ball", "bomb"
+  penaltySource: string // e.g. "ball", "bomb"
   // Ball-caught event — incremented each time the player traps a ball in claimed territory
   catchSeq: number
-  catchCount: number   // how many balls were caught in the last claim
+  catchCount: number // how many balls were caught in the last claim
 }
 
 // ── Intervals ────────────────────────────────────────────────────────────────
@@ -294,7 +294,12 @@ function qvimxReducer(state: QvimxGameState, action: QvimxAction): QvimxGameStat
     case 'CHALLENGE_DONE':
       return { ...state, activeChallenge: action.next, challengeScore: action.challengeScore }
     case 'BALL_CAUGHT':
-      return { ...state, balls: action.balls, catchSeq: state.catchSeq + 1, catchCount: action.count }
+      return {
+        ...state,
+        balls: action.balls,
+        catchSeq: state.catchSeq + 1,
+        catchCount: action.count,
+      }
     default:
       return state
   }
@@ -323,10 +328,14 @@ function buildBalls(count: number, speed: QvimxBallSpeed, dims: BoardDimensions)
   const balls: Ball[] = []
   for (let i = 0; i < count; i++) {
     const offset = Math.floor(i / 2) + 1
-    const ln = Math.max(innerMinLine, Math.min(innerMaxLine,
-      centerLine + (i % 2 === 0 ? offset : -offset)))
-    const col = Math.max(innerMinCol, Math.min(innerMaxCol,
-      centerCol + (i % 3 === 0 ? offset : -offset)))
+    const ln = Math.max(
+      innerMinLine,
+      Math.min(innerMaxLine, centerLine + (i % 2 === 0 ? offset : -offset))
+    )
+    const col = Math.max(
+      innerMinCol,
+      Math.min(innerMaxCol, centerCol + (i % 3 === 0 ? offset : -offset))
+    )
     const dx: 1 | -1 = i % 2 === 0 ? 1 : -1
     const dy: 1 | -1 = i % 3 === 0 ? 1 : -1
     const speedMs = speed === 'mixed' ? speeds[i % 3] : BALL_TICK_MS[speed]
@@ -357,19 +366,19 @@ function moveBall(ball: Ball, dims: BoardDimensions, claimedSet: Set<string>): B
   }
 
   // Full move blocked — try each axis independently to determine reflection
-  const canY = !blocked(nextLn, col)   // can move in line direction only
-  const canX = !blocked(ln, nextCol)   // can move in col direction only
+  const canY = !blocked(nextLn, col) // can move in line direction only
+  const canX = !blocked(ln, nextCol) // can move in col direction only
 
   if (canY && !canX) {
     // Column axis blocked: reflect dx, move in line only
-    return { ...ball, pos: { lineNumber: nextLn, column: col }, dx: (-dx) as 1 | -1 }
+    return { ...ball, pos: { lineNumber: nextLn, column: col }, dx: -dx as 1 | -1 }
   }
   if (canX && !canY) {
     // Line axis blocked: reflect dy, move in col only
-    return { ...ball, pos: { lineNumber: ln, column: nextCol }, dy: (-dy) as 1 | -1 }
+    return { ...ball, pos: { lineNumber: ln, column: nextCol }, dy: -dy as 1 | -1 }
   }
   // Corner or fully blocked: reflect both, stay in place this tick
-  return { ...ball, dx: (-dx) as 1 | -1, dy: (-dy) as 1 | -1 }
+  return { ...ball, dx: -dx as 1 | -1, dy: -dy as 1 | -1 }
 }
 
 // ── Bomb helpers ──────────────────────────────────────────────────────────────
@@ -637,11 +646,20 @@ export function useQvimx(): UseQvimxReturn {
     }
 
     // Build lookup sets for fast adjacency checks
-    const playerSet = new Set<string>(playerClaimedRef.current.map(p => `${p.lineNumber},${p.column}`))
-    const enemySet = new Set<string>(enemyClaimedRef.current.map(p => `${p.lineNumber},${p.column}`))
+    const playerSet = new Set<string>(
+      playerClaimedRef.current.map(p => `${p.lineNumber},${p.column}`)
+    )
+    const enemySet = new Set<string>(
+      enemyClaimedRef.current.map(p => `${p.lineNumber},${p.column}`)
+    )
 
     function isEdge(p: Pos, ownerSet: Set<string>): boolean {
-      const nbrs: [number, number][] = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+      const nbrs: [number, number][] = [
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+        [0, 1],
+      ]
       return nbrs.some(([dl, dc]) => !ownerSet.has(`${p.lineNumber + dl},${p.column + dc}`))
     }
 
@@ -678,7 +696,7 @@ export function useQvimx(): UseQvimxReturn {
         monaco,
         enemyPosRef.current.lineNumber,
         enemyPosRef.current.column,
-        'qvimx-enemy-cursor',
+        'qvimx-enemy-cursor'
       )
     )
 
@@ -735,7 +753,7 @@ export function useQvimx(): UseQvimxReturn {
         tempLine,
         entryCell ?? borderCellsRef.current[0] ?? { lineNumber: dims.minLine, column: dims.minCol },
         exitCell ?? borderCellsRef.current[1] ?? { lineNumber: dims.minLine, column: dims.maxCol },
-        orderedBorderRef.current,
+        orderedBorderRef.current
       )
 
       // Sanity check: if the claim is ≥ 90% of available unclaimed cells,
@@ -748,7 +766,7 @@ export function useQvimx(): UseQvimxReturn {
           return !claimedSet.has(k) && !tempSet.has(k)
         })
         console.warn(
-          `[qvimx] ${who} claim sanity: ${newInteriorCells.length}/${freeCells.length} free cells — trying complement (${altCells.length} cells)`,
+          `[qvimx] ${who} claim sanity: ${newInteriorCells.length}/${freeCells.length} free cells — trying complement (${altCells.length} cells)`
         )
         if (altCells.length < newInteriorCells.length) {
           newInteriorCells = altCells
@@ -780,13 +798,18 @@ export function useQvimx(): UseQvimxReturn {
         return !alreadySet.has(k) && !opponentSet.has(k)
       })
 
-      const merged = [...alreadyClaimed, ...newInteriorCells, ...adjacentBorderCells, ...tempLineOwned]
+      const merged = [
+        ...alreadyClaimed,
+        ...newInteriorCells,
+        ...adjacentBorderCells,
+        ...tempLineOwned,
+      ]
 
       console.log(
         `[qvimx] ${who} claim: ${newInteriorCells.length} interior + ${adjacentBorderCells.length} border cells` +
-        ` | before=${beforeCount} after=${merged.length}` +
-        ` | total interior=${totalInterior} unclaimed=${freeCells.length}` +
-        ` | tempLine=${tempLine.length}`,
+          ` | before=${beforeCount} after=${merged.length}` +
+          ` | total interior=${totalInterior} unclaimed=${freeCells.length}` +
+          ` | tempLine=${tempLine.length}`
       )
 
       if (who === 'player') {
@@ -800,7 +823,9 @@ export function useQvimx(): UseQvimxReturn {
         // exit border cell set in handleCursorChange before this call).
         const startPositions = borderStartPositions(dims)
         const safeStart =
-          startPositions.find(p => !enemyClaimedSetRef.current.has(`${p.lineNumber},${p.column}`)) ??
+          startPositions.find(
+            p => !enemyClaimedSetRef.current.has(`${p.lineNumber},${p.column}`)
+          ) ??
           startPositions[0] ??
           playerPosRef.current
         dispatch({
@@ -833,7 +858,7 @@ export function useQvimx(): UseQvimxReturn {
       const ejectedBalls = ballsRef.current.map(ball => {
         if (!combinedSet.has(`${ball.pos.lineNumber},${ball.pos.column}`)) return ball
         const nearest = interiorCellsRef.current.find(
-          p => !combinedSet.has(`${p.lineNumber},${p.column}`),
+          p => !combinedSet.has(`${p.lineNumber},${p.column}`)
         )
         return nearest ? { ...ball, pos: nearest } : ball
       })
@@ -918,7 +943,10 @@ export function useQvimx(): UseQvimxReturn {
           }
         }
       } else if (prevState === 'drawing') {
-        if (kind === 'border' || playerClaimedSetRef.current.has(`${pos.lineNumber},${pos.column}`)) {
+        if (
+          kind === 'border' ||
+          playerClaimedSetRef.current.has(`${pos.lineNumber},${pos.column}`)
+        ) {
           // Reached border or claimed — interpolate any jump gap, then claim.
           const lastCell = prevTempLine[prevTempLine.length - 1]
           let fullTempLine = prevTempLine
@@ -1011,14 +1039,23 @@ export function useQvimx(): UseQvimxReturn {
                       if (ln === pos.lineNumber && col === pos.column) break // final = pos, appended below
                       const p2 = { lineNumber: ln, column: col }
                       const revIdx = prevTempLine.findIndex(t => posEq(t, p2))
-                      if (revIdx !== -1) { newTempLine = prevTempLine.slice(0, revIdx + 1); claimedMid = true; break outer }
+                      if (revIdx !== -1) {
+                        newTempLine = prevTempLine.slice(0, revIdx + 1)
+                        claimedMid = true
+                        break outer
+                      }
                       const k2 = classify(p2)
-                      if (k2 === 'border' || playerClaimedSetRef.current.has(`${p2.lineNumber},${p2.column}`)) {
+                      if (
+                        k2 === 'border' ||
+                        playerClaimedSetRef.current.has(`${p2.lineNumber},${p2.column}`)
+                      ) {
                         const entryCell = playerBorderEntryRef.current
-                        playerBorderEntryRef.current = null; playerPosRef.current = p2
+                        playerBorderEntryRef.current = null
+                        playerPosRef.current = p2
                         playerDrawStateRef.current = 'on-border'
                         playerTempLineRef.current = [...newTempLine, ...interpCells]
-                        claimTerritory('player', entryCell, p2); return
+                        claimTerritory('player', entryCell, p2)
+                        return
                       }
                       interpCells.push(p2)
                     }
@@ -1029,14 +1066,23 @@ export function useQvimx(): UseQvimxReturn {
                       const p2 = { lineNumber: ln, column: col }
                       if (ln === pos.lineNumber && dcSign === 0) break
                       const revIdx = prevTempLine.findIndex(t => posEq(t, p2))
-                      if (revIdx !== -1) { newTempLine = prevTempLine.slice(0, revIdx + 1); claimedMid = true; break outer }
+                      if (revIdx !== -1) {
+                        newTempLine = prevTempLine.slice(0, revIdx + 1)
+                        claimedMid = true
+                        break outer
+                      }
                       const k2 = classify(p2)
-                      if (k2 === 'border' || playerClaimedSetRef.current.has(`${p2.lineNumber},${p2.column}`)) {
+                      if (
+                        k2 === 'border' ||
+                        playerClaimedSetRef.current.has(`${p2.lineNumber},${p2.column}`)
+                      ) {
                         const entryCell = playerBorderEntryRef.current
-                        playerBorderEntryRef.current = null; playerPosRef.current = p2
+                        playerBorderEntryRef.current = null
+                        playerPosRef.current = p2
                         playerDrawStateRef.current = 'on-border'
                         playerTempLineRef.current = [...newTempLine, ...interpCells]
-                        claimTerritory('player', entryCell, p2); return
+                        claimTerritory('player', entryCell, p2)
+                        return
                       }
                       interpCells.push(p2)
                     }
@@ -1045,14 +1091,23 @@ export function useQvimx(): UseQvimxReturn {
                       if (col === pos.column) break
                       const p2 = { lineNumber: ln, column: col }
                       const revIdx = prevTempLine.findIndex(t => posEq(t, p2))
-                      if (revIdx !== -1) { newTempLine = prevTempLine.slice(0, revIdx + 1); claimedMid = true; break outer }
+                      if (revIdx !== -1) {
+                        newTempLine = prevTempLine.slice(0, revIdx + 1)
+                        claimedMid = true
+                        break outer
+                      }
                       const k2 = classify(p2)
-                      if (k2 === 'border' || playerClaimedSetRef.current.has(`${p2.lineNumber},${p2.column}`)) {
+                      if (
+                        k2 === 'border' ||
+                        playerClaimedSetRef.current.has(`${p2.lineNumber},${p2.column}`)
+                      ) {
                         const entryCell = playerBorderEntryRef.current
-                        playerBorderEntryRef.current = null; playerPosRef.current = p2
+                        playerBorderEntryRef.current = null
+                        playerPosRef.current = p2
                         playerDrawStateRef.current = 'on-border'
                         playerTempLineRef.current = [...newTempLine, ...interpCells]
-                        claimTerritory('player', entryCell, p2); return
+                        claimTerritory('player', entryCell, p2)
+                        return
                       }
                       interpCells.push(p2)
                     }
@@ -1115,7 +1170,9 @@ export function useQvimx(): UseQvimxReturn {
       const hitEnemyTemp = enemyTempLineSetRef.current.has(bk)
 
       if (hitPlayerTemp) {
-        console.log(`[qvimx] ball ${ballId} hit player temp-line at (${moved.pos.lineNumber},${moved.pos.column}), tempLine.length=${playerTempLineRef.current.length}`)
+        console.log(
+          `[qvimx] ball ${ballId} hit player temp-line at (${moved.pos.lineNumber},${moved.pos.column}), tempLine.length=${playerTempLineRef.current.length}`
+        )
         loseLife('player', 'ball')
       } else if (hitEnemyTemp) {
         loseLife('enemy', 'ball')
@@ -1142,7 +1199,7 @@ export function useQvimx(): UseQvimxReturn {
     if (!ordered.length) return
 
     const updated = bombPatrolsRef.current.map(bomb => {
-      const nextIdx = ((bomb.borderIdx + bomb.direction) + ordered.length) % ordered.length
+      const nextIdx = (bomb.borderIdx + bomb.direction + ordered.length) % ordered.length
       return { ...bomb, borderIdx: nextIdx }
     })
     bombPatrolsRef.current = updated
@@ -1158,7 +1215,9 @@ export function useQvimx(): UseQvimxReturn {
       const hitStix = stixFoot !== null && posEq(bombPos, stixFoot)
       if (hitPlayer || hitStix) {
         const reason = hitStix ? 'bomb-stix' : 'bomb'
-        console.log(`[qvimx] bomb hit player at (${bombPos.lineNumber},${bombPos.column}), reason=${reason}`)
+        console.log(
+          `[qvimx] bomb hit player at (${bombPos.lineNumber},${bombPos.column}), reason=${reason}`
+        )
         loseLifeRef.current('player', reason)
         return
       }
@@ -1180,7 +1239,9 @@ export function useQvimx(): UseQvimxReturn {
         // Respawn at a border position not occupied by enemy territory
         const newPos =
           starts.find(p => !enemyClaimedSetRef.current.has(`${p.lineNumber},${p.column}`)) ??
-          starts[2] ?? starts[0] ?? ZERO_POS
+          starts[2] ??
+          starts[0] ??
+          ZERO_POS
         playerPosRef.current = newPos
         playerTempLineRef.current = []
         playerTempLineSetRef.current = new Set()
@@ -1188,9 +1249,15 @@ export function useQvimx(): UseQvimxReturn {
         playerBorderEntryRef.current = null
 
         const newLives = playerLivesRef.current - 1
-        playerLivesRef.current = newLives  // update immediately to prevent stale read before next render
+        playerLivesRef.current = newLives // update immediately to prevent stale read before next render
         console.log(`[qvimx] player lost life (source=${source}), lives remaining=${newLives}`)
-        dispatch({ type: 'LOSE_LIFE', who: 'player', playerPos: newPos, playerTempLine: [], penaltySource: source })
+        dispatch({
+          type: 'LOSE_LIFE',
+          who: 'player',
+          playerPos: newPos,
+          playerTempLine: [],
+          penaltySource: source,
+        })
         positionCursorRef.current(newPos)
 
         if (newLives <= 0) {
@@ -1250,7 +1317,10 @@ export function useQvimx(): UseQvimxReturn {
         newTempLine = [newPos]
       }
     } else if (enemyDrawStateRef.current === 'drawing') {
-      if (kind === 'border' || enemyClaimedSetRef.current.has(`${newPos.lineNumber},${newPos.column}`)) {
+      if (
+        kind === 'border' ||
+        enemyClaimedSetRef.current.has(`${newPos.lineNumber},${newPos.column}`)
+      ) {
         const entryCell = enemyBorderEntryRef.current
         const exitCell = newPos
         enemyBorderEntryRef.current = null
@@ -1369,7 +1439,7 @@ export function useQvimx(): UseQvimxReturn {
         syncDecorations()
       }
     },
-    [syncDecorations],
+    [syncDecorations]
   )
 
   // ── Monaco init ───────────────────────────────────────────────────────────
@@ -1395,7 +1465,10 @@ export function useQvimx(): UseQvimxReturn {
       clearAllIntervals()
 
       const rawContent = getSizedFile(config.language, config.codeSize)
-      const { borderedContent, dims, allRectDims } = buildBorderedContent(rawContent, config.borderShape)
+      const { borderedContent, dims, allRectDims } = buildBorderedContent(
+        rawContent,
+        config.borderShape
+      )
       fileContentRef.current = borderedContent
       dimsRef.current = dims
       const baseClassify = (pos: Pos) => classifyCell(pos, dims)
@@ -1431,7 +1504,8 @@ export function useQvimx(): UseQvimxReturn {
 
         const starts = borderStartPositions(allRectDims[0])
         const playerStart = starts[0] ?? ZERO_POS
-        const enemyStart = borderStartPositions(allRectDims[allRectDims.length - 1])[1] ?? starts[0] ?? ZERO_POS
+        const enemyStart =
+          borderStartPositions(allRectDims[allRectDims.length - 1])[1] ?? starts[0] ?? ZERO_POS
 
         playerPosRef.current = playerStart
         playerDrawStateRef.current = 'on-border'

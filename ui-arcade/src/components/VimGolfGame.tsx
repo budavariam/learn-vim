@@ -182,7 +182,10 @@ export function VimGolfGame({ challenge, onNext, onPrev, onQuit }: VimGolfGamePr
               disabled={status === 'solved'}
               className="w-full py-2 bg-green-700 hover:bg-green-600 disabled:bg-gray-700 disabled:text-gray-500 text-white font-mono text-sm rounded-lg transition-colors flex items-center justify-center gap-2"
             >
-              Check <span className="text-[10px] bg-green-800/50 px-1.5 py-0.5 rounded opacity-80">⌘ Enter</span>
+              Check{' '}
+              <span className="text-[10px] bg-green-800/50 px-1.5 py-0.5 rounded opacity-80">
+                ⌘ Enter
+              </span>
             </button>
             <button
               onClick={handleReset}
