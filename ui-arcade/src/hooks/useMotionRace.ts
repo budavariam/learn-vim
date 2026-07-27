@@ -54,6 +54,7 @@ export interface MotionRaceConfig {
   challengeStartingLevel: number // minimum command level to include
   challengeRepetition: RepetitionLevel // how many times each command must be completed
   challengeTimeMultiplier: number // time multiplier for challenge timer (1 = default)
+  challengeDrillMode?: boolean // present challenges in sequential order instead of random
   padEmptyLines: boolean // inject a single space into empty lines
   startAtFirstLine: boolean // start at the first valid line
   solidTrails: boolean // trails block movement
@@ -173,6 +174,7 @@ const BLANK: MotionRaceGameState = {
     challengeStartingLevel: 0,
     challengeRepetition: 1 as RepetitionLevel,
     challengeTimeMultiplier: 1,
+    challengeDrillMode: false,
     padEmptyLines: true,
     startAtFirstLine: true,
     solidTrails: true,
@@ -524,6 +526,7 @@ export function useMotionRace(): UseMotionRaceReturn {
   const enemiesRef = useRef<Enemy[]>([])
   const challengeScoreRef = useRef(0)
   const activeChallengeRef = useRef<VimCommandData | null>(null)
+  const challengeDrillIndexRef = useRef(0)
   const enemyScoreRef = useRef(0)
   const enemyTickRefs = useRef<ReturnType<typeof setInterval>[]>([])
 
@@ -861,12 +864,19 @@ export function useMotionRace(): UseMotionRaceReturn {
         c.level >= (config.challengeStartingLevel ?? 0) &&
         (advanceToNext ? c.id !== challenge.id : c.id === challenge.id)
     )
-    const next =
-      advanceToNext && pool.length > 0
-        ? pool[Math.floor(Math.random() * pool.length)]
-        : advanceToNext
-          ? null
-          : challenge // stay on same challenge until rep target met
+
+    let next: VimCommandData | null
+    if (!advanceToNext) {
+      next = challenge // stay on same challenge until rep target met
+    } else if (pool.length === 0) {
+      next = null
+    } else if (config.challengeDrillMode) {
+      const idx = challengeDrillIndexRef.current % pool.length
+      next = pool[idx]
+      challengeDrillIndexRef.current = (idx + 1) % pool.length
+    } else {
+      next = pool[Math.floor(Math.random() * pool.length)]
+    }
 
     activeChallengeRef.current = next
 
@@ -1059,6 +1069,7 @@ export function useMotionRace(): UseMotionRaceReturn {
       enemyScoreRef.current = 0
       challengeScoreRef.current = 0
       challengeCompletionsRef.current = new Map()
+      challengeDrillIndexRef.current = 0
 
       // Pick initial challenge respecting starting level
       const firstChallenge = config.challengeMode
@@ -1068,7 +1079,13 @@ export function useMotionRace(): UseMotionRaceReturn {
                 config.challengeCategories.includes(c.category) &&
                 c.level >= (config.challengeStartingLevel ?? 0)
             )
-            return pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : null
+            if (pool.length === 0) return null
+            if (config.challengeDrillMode) {
+              const first = pool[0]
+              challengeDrillIndexRef.current = 1 % pool.length
+              return first
+            }
+            return pool[Math.floor(Math.random() * pool.length)]
           })()
         : null
       activeChallengeRef.current = firstChallenge

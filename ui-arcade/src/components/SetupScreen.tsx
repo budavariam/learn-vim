@@ -62,6 +62,7 @@ type SetupState = {
   skipUnsupported: boolean
   knowledgeFilter: 'all' | 'known' | 'unknown'
   commandTimeMultiplier: number
+  drillMode: boolean
 }
 
 type SetupAction =
@@ -75,6 +76,7 @@ type SetupAction =
   | { type: 'SET_ASSIST_PCT'; value: number }
   | { type: 'SET_KNOWLEDGE_FILTER'; value: 'all' | 'known' | 'unknown' }
   | { type: 'SET_TIME_MULT'; value: number }
+  | { type: 'SET_DRILL_MODE'; value: boolean }
   | { type: 'TOGGLE_ASSIST' }
   | { type: 'TOGGLE_SKIP_UNSUPPORTED' }
 
@@ -100,6 +102,8 @@ function setupReducer(state: SetupState, action: SetupAction): SetupState {
       return { ...state, knowledgeFilter: action.value }
     case 'SET_TIME_MULT':
       return { ...state, commandTimeMultiplier: action.value }
+    case 'SET_DRILL_MODE':
+      return { ...state, drillMode: action.value }
     case 'TOGGLE_ASSIST':
       return { ...state, assistEnabled: !state.assistEnabled }
     case 'TOGGLE_SKIP_UNSUPPORTED': {
@@ -141,6 +145,7 @@ function makeInitialState(lastConfig: GameConfig | null): SetupState {
     })(),
     knowledgeFilter: (lastConfig?.knowledgeFilter ?? 'all') as 'all' | 'known' | 'unknown',
     commandTimeMultiplier: lastConfig?.commandTimeMultiplier ?? 1,
+    drillMode: lastConfig?.drillMode ?? false,
   }
 }
 
@@ -195,6 +200,7 @@ export function SetupScreen({
       skipUnsupported: s.skipUnsupported,
       knowledgeFilter: s.knowledgeFilter,
       commandTimeMultiplier: s.commandTimeMultiplier,
+      drillMode: s.drillMode,
     }
     onStart(config)
   }
@@ -300,6 +306,8 @@ export function SetupScreen({
           onDynamicAssistPct={v => dispatch({ type: 'SET_ASSIST_PCT', value: v })}
           knowledgeFilter={s.knowledgeFilter}
           onKnowledgeFilter={v => dispatch({ type: 'SET_KNOWLEDGE_FILTER', value: v as any })}
+          drillMode={s.drillMode}
+          onDrillMode={v => dispatch({ type: 'SET_DRILL_MODE', value: v })}
         />
       </CollapseSection>
 

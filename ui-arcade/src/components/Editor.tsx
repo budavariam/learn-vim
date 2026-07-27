@@ -17,6 +17,7 @@ const MONACO_LANGUAGE: Record<Language, string> = {
   typescript: 'typescript',
   c: 'c',
   cpp: 'cpp',
+  lorem: 'plaintext',
 }
 
 const FILE_NAME: Record<Language, string> = {
@@ -26,6 +27,7 @@ const FILE_NAME: Record<Language, string> = {
   typescript: 'utils.ts',
   c: 'utils.c',
   cpp: 'utils.cpp',
+  lorem: 'lorem.txt',
 }
 
 export function Editor({ language, onCommandExecuted, onKeyDisplay, monacoActions }: EditorProps) {

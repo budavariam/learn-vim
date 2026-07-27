@@ -155,6 +155,7 @@ type MotionSetupState = {
   challengeRepetition: RepetitionLevel
   challengeTimeMultiplier: number
   challengeCategories: string[]
+  challengeDrillMode: boolean
   padEmptyLines: boolean
   startAtFirstLine: boolean
   solidTrails: boolean
@@ -191,6 +192,7 @@ const MOTION_SETUP_DEFAULT: MotionSetupState = {
   challengeRepetition: 1,
   challengeTimeMultiplier: 1,
   challengeCategories: MOTION_CHALLENGE_CATEGORIES,
+  challengeDrillMode: false,
   padEmptyLines: true,
   startAtFirstLine: true,
   solidTrails: true,
@@ -257,6 +259,7 @@ function MotionRaceSetup({ onStart, onBack: _onBack }: SetupProps) {
       challengeStartingLevel: s.challengeStartingLevel,
       challengeRepetition: s.challengeRepetition,
       challengeTimeMultiplier: s.challengeTimeMultiplier,
+      challengeDrillMode: s.challengeDrillMode,
       padEmptyLines: s.padEmptyLines,
       startAtFirstLine: s.startAtFirstLine,
       solidTrails: s.solidTrails,
@@ -818,6 +821,8 @@ function MotionRaceSetup({ onStart, onBack: _onBack }: SetupProps) {
                 : [...s.challengeCategories, cat],
             })
           }
+          drillMode={s.challengeDrillMode}
+          onDrillMode={v => set({ challengeDrillMode: v })}
         />
       </ChallengeToggleSection>
     </SetupPageShell>

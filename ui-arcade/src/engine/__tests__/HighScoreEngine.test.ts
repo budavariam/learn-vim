@@ -198,6 +198,7 @@ describe('buildHighScoreEntry', () => {
       levelPct: 60,
       sessionElapsedMs: 90_000,
       pendingVerifications: [],
+      drillIndex: 0,
     }
     return { ...base, ...overrides }
   }

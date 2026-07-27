@@ -9,6 +9,7 @@ import type React from 'react'
 import type { LucideIcon } from 'lucide-react'
 import { Zap, RotateCcw } from 'lucide-react'
 import type { Language, GuidedMode, RepetitionLevel } from '../engine/types'
+import { getCategoryColor } from '../engine/categoryColors'
 
 // ── Shared constants ──────────────────────────────────────────────────────────
 
@@ -49,6 +50,12 @@ export const SETUP_LANGUAGES: { id: Language; label: string; abbr: string; badge
     label: 'C++',
     abbr: 'c++',
     badgeCls: 'text-purple-300 bg-purple-900/50 border border-purple-800',
+  },
+  {
+    id: 'lorem',
+    label: 'Lorem Ipsum',
+    abbr: 'txt',
+    badgeCls: 'text-pink-300   bg-pink-900/50   border border-pink-800',
   },
 ]
 
@@ -430,6 +437,10 @@ export interface UnifiedChallengeOptionsProps {
   selectableCategories?: string[]
   selectedCategories?: string[]
   onToggleCategory?: (cat: string) => void
+
+  // Drill mode: sequential order instead of random
+  drillMode?: boolean
+  onDrillMode?: (v: boolean) => void
 }
 
 function SubLabel({ children }: { children: React.ReactNode }) {
@@ -460,9 +471,34 @@ export function UnifiedChallengeOptions({
   selectableCategories,
   selectedCategories,
   onToggleCategory,
+  drillMode,
+  onDrillMode,
 }: UnifiedChallengeOptionsProps) {
   return (
     <div className="space-y-5 text-xs font-mono">
+      {/* Drill Mode */}
+      {onDrillMode !== undefined && (
+        <div>
+          <SubLabel>Command order</SubLabel>
+          <div className="flex gap-2 flex-wrap">
+            <button
+              type="button"
+              onClick={() => onDrillMode(false)}
+              className={cls.pill(drillMode === false || drillMode === undefined)}
+            >
+              Randomize
+            </button>
+            <button
+              type="button"
+              onClick={() => onDrillMode(true)}
+              className={cls.pill(drillMode === true)}
+            >
+              Drill
+              <span className="text-xs font-normal opacity-60 ml-1">in order</span>
+            </button>
+          </div>
+        </div>
+      )}
       {/* Guided Mode */}
       <div>
         <SubLabel>Solution hints</SubLabel>
@@ -655,6 +691,7 @@ export function UnifiedChallengeOptions({
             {selectableCategories.map(cat => {
               const active = selectedCategories.includes(cat)
               const isLast = active && selectedCategories.length === 1
+              const hsl = getCategoryColor(cat) // e.g. "hsl(28, 70%, 52%)"
               return (
                 <button
                   key={cat}
@@ -663,9 +700,18 @@ export function UnifiedChallengeOptions({
                     if (!isLast) onToggleCategory(cat)
                   }}
                   title={isLast ? 'At least one category required' : undefined}
-                  className={`px-3 py-1.5 rounded border text-xs font-mono transition-colors ${
+                  style={
                     active
-                      ? 'bg-purple-700 border-purple-500 text-white font-bold'
+                      ? {
+                          borderColor: hsl,
+                          color: hsl,
+                          backgroundColor: hsl.replace('52%)', '18%)').replace('70%,', '60%,'),
+                        }
+                      : undefined
+                  }
+                  className={`px-3 py-1.5 rounded border text-xs font-mono transition-colors font-bold ${
+                    active
+                      ? ''
                       : 'bg-gray-800 border-gray-700 text-gray-400 hover:border-gray-500'
                   } ${isLast ? 'opacity-60 cursor-default' : ''}`}
                 >

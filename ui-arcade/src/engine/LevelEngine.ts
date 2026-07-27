@@ -77,6 +77,31 @@ export function shouldShowSolution(
   }
 }
 
+// Sequential drill-mode variant: picks commands in array order, wrapping at the end.
+// Pending verifications still take priority and do not advance the index.
+// Returns the picked command and the next drillIndex.
+export function pickNextCommandDrill(
+  commands: VimCommandData[],
+  activeCommandIds: Set<string>,
+  pendingVerifications: string[],
+  drillIndex: number
+): { cmd: VimCommandData | null; nextDrillIndex: number } {
+  if (pendingVerifications.length > 0) {
+    const verifyId = pendingVerifications[0]
+    const cmd = commands.find(c => c.id === verifyId && !activeCommandIds.has(c.id))
+    if (cmd) return { cmd, nextDrillIndex: drillIndex }
+  }
+  if (commands.length === 0) return { cmd: null, nextDrillIndex: drillIndex }
+  for (let i = 0; i < commands.length; i++) {
+    const idx = (drillIndex + i) % commands.length
+    const cmd = commands[idx]
+    if (!activeCommandIds.has(cmd.id)) {
+      return { cmd, nextDrillIndex: (idx + 1) % commands.length }
+    }
+  }
+  return { cmd: null, nextDrillIndex: drillIndex }
+}
+
 export function pickNextCommand(
   commands: VimCommandData[],
   targetLevel: number,

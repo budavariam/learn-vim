@@ -1,4 +1,47 @@
-export const cFile = `/*
+export const cFileShort = `/*
+ * vec.c - A minimal growable pointer array.
+ */
+#include <stdlib.h>
+#include <stdbool.h>
+
+typedef struct {
+    void  **data;
+    size_t  size;
+    size_t  capacity;
+} Vec;
+
+Vec *vec_new(void) {
+    Vec *v = malloc(sizeof(Vec));
+    if (!v) return NULL;
+    v->data = malloc(8 * sizeof(void *));
+    v->size = 0;
+    v->capacity = 8;
+    return v;
+}
+
+bool vec_push(Vec *v, void *item) {
+    if (v->size == v->capacity) {
+        size_t  cap = v->capacity * 2;
+        void  **d   = realloc(v->data, cap * sizeof(void *));
+        if (!d) return false;
+        v->data     = d;
+        v->capacity = cap;
+    }
+    v->data[v->size++] = item;
+    return true;
+}
+
+void *vec_get(const Vec *v, size_t i) {
+    return i < v->size ? v->data[i] : NULL;
+}
+
+void vec_free(Vec *v) {
+    free(v->data);
+    free(v);
+}
+`
+
+export const cFileMedium = `/*
  * utils.c - General-purpose C utility library.
  */
 
@@ -214,5 +257,164 @@ uint32_t next_power_of_two(uint32_t n) {
     n |= n >> 4;  n |= n >> 8;
     n |= n >> 16;
     return n + 1;
+}
+`
+
+// cFile is an alias for cFileMedium for backwards compatibility.
+export const cFile = cFileMedium
+
+export const cFileLong = `/*
+ * alloc.c - Arena allocator, string builder, and binary search utilities.
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+/* -------------------------------------------------------------------------
+ * Arena allocator — bump-pointer allocator; free everything at once.
+ * ---------------------------------------------------------------------- */
+
+typedef struct {
+    uint8_t *buf;
+    size_t   pos;
+    size_t   cap;
+} Arena;
+
+Arena *arena_new(size_t cap) {
+    Arena *a = malloc(sizeof(Arena));
+    if (!a) return NULL;
+    a->buf = malloc(cap);
+    a->pos = 0;
+    a->cap = cap;
+    return a;
+}
+
+void *arena_alloc(Arena *a, size_t size) {
+    size = (size + 7) & ~(size_t)7;   /* align to 8 bytes */
+    if (a->pos + size > a->cap) return NULL;
+    void *p = a->buf + a->pos;
+    a->pos += size;
+    return p;
+}
+
+void arena_reset(Arena *a) { a->pos = 0; }
+
+void arena_free(Arena *a) {
+    free(a->buf);
+    free(a);
+}
+
+/* -------------------------------------------------------------------------
+ * String builder — growable byte buffer with a null terminator.
+ * ---------------------------------------------------------------------- */
+
+typedef struct {
+    char  *buf;
+    size_t len;
+    size_t cap;
+} StrBuf;
+
+StrBuf *strbuf_new(void) {
+    StrBuf *sb = malloc(sizeof(StrBuf));
+    if (!sb) return NULL;
+    sb->buf    = malloc(64);
+    sb->len    = 0;
+    sb->cap    = 64;
+    sb->buf[0] = '\\0';
+    return sb;
+}
+
+static bool strbuf_grow(StrBuf *sb, size_t need) {
+    if (sb->len + need < sb->cap) return true;
+    size_t new_cap = sb->cap * 2;
+    while (new_cap < sb->len + need + 1) new_cap *= 2;
+    char *nb = realloc(sb->buf, new_cap);
+    if (!nb) return false;
+    sb->buf = nb;
+    sb->cap = new_cap;
+    return true;
+}
+
+bool strbuf_append(StrBuf *sb, const char *s) {
+    size_t n = strlen(s);
+    if (!strbuf_grow(sb, n)) return false;
+    memcpy(sb->buf + sb->len, s, n + 1);
+    sb->len += n;
+    return true;
+}
+
+bool strbuf_append_char(StrBuf *sb, char c) {
+    if (!strbuf_grow(sb, 1)) return false;
+    sb->buf[sb->len++] = c;
+    sb->buf[sb->len]   = '\\0';
+    return true;
+}
+
+const char *strbuf_str(const StrBuf *sb) { return sb->buf; }
+size_t      strbuf_len(const StrBuf *sb) { return sb->len; }
+
+void strbuf_reset(StrBuf *sb) {
+    sb->len    = 0;
+    sb->buf[0] = '\\0';
+}
+
+void strbuf_free(StrBuf *sb) {
+    free(sb->buf);
+    free(sb);
+}
+
+/* -------------------------------------------------------------------------
+ * Binary search helpers (operate on sorted int arrays).
+ * ---------------------------------------------------------------------- */
+
+/* Return the leftmost index where target could be inserted to keep order. */
+int bisect_left(const int *arr, int n, int target) {
+    int lo = 0, hi = n;
+    while (lo < hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (arr[mid] < target) lo = mid + 1;
+        else                   hi = mid;
+    }
+    return lo;
+}
+
+/* Return the rightmost index where target could be inserted to keep order. */
+int bisect_right(const int *arr, int n, int target) {
+    int lo = 0, hi = n;
+    while (lo < hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (arr[mid] <= target) lo = mid + 1;
+        else                    hi = mid;
+    }
+    return lo;
+}
+
+/* Reverse n bytes in-place. */
+void reverse_bytes(uint8_t *buf, size_t n) {
+    for (size_t i = 0, j = n - 1; i < j; ++i, --j) {
+        uint8_t tmp = buf[i];
+        buf[i] = buf[j];
+        buf[j] = tmp;
+    }
+}
+
+/* Count Unicode scalar values (not bytes) in a UTF-8 string. */
+size_t count_utf8_chars(const char *s) {
+    size_t n = 0;
+    while (*s) {
+        if ((*s & 0xC0) != 0x80) ++n;
+        ++s;
+    }
+    return n;
+}
+
+/* Return a non-negative hash of a null-terminated string (FNV-1a). */
+uint32_t str_hash32(const char *s) {
+    uint32_t h = 2166136261u;
+    for (; *s; ++s) h = (h ^ (uint8_t)*s) * 16777619u;
+    return h;
 }
 `

@@ -1,28 +1,22 @@
 import { useRef, useEffect } from 'react'
+import type React from 'react'
 import type { ActiveChallenge } from '../engine/types'
 import { CountdownRing } from './CountdownRing'
+import { getCategoryColor as getCategoryHsl } from '../engine/categoryColors'
 
 interface ChallengePanelProps {
   challenges: ActiveChallenge[]
   onMarkUnsupported: (commandId: string) => void
 }
 
-const CATEGORY_COLORS: Record<string, string> = {
-  Motion: 'bg-blue-900   text-blue-300',
-  Edit: 'bg-green-900  text-green-300',
-  Search: 'bg-yellow-900 text-yellow-300',
-  Visual: 'bg-purple-900 text-purple-300',
-  Window: 'bg-red-900    text-red-300',
-  Insert: 'bg-cyan-900   text-cyan-300',
-  Delete: 'bg-orange-900 text-orange-300',
-  Yank: 'bg-teal-900   text-teal-300',
-}
-
-function getCategoryColor(category: string): string {
-  for (const [key, val] of Object.entries(CATEGORY_COLORS)) {
-    if (category.toLowerCase().includes(key.toLowerCase())) return val
+// Returns inline style props for a category badge using the shared HSL palette.
+function categoryBadgeStyle(category: string): React.CSSProperties {
+  const hsl = getCategoryHsl(category)
+  return {
+    color: hsl,
+    backgroundColor: hsl.replace('52%)', '14%)').replace('70%,', '55%,'),
+    borderColor: hsl.replace('52%)', '35%)'),
   }
-  return 'bg-gray-700 text-gray-300'
 }
 
 export function ChallengePanel({ challenges, onMarkUnsupported }: ChallengePanelProps) {
@@ -86,7 +80,10 @@ function ChallengeCard({
       <div className="flex-1 min-w-0">
         {/* Category + level + badges */}
         <div className="flex items-center gap-1.5 flex-wrap mb-1">
-          <span className={`text-xs px-2 py-0.5 rounded font-mono ${getCategoryColor(c.category)}`}>
+          <span
+            className="text-xs px-2 py-0.5 rounded font-mono border"
+            style={categoryBadgeStyle(c.category)}
+          >
             {c.category}
           </span>
           <span className="text-xs text-gray-500 font-mono">Lv{c.level}</span>

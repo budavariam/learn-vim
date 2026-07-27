@@ -20,6 +20,7 @@ export const STORAGE_KEYS = {
   VIMGOLF_SCORES: 'vimarcade_vimgolf_scores',
   /** Personal-best keystrokes per VimGolf challenge — lightweight map for filtering/sorting. */
   VIMGOLF_RECORDS: 'vimarcade_vimgolf_records',
+  LAST_QVIMX_CONFIG: 'vimarcade_last_qvimx_config',
 } as const
 
 // ── One-time migration from legacy key names ──────────────────────────────────

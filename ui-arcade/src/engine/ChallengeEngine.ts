@@ -24,6 +24,7 @@ import {
   getLevelCompletion,
   shouldShowSolution,
   pickNextCommand,
+  pickNextCommandDrill,
 } from './LevelEngine'
 
 function makeNotification(
@@ -87,6 +88,7 @@ export function initGameState(config: GameConfig, commands: VimCommandData[]): G
     levelPct: 0,
     sessionElapsedMs: 0,
     pendingVerifications: [],
+    drillIndex: 0,
   }
 }
 
@@ -353,24 +355,33 @@ export function tick(state: GameState, commands: VimCommandData[], now: number):
 
   if (slotsToFill > 0 && commands.length > 0) {
     let newPending = [...state.pendingVerifications]
+    let newDrillIndex = state.drillIndex
 
     for (let i = 0; i < slotsToFill; i++) {
-      const wi = warmupRemaining - i
-      const targetLevel = pickChallengeLevel(newCeiling, wi)
       const allActiveIds = new Set([
         ...activeSlots.map(c => c.commandId),
         ...addedChallenges.map(c => c.commandId),
       ])
 
+      let cmd: ReturnType<typeof pickNextCommand>
       const isVerification = newPending.length > 0
-      const cmd = pickNextCommand(
-        commands,
-        targetLevel,
-        allActiveIds,
-        newLevelProgress,
-        state.config.repetitionTarget,
-        newPending
-      )
+
+      if (state.config.drillMode) {
+        const result = pickNextCommandDrill(commands, allActiveIds, newPending, newDrillIndex)
+        cmd = result.cmd
+        if (cmd && !isVerification) newDrillIndex = result.nextDrillIndex
+      } else {
+        const wi = warmupRemaining - i
+        const targetLevel = pickChallengeLevel(newCeiling, wi)
+        cmd = pickNextCommand(
+          commands,
+          targetLevel,
+          allActiveIds,
+          newLevelProgress,
+          state.config.repetitionTarget,
+          newPending
+        )
+      }
 
       if (cmd) {
         if (isVerification && newPending[0] === cmd.id) {
@@ -401,7 +412,7 @@ export function tick(state: GameState, commands: VimCommandData[], now: number):
 
     // Fix (Bug #2): was copying state.pendingVerifications instead of newPending,
     // so the dequeued verification IDs were never removed from state.
-    state = { ...state, pendingVerifications: newPending }
+    state = { ...state, pendingVerifications: newPending, drillIndex: newDrillIndex }
   }
 
   const levelPct =

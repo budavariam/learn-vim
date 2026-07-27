@@ -14,6 +14,7 @@ import { useGoalGame } from './hooks/useGoalGame'
 import { DevModeScreen } from './components/DevModeScreen'
 import { ModeSelectScreen } from './components/ModeSelectScreen'
 import { MotionRaceWrapper } from './components/MotionRaceGame'
+import { QvimxWrapper } from './components/QvimxGame'
 import { Navbar } from './components/Navbar'
 import { PreferencesScreen } from './components/PreferencesScreen'
 import { AppReadmeScreen } from './components/AppReadmeScreen'
@@ -149,6 +150,7 @@ function App() {
                 onSelectVimGolf={() => navigate('/vimgolf')}
                 onSelectGoal={() => navigate('/goal')}
                 onSelectMotionRace={() => navigate('/motion-race')}
+                onSelectQvimx={() => navigate('/qvimx')}
               />
             }
           />
@@ -235,6 +237,7 @@ function App() {
           <Route path="/vimgolf/:challengeId" element={<VimGolfGameRoute />} />
           <Route path="/goal" element={<GoalModeWrapper onBack={() => navigate('/')} />} />
           <Route path="/motion-race" element={<MotionRaceWrapper onBack={() => navigate('/')} />} />
+          <Route path="/qvimx" element={<QvimxWrapper onBack={() => navigate('/')} />} />
           <Route path="/dev" element={<DevModeScreen onBack={() => navigate('/')} />} />
           <Route path="/dev/readme" element={<AppReadmeScreen />} />
           <Route path="/preferences" element={<PreferencesScreen />} />

@@ -33,6 +33,15 @@ export interface UseMonacoEditorOptions {
   onKeyDisplay?: (event: KeyDisplayEvent) => void
   /** Called once after Monaco + vim mode finish initialising. */
   onReady?: () => void
+  /**
+   * Called once inside the Monaco init() function, right after the editor
+   * instance and its built-in decoration collections are created but before
+   * vim mode starts. Consumers can use this to create additional decoration
+   * collections or store a reference to the editor/monaco instances.
+   * eslint-disable-next-line @typescript-eslint/no-explicit-any
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onEditorCreated?: (monaco: any, editor: any) => void
   onCursorChange?: (position: { lineNumber: number; column: number }) => void
   /** Called whenever the editor content changes (after each model edit). */
   onContentChange?: (content: string) => void
@@ -49,6 +58,13 @@ export interface UseMonacoEditorOptions {
   targetEditorRef?: React.RefObject<HTMLDivElement>
   /** Extra actions registered into Monaco's command palette (F1). */
   monacoActions?: MonacoAction[]
+  /**
+   * When true the Monaco editor is created with readOnly:true — cursor
+   * movement and search work normally; text-editing commands have no effect.
+   * Use this instead of manually blocking keydown events (which would also
+   * suppress Monaco's own vim-mode key handling).
+   */
+  readOnly?: boolean
 }
 
 export interface TrailEntry {
@@ -85,6 +101,12 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
   useEffect(() => {
     onCommandRef.current = options.onCommandExecuted
   }, [options.onCommandExecuted])
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onEditorCreatedRef = useRef(options.onEditorCreated)
+  useEffect(() => {
+    onEditorCreatedRef.current = options.onEditorCreated
+  }, [options.onEditorCreated])
 
   const onAnyKeyRef = useRef(options.onAnyKey)
   useEffect(() => {
@@ -317,6 +339,7 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
           wordWrap: 'off',
           inlineSuggest: { enabled: false },
           renderWhitespace: 'all',
+          readOnly: options.readOnly ?? false,
         })
         editorInstanceRef.current = editor
 
@@ -421,6 +444,8 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
         targetHighlightColRef.current = editor.createDecorationsCollection([])
         trailDecColRef.current = editor.createDecorationsCollection([])
         goalDecColRef.current = editor.createDecorationsCollection([])
+
+        onEditorCreatedRef.current?.(monaco, editor)
 
         const cursorListener = editor.onDidChangeCursorPosition(e => {
           onCursorChangeRef.current?.(e.position)

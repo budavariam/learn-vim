@@ -1,4 +1,39 @@
-export const typescriptFile = `/**
+export const typescriptFileShort = `/**
+ * stack.ts - A generic LIFO stack.
+ */
+
+export class Stack<T> {
+  private items: T[] = []
+
+  push(item: T): void {
+    this.items.push(item)
+  }
+
+  pop(): T {
+    if (this.items.length === 0) throw new Error('Stack is empty')
+    return this.items.pop()!
+  }
+
+  peek(): T {
+    if (this.items.length === 0) throw new Error('Stack is empty')
+    return this.items[this.items.length - 1]
+  }
+
+  get size(): number {
+    return this.items.length
+  }
+
+  isEmpty(): boolean {
+    return this.items.length === 0
+  }
+
+  clear(): void {
+    this.items = []
+  }
+}
+`
+
+export const typescriptFileMedium = `/**
  * utils.ts - General-purpose TypeScript utilities.
  */
 
@@ -219,5 +254,147 @@ export function formatBytes(bytes: number, decimals = 2): string {
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals)) + ' ' + sizes[i]
+}
+`
+
+// typescriptFile is an alias for typescriptFileMedium for backwards compatibility.
+export const typescriptFile = typescriptFileMedium
+
+export const typescriptFileLong = `/**
+ * extras.ts - Extended TypeScript utilities: events, deep merge, and validation.
+ */
+
+// ---------------------------------------------------------------------------
+// EventEmitter
+// ---------------------------------------------------------------------------
+
+type Listener<T> = (payload: T) => void
+
+export class EventEmitter<Events extends Record<string, unknown>> {
+  private listeners = new Map<keyof Events, Set<Listener<unknown>>>()
+
+  on<K extends keyof Events>(event: K, listener: Listener<Events[K]>): () => void {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set())
+    }
+    this.listeners.get(event)!.add(listener as Listener<unknown>)
+    return () => this.off(event, listener)
+  }
+
+  off<K extends keyof Events>(event: K, listener: Listener<Events[K]>): void {
+    this.listeners.get(event)?.delete(listener as Listener<unknown>)
+  }
+
+  emit<K extends keyof Events>(event: K, payload: Events[K]): void {
+    this.listeners.get(event)?.forEach(fn => fn(payload))
+  }
+
+  once<K extends keyof Events>(event: K, listener: Listener<Events[K]>): void {
+    const wrapped: Listener<Events[K]> = payload => {
+      listener(payload)
+      this.off(event, wrapped)
+    }
+    this.on(event, wrapped)
+  }
+
+  listenerCount<K extends keyof Events>(event: K): number {
+    return this.listeners.get(event)?.size ?? 0
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Deep merge
+// ---------------------------------------------------------------------------
+
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null && !Array.isArray(v)
+}
+
+export function deepMerge(
+  base: Record<string, unknown>,
+  ...overrides: Record<string, unknown>[]
+): Record<string, unknown> {
+  const result = { ...base }
+  for (const override of overrides) {
+    for (const key of Object.keys(override)) {
+      const bv = result[key]
+      const ov = override[key]
+      if (isPlainObject(bv) && isPlainObject(ov)) {
+        result[key] = deepMerge(bv, ov)
+      } else if (ov !== undefined) {
+        result[key] = ov
+      }
+    }
+  }
+  return result
+}
+
+// ---------------------------------------------------------------------------
+// Validation helpers
+// ---------------------------------------------------------------------------
+
+export type ValidationResult = { valid: true } | { valid: false; errors: string[] }
+
+export type Validator<T> = (value: T) => ValidationResult
+
+export function required<T>(value: T | null | undefined): ValidationResult {
+  if (value === null || value === undefined) {
+    return { valid: false, errors: ['Value is required'] }
+  }
+  if (typeof value === 'string' && value.length === 0) {
+    return { valid: false, errors: ['Value is required'] }
+  }
+  return { valid: true }
+}
+
+export function minLength(min: number): Validator<string> {
+  return value => value.length >= min
+    ? { valid: true }
+    : { valid: false, errors: ['Must be at least ' + min + ' characters'] }
+}
+
+export function maxLength(max: number): Validator<string> {
+  return value => value.length <= max
+    ? { valid: true }
+    : { valid: false, errors: ['Must be at most ' + max + ' characters'] }
+}
+
+export function pattern(re: RegExp, message: string): Validator<string> {
+  return value => re.test(value)
+    ? { valid: true }
+    : { valid: false, errors: [message] }
+}
+
+export function combine<T>(...validators: Validator<T>[]): Validator<T> {
+  return value => {
+    const errors: string[] = []
+    for (const v of validators) {
+      const r = v(value)
+      if (!r.valid) errors.push(...r.errors)
+    }
+    return errors.length === 0 ? { valid: true } : { valid: false, errors }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Pipe and memoize
+// ---------------------------------------------------------------------------
+
+export function pipe<T>(value: T, ...fns: Array<(v: T) => T>): T {
+  return fns.reduce((v, fn) => fn(v), value)
+}
+
+export function memoize<T extends unknown[], R>(
+  fn: (...args: T) => R,
+  keyFn: (...args: T) => string = (...args) => JSON.stringify(args)
+): (...args: T) => R {
+  const cache = new Map<string, R>()
+  return (...args: T): R => {
+    const key = keyFn(...args)
+    if (cache.has(key)) return cache.get(key)!
+    const result = fn(...args)
+    cache.set(key, result)
+    return result
+  }
 }
 `

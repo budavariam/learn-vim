@@ -1,4 +1,40 @@
-export const cppFile = `/**
+export const cppFileShort = `/**
+ * result.hpp - Lightweight error-or-value type.
+ */
+#pragma once
+#include <optional>
+#include <stdexcept>
+#include <string>
+
+namespace utils {
+
+template <typename T, typename E = std::string>
+class Result {
+public:
+    static Result Ok(T v)  { return Result(std::move(v), std::nullopt); }
+    static Result Err(E e) { return Result(std::nullopt, std::move(e)); }
+
+    bool      ok()    const { return val_.has_value(); }
+    bool      err()   const { return !ok(); }
+    const T&  value() const { return val_.value(); }
+    const E&  error() const { return err_.value(); }
+
+    T unwrap() {
+        if (!ok()) throw std::runtime_error("called unwrap on Err result");
+        return std::move(*val_);
+    }
+
+private:
+    Result(std::optional<T> v, std::optional<E> e)
+        : val_(std::move(v)), err_(std::move(e)) {}
+    std::optional<T> val_;
+    std::optional<E> err_;
+};
+
+} // namespace utils
+`
+
+export const cppFileMedium = `/**
  * utils.cpp - General-purpose C++ utility library.
  */
 
@@ -184,6 +220,158 @@ struct Defer {
 };
 template <typename F>
 Defer<F> defer(F f) { return Defer<F>(std::move(f)); }
+
+} // namespace utils
+`
+
+// cppFile is an alias for cppFileMedium for backwards compatibility.
+export const cppFile = cppFileMedium
+
+export const cppFileLong = `/**
+ * concurrency.cpp - Thread pool, observable values, and scope guards.
+ */
+
+#include <condition_variable>
+#include <functional>
+#include <future>
+#include <mutex>
+#include <queue>
+#include <stdexcept>
+#include <string>
+#include <thread>
+#include <unordered_map>
+#include <vector>
+
+namespace utils {
+
+// ---------------------------------------------------------------------------
+// ThreadPool — submit tasks and receive std::future results
+// ---------------------------------------------------------------------------
+
+class ThreadPool {
+public:
+    explicit ThreadPool(size_t threads) : stop_(false) {
+        for (size_t i = 0; i < threads; ++i) {
+            workers_.emplace_back([this] {
+                for (;;) {
+                    std::function<void()> task;
+                    {
+                        std::unique_lock<std::mutex> lock(mutex_);
+                        cv_.wait(lock, [this] { return stop_ || !tasks_.empty(); });
+                        if (stop_ && tasks_.empty()) return;
+                        task = std::move(tasks_.front());
+                        tasks_.pop();
+                    }
+                    task();
+                }
+            });
+        }
+    }
+
+    template <typename F, typename... Args>
+    auto submit(F&& f, Args&&... args)
+        -> std::future<typename std::invoke_result<F, Args...>::type>
+    {
+        using R = typename std::invoke_result<F, Args...>::type;
+        auto bound = std::bind(std::forward<F>(f), std::forward<Args>(args)...);
+        auto task  = std::make_shared<std::packaged_task<R()>>(std::move(bound));
+        std::future<R> fut = task->get_future();
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            if (stop_) throw std::runtime_error("ThreadPool is stopped");
+            tasks_.emplace([task] { (*task)(); });
+        }
+        cv_.notify_one();
+        return fut;
+    }
+
+    size_t pending() const {
+        std::lock_guard<std::mutex> lock(mutex_);
+        return tasks_.size();
+    }
+
+    ~ThreadPool() {
+        {
+            std::lock_guard<std::mutex> lock(mutex_);
+            stop_ = true;
+        }
+        cv_.notify_all();
+        for (auto& w : workers_) w.join();
+    }
+
+    ThreadPool(const ThreadPool&) = delete;
+    ThreadPool& operator=(const ThreadPool&) = delete;
+
+private:
+    std::vector<std::thread>          workers_;
+    std::queue<std::function<void()>> tasks_;
+    mutable std::mutex                mutex_;
+    std::condition_variable           cv_;
+    bool                              stop_;
+};
+
+// ---------------------------------------------------------------------------
+// Observable<T> — a value that notifies subscribers on change
+// ---------------------------------------------------------------------------
+
+template <typename T>
+class Observable {
+public:
+    using Callback = std::function<void(const T&)>;
+
+    explicit Observable(T initial) : value_(std::move(initial)) {}
+
+    const T& get() const { return value_; }
+
+    void set(T value) {
+        value_ = std::move(value);
+        for (auto& [id, cb] : subscribers_) {
+            cb(value_);
+        }
+    }
+
+    size_t subscribe(Callback cb) {
+        size_t id = next_id_++;
+        subscribers_.emplace(id, std::move(cb));
+        return id;
+    }
+
+    void unsubscribe(size_t id) {
+        subscribers_.erase(id);
+    }
+
+    size_t subscriber_count() const { return subscribers_.size(); }
+
+private:
+    T                                    value_;
+    std::unordered_map<size_t, Callback> subscribers_;
+    size_t                               next_id_ = 0;
+};
+
+// ---------------------------------------------------------------------------
+// ScopeGuard — run a cleanup function on scope exit (dismissable)
+// ---------------------------------------------------------------------------
+
+template <typename F>
+class ScopeGuard {
+public:
+    explicit ScopeGuard(F fn) : fn_(std::move(fn)), active_(true) {}
+    ~ScopeGuard() { if (active_) fn_(); }
+    void dismiss() noexcept { active_ = false; }
+
+    ScopeGuard(const ScopeGuard&) = delete;
+    ScopeGuard& operator=(const ScopeGuard&) = delete;
+    ScopeGuard(ScopeGuard&&) = default;
+
+private:
+    F    fn_;
+    bool active_;
+};
+
+template <typename F>
+ScopeGuard<F> make_scope_guard(F f) {
+    return ScopeGuard<F>(std::move(f));
+}
 
 } // namespace utils
 `

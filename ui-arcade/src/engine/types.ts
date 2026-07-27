@@ -1,4 +1,4 @@
-export type Language = 'go' | 'rust' | 'python' | 'typescript' | 'c' | 'cpp'
+export type Language = 'go' | 'rust' | 'python' | 'typescript' | 'c' | 'cpp' | 'lorem'
 
 export type GameMode = 'general' | 'timed_challenge' | 'survival'
 
@@ -47,6 +47,8 @@ export interface GameConfig {
   // Which knowledge state to practise: 'unknown' = items not yet marked known,
   // 'known' = review only, 'all' = no filter.
   knowledgeFilter: 'all' | 'known' | 'unknown'
+  // Drill mode: present commands one-by-one in sequential order, no randomisation.
+  drillMode?: boolean
 }
 
 // Shape coming from data.json (generated from vim-cheatsheet.md)
@@ -119,6 +121,8 @@ export interface GameState {
   sessionElapsedMs: number
   // pending verification challenges (commandIds that need a blind follow-up)
   pendingVerifications: string[]
+  // Sequential drill index — only used when config.drillMode is true
+  drillIndex: number
 }
 
 export type NotificationType =

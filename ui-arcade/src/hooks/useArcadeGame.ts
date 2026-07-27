@@ -138,6 +138,7 @@ function makeSetupState(): GameState {
     levelPct: 0,
     sessionElapsedMs: 0,
     pendingVerifications: [],
+    drillIndex: 0,
   }
 }
 
