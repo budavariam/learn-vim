@@ -1,5 +1,29 @@
 export type Language = 'go' | 'rust' | 'python' | 'typescript' | 'c' | 'cpp' | 'lorem'
 
+// ── Shared challenge config ───────────────────────────────────────────────────
+// All game modes that support an inline challenge panel embed this interface.
+// Defaults are exported so each mode can reference a single source of truth.
+
+export interface ChallengeConfig {
+  challengeMode: boolean
+  challengeGuidedMode: GuidedMode
+  challengeStartingLevel: number
+  challengeRepetition: RepetitionLevel
+  challengeTimeMultiplier: number
+  challengeCategories: string[]
+  challengeDrillMode: boolean
+}
+
+export const CHALLENGE_CONFIG_DEFAULTS: ChallengeConfig = {
+  challengeMode: false,
+  challengeGuidedMode: 'none',
+  challengeStartingLevel: 0,
+  challengeRepetition: 1,
+  challengeTimeMultiplier: 1,
+  challengeCategories: [], // each mode supplies its own category list default
+  challengeDrillMode: false,
+}
+
 export type GameMode = 'general' | 'timed_challenge' | 'survival'
 
 export type TimedChallengeDuration = 1 | 2 | 5 | 10 | 15

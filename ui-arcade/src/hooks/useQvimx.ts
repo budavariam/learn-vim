@@ -1,7 +1,7 @@
 import { useReducer, useEffect, useRef, useCallback } from 'react'
 import { useMonacoEditor } from './useMonacoEditor'
 import { getSizedFile } from '../files'
-import type { Language, VimCommandData, GuidedMode, RepetitionLevel } from '../engine/types'
+import type { Language, VimCommandData, ChallengeConfig } from '../engine/types'
 import {
   buildBorderedContent,
   allBorderCells,
@@ -34,7 +34,7 @@ export type QvimxSubMode = 'classic' | 'championship' | 'ball-escalation' | 'com
 
 export type { QvimxBorderShape, QvimxCodeSize, Pos, BoardDimensions }
 
-export interface QvimxConfig {
+export interface QvimxConfig extends ChallengeConfig {
   language: Language
   codeSize: QvimxCodeSize
   borderShape: QvimxBorderShape
@@ -45,13 +45,6 @@ export interface QvimxConfig {
   lives: 1 | 3 | 5
   timerMs: number
   diagonalMode: boolean
-  challengeMode: boolean
-  challengeGuidedMode: GuidedMode
-  challengeStartingLevel: number
-  challengeRepetition: RepetitionLevel
-  challengeTimeMultiplier: number
-  challengeCategories: string[]
-  challengeDrillMode?: boolean
   bombCount: 0 | 1 | 2 | 3
 }
 

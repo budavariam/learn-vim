@@ -2,7 +2,7 @@ import { useReducer, useEffect, useRef, useCallback } from 'react'
 import { useMonacoEditor } from './useMonacoEditor'
 import type { TrailEntry } from './useMonacoEditor'
 import { getFile } from '../files'
-import type { Language, VimCommandData, GuidedMode, RepetitionLevel } from '../engine/types'
+import type { Language, VimCommandData, ChallengeConfig } from '../engine/types'
 import { normaliseVimKey } from '../engine/vimKeyUtils'
 import rawData from '../data.json'
 import { loadHighScores, saveHighScores, addMotionRaceHighScore } from '../engine/HighScoreEngine'
@@ -25,7 +25,7 @@ export type GoalDisplayMode = 'next' | 'all'
 export type EndGoalType = 'user_count' | 'total_count' | 'timed' | 'survival'
 export type EnemySpeed = 'slow' | 'medium' | 'fast' | 'mixed'
 
-export interface MotionRaceConfig {
+export interface MotionRaceConfig extends ChallengeConfig {
   language: Language
   endGoal: EndGoalType
   targetCount: number // for user_count mode
@@ -48,13 +48,6 @@ export interface MotionRaceConfig {
   fogOfWar: boolean // hide enemy cursors and trails in the editor (still visible in minimap)
   enemyMultiColor: boolean // give each enemy a distinct color; false = all enemies share palette 0
   showMinimap: boolean // minimap sidebar showing enemies and goals
-  challengeMode: boolean // show motion/search challenges alongside navigation
-  challengeCategories: string[] // which command categories to pull challenges from
-  challengeGuidedMode: GuidedMode // when to show solution hints
-  challengeStartingLevel: number // minimum command level to include
-  challengeRepetition: RepetitionLevel // how many times each command must be completed
-  challengeTimeMultiplier: number // time multiplier for challenge timer (1 = default)
-  challengeDrillMode?: boolean // present challenges in sequential order instead of random
   padEmptyLines: boolean // inject a single space into empty lines
   startAtFirstLine: boolean // start at the first valid line
   solidTrails: boolean // trails block movement
@@ -170,9 +163,9 @@ const BLANK: MotionRaceGameState = {
     showMinimap: true,
     challengeMode: false,
     challengeCategories: MOTION_CHALLENGE_CATEGORIES,
-    challengeGuidedMode: 'none' as GuidedMode,
+    challengeGuidedMode: 'none',
     challengeStartingLevel: 0,
-    challengeRepetition: 1 as RepetitionLevel,
+    challengeRepetition: 1,
     challengeTimeMultiplier: 1,
     challengeDrillMode: false,
     padEmptyLines: true,
