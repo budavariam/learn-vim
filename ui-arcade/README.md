@@ -53,6 +53,52 @@ Transform text from a start state to a target state. Challenges come from 1,000+
 - Challenges are drawn from the bundled org-file submodule and shuffled each session
 - Difficulty auto-assigned by edit-distance percentile (bottom 33% easy, 33-75% medium, top 25% hard)
 
+### 🤖 VimBots
+
+Inspired by the classic Unix `robots` game — survive waves of robots using only vim cursor movement.
+
+**How to play:** Move your cursor with standard vim motion keys (`h`, `j`, `k`, `l`, `w`, `b`, `e`, `gg`, `G`, `0`, `$`, etc.). No editing commands are used — only navigation.
+
+**Game mechanics:**
+- After each move you make, every robot advances one step toward your cursor.
+- When two or more robots collide (with each other or with existing fire), they explode into fire.
+- Fire tiles are permanent — robots that walk into fire are destroyed.
+- If a robot reaches your cursor, the game ends.
+- Clear all robots to advance to the next level.
+
+**Special actions:**
+
+| Action          | Description                                         | Limit        |
+| --------------- | --------------------------------------------------- | ------------ |
+| Random teleport | Jump to a random free cell (may land near a robot)  | Limited uses |
+| Safe teleport   | Jump to a cell guaranteed to be safe                | More limited |
+
+**Difficulty levels** (percentage of grid cells initially filled with robots):
+
+| Level    | Robot density |
+| -------- | ------------- |
+| Beginner | 5%            |
+| Easy     | 10%           |
+| Medium   | 20%           |
+| Hard     | 40%           |
+| Expert   | 70%           |
+
+**Grid sizes:** Small 20×20 · Medium 40×40 · Large 60×60
+
+**Scoring:**
+
+| Event                  | Points                  |
+| ---------------------- | ----------------------- |
+| Robot collision        | 10 pts per robot        |
+| Level clear bonus      | level × 100 pts         |
+| Safe teleport bonus    | bonus pts per safe jump |
+
+**Tips:**
+- Lure robots into each other rather than avoiding them — collisions are how you score.
+- Position yourself so robots funnel through fire you have already created.
+- Save safe teleports for desperate situations; random teleports are risky but plentiful.
+- On higher difficulties, chain collisions by drawing robots across existing fire fields.
+
 ### ⛳ VimGolf
 
 Transform text using the fewest keystrokes possible.

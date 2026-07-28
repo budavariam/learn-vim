@@ -5,6 +5,7 @@ import type {
   GameMode,
   MotionRaceHighScoreEntry,
   GoalModeHighScoreEntry,
+  VimBotsHighScoreEntry,
 } from './types'
 import { loadUsername } from './UserPrefs'
 import { STORAGE_KEYS } from './storageKeys'
@@ -20,6 +21,7 @@ export function emptyHighScores(): HighScores {
     motionrace_survival: [],
     motionrace_total_goals: [],
     goal: [],
+    vimbots: [],
   }
 }
 
@@ -36,6 +38,7 @@ export function loadHighScores(): HighScores {
       motionrace_survival: parsed.motionrace_survival ?? [],
       motionrace_total_goals: parsed.motionrace_total_goals ?? [],
       goal: parsed.goal ?? [],
+      vimbots: parsed.vimbots ?? [],
     }
   } catch {
     return emptyHighScores()
@@ -118,4 +121,10 @@ export function addGoalModeHighScore(
   const list = [...(scores.goal ?? []), entry]
   list.sort((a, b) => b.totalPoints - a.totalPoints)
   return { ...scores, goal: list.slice(0, MAX_PER_MODE) }
+}
+
+export function addVimBotsHighScore(scores: HighScores, entry: VimBotsHighScoreEntry): HighScores {
+  const list = [...(scores.vimbots ?? []), entry]
+  list.sort((a, b) => b.totalScore - a.totalScore || b.levelsCleared - a.levelsCleared)
+  return { ...scores, vimbots: list.slice(0, 10) }
 }

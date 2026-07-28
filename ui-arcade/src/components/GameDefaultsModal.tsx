@@ -6,7 +6,7 @@
  * read on load, so the next launch shows the user's chosen starting point.
  */
 import { useReducer, useState } from 'react'
-import type React from 'react'
+import React from 'react'
 import {
   X,
   Globe,
@@ -33,6 +33,7 @@ import type {
   GoalModeConfig,
   GoalTimeLimitMs,
 } from '../engine/types'
+import { CHALLENGE_CONFIG_DEFAULTS } from '../engine/types'
 import type {
   MotionRaceConfig,
   EndGoalType,
@@ -49,6 +50,7 @@ import type {
   QvimxCodeSize,
 } from '../hooks/useQvimx'
 import { STORAGE_KEYS } from '../engine/storageKeys'
+import type { VimBotsConfig, VimBoardPreset, VimBotsDifficulty } from '../engine/VimBotsEngine'
 import {
   LanguageGrid,
   CollapseSection,
@@ -56,11 +58,12 @@ import {
   UnifiedChallengeOptions,
   cls,
   TIME_MULTIPLIER_OPTIONS,
+  patchReducer,
 } from './SetupPrimitives'
 
 // ── Public type ───────────────────────────────────────────────────────────────
 
-export type ModalMode = 'arcade' | 'goal' | 'motion' | 'qvimx'
+export type ModalMode = 'arcade' | 'goal' | 'motion' | 'qvimx' | 'vimbots'
 
 // ── Validation helpers ────────────────────────────────────────────────────────
 
@@ -125,6 +128,7 @@ function pickTrailMultiplier(
 }
 
 const VALID_LANGUAGES: Language[] = ['go', 'rust', 'python', 'typescript', 'c', 'cpp', 'lorem']
+const VALID_GAME_MODES: GameMode[] = ['general', 'timed_challenge', 'survival']
 const VALID_GUIDED_MODES: GuidedMode[] = [
   'none',
   'all',
@@ -135,6 +139,44 @@ const VALID_GUIDED_MODES: GuidedMode[] = [
 ]
 const VALID_REPETITIONS: RepetitionLevel[] = [1, 2, 3, 5]
 const VALID_TIME_MULTIPLIERS = [1, 1.5, 2, 3] as const
+const VALID_TIMED_DURATIONS = [60_000, 120_000, 300_000, 600_000, 900_000] as const
+const VALID_KNOWLEDGE_FILTERS = ['all', 'known', 'unknown'] as const
+
+// ── Internal helpers ──────────────────────────────────────────────────────────
+
+function loadModeConfig<T>(
+  key: string,
+  defaultState: T,
+  sanitize: (raw: unknown) => { state: T; hadInvalid: boolean }
+): { state: T; hadInvalid: boolean } {
+  try {
+    const raw = localStorage.getItem(key)
+    if (!raw) return { state: defaultState, hadInvalid: false }
+    return sanitize(JSON.parse(raw) as unknown)
+  } catch {
+    return { state: defaultState, hadInvalid: false }
+  }
+}
+
+function usePanelStorage<T>(key: string, state: T, onClose: () => void, hadInvalid = false) {
+  const [showWarning, setShowWarning] = React.useState(hadInvalid)
+  const save = React.useCallback(() => {
+    try {
+      localStorage.setItem(key, JSON.stringify(state))
+    } catch {
+      /* ignore */
+    }
+  }, [key, state])
+  const handleSave = React.useCallback(() => {
+    save()
+    onClose()
+  }, [save, onClose])
+  const handleTidy = React.useCallback(() => {
+    save()
+    setShowWarning(false)
+  }, [save])
+  return { handleSave, handleTidy, showWarning, setShowWarning }
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ARCADE MODE
@@ -157,8 +199,6 @@ type ArcadeFormState = {
   skipUnsupported: boolean
 }
 
-type ArcadeFormAction = { type: 'PATCH'; payload: Partial<ArcadeFormState> }
-
 const ARCADE_DEFAULT: ArcadeFormState = {
   language: 'typescript',
   mode: 'timed_challenge',
@@ -174,14 +214,6 @@ const ARCADE_DEFAULT: ArcadeFormState = {
   categories: null,
   skipUnsupported: true,
 }
-
-function arcadeReducer(state: ArcadeFormState, action: ArcadeFormAction): ArcadeFormState {
-  return { ...state, ...action.payload }
-}
-
-const VALID_GAME_MODES: GameMode[] = ['general', 'timed_challenge', 'survival']
-const VALID_TIMED_DURATIONS = [60_000, 120_000, 300_000, 600_000, 900_000] as const
-const VALID_KNOWLEDGE_FILTERS = ['all', 'known', 'unknown'] as const
 
 function sanitizeArcadeConfig(raw: unknown): { state: ArcadeFormState; hadInvalid: boolean } {
   if (!raw || typeof raw !== 'object') return { state: ARCADE_DEFAULT, hadInvalid: false }
@@ -259,16 +291,6 @@ function sanitizeArcadeConfig(raw: unknown): { state: ArcadeFormState; hadInvali
   return { state, hadInvalid }
 }
 
-function loadArcadeState(): { state: ArcadeFormState; hadInvalid: boolean } {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.LAST_CONFIG)
-    if (!raw) return { state: ARCADE_DEFAULT, hadInvalid: false }
-    return sanitizeArcadeConfig(JSON.parse(raw) as unknown)
-  } catch {
-    return { state: ARCADE_DEFAULT, hadInvalid: false }
-  }
-}
-
 function arcadeFormToConfig(s: ArcadeFormState): GameConfig {
   return {
     mode: s.mode,
@@ -301,30 +323,17 @@ const ARCADE_DURATIONS: { label: string; ms: number }[] = [
 ]
 
 function ArcadeDefaultsPanel({ onClose }: { onClose: () => void }) {
-  const [{ state: init, hadInvalid }] = useState(() => loadArcadeState())
-  const [s, dispatch] = useReducer(arcadeReducer, init)
-  const [showWarning, setShowWarning] = useState(hadInvalid)
+  const [{ state: init, hadInvalid }] = useState(() =>
+    loadModeConfig(STORAGE_KEYS.LAST_CONFIG, ARCADE_DEFAULT, sanitizeArcadeConfig)
+  )
+  const [s, dispatch] = useReducer(patchReducer<ArcadeFormState>, init)
   const set = (payload: Partial<ArcadeFormState>) => dispatch({ type: 'PATCH', payload })
-
-  function handleSave() {
-    const config = arcadeFormToConfig(s)
-    try {
-      localStorage.setItem(STORAGE_KEYS.LAST_CONFIG, JSON.stringify(config))
-    } catch {
-      /* ignore */
-    }
-    onClose()
-  }
-
-  function handleTidy() {
-    const config = arcadeFormToConfig(s)
-    try {
-      localStorage.setItem(STORAGE_KEYS.LAST_CONFIG, JSON.stringify(config))
-    } catch {
-      /* ignore */
-    }
-    setShowWarning(false)
-  }
+  const { handleSave, handleTidy, showWarning } = usePanelStorage(
+    STORAGE_KEYS.LAST_CONFIG,
+    arcadeFormToConfig(s),
+    onClose,
+    hadInvalid
+  )
 
   return (
     <ModalShell
@@ -537,8 +546,6 @@ type GoalFormState = {
   skipUnsupported: boolean
 }
 
-type GoalFormAction = { type: 'PATCH'; payload: Partial<GoalFormState> }
-
 const GOAL_DEFAULT: GoalFormState = {
   challengeCount: 5,
   timeLimitMs: 60_000,
@@ -555,10 +562,6 @@ const GOAL_DEFAULT: GoalFormState = {
   dynamicAssistPct: 100,
   categories: null,
   skipUnsupported: true,
-}
-
-function goalReducer(state: GoalFormState, action: GoalFormAction): GoalFormState {
-  return { ...state, ...action.payload }
 }
 
 const VALID_GOAL_TIME_LIMITS: GoalTimeLimitMs[] = [30_000, 60_000, 120_000, 0]
@@ -636,16 +639,6 @@ function sanitizeGoalConfig(raw: unknown): { state: GoalFormState; hadInvalid: b
   return { state, hadInvalid }
 }
 
-function loadGoalState(): { state: GoalFormState; hadInvalid: boolean } {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.LAST_GOAL_CONFIG)
-    if (!raw) return { state: GOAL_DEFAULT, hadInvalid: false }
-    return sanitizeGoalConfig(JSON.parse(raw) as unknown)
-  } catch {
-    return { state: GOAL_DEFAULT, hadInvalid: false }
-  }
-}
-
 function goalFormToConfig(s: GoalFormState): GoalModeConfig {
   return {
     challengeCount: s.challengeCount,
@@ -672,30 +665,17 @@ const GOAL_TIME_OPTIONS: { value: GoalTimeLimitMs; label: string }[] = [
 ]
 
 function GoalDefaultsPanel({ onClose }: { onClose: () => void }) {
-  const [{ state: init, hadInvalid }] = useState(() => loadGoalState())
-  const [s, dispatch] = useReducer(goalReducer, init)
-  const [showWarning, setShowWarning] = useState(hadInvalid)
+  const [{ state: init, hadInvalid }] = useState(() =>
+    loadModeConfig(STORAGE_KEYS.LAST_GOAL_CONFIG, GOAL_DEFAULT, sanitizeGoalConfig)
+  )
+  const [s, dispatch] = useReducer(patchReducer<GoalFormState>, init)
   const set = (payload: Partial<GoalFormState>) => dispatch({ type: 'PATCH', payload })
-
-  function handleSave() {
-    const config = goalFormToConfig(s)
-    try {
-      localStorage.setItem(STORAGE_KEYS.LAST_GOAL_CONFIG, JSON.stringify(config))
-    } catch {
-      /* ignore */
-    }
-    onClose()
-  }
-
-  function handleTidy() {
-    const config = goalFormToConfig(s)
-    try {
-      localStorage.setItem(STORAGE_KEYS.LAST_GOAL_CONFIG, JSON.stringify(config))
-    } catch {
-      /* ignore */
-    }
-    setShowWarning(false)
-  }
+  const { handleSave, handleTidy, showWarning } = usePanelStorage(
+    STORAGE_KEYS.LAST_GOAL_CONFIG,
+    goalFormToConfig(s),
+    onClose,
+    hadInvalid
+  )
 
   return (
     <ModalShell
@@ -804,8 +784,6 @@ function GoalDefaultsPanel({ onClose }: { onClose: () => void }) {
 // MOTION RACE
 // ─────────────────────────────────────────────────────────────────────────────
 
-type MotionFormAction = { type: 'PATCH'; payload: Partial<MotionRaceConfig> }
-
 const MOTION_CONFIG_DEFAULT: MotionRaceConfig = {
   language: 'typescript',
   endGoal: 'timed',
@@ -841,10 +819,6 @@ const MOTION_CONFIG_DEFAULT: MotionRaceConfig = {
   trailLengthMultiplier: 1,
   enemyTrailSolid: true,
   enemyTrailMultiplier: 1,
-}
-
-function motionReducer(state: MotionRaceConfig, action: MotionFormAction): MotionRaceConfig {
-  return { ...state, ...action.payload }
 }
 
 const VALID_END_GOALS: EndGoalType[] = ['timed', 'user_count', 'total_count', 'survival']
@@ -957,16 +931,6 @@ function sanitizeMotionConfig(raw: unknown): { state: MotionRaceConfig; hadInval
   return { state, hadInvalid }
 }
 
-function loadMotionState(): { state: MotionRaceConfig; hadInvalid: boolean } {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.LAST_MOTION_CONFIG)
-    if (!raw) return { state: MOTION_CONFIG_DEFAULT, hadInvalid: false }
-    return sanitizeMotionConfig(JSON.parse(raw) as unknown)
-  } catch {
-    return { state: MOTION_CONFIG_DEFAULT, hadInvalid: false }
-  }
-}
-
 // Re-declared locally (not exported from MotionRaceGame.tsx)
 const MOTION_COUNT_OPTIONS = [3, 5, 10, 15, 20, 30]
 const MOTION_DURATION_OPTIONS: { label: string; ms: number }[] = [
@@ -1000,28 +964,17 @@ const MOTION_ENEMY_SPEED_OPTIONS: { id: EnemySpeed; label: string }[] = [
 ]
 
 function MotionDefaultsPanel({ onClose }: { onClose: () => void }) {
-  const [{ state: init, hadInvalid }] = useState(() => loadMotionState())
-  const [s, dispatch] = useReducer(motionReducer, init)
-  const [showWarning, setShowWarning] = useState(hadInvalid)
+  const [{ state: init, hadInvalid }] = useState(() =>
+    loadModeConfig(STORAGE_KEYS.LAST_MOTION_CONFIG, MOTION_CONFIG_DEFAULT, sanitizeMotionConfig)
+  )
+  const [s, dispatch] = useReducer(patchReducer<MotionRaceConfig>, init)
   const set = (payload: Partial<MotionRaceConfig>) => dispatch({ type: 'PATCH', payload })
-
-  function handleSave() {
-    try {
-      localStorage.setItem(STORAGE_KEYS.LAST_MOTION_CONFIG, JSON.stringify(s))
-    } catch {
-      /* ignore */
-    }
-    onClose()
-  }
-
-  function handleTidy() {
-    try {
-      localStorage.setItem(STORAGE_KEYS.LAST_MOTION_CONFIG, JSON.stringify(s))
-    } catch {
-      /* ignore */
-    }
-    setShowWarning(false)
-  }
+  const { handleSave, handleTidy, showWarning } = usePanelStorage(
+    STORAGE_KEYS.LAST_MOTION_CONFIG,
+    s,
+    onClose,
+    hadInvalid
+  )
 
   const isCountBased = s.endGoal === 'user_count' || s.endGoal === 'total_count'
   const hasEnemies = s.enemyCount > 0
@@ -1229,8 +1182,6 @@ type QvimxDefaultsState = {
   bombCount: 0 | 1 | 2 | 3
 }
 
-type QvimxFormAction = { type: 'PATCH'; payload: Partial<QvimxDefaultsState> }
-
 const QVIMX_DEFAULT: QvimxDefaultsState = {
   lang: 'typescript',
   codeSize: 'medium',
@@ -1250,10 +1201,6 @@ const QVIMX_DEFAULT: QvimxDefaultsState = {
   challengeCategories: [...MOTION_CHALLENGE_CATEGORIES],
   challengeDrillMode: false,
   bombCount: 1,
-}
-
-function qvimxReducer(state: QvimxDefaultsState, action: QvimxFormAction): QvimxDefaultsState {
-  return { ...state, ...action.payload }
 }
 
 const VALID_CODE_SIZES: QvimxCodeSize[] = ['short', 'medium', 'long']
@@ -1337,16 +1284,6 @@ function sanitizeQvimxConfig(raw: unknown): { state: QvimxDefaultsState; hadInva
   return { state, hadInvalid }
 }
 
-function loadQvimxState(): { state: QvimxDefaultsState; hadInvalid: boolean } {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.LAST_QVIMX_CONFIG)
-    if (!raw) return { state: QVIMX_DEFAULT, hadInvalid: false }
-    return sanitizeQvimxConfig(JSON.parse(raw) as unknown)
-  } catch {
-    return { state: QVIMX_DEFAULT, hadInvalid: false }
-  }
-}
-
 // Re-declared locally (not exported from QvimxGame.tsx)
 const QVIMX_CODE_SIZE_OPTIONS: { id: QvimxCodeSize; label: string; desc: string }[] = [
   { id: 'short', label: 'Short', desc: '~20 lines' },
@@ -1390,28 +1327,17 @@ const QVIMX_TIMER_OPTIONS: { label: string; ms: number }[] = [
 ]
 
 function QvimxDefaultsPanel({ onClose }: { onClose: () => void }) {
-  const [{ state: init, hadInvalid }] = useState(() => loadQvimxState())
-  const [s, dispatch] = useReducer(qvimxReducer, init)
-  const [showWarning, setShowWarning] = useState(hadInvalid)
+  const [{ state: init, hadInvalid }] = useState(() =>
+    loadModeConfig(STORAGE_KEYS.LAST_QVIMX_CONFIG, QVIMX_DEFAULT, sanitizeQvimxConfig)
+  )
+  const [s, dispatch] = useReducer(patchReducer<QvimxDefaultsState>, init)
   const set = (payload: Partial<QvimxDefaultsState>) => dispatch({ type: 'PATCH', payload })
-
-  function handleSave() {
-    try {
-      localStorage.setItem(STORAGE_KEYS.LAST_QVIMX_CONFIG, JSON.stringify(s))
-    } catch {
-      /* ignore */
-    }
-    onClose()
-  }
-
-  function handleTidy() {
-    try {
-      localStorage.setItem(STORAGE_KEYS.LAST_QVIMX_CONFIG, JSON.stringify(s))
-    } catch {
-      /* ignore */
-    }
-    setShowWarning(false)
-  }
+  const { handleSave, handleTidy, showWarning } = usePanelStorage(
+    STORAGE_KEYS.LAST_QVIMX_CONFIG,
+    s,
+    onClose,
+    hadInvalid
+  )
 
   return (
     <ModalShell
@@ -1612,6 +1538,273 @@ function QvimxDefaultsPanel({ onClose }: { onClose: () => void }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// VIMBOTS
+// ─────────────────────────────────────────────────────────────────────────────
+
+const VIMBOTS_DEFAULT: VimBotsConfig = {
+  boardSource: 'grid',
+  gridPreset: 'medium',
+  customRows: 60,
+  customCols: 40,
+  codeFileSize: 'medium',
+  difficulty: 'easy',
+  enableTeleport: true,
+  enableSafeTeleport: true,
+  maxTeleports: 3,
+  maxSafeTeleports: 3,
+  animatedEffects: true,
+  enableHelperGrid: false,
+  startingEnemyLevel: 1,
+  ...CHALLENGE_CONFIG_DEFAULTS,
+}
+
+const VALID_GRID_PRESETS: VimBoardPreset[] = [
+  'tiny',
+  'small',
+  'medium',
+  'large',
+  'xlarge',
+  'custom',
+]
+const VALID_VIMBOTS_DIFFICULTIES: VimBotsDifficulty[] = [
+  'beginner',
+  'easy',
+  'medium',
+  'hard',
+  'expert',
+]
+
+function sanitizeVimBotsConfig(raw: unknown): { state: VimBotsConfig; hadInvalid: boolean } {
+  if (!raw || typeof raw !== 'object') return { state: VIMBOTS_DEFAULT, hadInvalid: false }
+  const r = raw as Record<string, unknown>
+  let hadInvalid = false
+  const fail = () => {
+    hadInvalid = true
+  }
+
+  const state: VimBotsConfig = {
+    boardSource: (r.boardSource as VimBotsConfig['boardSource']) ?? VIMBOTS_DEFAULT.boardSource,
+    gridPreset: pick(r.gridPreset, VALID_GRID_PRESETS, VIMBOTS_DEFAULT.gridPreset, fail),
+    customRows: pickNumber(r.customRows, 5, 300, VIMBOTS_DEFAULT.customRows, fail),
+    customCols: pickNumber(r.customCols, 5, 300, VIMBOTS_DEFAULT.customCols, fail),
+    codeFileSize: (r.codeFileSize as VimBotsConfig['codeFileSize']) ?? VIMBOTS_DEFAULT.codeFileSize,
+    difficulty: pick(r.difficulty, VALID_VIMBOTS_DIFFICULTIES, VIMBOTS_DEFAULT.difficulty, fail),
+    enableTeleport: pickBool(r.enableTeleport, VIMBOTS_DEFAULT.enableTeleport, fail),
+    enableSafeTeleport: pickBool(r.enableSafeTeleport, VIMBOTS_DEFAULT.enableSafeTeleport, fail),
+    maxTeleports: pickNumber(r.maxTeleports, 0, 20, VIMBOTS_DEFAULT.maxTeleports, fail),
+    maxSafeTeleports: pickNumber(r.maxSafeTeleports, 0, 20, VIMBOTS_DEFAULT.maxSafeTeleports, fail),
+    animatedEffects: pickBool(r.animatedEffects, VIMBOTS_DEFAULT.animatedEffects, fail),
+    enableHelperGrid: pickBool(r.enableHelperGrid, VIMBOTS_DEFAULT.enableHelperGrid, fail),
+    startingEnemyLevel: pickNumber(
+      r.startingEnemyLevel,
+      1,
+      9,
+      VIMBOTS_DEFAULT.startingEnemyLevel,
+      fail
+    ),
+    challengeMode: pickBool(r.challengeMode, VIMBOTS_DEFAULT.challengeMode, fail),
+    challengeGuidedMode: pick(
+      r.challengeGuidedMode,
+      VALID_GUIDED_MODES,
+      VIMBOTS_DEFAULT.challengeGuidedMode,
+      fail
+    ),
+    challengeStartingLevel: pickNumber(
+      r.challengeStartingLevel,
+      0,
+      9,
+      VIMBOTS_DEFAULT.challengeStartingLevel,
+      fail
+    ),
+    challengeRepetition: pick(
+      r.challengeRepetition,
+      VALID_REPETITIONS,
+      VIMBOTS_DEFAULT.challengeRepetition,
+      fail
+    ),
+    challengeTimeMultiplier: pickNumber(
+      r.challengeTimeMultiplier,
+      0.5,
+      5,
+      VIMBOTS_DEFAULT.challengeTimeMultiplier,
+      fail
+    ),
+    challengeCategories: pickStringArray(
+      r.challengeCategories,
+      MOTION_CHALLENGE_CATEGORIES,
+      VIMBOTS_DEFAULT.challengeCategories,
+      fail
+    ),
+    challengeDrillMode: pickBool(
+      r.challengeDrillMode ?? false,
+      VIMBOTS_DEFAULT.challengeDrillMode,
+      fail
+    ),
+  }
+
+  if (hadInvalid) {
+    console.warn(
+      '[GameDefaultsModal] Some saved VimBots config fields were invalid; reset to defaults.'
+    )
+  }
+  return { state, hadInvalid }
+}
+
+const VIMBOTS_GRID_SIZE_OPTIONS: { id: VimBoardPreset; label: string; desc: string }[] = [
+  { id: 'tiny', label: 'Tiny', desc: '20 × 60' },
+  { id: 'small', label: 'Small', desc: '40 × 100' },
+  { id: 'medium', label: 'Medium', desc: '60 × 140' },
+  { id: 'large', label: 'Large', desc: '100 × 200' },
+  { id: 'xlarge', label: 'XLarge', desc: '150 × 280' },
+]
+
+const VIMBOTS_DIFFICULTY_OPTIONS: { id: VimBotsDifficulty; label: string; desc: string }[] = [
+  { id: 'beginner', label: 'Beginner', desc: '~2% robots' },
+  { id: 'easy', label: 'Easy', desc: 'Few robots' },
+  { id: 'medium', label: 'Medium', desc: 'Moderate density' },
+  { id: 'hard', label: 'Hard', desc: 'Many robots' },
+  { id: 'expert', label: 'Expert', desc: 'Maximum density' },
+]
+
+const VIMBOTS_TELEPORT_COUNTS = [0, 1, 2, 3, 5, 10] as const
+
+function VimBotsDefaultsPanel({ onClose }: { onClose: () => void }) {
+  const [{ state: init, hadInvalid }] = useState(() =>
+    loadModeConfig(STORAGE_KEYS.LAST_VIMBOTS_CONFIG, VIMBOTS_DEFAULT, sanitizeVimBotsConfig)
+  )
+  const [s, dispatch] = useReducer(patchReducer<VimBotsConfig>, init)
+  const set = (payload: Partial<VimBotsConfig>) => dispatch({ type: 'PATCH', payload })
+  const { handleSave, handleTidy, showWarning } = usePanelStorage(
+    STORAGE_KEYS.LAST_VIMBOTS_CONFIG,
+    s,
+    onClose,
+    hadInvalid
+  )
+
+  return (
+    <ModalShell
+      title="VimBots Defaults"
+      onClose={onClose}
+      onSave={handleSave}
+      showWarning={showWarning}
+      onTidy={handleTidy}
+    >
+      <CollapseSection label="Grid Size" icon={LayoutGrid} defaultOpen>
+        <div className="flex flex-col gap-2">
+          {VIMBOTS_GRID_SIZE_OPTIONS.map(o => (
+            <button
+              key={o.id}
+              type="button"
+              onClick={() => set({ gridPreset: o.id })}
+              className={cls.modeCard(s.gridPreset === o.id)}
+            >
+              <span className="font-bold">{o.label}</span>
+              <span
+                className={`text-xs font-normal ml-2 ${s.gridPreset === o.id ? 'text-blue-200' : 'text-gray-500'}`}
+              >
+                {o.desc}
+              </span>
+            </button>
+          ))}
+        </div>
+      </CollapseSection>
+
+      <CollapseSection label="Difficulty" icon={Skull} defaultOpen>
+        <div className="flex flex-col gap-2">
+          {VIMBOTS_DIFFICULTY_OPTIONS.map(o => (
+            <button
+              key={o.id}
+              type="button"
+              onClick={() => set({ difficulty: o.id })}
+              className={cls.modeCard(s.difficulty === o.id)}
+            >
+              <span className="font-bold">{o.label}</span>
+              <span
+                className={`text-xs font-normal ml-2 ${s.difficulty === o.id ? 'text-blue-200' : 'text-gray-500'}`}
+              >
+                {o.desc}
+              </span>
+            </button>
+          ))}
+        </div>
+      </CollapseSection>
+
+      <CollapseSection label="Teleport" icon={Maximize2} defaultOpen>
+        <div className="flex items-center gap-3 mb-3">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={s.enableTeleport}
+            onClick={() => set({ enableTeleport: !s.enableTeleport })}
+            className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${s.enableTeleport ? 'bg-blue-600' : 'bg-gray-700'}`}
+          >
+            <span
+              className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${s.enableTeleport ? 'translate-x-4' : 'translate-x-0.5'}`}
+            />
+          </button>
+          <span className="text-xs text-gray-400">{s.enableTeleport ? 'Enabled' : 'Disabled'}</span>
+        </div>
+        {s.enableTeleport && (
+          <>
+            <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">Max Teleports</p>
+            <div className="flex gap-2 flex-wrap">
+              {VIMBOTS_TELEPORT_COUNTS.map(n => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => set({ maxTeleports: n })}
+                  className={cls.pill(s.maxTeleports === n)}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </CollapseSection>
+
+      <CollapseSection label="Safe Teleport" icon={Shield} defaultOpen>
+        <div className="flex items-center gap-3 mb-3">
+          <button
+            type="button"
+            role="switch"
+            aria-checked={s.enableSafeTeleport}
+            onClick={() => set({ enableSafeTeleport: !s.enableSafeTeleport })}
+            className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${s.enableSafeTeleport ? 'bg-blue-600' : 'bg-gray-700'}`}
+          >
+            <span
+              className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${s.enableSafeTeleport ? 'translate-x-4' : 'translate-x-0.5'}`}
+            />
+          </button>
+          <span className="text-xs text-gray-400">
+            {s.enableSafeTeleport ? 'Enabled' : 'Disabled'}
+          </span>
+        </div>
+        {s.enableSafeTeleport && (
+          <>
+            <p className="text-xs text-gray-500 mb-2 uppercase tracking-wider">
+              Max Safe Teleports
+            </p>
+            <div className="flex gap-2 flex-wrap">
+              {VIMBOTS_TELEPORT_COUNTS.map(n => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => set({ maxSafeTeleports: n })}
+                  className={cls.pill(s.maxSafeTeleports === n)}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+      </CollapseSection>
+    </ModalShell>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Modal shell
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -1704,5 +1897,6 @@ export function GameDefaultsModal({ mode, onClose }: GameDefaultsModalProps) {
   if (mode === 'goal') return <GoalDefaultsPanel onClose={onClose} />
   if (mode === 'motion') return <MotionDefaultsPanel onClose={onClose} />
   if (mode === 'qvimx') return <QvimxDefaultsPanel onClose={onClose} />
+  if (mode === 'vimbots') return <VimBotsDefaultsPanel onClose={onClose} />
   return null
 }

@@ -216,6 +216,17 @@ export interface GoalModeHighScoreEntry {
   totalPoints: number
 }
 
+export interface VimBotsHighScoreEntry {
+  id: string
+  username?: string
+  timestamp: number
+  difficulty: 'beginner' | 'easy' | 'medium' | 'hard' | 'expert'
+  levelsCleared: number
+  totalScore: number
+  challengeScore: number // arcade challenge points earned during the run (0 if challenge mode off)
+  gridSize: string // preset name or language — flexible for all board sources
+}
+
 export interface HighScores {
   general: HighScoreEntry[]
   timed_challenge: HighScoreEntry[]
@@ -224,6 +235,7 @@ export interface HighScores {
   motionrace_survival: MotionRaceHighScoreEntry[]
   motionrace_total_goals: MotionRaceHighScoreEntry[]
   goal: GoalModeHighScoreEntry[]
+  vimbots: VimBotsHighScoreEntry[]
 }
 
 // --- VimGolf mode ------------------------------------------------------------

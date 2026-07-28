@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import type {
   HighScores,
   HighScoreEntry,
   GameMode,
   MotionRaceHighScoreEntry,
   GoalModeHighScoreEntry,
+  VimBotsHighScoreEntry,
 } from '../engine/types'
 import { loadHighScores, emptyHighScores } from '../engine/HighScoreEngine'
 import { loadUsername } from '../engine/UserPrefs'
@@ -157,6 +159,7 @@ const BOT_SEEDS_GOAL: (GoalModeHighScoreEntry & { isBot: boolean })[] = [
 type DisplayEntry = (HighScoreEntry & { isBot?: boolean }) | null
 type DisplayMREntry = (MotionRaceHighScoreEntry & { isBot?: boolean }) | null
 type DisplayGoalEntry = (GoalModeHighScoreEntry & { isBot?: boolean }) | null
+type DisplayVimBotsEntry = (VimBotsHighScoreEntry & { isBot?: boolean }) | null
 
 function buildRows(mode: GameMode, real: HighScoreEntry[]): DisplayEntry[] {
   const sortedReal = [...real].sort((a, b) =>
@@ -196,6 +199,53 @@ function buildRowsMR(
   return combined
 }
 
+function makeVimBotsBot(
+  overrides: Partial<VimBotsHighScoreEntry>
+): VimBotsHighScoreEntry & { isBot: true } {
+  return {
+    id: `bot-vimbots-${overrides.totalScore}`,
+    username: 'vim-bot',
+    timestamp: 0,
+    difficulty: 'medium',
+    levelsCleared: 0,
+    totalScore: 0,
+    challengeScore: 0,
+    gridSize: 'medium',
+    isBot: true,
+    ...overrides,
+  }
+}
+
+const BOT_SEEDS_VIMBOTS: (VimBotsHighScoreEntry & { isBot: boolean })[] = [
+  makeVimBotsBot({ totalScore: 800, levelsCleared: 3, difficulty: 'beginner', gridSize: 'small' }),
+  makeVimBotsBot({ totalScore: 400, levelsCleared: 1, difficulty: 'beginner', gridSize: 'tiny' }),
+  makeVimBotsBot({ totalScore: 150, levelsCleared: 0, difficulty: 'beginner', gridSize: 'tiny' }),
+  makeVimBotsBot({ totalScore: 1500, levelsCleared: 5, difficulty: 'easy', gridSize: 'small' }),
+  makeVimBotsBot({ totalScore: 800, levelsCleared: 2, difficulty: 'easy', gridSize: 'small' }),
+  makeVimBotsBot({ totalScore: 300, levelsCleared: 0, difficulty: 'easy', gridSize: 'medium' }),
+  makeVimBotsBot({ totalScore: 2500, levelsCleared: 5, difficulty: 'medium', gridSize: 'medium' }),
+  makeVimBotsBot({ totalScore: 1200, levelsCleared: 2, difficulty: 'medium', gridSize: 'medium' }),
+  makeVimBotsBot({ totalScore: 450, levelsCleared: 0, difficulty: 'medium', gridSize: 'large' }),
+  makeVimBotsBot({ totalScore: 5000, levelsCleared: 10, difficulty: 'hard', gridSize: 'large' }),
+  makeVimBotsBot({ totalScore: 2200, levelsCleared: 4, difficulty: 'hard', gridSize: 'medium' }),
+  makeVimBotsBot({ totalScore: 800, levelsCleared: 1, difficulty: 'hard', gridSize: 'medium' }),
+  makeVimBotsBot({ totalScore: 9000, levelsCleared: 8, difficulty: 'expert', gridSize: 'large' }),
+  makeVimBotsBot({ totalScore: 4500, levelsCleared: 3, difficulty: 'expert', gridSize: 'xlarge' }),
+  makeVimBotsBot({ totalScore: 1500, levelsCleared: 0, difficulty: 'expert', gridSize: 'medium' }),
+]
+
+function buildRowsVimBots(
+  entries: VimBotsHighScoreEntry[],
+  difficulty: VimBotsHighScoreEntry['difficulty']
+): DisplayVimBotsEntry[] {
+  const bots = BOT_SEEDS_VIMBOTS.filter(b => b.difficulty === difficulty)
+  const combined: DisplayVimBotsEntry[] = [...entries, ...bots]
+    .sort((a, b) => b.totalScore - a.totalScore || b.levelsCleared - a.levelsCleared)
+    .slice(0, 10)
+  while (combined.length < 10) combined.push(null)
+  return combined
+}
+
 function buildRowsGoal(entries: GoalModeHighScoreEntry[]): DisplayGoalEntry[] {
   const sortedReal = [...entries].sort((a, b) => b.totalPoints - a.totalPoints)
   const combined: DisplayGoalEntry[] = [...sortedReal, ...BOT_SEEDS_GOAL]
@@ -222,6 +272,28 @@ function fmtDate(ts: number) {
 
 const RANK_COLOR = ['text-yellow-400', 'text-gray-300', 'text-amber-600']
 
+// ── Shared table primitives ───────────────────────────────────────────────────
+
+function HsTableShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs font-mono border-collapse">{children}</table>
+    </div>
+  )
+}
+
+function HsEmptyRow({ rank, colSpan }: { rank: number; colSpan: number }) {
+  const rankColor = rank <= 3 ? RANK_COLOR[rank - 1] : 'text-gray-600'
+  return (
+    <tr className="border-b border-gray-800/50">
+      <td className={`py-2.5 px-3 font-bold ${rankColor}`}>{rank}</td>
+      <td colSpan={colSpan} className="py-2.5 px-3 text-gray-700">
+        —
+      </td>
+    </tr>
+  )
+}
+
 // ── Arcade Table ─────────────────────────────────────────────────────────────
 
 function ScoreTable({
@@ -235,243 +307,285 @@ function ScoreTable({
 }) {
   const isSurvival = mode === 'survival'
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-xs font-mono border-collapse">
-        <thead>
-          <tr className="border-b border-gray-700 text-gray-500 uppercase tracking-wider">
-            <th className="py-2 px-3 text-left w-8">#</th>
-            <th className="py-2 px-3 text-left">Player</th>
-            <th className="py-2 px-3 text-right">{isSurvival ? 'Survived' : 'Score'}</th>
-            <th className="py-2 px-3 text-right hidden sm:table-cell">
-              {isSurvival ? 'Expected' : 'Session'}
-            </th>
-            <th className="py-2 px-3 text-center hidden md:table-cell">Lang</th>
-            <th className="py-2 px-3 text-center hidden md:table-cell">Lv</th>
-            <th className="py-2 px-3 text-right hidden lg:table-cell">✓/✗</th>
-            <th className="py-2 px-3 text-right hidden lg:table-cell">Acc</th>
-            <th className="py-2 px-3 text-right hidden xl:table-cell">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((entry, i) => {
-            const rankColor = i < 3 ? RANK_COLOR[i] : 'text-gray-600'
-            const isMe = entry && !entry.isBot && (!entry.username || entry.username === username)
-            if (!entry)
-              return (
-                <tr key={i} className="border-b border-gray-800/50">
-                  <td className={`py-2.5 px-3 font-bold ${rankColor}`}>{i + 1}</td>
-                  <td colSpan={8} className="py-2.5 px-3 text-gray-700">
-                    —
-                  </td>
-                </tr>
-              )
-            const isBot = !!entry.isBot
-            return (
-              <tr
-                key={entry.id}
-                className={`border-b border-gray-800 transition-colors ${isMe ? 'bg-blue-900/15' : isBot ? 'bg-gray-900' : 'hover:bg-gray-800/40'}`}
-              >
-                <td className={`py-2.5 px-3 font-bold text-sm ${rankColor}`}>{i + 1}</td>
-                <td className="py-2.5 px-3">
+    <HsTableShell>
+      <thead>
+        <tr className="border-b border-gray-700 text-gray-500 uppercase tracking-wider">
+          <th className="py-2 px-3 text-left w-8">#</th>
+          <th className="py-2 px-3 text-left">Player</th>
+          <th className="py-2 px-3 text-right">{isSurvival ? 'Survived' : 'Score'}</th>
+          <th className="py-2 px-3 text-right hidden sm:table-cell">
+            {isSurvival ? 'Expected' : 'Session'}
+          </th>
+          <th className="py-2 px-3 text-center hidden md:table-cell">Lang</th>
+          <th className="py-2 px-3 text-center hidden md:table-cell">Lv</th>
+          <th className="py-2 px-3 text-right hidden lg:table-cell">✓/✗</th>
+          <th className="py-2 px-3 text-right hidden lg:table-cell">Acc</th>
+          <th className="py-2 px-3 text-right hidden xl:table-cell">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((entry, i) => {
+          const rankColor = i < 3 ? RANK_COLOR[i] : 'text-gray-600'
+          const isMe = entry && !entry.isBot && (!entry.username || entry.username === username)
+          if (!entry) return <HsEmptyRow key={i} rank={i + 1} colSpan={8} />
+          const isBot = !!entry.isBot
+          return (
+            <tr
+              key={entry.id}
+              className={`border-b border-gray-800 transition-colors ${isMe ? 'bg-blue-900/15' : isBot ? 'bg-gray-900' : 'hover:bg-gray-800/40'}`}
+            >
+              <td className={`py-2.5 px-3 font-bold text-sm ${rankColor}`}>{i + 1}</td>
+              <td className="py-2.5 px-3">
+                <span
+                  className={
+                    isMe
+                      ? 'text-blue-300 font-bold'
+                      : isBot
+                        ? 'text-gray-500 italic'
+                        : 'text-gray-300'
+                  }
+                >
+                  {entry.username ?? username}
+                </span>
+              </td>
+              <td className="py-2.5 px-3 text-right font-bold">
+                {isSurvival ? (
+                  <span className="text-green-400">{fmt(entry.achievedTimeMs)}</span>
+                ) : (
                   <span
-                    className={
-                      isMe
-                        ? 'text-blue-300 font-bold'
-                        : isBot
-                          ? 'text-gray-500 italic'
-                          : 'text-gray-300'
-                    }
+                    className={isMe ? 'text-blue-300' : isBot ? 'text-gray-400' : 'text-yellow-400'}
                   >
-                    {entry.username ?? username}
+                    {entry.score.toLocaleString()}
                   </span>
-                </td>
-                <td className="py-2.5 px-3 text-right font-bold">
-                  {isSurvival ? (
-                    <span className="text-green-400">{fmt(entry.achievedTimeMs)}</span>
-                  ) : (
-                    <span
-                      className={
-                        isMe ? 'text-blue-300' : isBot ? 'text-gray-400' : 'text-yellow-400'
-                      }
-                    >
-                      {entry.score.toLocaleString()}
-                    </span>
-                  )}
-                </td>
-                <td className="py-2.5 px-3 text-right text-gray-500 hidden sm:table-cell">
-                  {isSurvival ? fmt(entry.expectedTimeMs) : fmt(entry.sessionDurationMs)}
-                </td>
-                <td className="py-2.5 px-3 text-center text-gray-400 hidden md:table-cell">
-                  {entry.language}
-                </td>
-                <td className="py-2.5 px-3 text-center text-gray-400 hidden md:table-cell">
-                  {entry.startingLevel}
-                </td>
-                <td className="py-2.5 px-3 text-right text-gray-500 hidden lg:table-cell">
-                  <span className="text-green-600">{entry.challengesCompleted}✓</span>{' '}
-                  <span className="text-red-700">{entry.challengesFailed}✗</span>
-                </td>
-                <td className="py-2.5 px-3 text-right text-gray-500 hidden lg:table-cell">
-                  {Math.round(entry.accuracy * 100)}%
-                </td>
-                <td className="py-2.5 px-3 text-right text-gray-600 hidden xl:table-cell">
-                  {fmtDate(entry.timestamp)}
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
+                )}
+              </td>
+              <td className="py-2.5 px-3 text-right text-gray-500 hidden sm:table-cell">
+                {isSurvival ? fmt(entry.expectedTimeMs) : fmt(entry.sessionDurationMs)}
+              </td>
+              <td className="py-2.5 px-3 text-center text-gray-400 hidden md:table-cell">
+                {entry.language}
+              </td>
+              <td className="py-2.5 px-3 text-center text-gray-400 hidden md:table-cell">
+                {entry.startingLevel}
+              </td>
+              <td className="py-2.5 px-3 text-right text-gray-500 hidden lg:table-cell">
+                <span className="text-green-600">{entry.challengesCompleted}✓</span>{' '}
+                <span className="text-red-700">{entry.challengesFailed}✗</span>
+              </td>
+              <td className="py-2.5 px-3 text-right text-gray-500 hidden lg:table-cell">
+                {Math.round(entry.accuracy * 100)}%
+              </td>
+              <td className="py-2.5 px-3 text-right text-gray-600 hidden xl:table-cell">
+                {fmtDate(entry.timestamp)}
+              </td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </HsTableShell>
   )
 }
 
 // ── Motion Race Table ────────────────────────────────────────────────────────
 function MotionRaceTable({ rows, username }: { rows: DisplayMREntry[]; username: string }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-xs font-mono border-collapse">
-        <thead>
-          <tr className="border-b border-gray-700 text-gray-500 uppercase tracking-wider">
-            <th className="py-2 px-3 text-left w-8">#</th>
-            <th className="py-2 px-3 text-left">Player</th>
-            <th className="py-2 px-3 text-right">Goals</th>
-            <th className="py-2 px-3 text-right">Time</th>
-            <th className="py-2 px-3 text-center hidden md:table-cell">Keystrokes</th>
-            <th className="py-2 px-3 text-center hidden lg:table-cell">Lang</th>
-            <th className="py-2 px-3 text-right hidden lg:table-cell">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((entry, i) => {
-            const rankColor = i < 3 ? RANK_COLOR[i] : 'text-gray-600'
-            const isMe = entry && (!entry.username || entry.username === username)
-            if (!entry)
-              return (
-                <tr key={i} className="border-b border-gray-800/50">
-                  <td className={`py-2.5 px-3 font-bold ${rankColor}`}>{i + 1}</td>
-                  <td colSpan={6} className="py-2.5 px-3 text-gray-700">
-                    —
-                  </td>
-                </tr>
-              )
-            return (
-              <tr
-                key={entry.id}
-                className={`border-b border-gray-800 transition-colors ${isMe ? 'bg-blue-900/15' : 'hover:bg-gray-800/40'}`}
-              >
-                <td className={`py-2.5 px-3 font-bold text-sm ${rankColor}`}>{i + 1}</td>
-                <td className="py-2.5 px-3">
-                  <span className={isMe ? 'text-blue-300 font-bold' : 'text-gray-300'}>
-                    {entry.username ?? username}
-                  </span>
-                </td>
-                <td className="py-2.5 px-3 text-right font-bold">
-                  <span className="text-yellow-400">{entry.score}</span>
-                </td>
-                <td className="py-2.5 px-3 text-right text-green-400">
-                  {fmt(entry.sessionDurationMs)}
-                </td>
-                <td className="py-2.5 px-3 text-center text-gray-500 hidden md:table-cell">
-                  {entry.keystrokes}
-                </td>
-                <td className="py-2.5 px-3 text-center text-gray-500 hidden lg:table-cell">
-                  {entry.language}
-                </td>
-                <td className="py-2.5 px-3 text-right text-gray-600 hidden lg:table-cell">
-                  {fmtDate(entry.timestamp)}
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
+    <HsTableShell>
+      <thead>
+        <tr className="border-b border-gray-700 text-gray-500 uppercase tracking-wider">
+          <th className="py-2 px-3 text-left w-8">#</th>
+          <th className="py-2 px-3 text-left">Player</th>
+          <th className="py-2 px-3 text-right">Goals</th>
+          <th className="py-2 px-3 text-right">Time</th>
+          <th className="py-2 px-3 text-center hidden md:table-cell">Keystrokes</th>
+          <th className="py-2 px-3 text-center hidden lg:table-cell">Lang</th>
+          <th className="py-2 px-3 text-right hidden lg:table-cell">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((entry, i) => {
+          const rankColor = i < 3 ? RANK_COLOR[i] : 'text-gray-600'
+          const isMe = entry && (!entry.username || entry.username === username)
+          if (!entry) return <HsEmptyRow key={i} rank={i + 1} colSpan={6} />
+          return (
+            <tr
+              key={entry.id}
+              className={`border-b border-gray-800 transition-colors ${isMe ? 'bg-blue-900/15' : 'hover:bg-gray-800/40'}`}
+            >
+              <td className={`py-2.5 px-3 font-bold text-sm ${rankColor}`}>{i + 1}</td>
+              <td className="py-2.5 px-3">
+                <span className={isMe ? 'text-blue-300 font-bold' : 'text-gray-300'}>
+                  {entry.username ?? username}
+                </span>
+              </td>
+              <td className="py-2.5 px-3 text-right font-bold">
+                <span className="text-yellow-400">{entry.score}</span>
+              </td>
+              <td className="py-2.5 px-3 text-right text-green-400">
+                {fmt(entry.sessionDurationMs)}
+              </td>
+              <td className="py-2.5 px-3 text-center text-gray-500 hidden md:table-cell">
+                {entry.keystrokes}
+              </td>
+              <td className="py-2.5 px-3 text-center text-gray-500 hidden lg:table-cell">
+                {entry.language}
+              </td>
+              <td className="py-2.5 px-3 text-right text-gray-600 hidden lg:table-cell">
+                {fmtDate(entry.timestamp)}
+              </td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </HsTableShell>
   )
 }
 
 // ── Goal Mode Table ──────────────────────────────────────────────────────────
 function GoalTable({ rows, username }: { rows: DisplayGoalEntry[]; username: string }) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-xs font-mono border-collapse">
-        <thead>
-          <tr className="border-b border-gray-700 text-gray-500 uppercase tracking-wider">
-            <th className="py-2 px-3 text-left w-8">#</th>
-            <th className="py-2 px-3 text-left">Player</th>
-            <th className="py-2 px-3 text-right">Score</th>
-            <th className="py-2 px-3 text-center hidden md:table-cell">Difficulty</th>
-            <th className="py-2 px-3 text-center hidden md:table-cell">Solved</th>
-            <th className="py-2 px-3 text-right hidden sm:table-cell">Time</th>
-            <th className="py-2 px-3 text-right hidden lg:table-cell">Keys</th>
-            <th className="py-2 px-3 text-right hidden lg:table-cell">Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((entry, i) => {
-            const rankColor = i < 3 ? RANK_COLOR[i] : 'text-gray-600'
-            const isMe = entry && (!entry.username || entry.username === username)
-            if (!entry)
-              return (
-                <tr key={i} className="border-b border-gray-800/50">
-                  <td className={`py-2.5 px-3 font-bold ${rankColor}`}>{i + 1}</td>
-                  <td colSpan={7} className="py-2.5 px-3 text-gray-700">
-                    —
-                  </td>
-                </tr>
-              )
-            return (
-              <tr
-                key={entry.id}
-                className={`border-b border-gray-800 transition-colors ${isMe ? 'bg-blue-900/15' : 'hover:bg-gray-800/40'}`}
-              >
-                <td className={`py-2.5 px-3 font-bold text-sm ${rankColor}`}>{i + 1}</td>
-                <td className="py-2.5 px-3">
-                  <span className={isMe ? 'text-blue-300 font-bold' : 'text-gray-300'}>
-                    {entry.username ?? username}
-                  </span>
-                </td>
-                <td className="py-2.5 px-3 text-right font-bold">
-                  <span className="text-yellow-400">{entry.totalPoints}</span>
-                </td>
-                <td className="py-2.5 px-3 text-center text-gray-500 hidden md:table-cell">
-                  {entry.difficulty}
-                </td>
-                <td className="py-2.5 px-3 text-center text-green-400 hidden md:table-cell">
-                  {entry.solved} / {entry.challengeCount}
-                </td>
-                <td className="py-2.5 px-3 text-right text-gray-500 hidden sm:table-cell">
-                  {fmt(entry.totalElapsedMs)}
-                </td>
-                <td className="py-2.5 px-3 text-right text-gray-500 hidden lg:table-cell">
-                  {entry.totalKeystrokes}
-                </td>
-                <td className="py-2.5 px-3 text-right text-gray-600 hidden lg:table-cell">
-                  {fmtDate(entry.timestamp)}
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
+    <HsTableShell>
+      <thead>
+        <tr className="border-b border-gray-700 text-gray-500 uppercase tracking-wider">
+          <th className="py-2 px-3 text-left w-8">#</th>
+          <th className="py-2 px-3 text-left">Player</th>
+          <th className="py-2 px-3 text-right">Score</th>
+          <th className="py-2 px-3 text-center hidden md:table-cell">Difficulty</th>
+          <th className="py-2 px-3 text-center hidden md:table-cell">Solved</th>
+          <th className="py-2 px-3 text-right hidden sm:table-cell">Time</th>
+          <th className="py-2 px-3 text-right hidden lg:table-cell">Keys</th>
+          <th className="py-2 px-3 text-right hidden lg:table-cell">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((entry, i) => {
+          const rankColor = i < 3 ? RANK_COLOR[i] : 'text-gray-600'
+          const isMe = entry && (!entry.username || entry.username === username)
+          if (!entry) return <HsEmptyRow key={i} rank={i + 1} colSpan={7} />
+          return (
+            <tr
+              key={entry.id}
+              className={`border-b border-gray-800 transition-colors ${isMe ? 'bg-blue-900/15' : 'hover:bg-gray-800/40'}`}
+            >
+              <td className={`py-2.5 px-3 font-bold text-sm ${rankColor}`}>{i + 1}</td>
+              <td className="py-2.5 px-3">
+                <span className={isMe ? 'text-blue-300 font-bold' : 'text-gray-300'}>
+                  {entry.username ?? username}
+                </span>
+              </td>
+              <td className="py-2.5 px-3 text-right font-bold">
+                <span className="text-yellow-400">{entry.totalPoints}</span>
+              </td>
+              <td className="py-2.5 px-3 text-center text-gray-500 hidden md:table-cell">
+                {entry.difficulty}
+              </td>
+              <td className="py-2.5 px-3 text-center text-green-400 hidden md:table-cell">
+                {entry.solved} / {entry.challengeCount}
+              </td>
+              <td className="py-2.5 px-3 text-right text-gray-500 hidden sm:table-cell">
+                {fmt(entry.totalElapsedMs)}
+              </td>
+              <td className="py-2.5 px-3 text-right text-gray-500 hidden lg:table-cell">
+                {entry.totalKeystrokes}
+              </td>
+              <td className="py-2.5 px-3 text-right text-gray-600 hidden lg:table-cell">
+                {fmtDate(entry.timestamp)}
+              </td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </HsTableShell>
+  )
+}
+
+// ── VimBots Table ────────────────────────────────────────────────────────────
+function VimBotsTable({ rows, username }: { rows: DisplayVimBotsEntry[]; username: string }) {
+  return (
+    <HsTableShell>
+      <thead>
+        <tr className="border-b border-gray-700 text-gray-500 uppercase tracking-wider">
+          <th className="py-2 px-3 text-left w-8">#</th>
+          <th className="py-2 px-3 text-left">Player</th>
+          <th className="py-2 px-3 text-right">Score</th>
+          <th className="py-2 px-3 text-center hidden md:table-cell">Difficulty</th>
+          <th className="py-2 px-3 text-center hidden md:table-cell">Levels Cleared</th>
+          <th className="py-2 px-3 text-center hidden sm:table-cell">Grid Size</th>
+          <th className="py-2 px-3 text-right hidden lg:table-cell">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((entry, i) => {
+          const rankColor = i < 3 ? RANK_COLOR[i] : 'text-gray-600'
+          const isMe = entry && !entry.isBot && (!entry.username || entry.username === username)
+          if (!entry) return <HsEmptyRow key={i} rank={i + 1} colSpan={6} />
+          const isBot = !!entry.isBot
+          return (
+            <tr
+              key={entry.id}
+              className={`border-b border-gray-800 transition-colors ${isMe ? 'bg-blue-900/15' : isBot ? 'bg-gray-900' : 'hover:bg-gray-800/40'}`}
+            >
+              <td className={`py-2.5 px-3 font-bold text-sm ${rankColor}`}>{i + 1}</td>
+              <td className="py-2.5 px-3">
+                <span
+                  className={
+                    isMe
+                      ? 'text-blue-300 font-bold'
+                      : isBot
+                        ? 'text-gray-500 italic'
+                        : 'text-gray-300'
+                  }
+                >
+                  {entry.username ?? username}
+                </span>
+              </td>
+              <td className="py-2.5 px-3 text-right font-bold">
+                <span
+                  className={isMe ? 'text-blue-300' : isBot ? 'text-gray-400' : 'text-yellow-400'}
+                >
+                  {entry.totalScore.toLocaleString()}
+                </span>
+              </td>
+              <td className="py-2.5 px-3 text-center text-gray-500 hidden md:table-cell">
+                {entry.difficulty}
+              </td>
+              <td className="py-2.5 px-3 text-center text-green-400 hidden md:table-cell">
+                {entry.levelsCleared}
+              </td>
+              <td className="py-2.5 px-3 text-center text-gray-500 hidden sm:table-cell">
+                {entry.gridSize}
+              </td>
+              <td className="py-2.5 px-3 text-right text-gray-600 hidden lg:table-cell">
+                {fmtDate(entry.timestamp)}
+              </td>
+            </tr>
+          )
+        })}
+      </tbody>
+    </HsTableShell>
   )
 }
 
 // ── Main screen ───────────────────────────────────────────────────────────────
 
-type TopLevelCategory = 'motionrace' | 'goal' | 'arcade'
+type TopLevelCategory = 'motionrace' | 'goal' | 'arcade' | 'vimbots'
 
 const TOP_LEVEL_TABS: { id: TopLevelCategory; label: string }[] = [
   { id: 'motionrace', label: 'Motion Race' },
   { id: 'goal', label: 'Goal Mode' },
   { id: 'arcade', label: 'Classic Arcade' },
+  { id: 'vimbots', label: 'VimBots' },
 ]
 
 export function HighScoreScreen() {
-  const [topCategory, setTopCategory] = useState<TopLevelCategory>('motionrace')
+  const location = useLocation()
+  const initTab = (location.state as { tab?: TopLevelCategory })?.tab ?? 'motionrace'
+  const initVimbotsTab =
+    (location.state as { vimbotsTab?: VimBotsHighScoreEntry['difficulty'] })?.vimbotsTab ?? 'medium'
+
+  const [topCategory, setTopCategory] = useState<TopLevelCategory>(initTab)
   const [mrTab, setMrTab] = useState<'timed' | 'survival' | 'total_goals'>('timed')
   const [arcadeTab, setArcadeTab] = useState<GameMode>('general')
+  const [vimbotsTab, setVimbotsTab] = useState<VimBotsHighScoreEntry['difficulty']>(initVimbotsTab)
   const [scores, setScores] = useState<HighScores>(emptyHighScores())
   const username = loadUsername()
 
@@ -550,6 +664,23 @@ export function HighScoreScreen() {
           </div>
         )}
         {topCategory === 'goal' && <div className="mb-6" />} {/* Spacing for alignment */}
+        {topCategory === 'vimbots' && (
+          <div className="flex gap-1 mb-6 border-b border-gray-700">
+            {(['beginner', 'easy', 'medium', 'hard', 'expert'] as const).map(d => (
+              <button
+                key={d}
+                onClick={() => setVimbotsTab(d)}
+                className={`px-4 py-2 text-sm font-mono transition-colors border-b-2 -mb-px capitalize ${
+                  vimbotsTab === d
+                    ? 'border-green-500 text-green-300'
+                    : 'border-transparent text-gray-500 hover:text-gray-300'
+                }`}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+        )}
         {/* Table */}
         <div className="bg-gray-800/50 rounded-xl border border-gray-700 overflow-hidden">
           {topCategory === 'motionrace' && (
@@ -567,6 +698,15 @@ export function HighScoreScreen() {
           )}
           {topCategory === 'goal' && (
             <GoalTable rows={buildRowsGoal(scores.goal)} username={username} />
+          )}
+          {topCategory === 'vimbots' && (
+            <VimBotsTable
+              rows={buildRowsVimBots(
+                (scores.vimbots ?? []).filter(e => e.difficulty === vimbotsTab),
+                vimbotsTab
+              )}
+              username={username}
+            />
           )}
         </div>
       </div>

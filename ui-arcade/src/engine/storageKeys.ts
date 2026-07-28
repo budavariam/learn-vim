@@ -23,6 +23,8 @@ export const STORAGE_KEYS = {
   /** Personal-best keystrokes per VimGolf challenge — lightweight map for filtering/sorting. */
   VIMGOLF_RECORDS: 'vimarcade_vimgolf_records',
   LAST_QVIMX_CONFIG: 'vimarcade_last_qvimx_config',
+  LAST_VIMTUTOR_CONFIG: 'vimarcade_last_vimtutor_config',
+  LAST_VIMBOTS_CONFIG: 'vimarcade_last_vimbots_config',
 } as const
 
 // ── One-time migration from legacy key names ──────────────────────────────────
@@ -54,5 +56,25 @@ export function migrateStorage(): void {
     }
   } catch {
     /* quota or private-mode errors — proceed silently */
+  }
+}
+
+// ── Generic config persistence ────────────────────────────────────────────────
+// Replaces the repeated load/save pairs in each game mode's setup component.
+
+export function loadStoredConfig<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(key)
+    return raw ? (JSON.parse(raw) as T) : null
+  } catch {
+    return null
+  }
+}
+
+export function saveStoredConfig<T>(key: string, value: T): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch {
+    /* ignore quota / private-mode errors */
   }
 }

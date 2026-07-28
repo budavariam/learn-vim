@@ -723,3 +723,56 @@ export function UnifiedChallengeOptions({
     </div>
   )
 }
+
+// ── patchReducer ─────────────────────────────────────────────────────────────
+// Replaces the (s, a) => ({ ...s, ...a.payload }) pattern used in 7 setup reducers.
+export function patchReducer<S>(s: S, a: { type: 'PATCH'; payload: Partial<S> }): S {
+  return { ...s, ...a.payload }
+}
+
+// ── fmtCountdown ─────────────────────────────────────────────────────────────
+export function fmtCountdown(remainMs: number): string {
+  const s = Math.ceil(Math.max(0, remainMs) / 1000)
+  const m = Math.floor(s / 60)
+  const sec = s % 60
+  return `${m}:${String(sec).padStart(2, '0')}`
+}
+
+// ── toggleCategory ────────────────────────────────────────────────────────────
+// Toggle cat in/out of the list; never removes the last item.
+export function toggleCategory(categories: string[], cat: string): string[] {
+  if (categories.includes(cat)) {
+    return categories.length > 1 ? categories.filter(c => c !== cat) : categories
+  }
+  return [...categories, cat]
+}
+
+// ── ChallengeBar ─────────────────────────────────────────────────────────────
+
+interface ChallengeBarProps {
+  question: string
+  solution?: string[] // undefined = don't show solution keys
+  score: number
+}
+
+export function ChallengeBar({ question, solution, score }: ChallengeBarProps) {
+  return (
+    <div className="flex items-center gap-3 px-4 py-2 bg-indigo-950/60 border-b border-indigo-800 flex-shrink-0 text-xs font-mono">
+      <Zap className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+      <span className="text-white">{question}</span>
+      {solution && solution.length > 0 && (
+        <div className="flex gap-1.5 ml-1">
+          {solution.map((s, i) => (
+            <kbd
+              key={i}
+              className="px-1.5 py-0.5 bg-gray-700 text-yellow-300 rounded border border-gray-600"
+            >
+              {s}
+            </kbd>
+          ))}
+        </div>
+      )}
+      <span className="ml-auto text-indigo-400 tabular-nums">+{score}</span>
+    </div>
+  )
+}

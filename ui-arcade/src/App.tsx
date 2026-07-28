@@ -16,11 +16,33 @@ import { HelpVimGolfScreen } from './components/HelpVimGolfScreen'
 import { ModeSelectScreen } from './components/ModeSelectScreen'
 import { MotionRaceWrapper } from './components/MotionRaceGame'
 import { QvimxWrapper } from './components/QvimxGame'
+import { VimBotsWrapper } from './components/VimBotsGame'
+import { VimTutorScreen } from './components/VimTutorScreen'
+import { VimTutorSetupScreen } from './components/VimTutorSetupScreen'
+import type { VimTutorConfig } from './data/vimtutor'
 import { Navbar } from './components/Navbar'
 import { PreferencesScreen } from './components/PreferencesScreen'
 import { AppReadmeScreen } from './components/AppReadmeScreen'
 import { BUILTIN_CHALLENGES } from './engine/vimgolfChallenges'
 import type { GoalModeConfig } from './engine/types'
+
+function VimTutorWrapper({ onBack }: { onBack: () => void }) {
+  const [config, setConfig] = useState<VimTutorConfig | null>(null)
+
+  if (!config) {
+    return <VimTutorSetupScreen onStart={setConfig} onBack={onBack} />
+  }
+
+  return (
+    <VimTutorScreen
+      config={config}
+      onBack={() => {
+        setConfig(null)
+        onBack()
+      }}
+    />
+  )
+}
 function VimGolfGameRoute() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -155,6 +177,8 @@ function App() {
                 onSelectGoal={() => navigate('/goal')}
                 onSelectMotionRace={() => navigate('/motion-race')}
                 onSelectQvimx={() => navigate('/qvimx')}
+                onSelectVimTutor={() => navigate('/vimtutor')}
+                onSelectVimBots={() => navigate('/vimbots')}
               />
             }
           />
@@ -241,6 +265,18 @@ function App() {
           <Route path="/goal" element={<GoalModeWrapper onBack={() => navigate('/')} />} />
           <Route path="/motion-race" element={<MotionRaceWrapper onBack={() => navigate('/')} />} />
           <Route path="/qvimx" element={<QvimxWrapper onBack={() => navigate('/')} />} />
+          <Route
+            path="/vimbots"
+            element={
+              <VimBotsWrapper
+                onBack={() => navigate('/')}
+                onViewHighScores={difficulty =>
+                  navigate('/high-scores', { state: { tab: 'vimbots', vimbotsTab: difficulty } })
+                }
+              />
+            }
+          />
+          <Route path="/vimtutor" element={<VimTutorWrapper onBack={() => navigate('/')} />} />
           <Route path="/help" element={<DevModeScreen onBack={() => navigate('/')} />} />
           <Route path="/help/readme" element={<AppReadmeScreen />} />
           <Route path="/help/vimgolf" element={<HelpVimGolfScreen />} />

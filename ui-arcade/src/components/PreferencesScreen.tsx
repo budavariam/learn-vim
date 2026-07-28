@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { loadUsername, saveUsername } from '../engine/UserPrefs'
 import { STORAGE_KEYS } from '../engine/storageKeys'
+import { loadMonacoPrefs, saveMonacoPrefs, type MonacoUserPrefs } from '../engine/MonacoPrefs'
 import { GameDefaultsModal } from './GameDefaultsModal'
 import type { ModalMode } from './GameDefaultsModal'
 
@@ -13,7 +14,172 @@ const GAME_MODE_ROWS: {
   { key: 'goal', label: 'Goal Mode', storageKey: STORAGE_KEYS.LAST_GOAL_CONFIG },
   { key: 'motion', label: 'Motion Race', storageKey: STORAGE_KEYS.LAST_MOTION_CONFIG },
   { key: 'qvimx', label: 'QVIMX', storageKey: STORAGE_KEYS.LAST_QVIMX_CONFIG },
+  { key: 'vimbots', label: 'VimBots', storageKey: STORAGE_KEYS.LAST_VIMBOTS_CONFIG },
 ]
+
+// ── shared pill button style ──────────────────────────────────────────────────
+
+function Pill({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-3 py-1.5 rounded border text-xs font-mono transition-colors ${
+        active
+          ? 'bg-blue-700 border-blue-500 text-white font-bold'
+          : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'
+      }`}
+    >
+      {children}
+    </button>
+  )
+}
+
+// ── Editor Settings section ───────────────────────────────────────────────────
+
+function EditorSettings() {
+  const [prefs, setPrefs] = useState<MonacoUserPrefs>(loadMonacoPrefs)
+
+  function update(patch: Partial<MonacoUserPrefs>) {
+    const next = { ...prefs, ...patch }
+    setPrefs(next)
+    saveMonacoPrefs(next)
+  }
+
+  return (
+    <div className="mb-6">
+      <label className="block text-xs uppercase tracking-wider text-gray-400 mb-2">
+        Editor Settings
+      </label>
+      <p className="text-xs text-gray-500 mb-4">
+        Applied to all Monaco editors. Reload the page after changing font size or whitespace
+        rendering.
+      </p>
+
+      <div className="space-y-4">
+        {/* Word Wrap */}
+        <div>
+          <p className="text-xs text-gray-400 mb-1.5">Word Wrap</p>
+          <div className="flex gap-2">
+            <Pill active={prefs.wordWrap === 'on'} onClick={() => update({ wordWrap: 'on' })}>
+              On
+            </Pill>
+            <Pill active={prefs.wordWrap === 'off'} onClick={() => update({ wordWrap: 'off' })}>
+              Off
+            </Pill>
+          </div>
+        </div>
+
+        {/* Font Size */}
+        <div>
+          <p className="text-xs text-gray-400 mb-1.5">
+            Font Size: <span className="text-yellow-400">{prefs.fontSize}px</span>
+          </p>
+          <input
+            type="range"
+            min={10}
+            max={24}
+            step={1}
+            value={prefs.fontSize}
+            onChange={e => update({ fontSize: Number(e.target.value) })}
+            className="w-full accent-blue-500"
+          />
+          <div className="flex justify-between text-gray-600 text-xs mt-1">
+            <span>10</span>
+            <span>24</span>
+          </div>
+        </div>
+
+        {/* Line Numbers */}
+        <div>
+          <p className="text-xs text-gray-400 mb-1.5">Line Numbers</p>
+          <div className="flex gap-2">
+            <Pill active={prefs.lineNumbers === 'on'} onClick={() => update({ lineNumbers: 'on' })}>
+              Absolute
+            </Pill>
+            <Pill
+              active={prefs.lineNumbers === 'relative'}
+              onClick={() => update({ lineNumbers: 'relative' })}
+            >
+              Relative
+            </Pill>
+            <Pill
+              active={prefs.lineNumbers === 'off'}
+              onClick={() => update({ lineNumbers: 'off' })}
+            >
+              Off
+            </Pill>
+          </div>
+        </div>
+
+        {/* Render Whitespace */}
+        <div>
+          <p className="text-xs text-gray-400 mb-1.5">Render Whitespace</p>
+          <div className="flex gap-2 flex-wrap">
+            <Pill
+              active={prefs.renderWhitespace === 'none'}
+              onClick={() => update({ renderWhitespace: 'none' })}
+            >
+              None
+            </Pill>
+            <Pill
+              active={prefs.renderWhitespace === 'boundary'}
+              onClick={() => update({ renderWhitespace: 'boundary' })}
+            >
+              Boundary
+            </Pill>
+            <Pill
+              active={prefs.renderWhitespace === 'all'}
+              onClick={() => update({ renderWhitespace: 'all' })}
+            >
+              All
+            </Pill>
+          </div>
+        </div>
+
+        {/* Minimap */}
+        <div>
+          <p className="text-xs text-gray-400 mb-1.5">Minimap</p>
+          <div className="flex gap-2">
+            <Pill active={prefs.minimap} onClick={() => update({ minimap: true })}>
+              On
+            </Pill>
+            <Pill active={!prefs.minimap} onClick={() => update({ minimap: false })}>
+              Off
+            </Pill>
+          </div>
+        </div>
+
+        {/* Mouse click cursor repositioning */}
+        <div>
+          <p className="text-xs text-gray-400 mb-1.5">Mouse click moves cursor</p>
+          <p className="text-xs text-gray-600 mb-2">
+            When off, left-click no longer repositions the cursor — only keyboard motions do.
+            Right-click context menu is unaffected.
+          </p>
+          <div className="flex gap-2">
+            <Pill active={!prefs.disableMouse} onClick={() => update({ disableMouse: false })}>
+              Enabled
+            </Pill>
+            <Pill active={prefs.disableMouse} onClick={() => update({ disableMouse: true })}>
+              Disabled
+            </Pill>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
 
 export function PreferencesScreen() {
   const [draft, setDraft] = useState(loadUsername)
@@ -106,6 +272,11 @@ export function PreferencesScreen() {
         >
           {saved ? '✓ Saved' : 'Save'}
         </button>
+
+        <hr className="border-gray-700 my-8" />
+
+        {/* Editor Settings */}
+        <EditorSettings />
 
         <hr className="border-gray-700 my-8" />
 

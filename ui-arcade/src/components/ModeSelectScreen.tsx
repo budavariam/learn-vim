@@ -1,5 +1,5 @@
 import React from 'react'
-import { Gamepad2, Target, Footprints, Icon } from 'lucide-react'
+import { Gamepad2, Target, Footprints, Icon, BookOpen, Bot } from 'lucide-react'
 import { golfDriver } from '@lucide/lab'
 import { Crosshair } from 'lucide-react'
 
@@ -13,6 +13,8 @@ interface ModeSelectScreenProps {
   onSelectGoal: () => void
   onSelectMotionRace: () => void
   onSelectQvimx: () => void
+  onSelectVimTutor: () => void
+  onSelectVimBots: () => void
 }
 
 interface ModeCard {
@@ -28,16 +30,25 @@ export function ModeSelectScreen({
   onSelectGoal,
   onSelectMotionRace,
   onSelectQvimx,
+  onSelectVimTutor,
+  onSelectVimBots,
 }: ModeSelectScreenProps) {
-  // Row 1: Arcade alone (full-width)
+  // Row 1: Arcade | VimTutor
   // Row 2: VimGolf | Goal
   // Row 3: Motion Race | QVIMX
+  // Row 4: VimBots
   const row1: ModeCard[] = [
     {
       icon: Gamepad2,
       name: 'Arcade Mode',
       tagline: 'Race the clock — score points for every vim command',
       onClick: onSelectArcade,
+    },
+    {
+      icon: BookOpen,
+      name: 'VimTutor',
+      tagline: 'Follow the official vim tutorial — practice every lesson hands-on',
+      onClick: onSelectVimTutor,
     },
   ]
 
@@ -71,6 +82,15 @@ export function ModeSelectScreen({
     },
   ]
 
+  const row4: ModeCard[] = [
+    {
+      icon: Bot,
+      name: 'VimBots',
+      tagline: 'Survive the robot horde — dodge, navigate, outlast every level',
+      onClick: onSelectVimBots,
+    },
+  ]
+
   function ModeButton({ card, fullWidth }: { card: ModeCard; fullWidth?: boolean }) {
     return (
       <button
@@ -94,10 +114,10 @@ export function ModeSelectScreen({
         </div>
 
         <div className="flex flex-col gap-4">
-          {/* Row 1 — Arcade (full width) */}
-          <div>
+          {/* Row 1 — Arcade + VimTutor */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {row1.map(c => (
-              <ModeButton key={c.name} card={c} fullWidth />
+              <ModeButton key={c.name} card={c} />
             ))}
           </div>
 
@@ -111,6 +131,13 @@ export function ModeSelectScreen({
           {/* Row 3 — Motion Race + QVIMX */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {row3.map(c => (
+              <ModeButton key={c.name} card={c} />
+            ))}
+          </div>
+
+          {/* Row 4 — VimBots */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {row4.map(c => (
               <ModeButton key={c.name} card={c} />
             ))}
           </div>

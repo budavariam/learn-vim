@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react'
+import { loadMonacoPrefs } from '../engine/MonacoPrefs'
 import {
   formatKeyEvent,
   SOLUTIONS,
@@ -65,6 +66,13 @@ export interface UseMonacoEditorOptions {
    * suppress Monaco's own vim-mode key handling).
    */
   readOnly?: boolean
+  /** Override word wrap for this specific editor instance (ignores user prefs). */
+  wordWrapOverride?: 'on' | 'off'
+  /**
+   * When true, force-enables mouse cursor repositioning even if the user pref
+   * has disabled it. Use for game modes where clicking is intentional input.
+   */
+  enableMouseOverride?: boolean
 }
 
 export interface TrailEntry {
@@ -331,23 +339,43 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
         const { initVimMode } = await import('monaco-vim')
         if (disposed || !editorRef.current) return
 
+        const prefs = loadMonacoPrefs()
+
         const editor = monaco.editor.create(editorRef.current, {
           value: defaultValueRef.current,
           language,
           theme: 'vs-dark',
-          fontSize: 14,
+          fontSize: prefs.fontSize,
           fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
-          minimap: { enabled: false },
+          minimap: { enabled: prefs.minimap },
           scrollBeyondLastLine: false,
-          lineNumbers: 'on',
+          lineNumbers: prefs.lineNumbers,
           renderLineHighlight: 'all',
           automaticLayout: true,
-          wordWrap: 'off',
+          wordWrap: options.wordWrapOverride ?? prefs.wordWrap,
           inlineSuggest: { enabled: false },
-          renderWhitespace: 'all',
+          renderWhitespace: prefs.renderWhitespace,
           readOnly: options.readOnly ?? false,
         })
         editorInstanceRef.current = editor
+
+        // Block left-click cursor repositioning when pref is set.
+        // Monaco's onDidChangeCursorPosition fires with source='mouse' for all click-driven
+        // moves. We track the last keyboard/api position and snap back to it on mouse moves.
+        // This is the native Monaco approach — the editor keeps focus and keyboard works normally.
+        const shouldDisableMouse = options.enableMouseOverride !== true && prefs.disableMouse
+        if (shouldDisableMouse) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          let lastKeyboardPos: any = editor.getPosition()
+          editor.onDidChangeCursorPosition(e => {
+            if (e.source === 'mouse') {
+              // Snap back to the last keyboard-set position
+              editor.setPosition(lastKeyboardPos)
+            } else {
+              lastKeyboardPos = e.position
+            }
+          })
+        }
 
         // ── Target (read-only) editor + diff gutter markers ───────────────
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -360,19 +388,19 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
             language,
             theme: 'vs-dark',
             readOnly: true,
-            fontSize: 14,
+            fontSize: prefs.fontSize,
             fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
             minimap: { enabled: false },
             scrollBeyondLastLine: false,
-            lineNumbers: 'on',
+            lineNumbers: prefs.lineNumbers,
             renderLineHighlight: 'none',
             automaticLayout: true,
-            wordWrap: 'off',
+            wordWrap: options.wordWrapOverride ?? prefs.wordWrap,
             domReadOnly: true,
             scrollbar: { vertical: 'hidden', horizontal: 'hidden' },
             overviewRulerBorder: false,
             hideCursorInOverviewRuler: true,
-            renderWhitespace: 'all',
+            renderWhitespace: prefs.renderWhitespace,
           })
           // Expose on the container element so the targetContent effect can reach it
           // eslint-disable-next-line @typescript-eslint/no-explicit-any

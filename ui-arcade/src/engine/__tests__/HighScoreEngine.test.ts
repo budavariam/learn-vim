@@ -70,6 +70,7 @@ describe('loadHighScores', () => {
       motionrace_survival: [],
       motionrace_total_goals: [],
       goal: [],
+      vimbots: [],
     }
     localStorage.setItem('vim_arcade_high_scores', JSON.stringify(stored))
     const loaded = loadHighScores()
@@ -97,6 +98,7 @@ describe('saveHighScores', () => {
       motionrace_survival: [],
       motionrace_total_goals: [],
       goal: [],
+      vimbots: [],
     }
     saveHighScores(scores)
     const loaded = loadHighScores()
