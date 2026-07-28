@@ -25,6 +25,7 @@ export const STORAGE_KEYS = {
   LAST_QVIMX_CONFIG: 'vimarcade_last_qvimx_config',
   LAST_VIMTUTOR_CONFIG: 'vimarcade_last_vimtutor_config',
   LAST_VIMBOTS_CONFIG: 'vimarcade_last_vimbots_config',
+  LAST_VIMGOLF_HANDICAPS: 'vimarcade_last_vimgolf_handicaps',
 } as const
 
 // ── One-time migration from legacy key names ──────────────────────────────────

@@ -10,6 +10,7 @@ import type {
   RepetitionLevel,
   GuidedMode,
   GameConfig,
+  HandicapConfig,
 } from '../engine/types'
 import { CategoryPicker } from './CategoryPicker'
 import rawData from '../data.json'
@@ -19,6 +20,7 @@ import {
   CollapseSection,
   SetupPageShell,
   UnifiedChallengeOptions,
+  HandicapsSection,
   StartButton,
   ReplayButton,
 } from './SetupPrimitives'
@@ -63,6 +65,7 @@ type SetupState = {
   knowledgeFilter: 'all' | 'known' | 'unknown'
   commandTimeMultiplier: number
   drillMode: boolean
+  handicaps: HandicapConfig
 }
 
 type SetupAction =
@@ -77,6 +80,7 @@ type SetupAction =
   | { type: 'SET_KNOWLEDGE_FILTER'; value: 'all' | 'known' | 'unknown' }
   | { type: 'SET_TIME_MULT'; value: number }
   | { type: 'SET_DRILL_MODE'; value: boolean }
+  | { type: 'PATCH_HANDICAPS'; patch: Partial<HandicapConfig> }
   | { type: 'TOGGLE_ASSIST' }
   | { type: 'TOGGLE_SKIP_UNSUPPORTED' }
 
@@ -104,6 +108,8 @@ function setupReducer(state: SetupState, action: SetupAction): SetupState {
       return { ...state, commandTimeMultiplier: action.value }
     case 'SET_DRILL_MODE':
       return { ...state, drillMode: action.value }
+    case 'PATCH_HANDICAPS':
+      return { ...state, handicaps: { ...state.handicaps, ...action.patch } }
     case 'TOGGLE_ASSIST':
       return { ...state, assistEnabled: !state.assistEnabled }
     case 'TOGGLE_SKIP_UNSUPPORTED': {
@@ -146,6 +152,12 @@ function makeInitialState(lastConfig: GameConfig | null): SetupState {
     knowledgeFilter: (lastConfig?.knowledgeFilter ?? 'all') as 'all' | 'known' | 'unknown',
     commandTimeMultiplier: lastConfig?.commandTimeMultiplier ?? 1,
     drillMode: lastConfig?.drillMode ?? false,
+    handicaps: {
+      hjklOnly: lastConfig?.hjklOnly ?? false,
+      noHjkl: lastConfig?.noHjkl ?? false,
+      opacityFade: lastConfig?.opacityFade ?? false,
+      snowEffect: lastConfig?.snowEffect ?? false,
+    },
   }
 }
 
@@ -201,6 +213,7 @@ export function SetupScreen({
       knowledgeFilter: s.knowledgeFilter,
       commandTimeMultiplier: s.commandTimeMultiplier,
       drillMode: s.drillMode,
+      ...s.handicaps,
     }
     onStart(config)
   }
@@ -354,6 +367,12 @@ export function SetupScreen({
           )}
         </div>
       </CollapseSection>
+
+      {/* Handicaps */}
+      <HandicapsSection
+        config={s.handicaps}
+        onPatch={patch => dispatch({ type: 'PATCH_HANDICAPS', patch })}
+      />
     </SetupPageShell>
   )
 }

@@ -4,6 +4,8 @@ import type { GoalState } from '../hooks/useGoalGame'
 import { ChallengePanel } from './ChallengePanel'
 import { ScoreDisplay } from './ScoreDisplay'
 import { LevelIndicator } from './LevelIndicator'
+import { useKeyRestriction } from '../hooks/useKeyRestriction'
+import { SnowOverlay, OpacityFadeOverlay } from './GameOverlays'
 import { ArrowLeft, Check, ChevronRight, CheckCircle, XCircle } from 'lucide-react'
 interface GoalGameProps {
   state: GoalState
@@ -50,6 +52,8 @@ export function GoalGame({
   const isLowTime = limit > 0 && remainingMs < 10_000
   const recentResults = state.results.slice(-3).reverse()
   const arcade = state.arcadeState
+
+  useKeyRestriction(state.config, state.status === 'playing')
 
   return (
     <div className="h-full bg-gray-900 flex flex-col overflow-hidden relative font-mono">
@@ -107,7 +111,13 @@ export function GoalGame({
             <span className="ml-auto text-gray-600 text-xs">{state.keystrokes} keys</span>
           </div>
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          <div ref={editorRef as any} className="flex-1 min-h-0" />
+          <div className="flex-1 min-h-0 relative">
+            <div ref={editorRef as any} className="h-full" />
+            {state.config?.snowEffect && <SnowOverlay />}
+            {state.config?.opacityFade && (
+              <OpacityFadeOverlay cursorLine={0} getVisibleRange={() => null} />
+            )}
+          </div>
           <div
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ref={statusRef as any}

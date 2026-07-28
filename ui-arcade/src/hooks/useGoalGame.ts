@@ -132,6 +132,10 @@ function buildArcadeConfig(config: GoalModeConfig): GameConfig {
     skipUnsupported: config.skipUnsupported,
     commandTimeMultiplier: config.commandTimeMultiplier,
     knowledgeFilter: 'all', // Goal Mode always uses all commands for the arcade panel
+    hjklOnly: config.hjklOnly ?? false,
+    noHjkl: config.noHjkl ?? false,
+    opacityFade: config.opacityFade ?? false,
+    snowEffect: config.snowEffect ?? false,
   }
 }
 

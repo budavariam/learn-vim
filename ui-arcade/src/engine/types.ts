@@ -24,6 +24,24 @@ export const CHALLENGE_CONFIG_DEFAULTS: ChallengeConfig = {
   challengeDrillMode: false,
 }
 
+// ── Shared handicap config ────────────────────────────────────────────────────
+// Visual/input modifiers that make any game mode harder.
+// All game modes embed these fields; MotionRace adds its own trail-specific extras.
+
+export interface HandicapConfig {
+  hjklOnly: boolean  // restrict movement to h/j/k/l only
+  noHjkl: boolean    // block h/j/k/l — must use word/search motions
+  opacityFade: boolean // dim text far from cursor
+  snowEffect: boolean  // floating snowflakes overlay
+}
+
+export const HANDICAP_CONFIG_DEFAULTS: HandicapConfig = {
+  hjklOnly: false,
+  noHjkl: false,
+  opacityFade: false,
+  snowEffect: false,
+}
+
 export type GameMode = 'general' | 'timed_challenge' | 'survival'
 
 export type TimedChallengeDuration = 1 | 2 | 5 | 10 | 15
@@ -73,6 +91,11 @@ export interface GameConfig {
   knowledgeFilter: 'all' | 'known' | 'unknown'
   // Drill mode: present commands one-by-one in sequential order, no randomisation.
   drillMode?: boolean
+  // Handicaps (optional for backward compat with saved configs)
+  hjklOnly?: boolean
+  noHjkl?: boolean
+  opacityFade?: boolean
+  snowEffect?: boolean
 }
 
 // Shape coming from data.json (generated from vim-cheatsheet.md)
@@ -292,6 +315,11 @@ export interface GoalModeConfig {
   dynamicAssist: number | null
   skipUnsupported: boolean
   solvedFilter?: 'all' | 'unsolved' | 'solved' | 'mixed'
+  // Handicaps (optional for backward compat with saved configs)
+  hjklOnly?: boolean
+  noHjkl?: boolean
+  opacityFade?: boolean
+  snowEffect?: boolean
 }
 
 export interface GoalChallengeResult {

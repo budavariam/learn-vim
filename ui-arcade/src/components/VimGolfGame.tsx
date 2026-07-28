@@ -1,9 +1,12 @@
 import { useVimGolfGame } from '../hooks/useVimGolfGame'
 import { VimGolfDiff } from './VimGolfDiff'
-import type { VimGolfChallenge } from '../engine/types'
+import { useKeyRestriction } from '../hooks/useKeyRestriction'
+import { SnowOverlay, OpacityFadeOverlay } from './GameOverlays'
+import type { VimGolfChallenge, HandicapConfig } from '../engine/types'
 
 interface VimGolfGameProps {
   challenge: VimGolfChallenge
+  handicaps?: HandicapConfig
   onNext?: () => void
   onPrev?: () => void
   onQuit?: () => void
@@ -26,7 +29,7 @@ const DIFFICULTY_BADGE: Record<VimGolfChallenge['difficulty'], string> = {
 
 import { useEffect } from 'react'
 
-export function VimGolfGame({ challenge, onNext, onPrev, onQuit }: VimGolfGameProps) {
+export function VimGolfGame({ challenge, handicaps, onNext, onPrev, onQuit }: VimGolfGameProps) {
   const {
     editorRef,
     statusRef,
@@ -44,6 +47,8 @@ export function VimGolfGame({ challenge, onNext, onPrev, onQuit }: VimGolfGamePr
     toggleSolution,
     toggleDiff,
   } = useVimGolfGame(challenge)
+
+  useKeyRestriction(handicaps, status === 'playing')
 
   useEffect(() => {
     const el = editorRef.current
@@ -69,7 +74,13 @@ export function VimGolfGame({ challenge, onNext, onPrev, onQuit }: VimGolfGamePr
         {/* Editor — 60% */}
         <div className="flex-[6] flex flex-col min-h-0">
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-          <div ref={editorRef as any} className="flex-1" />
+          <div className="flex-1 relative">
+            <div ref={editorRef as any} className="h-full" />
+            {handicaps?.snowEffect && <SnowOverlay />}
+            {handicaps?.opacityFade && (
+              <OpacityFadeOverlay cursorLine={0} getVisibleRange={() => null} />
+            )}
+          </div>
           <div
             ref={statusRef as any}
             className="h-6 bg-gray-800 border-t border-gray-700 px-3 text-xs font-mono text-gray-400 flex items-center"

@@ -1555,7 +1555,12 @@ const VIMBOTS_DEFAULT: VimBotsConfig = {
   animatedEffects: true,
   enableHelperGrid: false,
   startingEnemyLevel: 1,
+  timerBonus: true,
   ...CHALLENGE_CONFIG_DEFAULTS,
+  hjklOnly: false,
+  noHjkl: false,
+  opacityFade: false,
+  snowEffect: false,
 }
 
 const VALID_GRID_PRESETS: VimBoardPreset[] = [
@@ -1640,6 +1645,11 @@ function sanitizeVimBotsConfig(raw: unknown): { state: VimBotsConfig; hadInvalid
       VIMBOTS_DEFAULT.challengeDrillMode,
       fail
     ),
+    hjklOnly: pickBool(r.hjklOnly ?? false, VIMBOTS_DEFAULT.hjklOnly, fail),
+    noHjkl: pickBool(r.noHjkl ?? false, VIMBOTS_DEFAULT.noHjkl, fail),
+    opacityFade: pickBool(r.opacityFade ?? false, VIMBOTS_DEFAULT.opacityFade, fail),
+    snowEffect: pickBool(r.snowEffect ?? false, VIMBOTS_DEFAULT.snowEffect, fail),
+    timerBonus: pickBool(r.timerBonus ?? true, VIMBOTS_DEFAULT.timerBonus, fail),
   }
 
   if (hadInvalid) {

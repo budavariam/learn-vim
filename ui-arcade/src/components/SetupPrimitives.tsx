@@ -7,8 +7,8 @@
 import { useState } from 'react'
 import type React from 'react'
 import type { LucideIcon } from 'lucide-react'
-import { Zap, RotateCcw } from 'lucide-react'
-import type { Language, GuidedMode, RepetitionLevel } from '../engine/types'
+import { Zap, RotateCcw, Sliders, Snowflake, Eye, AlertCircle } from 'lucide-react'
+import type { Language, GuidedMode, RepetitionLevel, HandicapConfig } from '../engine/types'
 import { getCategoryColor } from '../engine/categoryColors'
 
 // ── Shared constants ──────────────────────────────────────────────────────────
@@ -774,5 +774,151 @@ export function ChallengeBar({ question, solution, score }: ChallengeBarProps) {
       )}
       <span className="ml-auto text-indigo-400 tabular-nums">+{score}</span>
     </div>
+  )
+}
+
+// ── HandicapsSection ──────────────────────────────────────────────────────────
+// Shared handicap configuration panel for all game modes.
+// Pass `extras` for mode-specific handicap toggles (rendered after the universal ones).
+
+export interface HandicapItem {
+  key: string
+  icon: LucideIcon
+  label: string
+  desc: string
+  value: boolean
+  onToggle: () => void
+  /** Non-default active color classes — defaults to yellow theme */
+  activeClasses?: string
+}
+
+interface HandicapsSectionProps {
+  config: HandicapConfig
+  onPatch: (patch: Partial<HandicapConfig>) => void
+  /** Mode-specific extra handicap toggles shown after universal ones */
+  extras?: HandicapItem[]
+}
+
+export function HandicapsSection({ config, onPatch, extras }: HandicapsSectionProps) {
+  const universalItems: HandicapItem[] = [
+    {
+      key: 'snowEffect',
+      icon: Snowflake,
+      label: 'Snow',
+      desc: 'Snowflakes overlay',
+      value: config.snowEffect,
+      onToggle: () => onPatch({ snowEffect: !config.snowEffect }),
+    },
+    {
+      key: 'opacityFade',
+      icon: Eye,
+      label: 'Opacity fade',
+      desc: 'Dims text far from cursor',
+      value: config.opacityFade,
+      onToggle: () => onPatch({ opacityFade: !config.opacityFade }),
+    },
+  ]
+  const allGridItems = extras ? [...universalItems, ...extras] : universalItems
+
+  const activeCount =
+    [config.snowEffect, config.opacityFade].filter(Boolean).length +
+    (extras?.filter(e => e.value).length ?? 0) +
+    (config.hjklOnly ? 1 : 0) +
+    (config.noHjkl ? 1 : 0)
+
+  return (
+    <CollapseSection
+      label="Handicaps"
+      icon={Sliders}
+      defaultOpen={false}
+      badge={
+        activeCount > 0 ? (
+          <span className="bg-yellow-800 text-yellow-300 text-xs px-1.5 py-0.5 rounded font-bold">
+            {activeCount} active
+          </span>
+        ) : undefined
+      }
+    >
+      <div className="space-y-2">
+        {config.snowEffect && (
+          <p className="text-xs text-yellow-400 bg-yellow-900/30 border border-yellow-700 rounded px-2 py-1.5">
+            Epilepsy warning: flashing / moving visuals enabled.
+          </p>
+        )}
+        <div className="grid grid-cols-2 gap-2">
+          {allGridItems.map(item => {
+            const active = item.value
+            const activeCls =
+              item.activeClasses ?? 'bg-yellow-800 border-yellow-600 text-white font-bold'
+            const activeDescCls = item.activeClasses ? 'text-blue-200' : 'text-yellow-300'
+            return (
+              <button
+                key={item.key}
+                onClick={item.onToggle}
+                className={`py-2.5 px-3 rounded border text-left text-sm font-mono transition-colors ${
+                  active
+                    ? activeCls
+                    : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'
+                }`}
+              >
+                <div className="font-bold flex items-center gap-1.5">
+                  <item.icon className="w-3.5 h-3.5" />
+                  {item.label}
+                </div>
+                <div
+                  className={`text-xs font-normal mt-0.5 ${active ? activeDescCls : 'text-gray-500'}`}
+                >
+                  {item.desc}
+                </div>
+              </button>
+            )
+          })}
+        </div>
+
+        <p className="text-xs text-gray-500 mt-1">Key restrictions (mutually exclusive):</p>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={() => {
+              onPatch({ hjklOnly: !config.hjklOnly, noHjkl: config.hjklOnly ? config.noHjkl : false })
+            }}
+            className={`py-2.5 px-3 rounded border text-left text-sm font-mono transition-colors ${
+              config.hjklOnly
+                ? 'bg-blue-700 border-blue-500 text-white font-bold'
+                : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'
+            }`}
+          >
+            <div className="font-bold flex items-center gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5" />
+              hjkl only
+            </div>
+            <div
+              className={`text-xs font-normal mt-0.5 ${config.hjklOnly ? 'text-blue-200' : 'text-gray-500'}`}
+            >
+              Only basic moves allowed
+            </div>
+          </button>
+          <button
+            onClick={() => {
+              onPatch({ noHjkl: !config.noHjkl, hjklOnly: config.noHjkl ? config.hjklOnly : false })
+            }}
+            className={`py-2.5 px-3 rounded border text-left text-sm font-mono transition-colors ${
+              config.noHjkl
+                ? 'bg-red-800 border-red-600 text-white font-bold'
+                : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'
+            }`}
+          >
+            <div className="font-bold flex items-center gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5" />
+              No hjkl
+            </div>
+            <div
+              className={`text-xs font-normal mt-0.5 ${config.noHjkl ? 'text-red-300' : 'text-gray-500'}`}
+            >
+              Must use word/search motions
+            </div>
+          </button>
+        </div>
+      </div>
+    </CollapseSection>
   )
 }

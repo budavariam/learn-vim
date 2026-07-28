@@ -1,10 +1,10 @@
-import type { Language, ChallengeConfig } from './types'
+import type { Language, ChallengeConfig, HandicapConfig } from './types'
 
 export type VimBoardPreset = 'tiny' | 'small' | 'medium' | 'large' | 'xlarge' | 'custom'
-export type VimBotsBoardSource = 'grid' | Language
+export type VimBotsBoardSource = 'grid' | 'lorem-grid' | Language
 export type VimBotsDifficulty = 'beginner' | 'easy' | 'medium' | 'hard' | 'expert'
 
-export interface VimBotsConfig extends ChallengeConfig {
+export interface VimBotsConfig extends ChallengeConfig, HandicapConfig {
   boardSource: VimBotsBoardSource
   gridPreset: VimBoardPreset
   customRows: number
@@ -19,6 +19,8 @@ export interface VimBotsConfig extends ChallengeConfig {
   enableHelperGrid: boolean
   /** Which enemy tier the first level spawns — 1 = Borg only, 3 = Borgs+Reapers, etc. */
   startingEnemyLevel: number
+  /** Award a speed bonus if the level is cleared before the par timer runs out (default on). */
+  timerBonus: boolean
 }
 
 export interface Pos {
@@ -124,6 +126,12 @@ export interface VimBotsState {
   initialRobotCount: number
   initialRobotsByType: Partial<Record<RobotType, number>>
   message: string
+  /** ms timestamp when this level started (for timer bonus). */
+  levelStartedAt: number
+  /** Par time for this level in ms — clear before this to earn a speed bonus. */
+  parMs: number
+  /** Speed bonus earned this level (0 until level_cleared). */
+  timerBonusEarned: number
 }
 
 // ── Preset / grid helpers ─────────────────────────────────────────────────────
@@ -145,7 +153,7 @@ export function getPresetDimensions(preset: VimBoardPreset): { rows: number; col
   }
 }
 
-const GRID_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+const GRID_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789      '
 
 export function generateGrid(rows: number, cols: number): string {
   const lines: string[] = []
@@ -159,8 +167,73 @@ export function generateGrid(rows: number, cols: number): string {
   return lines.join('\n')
 }
 
+// Compact latin-ish word list for generated lorem grids.
+const LOREM_WORDS = [
+  'lorem','ipsum','dolor','sit','amet','consectetur','adipiscing','elit','sed','do',
+  'eiusmod','tempor','incididunt','ut','labore','et','dolore','magna','aliqua','enim',
+  'ad','minim','veniam','quis','nostrud','exercitation','ullamco','laboris','nisi',
+  'aliquip','ex','ea','commodo','consequat','duis','aute','irure','in','reprehenderit',
+  'voluptate','velit','esse','cillum','fugiat','nulla','pariatur','excepteur','sint',
+  'occaecat','cupidatat','non','proident','sunt','culpa','qui','officia','deserunt',
+  'mollit','anim','id','est','laborum','at','vero','eos','accusamus','iusto',
+  'dignissimos','ducimus','blanditiis','praesentium','voluptatum','deleniti','atque',
+  'corrupti','quos','dolores','quas','molestias','excepturi','occaecati','cupiditate',
+  'provident','similique','mollitia','animi','vel','illum','quo','minus',
+]
+
+/**
+ * Generates a lorem-ipsum-style text grid exactly `rows` lines × `cols` chars wide.
+ * Lines are filled with words from the latin word list, separated by spaces.
+ * Each line is padded with spaces to reach exactly `cols` characters.
+ */
+export function generateLoremGrid(rows: number, cols: number): string {
+  const lines: string[] = []
+  let wordIdx = Math.floor(Math.random() * LOREM_WORDS.length)
+  const next = () => {
+    const w = LOREM_WORDS[wordIdx % LOREM_WORDS.length]
+    wordIdx++
+    return w
+  }
+
+  for (let r = 0; r < rows; r++) {
+    let line = ''
+    while (line.length < cols) {
+      const word = next()
+      if (line.length === 0) {
+        line = word.slice(0, cols)
+      } else {
+        const candidate = line + ' ' + word
+        if (candidate.length <= cols) {
+          line = candidate
+        } else {
+          // Pad the rest with spaces and start next line
+          break
+        }
+      }
+    }
+    lines.push(line.padEnd(cols, ' '))
+  }
+  return lines.join('\n')
+}
+
 // Keep for backward-compat
 export type GridSize = VimBoardPreset
+
+// ── Par time calculation ──────────────────────────────────────────────────────
+// Par time = ms allowed before the speed bonus expires for a level.
+// Formula: robotCount × msPerRobot(difficulty). Smaller maps → fewer robots →
+// shorter par → harder to beat. Scales naturally with difficulty and map size.
+const PAR_MS_PER_ROBOT: Record<VimBotsDifficulty, number> = {
+  beginner: 8_000,
+  easy:     6_000,
+  medium:   5_000,
+  hard:     4_000,
+  expert:   3_000,
+}
+
+export function computeParMs(robotCount: number, difficulty: VimBotsDifficulty): number {
+  return Math.max(10_000, robotCount * PAR_MS_PER_ROBOT[difficulty])
+}
 
 // ── Pure helpers ──────────────────────────────────────────────────────────────
 
@@ -466,6 +539,9 @@ export function initVimBotsState(config: VimBotsConfig, gridContent: string): Vi
     initialRobotCount: robots.length,
     initialRobotsByType: countsByType(robots),
     message: 'Level 1!',
+    levelStartedAt: Date.now(),
+    parMs: computeParMs(robots.length, config.difficulty),
+    timerBonusEarned: 0,
   }
 }
 
@@ -507,8 +583,18 @@ export function advanceRobots(state: VimBotsState): VimBotsState {
   }
 
   if (survivors.length === 0) {
-    const bonus = level * 100
-    newScore += bonus
+    const levelBonus = level * 100
+    newScore += levelBonus
+    let timerBonusEarned = 0
+    if (state.config.timerBonus) {
+      const elapsed = Date.now() - state.levelStartedAt
+      const remaining = Math.max(0, state.parMs - elapsed)
+      if (remaining > 0) {
+        timerBonusEarned = Math.floor((remaining / state.parMs) * level * 200)
+        newScore += timerBonusEarned
+      }
+    }
+    const bonusMsg = timerBonusEarned > 0 ? ` + ⚡${timerBonusEarned} speed` : ''
     return {
       ...state,
       robots: survivors,
@@ -516,7 +602,8 @@ export function advanceRobots(state: VimBotsState): VimBotsState {
       score: newScore,
       status: 'level_cleared',
       robotsDestroyedThisLevel: newRobotsDestroyedThisLevel,
-      message: `Level ${level} cleared! Bonus: ${bonus} pts`,
+      timerBonusEarned,
+      message: `Level ${level} cleared! +${levelBonus} pts${bonusMsg}`,
     }
   }
 
@@ -680,6 +767,9 @@ export function startNextLevel(state: VimBotsState): VimBotsState {
     initialRobotCount: robots.length,
     initialRobotsByType: countsByType(robots),
     message: `Level ${newLevel}!`,
+    levelStartedAt: Date.now(),
+    parMs: computeParMs(robots.length, config.difficulty),
+    timerBonusEarned: 0,
   }
 }
 

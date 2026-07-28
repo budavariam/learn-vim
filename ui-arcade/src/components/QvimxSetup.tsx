@@ -9,6 +9,7 @@ import type {
 } from '../hooks/useQvimx'
 import { MOTION_CHALLENGE_CATEGORIES } from '../hooks/useMotionRace'
 import type { Language, GuidedMode, RepetitionLevel } from '../engine/types'
+import { HANDICAP_CONFIG_DEFAULTS } from '../engine/types'
 import { STORAGE_KEYS, loadStoredConfig, saveStoredConfig } from '../engine/storageKeys'
 import {
   LanguageGrid,
@@ -16,6 +17,7 @@ import {
   SetupPageShell,
   ChallengeToggleSection,
   UnifiedChallengeOptions,
+  HandicapsSection,
   cls,
   StartButton,
   ReplayButton,
@@ -55,6 +57,10 @@ export type QvimxSetupState = {
   challengeCategories: string[]
   challengeDrillMode: boolean
   bombCount: 0 | 1 | 2 | 3
+  hjklOnly: boolean
+  noHjkl: boolean
+  opacityFade: boolean
+  snowEffect: boolean
 }
 
 type QvimxSetupAction = { type: 'PATCH'; payload: Partial<QvimxSetupState> }
@@ -78,6 +84,7 @@ const QVIMX_SETUP_DEFAULT: QvimxSetupState = {
   challengeCategories: MOTION_CHALLENGE_CATEGORIES,
   challengeDrillMode: false,
   bombCount: 0,
+  ...HANDICAP_CONFIG_DEFAULTS,
 }
 
 function qvimxSetupReducer(state: QvimxSetupState, action: QvimxSetupAction): QvimxSetupState {
@@ -200,6 +207,10 @@ export function QvimxSetup({ onStart, onBack: _onBack }: SetupProps) {
       challengeCategories: s.challengeCategories,
       challengeDrillMode: s.challengeDrillMode,
       bombCount: s.bombCount,
+      hjklOnly: s.hjklOnly,
+      noHjkl: s.noHjkl,
+      opacityFade: s.opacityFade,
+      snowEffect: s.snowEffect,
     }
     saveStoredConfig(STORAGE_KEYS.LAST_QVIMX_CONFIG, s)
     onStart(config)
@@ -225,6 +236,10 @@ export function QvimxSetup({ onStart, onBack: _onBack }: SetupProps) {
       challengeCategories: saved.challengeCategories,
       challengeDrillMode: saved.challengeDrillMode ?? false,
       bombCount: saved.bombCount ?? 1,
+      hjklOnly: saved.hjklOnly ?? false,
+      noHjkl: saved.noHjkl ?? false,
+      opacityFade: saved.opacityFade ?? false,
+      snowEffect: saved.snowEffect ?? false,
     }
     onStart(config)
   }
@@ -505,6 +520,12 @@ export function QvimxSetup({ onStart, onBack: _onBack }: SetupProps) {
           onDrillMode={v => set({ challengeDrillMode: v })}
         />
       </ChallengeToggleSection>
+
+      {/* Handicaps */}
+      <HandicapsSection
+        config={{ hjklOnly: s.hjklOnly, noHjkl: s.noHjkl, opacityFade: s.opacityFade, snowEffect: s.snowEffect }}
+        onPatch={p => set(p)}
+      />
     </SetupPageShell>
   )
 }

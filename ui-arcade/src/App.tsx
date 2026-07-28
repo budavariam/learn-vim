@@ -24,7 +24,9 @@ import { Navbar } from './components/Navbar'
 import { PreferencesScreen } from './components/PreferencesScreen'
 import { AppReadmeScreen } from './components/AppReadmeScreen'
 import { BUILTIN_CHALLENGES } from './engine/vimgolfChallenges'
-import type { GoalModeConfig } from './engine/types'
+import type { GoalModeConfig, HandicapConfig } from './engine/types'
+import { HANDICAP_CONFIG_DEFAULTS } from './engine/types'
+import { STORAGE_KEYS, loadStoredConfig } from './engine/storageKeys'
 
 function VimTutorWrapper({ onBack }: { onBack: () => void }) {
   const [config, setConfig] = useState<VimTutorConfig | null>(null)
@@ -48,6 +50,9 @@ function VimGolfGameRoute() {
   const location = useLocation()
   const { challengeId } = useParams<{ challengeId: string }>()
 
+  const vimgolfHandicaps: HandicapConfig =
+    loadStoredConfig<HandicapConfig>(STORAGE_KEYS.LAST_VIMGOLF_HANDICAPS) ??
+    HANDICAP_CONFIG_DEFAULTS
   const challengeList: string[] = location.state?.challengeList || []
   const currentIndex = challengeList.indexOf(challengeId || '')
   const nextChallengeId =
@@ -66,6 +71,7 @@ function VimGolfGameRoute() {
     <VimGolfGame
       key={challenge.id}
       challenge={challenge}
+      handicaps={vimgolfHandicaps}
       onNext={
         nextChallengeId
           ? () => navigate(`/vimgolf/${nextChallengeId}`, { state: location.state })

@@ -164,6 +164,13 @@ export function ArcadeGame({
             onCommandExecuted={onCommandExecuted}
             onKeyDisplay={handleKeyDisplay}
             monacoActions={settingsActions}
+            handicaps={{
+              hjklOnly: state.config.hjklOnly ?? false,
+              noHjkl: state.config.noHjkl ?? false,
+              opacityFade: state.config.opacityFade ?? false,
+              snowEffect: state.config.snowEffect ?? false,
+            }}
+            isGamePlaying={state.status === 'playing'}
           />
         </div>
 

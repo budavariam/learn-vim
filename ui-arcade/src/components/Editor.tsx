@@ -1,6 +1,9 @@
-import type { Language } from '../engine/types'
+import { useState } from 'react'
+import type { Language, HandicapConfig } from '../engine/types'
 import type { KeyDisplayEvent, MonacoAction } from '../hooks/useMonacoEditor'
 import { useMonacoEditor } from '../hooks/useMonacoEditor'
+import { useKeyRestriction } from '../hooks/useKeyRestriction'
+import { SnowOverlay, OpacityFadeOverlay } from './GameOverlays'
 import { getFile } from '../files/index'
 
 interface EditorProps {
@@ -8,6 +11,8 @@ interface EditorProps {
   onCommandExecuted: (cmd: string) => void
   onKeyDisplay?: (event: KeyDisplayEvent) => void
   monacoActions?: MonacoAction[]
+  handicaps?: HandicapConfig
+  isGamePlaying?: boolean
 }
 
 const MONACO_LANGUAGE: Record<Language, string> = {
@@ -30,14 +35,26 @@ const FILE_NAME: Record<Language, string> = {
   lorem: 'lorem.txt',
 }
 
-export function Editor({ language, onCommandExecuted, onKeyDisplay, monacoActions }: EditorProps) {
-  const { editorRef, statusRef } = useMonacoEditor({
+export function Editor({
+  language,
+  onCommandExecuted,
+  onKeyDisplay,
+  monacoActions,
+  handicaps,
+  isGamePlaying = true,
+}: EditorProps) {
+  const [cursorLine, setCursorLine] = useState(1)
+
+  const { editorRef, statusRef, getVisibleRange } = useMonacoEditor({
     onCommandExecuted,
     onKeyDisplay,
     language: MONACO_LANGUAGE[language],
     defaultValue: getFile(language),
     monacoActions,
+    onCursorChange: handicaps?.opacityFade ? pos => setCursorLine(pos.lineNumber) : undefined,
   })
+
+  useKeyRestriction(handicaps, isGamePlaying)
 
   return (
     <div className="flex flex-col h-full bg-gray-950">
@@ -45,7 +62,13 @@ export function Editor({ language, onCommandExecuted, onKeyDisplay, monacoAction
         <span className="text-gray-400 text-xs font-mono">{FILE_NAME[language]}</span>
         <span className="ml-auto text-xs text-gray-500 font-mono uppercase">{language}</span>
       </div>
-      <div ref={editorRef} className="flex-1 min-h-0" />
+      <div className="flex-1 min-h-0 relative">
+        <div ref={editorRef} className="h-full" />
+        {handicaps?.snowEffect && <SnowOverlay />}
+        {handicaps?.opacityFade && (
+          <OpacityFadeOverlay cursorLine={cursorLine} getVisibleRange={getVisibleRange} />
+        )}
+      </div>
       <div
         ref={statusRef}
         className="h-7 bg-gray-800 border-t border-gray-700 px-3 flex items-center text-xs font-mono text-gray-400"

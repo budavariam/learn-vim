@@ -16,11 +16,13 @@ import {
   SetupPageShell,
   ChallengeToggleSection,
   UnifiedChallengeOptions,
+  HandicapsSection,
   cls,
   StartButton,
   ReplayButton,
   toggleCategory,
 } from './SetupPrimitives'
+import type { HandicapItem } from './SetupPrimitives'
 import {
   Globe,
   Target,
@@ -30,12 +32,10 @@ import {
   Map,
   Waves,
   Bot,
-  Sliders,
   Skull,
   Flame,
   EyeOff,
   Eye,
-  Snowflake,
   Sparkles,
   AlertCircle,
   Link,
@@ -246,15 +246,36 @@ export function MotionRaceSetup({ onStart, onBack: _onBack }: SetupProps) {
     onStart(configObj)
   }
 
-  const activeHandicapCount = [
-    s.snowEffect,
-    s.opacityFade,
-    s.confettiOnGoal,
-    s.penaltyFlash,
-    s.hjklOnly,
-    s.noHjkl,
-    s.solidTrails && s.endGoal !== 'survival',
-  ].filter(Boolean).length
+  const motionRaceExtras: HandicapItem[] = [
+    {
+      key: 'confettiOnGoal',
+      icon: Sparkles,
+      label: 'Confetti',
+      desc: 'Burst on goal collect',
+      value: s.confettiOnGoal,
+      onToggle: () => set({ confettiOnGoal: !s.confettiOnGoal }),
+    },
+    {
+      key: 'penaltyFlash',
+      icon: AlertCircle,
+      label: 'Penalty flash',
+      desc: 'Red flash on enemy goal',
+      value: s.penaltyFlash,
+      onToggle: () => set({ penaltyFlash: !s.penaltyFlash }),
+    },
+    ...(s.endGoal !== 'survival'
+      ? [
+          {
+            key: 'solidTrails',
+            icon: Waves,
+            label: 'Solid trails',
+            desc: 'Trails block movement',
+            value: s.solidTrails,
+            onToggle: () => set({ solidTrails: !s.solidTrails }),
+          } as HandicapItem,
+        ]
+      : []),
+  ]
 
   const countOrDurationLabel =
     s.endGoal === 'total_count'
@@ -654,124 +675,11 @@ export function MotionRaceSetup({ onStart, onBack: _onBack }: SetupProps) {
       </CollapseSection>
 
       {/* Handicaps */}
-      <CollapseSection
-        label="Handicaps"
-        icon={Sliders}
-        defaultOpen={false}
-        badge={
-          activeHandicapCount > 0 ? (
-            <span className="bg-yellow-800 text-yellow-300 text-xs px-1.5 py-0.5 rounded font-bold">
-              {activeHandicapCount} active
-            </span>
-          ) : undefined
-        }
-      >
-        <div className="space-y-2">
-          {(s.snowEffect || s.confettiOnGoal) && (
-            <p className="text-xs text-yellow-400 bg-yellow-900/30 border border-yellow-700 rounded px-2 py-1.5">
-              Epilepsy warning: flashing / moving visuals enabled.
-            </p>
-          )}
-          <div className="grid grid-cols-2 gap-2">
-            {(
-              [
-                {
-                  key: 'snowEffect',
-                  icon: Snowflake,
-                  label: 'Snow',
-                  desc: 'Snowflakes overlay',
-                  value: s.snowEffect,
-                  set: (v: boolean) => set({ snowEffect: v }),
-                },
-                {
-                  key: 'opacityFade',
-                  icon: Eye,
-                  label: 'Opacity fade',
-                  desc: 'Dims text far from cursor',
-                  value: s.opacityFade,
-                  set: (v: boolean) => set({ opacityFade: v }),
-                },
-                {
-                  key: 'confettiOnGoal',
-                  icon: Sparkles,
-                  label: 'Confetti',
-                  desc: 'Burst on goal collect',
-                  value: s.confettiOnGoal,
-                  set: (v: boolean) => set({ confettiOnGoal: v }),
-                },
-                {
-                  key: 'penaltyFlash',
-                  icon: AlertCircle,
-                  label: 'Penalty flash',
-                  desc: 'Red flash on enemy goal',
-                  value: s.penaltyFlash,
-                  set: (v: boolean) => set({ penaltyFlash: v }),
-                },
-                ...(s.endGoal !== 'survival'
-                  ? [
-                      {
-                        key: 'solidTrails',
-                        icon: Waves,
-                        label: 'Solid trails',
-                        desc: 'Trails block movement',
-                        value: s.solidTrails,
-                        set: (v: boolean) => set({ solidTrails: v }),
-                      },
-                    ]
-                  : []),
-              ] as const
-            ).map(item => (
-              <button
-                key={item.key}
-                onClick={() => item.set(!item.value)}
-                className={`py-2.5 px-3 rounded border text-left text-sm font-mono transition-colors ${item.value ? 'bg-yellow-800 border-yellow-600 text-white font-bold' : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'}`}
-              >
-                <div className="font-bold flex items-center gap-1.5">
-                  <item.icon className="w-3.5 h-3.5" />
-                  {item.label}
-                </div>
-                <div
-                  className={`text-xs font-normal mt-0.5 ${item.value ? 'text-yellow-300' : 'text-gray-500'}`}
-                >
-                  {item.desc}
-                </div>
-              </button>
-            ))}
-          </div>
-
-          <p className="text-xs text-gray-500 mt-1">Key restrictions (mutually exclusive):</p>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => {
-                set({ hjklOnly: !s.hjklOnly })
-                if (!s.hjklOnly) set({ noHjkl: false })
-              }}
-              className={`py-2.5 px-3 rounded border text-left text-sm font-mono transition-colors ${s.hjklOnly ? 'bg-blue-700 border-blue-500 text-white font-bold' : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'}`}
-            >
-              <div className="font-bold">hjkl only</div>
-              <div
-                className={`text-xs font-normal mt-0.5 ${s.hjklOnly ? 'text-blue-200' : 'text-gray-500'}`}
-              >
-                Only basic moves allowed
-              </div>
-            </button>
-            <button
-              onClick={() => {
-                set({ noHjkl: !s.noHjkl })
-                if (!s.noHjkl) set({ hjklOnly: false })
-              }}
-              className={`py-2.5 px-3 rounded border text-left text-sm font-mono transition-colors ${s.noHjkl ? 'bg-red-800 border-red-600 text-white font-bold' : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'}`}
-            >
-              <div className="font-bold">No hjkl</div>
-              <div
-                className={`text-xs font-normal mt-0.5 ${s.noHjkl ? 'text-red-300' : 'text-gray-500'}`}
-              >
-                Must use word/search motions
-              </div>
-            </button>
-          </div>
-        </div>
-      </CollapseSection>
+      <HandicapsSection
+        config={{ hjklOnly: s.hjklOnly, noHjkl: s.noHjkl, opacityFade: s.opacityFade, snowEffect: s.snowEffect }}
+        onPatch={p => set(p)}
+        extras={motionRaceExtras}
+      />
 
       {/* Challenge Mode */}
       <ChallengeToggleSection

@@ -1,6 +1,8 @@
 import { useEffect, useReducer, useRef, useCallback, useState, useMemo } from 'react'
 import type React from 'react'
 import { useMonacoEditor } from '../hooks/useMonacoEditor'
+import { useKeyRestriction } from '../hooks/useKeyRestriction'
+import { SnowOverlay, OpacityFadeOverlay } from './GameOverlays'
 import { loadHighScores, saveHighScores, addVimBotsHighScore } from '../engine/HighScoreEngine'
 import { loadUsername } from '../engine/UserPrefs'
 import { initGameState, tick, handleCommandExecuted } from '../engine/ChallengeEngine'
@@ -85,6 +87,8 @@ export function VimBotsGame({
   const initialState = initVimBotsState(config, gridContent)
   const [state, dispatch] = useReducer(gameReducer, initialState)
 
+  useKeyRestriction(config, state.status === 'playing')
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const decorationsRef = useRef<any>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -95,6 +99,19 @@ export function VimBotsGame({
   const [editorReady, setEditorReady] = useState(0)
   // Helper grid: toggled by the HUD button, hidden on each player move
   const [helperActive, setHelperActive] = useState(false)
+
+  // Live countdown tick — re-renders every second while playing so the timer stays current.
+  const [, setTick] = useState(0)
+  useEffect(() => {
+    if (!config.timerBonus || state.status !== 'playing') return
+    const id = setInterval(() => setTick(t => t + 1), 500)
+    return () => clearInterval(id)
+  }, [config.timerBonus, state.status])
+
+  // Firework burst state — created when new fire cells appear
+  const [fireworks, setFireworks] = useState<Array<{ id: number; top: number; left: number }>>([])
+  const prevFireRef = useRef<Pos[]>([])
+  const fireworkIdRef = useRef(0)
 
   // ── Arcade challenge engine (challenge mode) ────────────────────────────────
   const arcadeStateRef = useRef<GameState | null>(null)
@@ -122,6 +139,10 @@ export function VimBotsGame({
       commandTimeMultiplier: config.challengeTimeMultiplier,
       knowledgeFilter: 'all',
       drillMode: config.challengeDrillMode,
+      hjklOnly: config.hjklOnly ?? false,
+      noHjkl: config.noHjkl ?? false,
+      opacityFade: config.opacityFade ?? false,
+      snowEffect: config.snowEffect ?? false,
     }
     const initialArcade = initGameState(arcadeCfg, filtered)
     arcadeConfigRef.current = arcadeCfg
@@ -250,17 +271,39 @@ export function VimBotsGame({
       })
     }
 
-    // Fire — orange with border
-    for (const fire of state.fire) {
+    // Fire — orange with border; alternate class to stagger animations
+    state.fire.forEach((fire, idx) => {
       const fr = fire.row + 1
       const fc = fire.col + 1
+      const fireClass = idx % 2 === 0 ? 'vimbots-fire vimbots-fire-b' : 'vimbots-fire'
       decs.push({
         range: new monaco.Range(fr, fc, fr, fc + 1),
-        options: { inlineClassName: 'vimbots-fire', description: 'vimbots-fire' },
+        options: { inlineClassName: fireClass, description: 'vimbots-fire' },
       })
-    }
+    })
 
     col.set(decs)
+
+    // Detect newly-appeared fire cells and emit a firework burst at each one
+    if (editorInstanceRef.current) {
+      const prevSet = new Set(prevFireRef.current.map(p => `${p.row},${p.col}`))
+      const newBursts: Array<{ id: number; top: number; left: number }> = []
+      for (const fire of state.fire) {
+        if (!prevSet.has(`${fire.row},${fire.col}`)) {
+          const pos = editorInstanceRef.current.getScrolledVisiblePosition({
+            lineNumber: fire.row + 1,
+            column: fire.col + 1,
+          })
+          if (pos) {
+            newBursts.push({ id: ++fireworkIdRef.current, top: pos.top, left: pos.left })
+          }
+        }
+      }
+      if (newBursts.length > 0) {
+        setFireworks(prev => [...prev, ...newBursts])
+      }
+    }
+    prevFireRef.current = state.fire
   }, [state.playerPos, state.robots, state.fire, editorReady, helperActive, safeMoveCount])
 
   // Notify parent on level complete
@@ -273,16 +316,19 @@ export function VimBotsGame({
   }, [state.status, state.level, state.score, onLevelComplete])
 
   // Key handler for level_cleared → next level on any key
+  // Must use capture phase so it fires before Monaco absorbs the event.
   useEffect(() => {
     if (state.status !== 'level_cleared') return
 
     const handler = (e: KeyboardEvent) => {
       if (['Meta', 'Control', 'Alt', 'Shift'].includes(e.key)) return
+      e.preventDefault()
+      e.stopPropagation()
       dispatch({ type: 'NEXT_LEVEL' })
     }
 
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
+    document.addEventListener('keydown', handler, { capture: true })
+    return () => document.removeEventListener('keydown', handler, { capture: true })
   }, [state.status])
 
   // Period key → wait in place (pass turn without moving)
@@ -304,6 +350,17 @@ export function VimBotsGame({
   useEffect(() => {
     focusEditor()
   }, [focusEditor])
+
+  // Sync Monaco cursor to the initial player position once the editor is ready.
+  // Without this, Monaco starts at (1,1) and the first keypress appears to
+  // teleport the player from top-left to wherever they actually are.
+  useEffect(() => {
+    if (editorReady === 0) return
+    const p = initialState.playerPos
+    positionCursor({ lineNumber: p.row + 1, column: p.col + 1 })
+    lastSyncedPosRef.current = p
+    prevPosRef.current = p
+  }, [editorReady]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const isDead = state.status === 'dead' || state.status === 'game_over'
   const isLevelCleared = state.status === 'level_cleared'
@@ -364,6 +421,16 @@ export function VimBotsGame({
     setRank(pos >= 0 ? pos + 1 : null)
   }, [isDead]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Auto-remove each batch of fireworks 700 ms after it was added
+  useEffect(() => {
+    if (fireworks.length === 0) return
+    const ids = new Set(fireworks.map(fw => fw.id))
+    const timer = setTimeout(() => {
+      setFireworks(prev => prev.filter(fw => !ids.has(fw.id)))
+    }, 700)
+    return () => clearTimeout(timer)
+  }, [fireworks])
+
   return (
     <div className="h-full bg-gray-900 flex flex-col overflow-hidden font-mono relative">
       {/* Inline decoration styles — one per robot type + player + fire */}
@@ -377,23 +444,52 @@ export function VimBotsGame({
         .vimbots-fire   { background: rgba(249,115,22,0.65);  border-radius: 2px; outline: 2px solid rgba(253,186,116,0.9); outline-offset: -1px; }
         .vimbots-safe   { background: rgba(20,184,166,0.18);  border-radius: 2px; outline: 1px dashed rgba(45,212,191,0.55); outline-offset: -1px; }
 
+        @keyframes vimbots-spark {
+          0%   { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 1; }
+          100% { transform: translate(calc(var(--dx) * 3), calc(var(--dy) * 3)) scale(0); opacity: 0; }
+        }
+        .vimbots-firework { position: absolute; pointer-events: none; z-index: 10; }
+        .vimbots-spark {
+          position: absolute;
+          width: 3px; height: 3px;
+          border-radius: 50%;
+          animation: vimbots-spark 0.6s ease-out forwards;
+        }
+
         ${
           config.animatedEffects
             ? (() => {
                 const t = Date.now() / 1000
-                const fireOff = -(t % 1.4).toFixed(3)
+                const fireOff1 = `${-(t % 1.4).toFixed(3)}s`
+                const fireOff2 = `${-(t % 0.7).toFixed(3)}s`
+                const fireOff1b = `${-(t % 1.1).toFixed(3)}s`
+                const fireOff2b = `${-(t % 0.5).toFixed(3)}s`
                 const offs = [2.0, 1.6, 1.3, 1.0, 0.8].map(d => `${-(t % d).toFixed(3)}s`)
                 return `
-          @keyframes vimbots-fire-glow {
+          @keyframes vimbots-fire-color {
             0%   { background: rgba(249,115,22,0.7);  outline-color: rgba(253,186,116,0.95); }
             25%  { background: rgba(239,68,68,0.85);  outline-color: rgba(252,165,165,1.0); }
             55%  { background: rgba(251,191,36,0.9);  outline-color: rgba(253,224,71,1.0); }
             80%  { background: rgba(249,115,22,0.75); outline-color: rgba(253,186,116,0.9); }
             100% { background: rgba(249,115,22,0.7);  outline-color: rgba(253,186,116,0.95); }
           }
+          @keyframes vimbots-fire-glow-pulse {
+            0%, 100% { box-shadow: 0 0 4px 2px rgba(249,115,22,0.6); }
+            50%       { box-shadow: 0 0 8px 4px rgba(253,186,116,0.9); }
+          }
+          @keyframes vimbots-fire-bright {
+            0%, 100% { filter: brightness(1); }
+            50%       { filter: brightness(1.45); }
+          }
           .vimbots-fire {
-            animation: vimbots-fire-glow 1.4s ease-in-out infinite;
-            animation-delay: ${fireOff}s;
+            animation:
+              vimbots-fire-color 0.35s ease-in-out infinite,
+              vimbots-fire-glow-pulse 0.7s ease-in-out infinite,
+              vimbots-fire-bright 0.4s ease-in-out infinite;
+            animation-delay: ${fireOff1}, ${fireOff2}, ${fireOff1};
+          }
+          .vimbots-fire-b {
+            animation-delay: ${fireOff1b}, ${fireOff2b}, ${fireOff1b};
           }
 
           @keyframes vimbots-pulse {
@@ -496,6 +592,14 @@ export function VimBotsGame({
           <div className="bg-gray-900/90 border border-green-700 rounded-2xl shadow-2xl p-8 text-center pointer-events-none">
             <div className="text-4xl mb-2">🎉</div>
             <h2 className="text-2xl font-bold text-green-400 mb-2">{state.message}</h2>
+            {state.timerBonusEarned > 0 && (
+              <p className="text-yellow-300 text-sm font-bold mt-1">
+                ⚡ Speed bonus: +{state.timerBonusEarned} pts
+              </p>
+            )}
+            {config.timerBonus && state.timerBonusEarned === 0 && (
+              <p className="text-gray-500 text-xs mt-1">No speed bonus — timer expired</p>
+            )}
             <p className="text-gray-400 text-sm mt-3 animate-pulse">Press any key to continue…</p>
           </div>
         </div>
@@ -536,6 +640,36 @@ export function VimBotsGame({
         {/* Monaco editor — left flex-[3] */}
         <div className="flex-[3] min-w-0 min-h-0 relative">
           <div ref={editorRef as React.RefObject<HTMLDivElement>} className="h-full" />
+          {config.snowEffect && <SnowOverlay />}
+          {config.opacityFade && <OpacityFadeOverlay cursorLine={0} getVisibleRange={() => null} />}
+          {fireworks.map(fw => {
+            const sparkColors = ['#f97316', '#ef4444', '#fbbf24', '#fb923c', '#fef08a', '#f43f5e']
+            return (
+              <div
+                key={fw.id}
+                className="vimbots-firework"
+                style={{ top: `${fw.top}px`, left: `${fw.left}px`, transform: 'translate(-50%, -50%)' }}
+              >
+                {[0, 1, 2, 3, 4, 5].map(k => {
+                  const dx = Math.round(8 * Math.cos((k * Math.PI) / 3))
+                  const dy = Math.round(8 * Math.sin((k * Math.PI) / 3))
+                  return (
+                    <div
+                      key={k}
+                      className="vimbots-spark"
+                      style={
+                        {
+                          '--dx': `${dx}px`,
+                          '--dy': `${dy}px`,
+                          background: sparkColors[k],
+                        } as React.CSSProperties
+                      }
+                    />
+                  )
+                })}
+              </div>
+            )
+          })}
         </div>
 
         {/* Sidebar HUD — right flex-[2] */}
@@ -577,6 +711,35 @@ export function VimBotsGame({
             <div className="text-2xl font-bold text-green-400 tabular-nums">{state.score}</div>
           </div>
 
+          {/* Speed bonus countdown */}
+          {config.timerBonus && (() => {
+            const elapsed = Date.now() - state.levelStartedAt
+            const remaining = Math.max(0, state.parMs - elapsed)
+            const pct = remaining / state.parMs
+            const isExpired = remaining === 0
+            const isLow = pct < 0.25 && !isExpired
+            const secs = Math.ceil(remaining / 1000)
+            const m = Math.floor(secs / 60)
+            const s2 = secs % 60
+            const label = isExpired ? 'EXPIRED' : `${m}:${String(s2).padStart(2, '0')}`
+            return (
+              <div className="px-4 py-3 border-b border-gray-700">
+                <div className="text-xs text-gray-400 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                  <span>⚡ Speed bonus</span>
+                </div>
+                <div className={`text-lg font-bold tabular-nums font-mono ${isExpired ? 'text-gray-600' : isLow ? 'text-red-400' : 'text-yellow-300'}`}>
+                  {label}
+                </div>
+                <div className="mt-1.5 h-1 bg-gray-700 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${isExpired ? 'bg-gray-700' : isLow ? 'bg-red-500' : pct < 0.5 ? 'bg-yellow-400' : 'bg-green-400'}`}
+                    style={{ width: `${pct * 100}%` }}
+                  />
+                </div>
+              </div>
+            )
+          })()}
+
           {/* Enemy legend — per type */}
           <div className="px-4 py-3 border-b border-gray-700">
             <div className="text-xs text-gray-400 uppercase tracking-wide mb-2">
@@ -597,6 +760,20 @@ export function VimBotsGame({
                     style={{ background: def.color, outline: def.outline, outlineOffset: '-1px' }}
                   />
                   <span className="text-xs text-gray-300 flex-1">{def.name}</span>
+                  {/* Speed pips — one filled dot per Chebyshev step, max 3 */}
+                  <span className="flex items-center gap-0.5 mr-1" title={`Speed ${def.speed}`}>
+                    {[1, 2, 3].map(pip => (
+                      <span
+                        key={pip}
+                        className="inline-block w-1.5 h-1.5 rounded-full"
+                        style={
+                          pip <= def.speed
+                            ? { background: def.color, boxShadow: `0 0 3px ${def.color}` }
+                            : { background: 'rgba(255,255,255,0.12)' }
+                        }
+                      />
+                    ))}
+                  </span>
                   <span className="text-xs text-gray-400 tabular-nums">
                     <span
                       className={
@@ -607,7 +784,6 @@ export function VimBotsGame({
                     </span>
                     <span className="text-gray-600"> / {initial}</span>
                   </span>
-                  <span className="text-gray-600 text-[10px]">×{def.speed}</span>
                 </div>
               )
             })}

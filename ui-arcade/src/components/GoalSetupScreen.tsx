@@ -6,7 +6,9 @@ import type {
   Language,
   RepetitionLevel,
   GuidedMode,
+  HandicapConfig,
 } from '../engine/types'
+import { HANDICAP_CONFIG_DEFAULTS } from '../engine/types'
 import { loadUnsupported } from '../engine/UnsupportedEngine'
 import { DEFAULT_CATEGORIES, MIN_CATEGORIES } from '../engine/categoryColors'
 import { CategoryPicker } from './CategoryPicker'
@@ -19,6 +21,7 @@ import {
   LanguageGrid,
   SetupPageShell,
   UnifiedChallengeOptions,
+  HandicapsSection,
   StartButton,
   ReplayButton,
 } from './SetupPrimitives'
@@ -63,6 +66,7 @@ type GoalSetupState = {
   assistEnabled: boolean
   assistPct: number
   skipUnsupported: boolean
+  handicaps: HandicapConfig
 }
 
 type GoalSetupAction =
@@ -79,6 +83,7 @@ type GoalSetupAction =
   | { type: 'SET_GUIDED'; value: GuidedMode }
   | { type: 'SET_CATEGORIES'; value: string[] }
   | { type: 'SET_ASSIST_PCT'; value: number }
+  | { type: 'PATCH_HANDICAPS'; patch: Partial<HandicapConfig> }
   | { type: 'TOGGLE_ASSIST' }
   | { type: 'TOGGLE_SKIP_UNSUPPORTED' }
 
@@ -110,6 +115,8 @@ function setupReducer(state: GoalSetupState, action: GoalSetupAction): GoalSetup
       return { ...state, categories: action.value }
     case 'SET_ASSIST_PCT':
       return { ...state, assistPct: action.value }
+    case 'PATCH_HANDICAPS':
+      return { ...state, handicaps: { ...state.handicaps, ...action.patch } }
     case 'TOGGLE_ASSIST':
       return { ...state, assistEnabled: !state.assistEnabled }
     case 'TOGGLE_SKIP_UNSUPPORTED': {
@@ -149,6 +156,7 @@ const defaultState: GoalSetupState = {
       return true
     }
   })(),
+  handicaps: { ...HANDICAP_CONFIG_DEFAULTS },
 }
 
 // ---------------------------------------------------------------------------
@@ -222,6 +230,7 @@ export function GoalSetupScreen({ onStart, onBack: _onBack }: GoalSetupScreenPro
       categories: s.categories.length === 0 ? null : s.categories,
       dynamicAssist: s.assistEnabled ? s.assistPct : null,
       skipUnsupported: s.skipUnsupported,
+      ...s.handicaps,
     }
     saveLastGoalConfig(config)
     setLastConfig(config)
@@ -385,6 +394,12 @@ export function GoalSetupScreen({ onStart, onBack: _onBack }: GoalSetupScreenPro
           </div>
         </div>
       </CollapseSection>
+
+      {/* Handicaps */}
+      <HandicapsSection
+        config={s.handicaps}
+        onPatch={patch => dispatch({ type: 'PATCH_HANDICAPS', patch })}
+      />
     </SetupPageShell>
   )
 }

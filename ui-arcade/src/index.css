@@ -149,6 +149,23 @@ a:focus:not(:focus-visible) {
 }
 
 /* ── Motion Race snake trail (user) — blue, fading with age ── */
+@keyframes trail-user-cursor-blink {
+  0%,
+  45%,
+  100% {
+    opacity: 1;
+  }
+  55%,
+  90% {
+    opacity: 0.15;
+  }
+}
+.trail-user-0 {
+  background: rgba(59, 130, 246, 0.85);
+  border-radius: 2px;
+  outline: 1.5px solid rgba(147, 197, 253, 0.9);
+  animation: trail-user-cursor-blink 0.9s ease-in-out infinite;
+}
 .trail-user-1 {
   background: rgba(59, 130, 246, 0.55);
   border-radius: 2px;

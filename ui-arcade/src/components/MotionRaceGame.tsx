@@ -4,6 +4,12 @@ import { useMotionRace } from '../hooks/useMotionRace'
 import type { MotionRaceConfig, CompletedPath } from '../hooks/useMotionRace'
 import { TopBar } from './TopBar'
 import { MotionRaceSetup, ENEMY_PALETTE_COLORS } from './MotionRaceSetup'
+import {
+  SnowOverlay,
+  OpacityFadeOverlay,
+  ConfettiOverlay,
+  PenaltyFlash,
+} from './GameOverlays'
 import { ArrowLeft, Zap, Skull, Trophy, Timer, Check } from 'lucide-react'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -401,165 +407,6 @@ function StatCard({
       <div className={`text-2xl font-bold ${color}`}>{value}</div>
       <div className="text-xs text-gray-400 mt-1">{label}</div>
     </div>
-  )
-}
-
-// ── Visual effect components (handicaps) ─────────────────────────────────────
-
-function SnowOverlay() {
-  const [flakes] = useState(() =>
-    Array.from({ length: 25 }, (_, i) => {
-      const left = Math.floor(Math.random() * 100)
-      const duration = 8 + Math.random() * 8
-      const delay = -(Math.random() * 16)
-      const fontSize = 10 + Math.floor(Math.random() * 5)
-      const opacity = 0.4 + Math.random() * 0.4
-      const char = Math.random() > 0.5 ? '❄' : '*'
-      return { i, left, duration, delay, fontSize, opacity, char }
-    })
-  )
-
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        overflow: 'hidden',
-        pointerEvents: 'none',
-        zIndex: 5,
-      }}
-    >
-      {flakes.map(f => (
-        <span
-          key={f.i}
-          className="snow-flake"
-          style={{
-            left: `${f.left}%`,
-            animationDuration: `${f.duration}s`,
-            animationDelay: `${f.delay}s`,
-            fontSize: `${f.fontSize}px`,
-            opacity: f.opacity,
-            color: 'rgba(255,255,255,0.6)',
-          }}
-        >
-          {f.char}
-        </span>
-      ))}
-    </div>
-  )
-}
-
-const CONFETTI_COLORS = [
-  '#f43f5e',
-  '#fb923c',
-  '#fbbf24',
-  '#4ade80',
-  '#60a5fa',
-  '#c084fc',
-  '#f472b6',
-]
-
-interface ConfettiOverlayProps {
-  isActive: boolean
-  onDone: () => void
-}
-
-function ConfettiOverlay({ isActive, onDone }: ConfettiOverlayProps) {
-  useEffect(() => {
-    if (!isActive) return
-    const id = setTimeout(onDone, 1500)
-    return () => clearTimeout(id)
-  }, [isActive, onDone])
-
-  if (!isActive) return null
-
-  const pieces = Array.from({ length: 30 }, (_, i) => {
-    const left = Math.floor(Math.random() * 100)
-    const top = Math.floor(Math.random() * 60)
-    const rotation = Math.floor(Math.random() * 360)
-    const color = CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)]
-    const delay = Math.random() * 0.3
-    return { i, left, top, rotation, color, delay }
-  })
-
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        pointerEvents: 'none',
-        zIndex: 6,
-        overflow: 'hidden',
-      }}
-    >
-      {pieces.map(p => (
-        <div
-          key={p.i}
-          style={
-            {
-              position: 'absolute',
-              left: `${p.left}%`,
-              top: `${p.top}%`,
-              width: '4px',
-              height: '8px',
-              background: p.color,
-              '--r': `${p.rotation}deg`,
-              animation: `confetti-fall 1.5s ease-out ${p.delay}s forwards`,
-            } as React.CSSProperties
-          }
-        />
-      ))}
-    </div>
-  )
-}
-
-interface PenaltyFlashProps {
-  isActive: boolean
-}
-
-function PenaltyFlash({ isActive }: PenaltyFlashProps) {
-  if (!isActive) return null
-  return (
-    <div
-      className="penalty-flash-anim"
-      style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'rgba(220, 38, 38, 0.45)',
-        pointerEvents: 'none',
-        zIndex: 4,
-      }}
-    />
-  )
-}
-
-interface OpacityFadeOverlayProps {
-  cursorLine: number
-  getVisibleRange: () => { startLine: number; endLine: number } | null
-}
-
-function OpacityFadeOverlay({ cursorLine, getVisibleRange }: OpacityFadeOverlayProps) {
-  // We use useLayoutEffect or just calculate in render.
-  // However, getVisibleRange might change or become available after mount.
-  // Since cursorLine changes on every move, a render calc is usually sufficient.
-  let currentPct = 50
-  const range = getVisibleRange()
-  if (range) {
-    const visibleLines = Math.max(1, range.endLine - range.startLine)
-    currentPct = Math.round(((cursorLine - range.startLine) / visibleLines) * 100)
-    currentPct = Math.max(0, Math.min(100, currentPct))
-  }
-
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        pointerEvents: 'none',
-        zIndex: 3,
-        background: `radial-gradient(ellipse 80% 40% at 50% ${currentPct}%, transparent 0%, rgba(0,0,0,0.75) 100%)`,
-      }}
-    />
   )
 }
 

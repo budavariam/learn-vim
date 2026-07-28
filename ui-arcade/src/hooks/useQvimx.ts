@@ -1,7 +1,7 @@
 import { useReducer, useEffect, useRef, useCallback } from 'react'
 import { useMonacoEditor } from './useMonacoEditor'
 import { getSizedFile } from '../files'
-import type { Language, VimCommandData, ChallengeConfig } from '../engine/types'
+import type { Language, VimCommandData, ChallengeConfig, HandicapConfig } from '../engine/types'
 import {
   buildBorderedContent,
   allBorderCells,
@@ -34,7 +34,7 @@ export type QvimxSubMode = 'classic' | 'championship' | 'ball-escalation' | 'com
 
 export type { QvimxBorderShape, QvimxCodeSize, Pos, BoardDimensions }
 
-export interface QvimxConfig extends ChallengeConfig {
+export interface QvimxConfig extends ChallengeConfig, HandicapConfig {
   language: Language
   codeSize: QvimxCodeSize
   borderShape: QvimxBorderShape
@@ -135,6 +135,10 @@ const BLANK_CONFIG: QvimxConfig = {
   challengeCategories: MOTION_CHALLENGE_CATEGORIES,
   challengeDrillMode: false,
   bombCount: 0,
+  hjklOnly: false,
+  noHjkl: false,
+  opacityFade: false,
+  snowEffect: false,
 }
 
 const BLANK: QvimxGameState = {

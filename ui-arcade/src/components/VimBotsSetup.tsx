@@ -1,5 +1,5 @@
 import { useReducer, useState } from 'react'
-import { getPresetDimensions, generateGrid } from '../engine/VimBotsEngine'
+import { getPresetDimensions, generateGrid, generateLoremGrid } from '../engine/VimBotsEngine'
 import type {
   VimBotsConfig,
   VimBotsDifficulty,
@@ -8,7 +8,7 @@ import type {
 } from '../engine/VimBotsEngine'
 import { getSizedFile } from '../files/index'
 import type { Language } from '../engine/types'
-import { CHALLENGE_CONFIG_DEFAULTS } from '../engine/types'
+import { CHALLENGE_CONFIG_DEFAULTS, HANDICAP_CONFIG_DEFAULTS } from '../engine/types'
 import { STORAGE_KEYS, loadStoredConfig, saveStoredConfig } from '../engine/storageKeys'
 import {
   SetupPageShell,
@@ -18,6 +18,7 @@ import {
   LanguageGrid,
   ChallengeToggleSection,
   UnifiedChallengeOptions,
+  HandicapsSection,
   cls,
   patchReducer,
   toggleCategory,
@@ -88,8 +89,10 @@ export const VIMBOTS_SETUP_DEFAULT: VimBotsSetupState = {
   animatedEffects: true,
   enableHelperGrid: false,
   startingEnemyLevel: 1,
+  timerBonus: true,
   ...CHALLENGE_CONFIG_DEFAULTS,
   challengeCategories: MOTION_CHALLENGE_CATEGORIES,
+  ...HANDICAP_CONFIG_DEFAULTS,
 }
 
 // ── Grid content loading ──────────────────────────────────────────────────────
@@ -101,12 +104,14 @@ export function buildGridContent(
   customCols: number,
   codeFileSize: 'short' | 'medium' | 'long'
 ): string {
-  if (boardSource === 'grid') {
+  if (boardSource === 'grid' || boardSource === 'lorem-grid') {
     const dims =
       gridPreset === 'custom'
         ? { rows: customRows, cols: customCols }
         : getPresetDimensions(gridPreset)
-    return generateGrid(dims.rows, dims.cols)
+    return boardSource === 'lorem-grid'
+      ? generateLoremGrid(dims.rows, dims.cols)
+      : generateGrid(dims.rows, dims.cols)
   }
   return getSizedFile(boardSource as Language, codeFileSize)
 }
@@ -124,12 +129,12 @@ function saveLastVimBotsConfig(s: VimBotsSetupState): void {
 // ── Summary helper ────────────────────────────────────────────────────────────
 
 function summariseConfig(s: VimBotsSetupState): string {
-  const board =
-    s.boardSource === 'grid'
-      ? s.gridPreset === 'custom'
-        ? `${s.customRows}×${s.customCols}`
-        : s.gridPreset
-      : `${s.boardSource} ${s.codeFileSize}`
+  const isGenGrid = s.boardSource === 'grid' || s.boardSource === 'lorem-grid'
+  const board = isGenGrid
+    ? s.gridPreset === 'custom'
+      ? `${s.customRows}×${s.customCols}`
+      : s.gridPreset
+    : `${s.boardSource} ${s.codeFileSize}`
   return `${board} · ${s.difficulty}`
 }
 
@@ -163,6 +168,7 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
       animatedEffects: state.animatedEffects,
       enableHelperGrid: state.enableHelperGrid,
       startingEnemyLevel: state.startingEnemyLevel,
+      timerBonus: state.timerBonus ?? true,
       challengeMode: state.challengeMode,
       challengeGuidedMode: state.challengeGuidedMode,
       challengeStartingLevel: state.challengeStartingLevel,
@@ -170,6 +176,10 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
       challengeTimeMultiplier: state.challengeTimeMultiplier,
       challengeCategories: state.challengeCategories,
       challengeDrillMode: state.challengeDrillMode,
+      hjklOnly: state.hjklOnly,
+      noHjkl: state.noHjkl,
+      opacityFade: state.opacityFade,
+      snowEffect: state.snowEffect,
     }
     saveLastVimBotsConfig(state)
     const gridContent = buildGridContent(
@@ -182,7 +192,8 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
     onStart(config, gridContent)
   }
 
-  const isCodeSource = s.boardSource !== 'grid'
+  const isGenGrid = s.boardSource === 'grid' || s.boardSource === 'lorem-grid'
+  const isCodeSource = !isGenGrid
   const presetDims = s.gridPreset !== 'custom' ? getPresetDimensions(s.gridPreset) : null
 
   return (
@@ -206,7 +217,13 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
         label="Board"
         icon={FileCode}
         defaultOpen={true}
-        badge={s.boardSource === 'grid' ? 'alphanumeric grid' : s.boardSource}
+        badge={
+          s.boardSource === 'grid'
+            ? 'alphanumeric'
+            : s.boardSource === 'lorem-grid'
+              ? 'lorem'
+              : s.boardSource
+        }
       >
         {/* Tab bar */}
         <div className="flex border-b border-gray-700 mb-4 -mx-0">
@@ -219,15 +236,26 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
                 : 'border-transparent text-gray-500 hover:text-gray-300'
             }`}
           >
-            Alphanumeric grid
+            Alphanumeric
+          </button>
+          <button
+            type="button"
+            onClick={() => set({ boardSource: 'lorem-grid' })}
+            className={`px-4 py-2 text-sm font-mono font-bold border-b-2 -mb-px transition-colors ${
+              s.boardSource === 'lorem-grid'
+                ? 'border-blue-500 text-blue-300'
+                : 'border-transparent text-gray-500 hover:text-gray-300'
+            }`}
+          >
+            Lorem
           </button>
           <button
             type="button"
             onClick={() =>
-              set({ boardSource: s.boardSource === 'grid' ? 'typescript' : s.boardSource })
+              set({ boardSource: isCodeSource ? s.boardSource : 'typescript' })
             }
             className={`px-4 py-2 text-sm font-mono font-bold border-b-2 -mb-px transition-colors ${
-              s.boardSource !== 'grid'
+              isCodeSource
                 ? 'border-blue-500 text-blue-300'
                 : 'border-transparent text-gray-500 hover:text-gray-300'
             }`}
@@ -236,8 +264,8 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
           </button>
         </div>
 
-        {/* Tab: Alphanumeric grid */}
-        {!isCodeSource && (
+        {/* Tab: generated grid (alphanumeric or lorem) */}
+        {isGenGrid && (
           <div className="space-y-3">
             <div className="flex gap-2 flex-wrap">
               {PRESET_OPTIONS.map(o => (
@@ -534,6 +562,42 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
           ))}
         </div>
       </CollapseSection>
+
+      {/* Timer Bonus */}
+      <CollapseSection
+        label="Speed Bonus"
+        icon={Zap}
+        defaultOpen={false}
+        badge={s.timerBonus ? <span className="text-yellow-300 text-[10px] font-bold">ON</span> : undefined}
+      >
+        <p className="text-xs text-gray-500 mb-3">
+          Clear the level before the par timer runs out to earn a speed bonus. The timer is
+          calculated from enemy count and difficulty — smaller maps give less time.
+          The game never ends when the timer expires; you just miss the bonus.
+        </p>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => set({ timerBonus: true })}
+            className={cls.pill(s.timerBonus)}
+          >
+            Enabled
+          </button>
+          <button
+            type="button"
+            onClick={() => set({ timerBonus: false })}
+            className={cls.pill(!s.timerBonus)}
+          >
+            Disabled
+          </button>
+        </div>
+      </CollapseSection>
+
+      {/* Handicaps */}
+      <HandicapsSection
+        config={{ hjklOnly: s.hjklOnly, noHjkl: s.noHjkl, opacityFade: s.opacityFade, snowEffect: s.snowEffect }}
+        onPatch={p => set(p)}
+      />
     </SetupPageShell>
   )
 }

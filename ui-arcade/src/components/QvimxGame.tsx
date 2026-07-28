@@ -2,6 +2,8 @@ import { useEffect, useReducer, useState, useRef } from 'react'
 import type React from 'react'
 import { useQvimx } from '../hooks/useQvimx'
 import type { QvimxConfig } from '../hooks/useQvimx'
+import { useKeyRestriction } from '../hooks/useKeyRestriction'
+import { SnowOverlay, OpacityFadeOverlay } from './GameOverlays'
 import { TopBar } from './TopBar'
 import { QvimxSetup } from './QvimxSetup'
 import { Timer, Zap, Trophy, ArrowLeft } from 'lucide-react'
@@ -37,6 +39,8 @@ interface GameProps {
 
 function QvimxGameScreen({ config, onQuit }: GameProps) {
   const { state, editorRef, statusRef, startGame, getVisibleRange } = useQvimx()
+
+  useKeyRestriction(config, state.status === 'playing')
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -219,6 +223,10 @@ function QvimxGameScreen({ config, onQuit }: GameProps) {
       {/* Editor */}
       <div className="flex-1 min-h-0 relative">
         <div ref={editorRef as React.RefObject<HTMLDivElement>} className="h-full" />
+        {config.snowEffect && <SnowOverlay />}
+        {config.opacityFade && (
+          <OpacityFadeOverlay cursorLine={0} getVisibleRange={getVisibleRange} />
+        )}
       </div>
 
       {/* Status bar */}

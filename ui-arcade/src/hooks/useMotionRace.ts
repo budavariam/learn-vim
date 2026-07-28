@@ -7,6 +7,7 @@ import { normaliseVimKey } from '../engine/vimKeyUtils'
 import rawData from '../data.json'
 import { loadHighScores, saveHighScores, addMotionRaceHighScore } from '../engine/HighScoreEngine'
 import type { MotionRaceHighScoreEntry } from '../engine/types'
+import { useKeyRestriction } from './useKeyRestriction'
 
 const allCommands = rawData as VimCommandData[]
 
@@ -541,31 +542,11 @@ export function useMotionRace(): UseMotionRaceReturn {
     []
   )
 
-  // Key restriction enforcement (hjklOnly / noHjkl)
-  useEffect(() => {
-    const config = configRef.current
-    if (!config || (!config.hjklOnly && !config.noHjkl)) return
-
-    const HJKL_KEYS = new Set(['h', 'j', 'k', 'l'])
-    function onKey(e: KeyboardEvent) {
-      if (gameStatusRef.current !== 'playing') return
-      if (e.ctrlKey || e.altKey || e.metaKey) return
-      if (e.key.length !== 1) return
-      if (config!.noHjkl && HJKL_KEYS.has(e.key)) {
-        e.preventDefault()
-        e.stopPropagation()
-      } else if (config!.hjklOnly && !HJKL_KEYS.has(e.key)) {
-        // Allow: hjkl, Escape, Enter, numbers (counts), colon (ex commands)
-        if (!':0123456789'.includes(e.key)) {
-          e.preventDefault()
-          e.stopPropagation()
-        }
-      }
-    }
-    document.addEventListener('keydown', onKey, { capture: true })
-    return () => document.removeEventListener('keydown', onKey, { capture: true })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.status])
+  // Key restriction enforcement (hjklOnly / noHjkl) — delegated to shared hook
+  useKeyRestriction(
+    configRef.current ? { hjklOnly: configRef.current.hjklOnly, noHjkl: configRef.current.noHjkl } : null,
+    state.status === 'playing'
+  )
 
   // Keep completedRef in sync
   useEffect(() => {
