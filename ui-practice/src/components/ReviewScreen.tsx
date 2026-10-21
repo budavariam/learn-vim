@@ -10,8 +10,8 @@ import {
   ToggleLeft,
   ToggleRight,
 } from 'lucide-react'
-import { calculateImpacts } from './QuizGame'
-import type { QuizResult } from './QuizGame'
+import { calculateImpacts } from './quizConfig'
+import type { QuizResult } from './quizConfig'
 import ColoredText from './ColoredText'
 import ThemeToggle from './ThemeToggle'
 

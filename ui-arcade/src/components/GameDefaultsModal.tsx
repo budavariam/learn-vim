@@ -56,10 +56,8 @@ import {
   CollapseSection,
   ChallengeToggleSection,
   UnifiedChallengeOptions,
-  cls,
-  TIME_MULTIPLIER_OPTIONS,
-  patchReducer,
 } from './SetupPrimitives'
+import { cls, TIME_MULTIPLIER_OPTIONS, patchReducer } from './setupHelpers'
 
 // ── Public type ───────────────────────────────────────────────────────────────
 

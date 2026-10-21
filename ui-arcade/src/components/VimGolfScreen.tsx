@@ -2,17 +2,8 @@ import { useMemo, useReducer } from 'react'
 import { CheckCircle2, KeyRound } from 'lucide-react'
 import { useVimGolfChallenges } from '../hooks/useVimGolfChallenges'
 import { loadVimGolfRecords, loadExcludedChallenges } from '../engine/VimGolfEngine'
-import { STORAGE_KEYS } from '../engine/storageKeys'
+import { loadCustomChallenges } from '../engine/customChallenges'
 import type { VimGolfChallenge } from '../engine/types'
-
-export function loadCustomChallenges(): VimGolfChallenge[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.CUSTOM_VG_CHALLENGES)
-    return raw ? (JSON.parse(raw) as VimGolfChallenge[]) : []
-  } catch {
-    return []
-  }
-}
 
 interface VimGolfScreenProps {
   onBack?: () => void

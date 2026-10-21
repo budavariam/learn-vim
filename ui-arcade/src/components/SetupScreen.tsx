@@ -15,7 +15,6 @@ import type {
 import { CategoryPicker } from './CategoryPicker'
 import rawData from '@data'
 import {
-  cls,
   LanguageGrid,
   CollapseSection,
   SetupPageShell,
@@ -24,6 +23,7 @@ import {
   StartButton,
   ReplayButton,
 } from './SetupPrimitives'
+import { cls } from './setupHelpers'
 import { Globe, Gamepad2, Zap, Ban } from 'lucide-react'
 
 const allCommands = rawData as Array<{ id: string; category: string }>

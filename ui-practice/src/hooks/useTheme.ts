@@ -4,22 +4,20 @@ export type Theme = 'light' | 'dark'
 export type ThemePreference = 'system' | 'light' | 'dark'
 
 export const useTheme = () => {
-  const [themePreference, setThemePreference] = useState<ThemePreference>('system')
-  const [systemTheme, setSystemTheme] = useState<Theme>('dark')
+  const [themePreference, setThemePreference] = useState<ThemePreference>(() => {
+    // Load saved preference from localStorage
+    const saved = localStorage.getItem('theme-preference') as ThemePreference | null
+    return saved && ['system', 'light', 'dark'].includes(saved) ? saved : 'system'
+  })
+  const [systemTheme, setSystemTheme] = useState<Theme>(() =>
+    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  )
 
   // Computed theme based on preference
   const theme: Theme = themePreference === 'system' ? systemTheme : themePreference
 
   useEffect(() => {
-    // Load saved preference from localStorage
-    const savedPreference = localStorage.getItem('theme-preference') as ThemePreference
-    if (savedPreference && ['system', 'light', 'dark'].includes(savedPreference)) {
-      setThemePreference(savedPreference)
-    }
-
-    // Check system preference
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    setSystemTheme(mediaQuery.matches ? 'dark' : 'light')
 
     // Listen for changes in system preference
     const handleChange = (e: MediaQueryListEvent) => {

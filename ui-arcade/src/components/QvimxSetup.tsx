@@ -18,12 +18,10 @@ import {
   ChallengeToggleSection,
   UnifiedChallengeOptions,
   HandicapsSection,
-  cls,
   StartButton,
   ReplayButton,
-  patchReducer,
-  toggleCategory,
 } from './SetupPrimitives'
+import { cls, patchReducer, toggleCategory } from './setupHelpers'
 import {
   Globe,
   Timer,

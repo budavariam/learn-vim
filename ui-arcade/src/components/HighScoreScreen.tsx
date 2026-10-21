@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import type {
   HighScores,
@@ -8,7 +8,7 @@ import type {
   GoalModeHighScoreEntry,
   VimBotsHighScoreEntry,
 } from '../engine/types'
-import { loadHighScores, emptyHighScores } from '../engine/HighScoreEngine'
+import { loadHighScores } from '../engine/HighScoreEngine'
 import { loadUsername } from '../engine/UserPrefs'
 
 // ── Vim-bot placeholder scores ────────────────────────────────────────────────
@@ -587,12 +587,8 @@ export function HighScoreScreen() {
   const [mrTab, setMrTab] = useState<'timed' | 'survival' | 'total_goals'>('timed')
   const [arcadeTab, setArcadeTab] = useState<GameMode>('general')
   const [vimbotsTab, setVimbotsTab] = useState<VimBotsHighScoreEntry['difficulty']>(initVimbotsTab)
-  const [scores, setScores] = useState<HighScores>(emptyHighScores())
+  const [scores] = useState<HighScores>(loadHighScores)
   const username = loadUsername()
-
-  useEffect(() => {
-    setScores(loadHighScores())
-  }, [])
 
   return (
     <div className="min-h-screen bg-gray-900 font-mono">

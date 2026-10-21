@@ -1,7 +1,7 @@
 import React from 'react'
 import { Trophy, Eye, RotateCcw, Shuffle, Download } from 'lucide-react'
-import { gameModes, GameMode } from './QuizGame'
-import type { QuizResult } from './QuizGame'
+import { gameModes, GameMode } from './quizConfig'
+import type { QuizResult } from './quizConfig'
 import ThemeToggle from './ThemeToggle'
 
 interface FinishedScreenProps {

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Layers, CheckCircle, XCircle } from 'lucide-react'
-import { gameModes, getKnownItems, GameMode } from './QuizGame'
-import type { QuizQuestion } from './QuizGame'
+import { gameModes, getKnownItems, GameMode } from './quizConfig'
+import type { QuizQuestion } from './quizConfig'
 import ColoredText from './ColoredText'
 import ThemeToggle from './ThemeToggle'
 

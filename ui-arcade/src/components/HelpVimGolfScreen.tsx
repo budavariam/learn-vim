@@ -19,19 +19,11 @@ import {
   saveExcludedChallenges,
 } from '../engine/VimGolfEngine'
 import { getCachedChallenges } from '../hooks/useVimGolfChallenges'
+import { loadCustomChallenges } from '../engine/customChallenges'
 import { STORAGE_KEYS } from '../engine/storageKeys'
 import type { VimGolfChallenge } from '../engine/types'
 
 // ── Custom challenge storage ──────────────────────────────────────────────────
-
-function loadCustomChallenges(): VimGolfChallenge[] {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.CUSTOM_VG_CHALLENGES)
-    return raw ? (JSON.parse(raw) as VimGolfChallenge[]) : []
-  } catch {
-    return []
-  }
-}
 
 function saveCustomChallenges(challenges: VimGolfChallenge[]): void {
   try {

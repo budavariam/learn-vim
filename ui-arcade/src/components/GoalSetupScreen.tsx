@@ -15,7 +15,6 @@ import { CategoryPicker } from './CategoryPicker'
 import { useVimGolfChallenges } from '../hooks/useVimGolfChallenges'
 import { loadVimGolfRecords } from '../engine/VimGolfEngine'
 import {
-  cls,
   CollapseSection,
   ChallengeToggleSection,
   LanguageGrid,
@@ -25,6 +24,7 @@ import {
   StartButton,
   ReplayButton,
 } from './SetupPrimitives'
+import { cls } from './setupHelpers'
 import { Globe, Target, Settings2 } from 'lucide-react'
 
 const TIME_OPTIONS: { value: GoalTimeLimitMs; label: string }[] = [

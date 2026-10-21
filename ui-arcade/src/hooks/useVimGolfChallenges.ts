@@ -51,11 +51,7 @@ export function useVimGolfChallenges(): VimGolfChallengesResult {
 
   useEffect(() => {
     mounted.current = true
-    if (_cached) {
-      setChallenges(_cached)
-      setLoading(false)
-      return
-    }
+    if (_cached) return // state was already initialised from the cache
     startWorker().then(list => {
       if (!mounted.current) return
       setChallenges(list)

@@ -1,6 +1,6 @@
 import React from 'react'
-import { gameModes, getKnownItems, GameMode } from './QuizGame'
-import type { QuizQuestion } from './QuizGame'
+import { gameModes, getKnownItems, GameMode } from './quizConfig'
+import type { QuizQuestion } from './quizConfig'
 import ThemeToggle from './ThemeToggle'
 import TypingText from './TypingText'
 import DualRangeSlider from './DualRangeSlider'

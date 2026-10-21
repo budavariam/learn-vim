@@ -1,6 +1,6 @@
 import React from 'react'
-import { gameModes, GameMode } from './QuizGame'
-import type { QuizQuestion } from './QuizGame'
+import { gameModes, GameMode } from './quizConfig'
+import type { QuizQuestion } from './quizConfig'
 import ThemeToggle from './ThemeToggle'
 
 interface ModeConfirmationProps {

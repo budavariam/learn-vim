@@ -16,8 +16,8 @@ import {
   StartButton,
   ChallengeToggleSection,
   UnifiedChallengeOptions,
-  cls,
 } from './SetupPrimitives'
+import { cls } from './setupHelpers'
 
 // ── Reducer ───────────────────────────────────────────────────────────────────
 

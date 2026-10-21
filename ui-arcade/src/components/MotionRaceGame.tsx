@@ -3,7 +3,8 @@ import type React from 'react'
 import { useMotionRace } from '../hooks/useMotionRace'
 import type { MotionRaceConfig, CompletedPath } from '../hooks/useMotionRace'
 import { TopBar } from './TopBar'
-import { MotionRaceSetup, ENEMY_PALETTE_COLORS } from './MotionRaceSetup'
+import { MotionRaceSetup } from './MotionRaceSetup'
+import { ENEMY_PALETTE_COLORS } from '../engine/enemyPalette'
 import { SnowOverlay, OpacityFadeOverlay, ConfettiOverlay, PenaltyFlash } from './GameOverlays'
 import { ArrowLeft, Zap, Skull, Trophy, Timer, Check } from 'lucide-react'
 
@@ -103,12 +104,15 @@ function MotionRaceGameScreen({ config, onQuit }: GameProps) {
     return () => clearTimeout(id)
   }, [penaltyActive])
 
-  const [collisionToast, setCollisionToast] = useState(0)
+  // The toast shows for the latest collision until its timer marks that collision as dismissed
+  const [dismissedCollision, setDismissedCollision] = useState(0)
+  const collisionToast =
+    state.lastCollision > 0 && state.lastCollision !== dismissedCollision ? state.lastCollision : 0
 
   useEffect(() => {
     if (state.lastCollision > 0) {
-      setCollisionToast(state.lastCollision)
-      const id = setTimeout(() => setCollisionToast(0), 1200)
+      const collision = state.lastCollision
+      const id = setTimeout(() => setDismissedCollision(collision), 1200)
       return () => clearTimeout(id)
     }
   }, [state.lastCollision])

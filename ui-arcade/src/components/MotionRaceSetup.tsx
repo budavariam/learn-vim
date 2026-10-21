@@ -1,3 +1,4 @@
+import { ENEMY_PALETTE_COLORS } from '../engine/enemyPalette'
 import { useReducer } from 'react'
 import type React from 'react'
 import type {
@@ -17,11 +18,10 @@ import {
   ChallengeToggleSection,
   UnifiedChallengeOptions,
   HandicapsSection,
-  cls,
   StartButton,
   ReplayButton,
-  toggleCategory,
 } from './SetupPrimitives'
+import { cls, toggleCategory } from './setupHelpers'
 import type { HandicapItem } from './SetupPrimitives'
 import {
   Globe,
@@ -83,15 +83,6 @@ const END_GOAL_OPTIONS: {
 ]
 
 // Matches hues in enemy-trails.scss $enemy-hues map
-export const ENEMY_PALETTE_COLORS = [
-  'hsl(30,90%,58%)', // 0 orange
-  'hsl(0,90%,58%)', // 1 red
-  'hsl(280,90%,68%)', // 2 violet (lightened for dark bg)
-  'hsl(185,90%,50%)', // 3 cyan
-  'hsl(330,90%,65%)', // 4 pink
-  'hsl(90,85%,52%)', // 5 lime
-]
-
 const ENEMY_COUNT_OPTIONS: (0 | 1 | 3 | 5 | 10)[] = [0, 1, 3, 5, 10]
 const ENEMY_SPEED_OPTIONS: { id: EnemySpeed; label: string }[] = [
   { id: 'slow', label: 'Slow' },

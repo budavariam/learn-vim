@@ -1,12 +1,7 @@
 import { useReducer, useState } from 'react'
-import { getPresetDimensions, generateGrid, generateLoremGrid } from '../engine/VimBotsEngine'
-import type {
-  VimBotsConfig,
-  VimBotsDifficulty,
-  VimBoardPreset,
-  VimBotsBoardSource,
-} from '../engine/VimBotsEngine'
-import { getSizedFile } from '../files/index'
+import { getPresetDimensions } from '../engine/VimBotsEngine'
+import { buildGridContent } from '../engine/vimBotsGrid'
+import type { VimBotsConfig, VimBotsDifficulty, VimBoardPreset } from '../engine/VimBotsEngine'
 import type { Language } from '../engine/types'
 import { CHALLENGE_CONFIG_DEFAULTS, HANDICAP_CONFIG_DEFAULTS } from '../engine/types'
 import { STORAGE_KEYS, loadStoredConfig, saveStoredConfig } from '../engine/storageKeys'
@@ -19,10 +14,8 @@ import {
   ChallengeToggleSection,
   UnifiedChallengeOptions,
   HandicapsSection,
-  cls,
-  patchReducer,
-  toggleCategory,
 } from './SetupPrimitives'
+import { cls, patchReducer, toggleCategory } from './setupHelpers'
 import { MOTION_CHALLENGE_CATEGORIES } from '../hooks/useMotionRace'
 import { ArrowLeft as _ArrowLeft, Zap, Shield, Cpu, Zap as ZapIcon, FileCode } from 'lucide-react'
 
@@ -96,25 +89,6 @@ const VIMBOTS_SETUP_DEFAULT: VimBotsSetupState = {
 }
 
 // ── Grid content loading ──────────────────────────────────────────────────────
-
-export function buildGridContent(
-  boardSource: VimBotsBoardSource,
-  gridPreset: VimBoardPreset,
-  customRows: number,
-  customCols: number,
-  codeFileSize: 'short' | 'medium' | 'long'
-): string {
-  if (boardSource === 'grid' || boardSource === 'lorem-grid') {
-    const dims =
-      gridPreset === 'custom'
-        ? { rows: customRows, cols: customCols }
-        : getPresetDimensions(gridPreset)
-    return boardSource === 'lorem-grid'
-      ? generateLoremGrid(dims.rows, dims.cols)
-      : generateGrid(dims.rows, dims.cols)
-  }
-  return getSizedFile(boardSource as Language, codeFileSize)
-}
 
 // ── Storage helpers ───────────────────────────────────────────────────────────
 

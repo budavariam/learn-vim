@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react'
 import { Target, CheckCircle, XCircle, ToggleLeft, ToggleRight } from 'lucide-react'
-import { gameModes, GameMode } from './QuizGame'
-import type { QuizQuestion } from './QuizGame'
+import { gameModes, GameMode } from './quizConfig'
+import type { QuizQuestion } from './quizConfig'
 import ColoredText from './ColoredText'
 import ThemeToggle from './ThemeToggle'
 

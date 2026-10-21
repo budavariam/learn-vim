@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { Grid3x3, ToggleLeft, ToggleRight } from 'lucide-react'
-import { gameModes, GameMode } from './QuizGame'
-import type { QuizQuestion } from './QuizGame'
+import { gameModes, GameMode } from './quizConfig'
+import type { QuizQuestion } from './quizConfig'
 import ColoredText from './ColoredText'
 import ThemeToggle from './ThemeToggle'
 
@@ -46,9 +46,14 @@ const MultipleChoiceMode: React.FC<MultipleChoiceModeProps> = ({
   const nextButtonRef = useRef<HTMLButtonElement>(null)
   const isCurrentlyKnown = knownItems.has(question.id || '')
 
-  // Reset selection when question changes
-  useEffect(() => {
+  // Reset selection when the question changes (adjusting state during render, no effect needed)
+  const [shownIndex, setShownIndex] = useState(currentIndex)
+  if (shownIndex !== currentIndex) {
+    setShownIndex(currentIndex)
     setSelectedAnswer(null)
+  }
+
+  useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
   }, [currentIndex])
 

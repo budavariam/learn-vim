@@ -27,7 +27,8 @@ import { LevelIndicator } from './LevelIndicator'
 import { ChallengePanel } from './ChallengePanel'
 import { TopBar } from './TopBar'
 import { ArrowLeft, Zap, Shield, Trophy } from 'lucide-react'
-import { VimBotsSetup, buildGridContent } from './VimBotsSetup'
+import { VimBotsSetup } from './VimBotsSetup'
+import { buildGridContent } from '../engine/vimBotsGrid'
 
 const allCommands = rawData as VimCommandData[]
 
