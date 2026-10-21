@@ -27,7 +27,7 @@ export interface QuizResult {
   wasKnownBefore: boolean
 }
 
-export type GameState =
+type GameState =
   | 'intro'
   | 'mode-select'
   | 'playing'
@@ -100,7 +100,7 @@ type Action =
 
 /* ────────────────── helpers ──────────────────── */
 
-export const shuffle = <T,>(arr: T[]): T[] => [...arr].sort(() => Math.random() - 0.5)
+const shuffle = <T,>(arr: T[]): T[] => [...arr].sort(() => Math.random() - 0.5)
 
 const levenshteinDistance = (str1: string, str2: string): number => {
   const len1 = str1.length
@@ -138,7 +138,7 @@ const calculateSimilarity = (str1: string, str2: string): number => {
   return maxLen === 0 ? 1 : 1 - distance / maxLen
 }
 
-export const generateMCOptions = (
+const generateMCOptions = (
   correctAnswer: string,
   allQuestions: QuizQuestion[],
   currentQuestion: QuizQuestion,
@@ -293,7 +293,7 @@ export const getKnownItems = (): Set<string> => {
   }
 }
 
-export const saveKnownItems = (knownItems: Set<string>) => {
+const saveKnownItems = (knownItems: Set<string>) => {
   try {
     localStorage.setItem('knownItems', JSON.stringify([...knownItems]))
   } catch (error) {
@@ -301,7 +301,7 @@ export const saveKnownItems = (knownItems: Set<string>) => {
   }
 }
 
-export const getLevelRange = (): [number, number] => {
+const getLevelRange = (): [number, number] => {
   try {
     const saved = localStorage.getItem('levelRange')
     return saved ? JSON.parse(saved) : [0, 9]
@@ -310,7 +310,7 @@ export const getLevelRange = (): [number, number] => {
   }
 }
 
-export const saveLevelRange = (range: [number, number]) => {
+const saveLevelRange = (range: [number, number]) => {
   try {
     localStorage.setItem('levelRange', JSON.stringify(range))
   } catch (error) {

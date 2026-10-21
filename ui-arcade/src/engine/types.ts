@@ -48,9 +48,9 @@ export type TimedChallengeDuration = 1 | 2 | 5 | 10 | 15
 
 export type RepetitionLevel = 1 | 2 | 3 | 5
 
-export type GameStatus = 'setup' | 'warmup' | 'playing' | 'paused' | 'results'
+type GameStatus = 'setup' | 'warmup' | 'playing' | 'paused' | 'results'
 
-export type ChallengeStatus = 'active' | 'completed' | 'failed'
+type ChallengeStatus = 'active' | 'completed' | 'failed'
 
 // How the solution is surfaced during guided play
 export type GuidedMode =
@@ -64,11 +64,6 @@ export type GuidedMode =
 // In-game settings that can be toggled from the settings drawer without restarting
 export interface GameSettings {
   guidedMode: GuidedMode
-}
-
-export interface CategoryPreset {
-  name: string
-  categories: string[]
 }
 
 export interface GameConfig {

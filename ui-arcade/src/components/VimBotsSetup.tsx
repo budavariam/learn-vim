@@ -75,7 +75,7 @@ const DIFFICULTY_INDEX: Record<VimBotsDifficulty, number> = {
 
 const DIFFICULTY_BY_INDEX = ['beginner', 'easy', 'medium', 'hard', 'expert'] as VimBotsDifficulty[]
 
-export const VIMBOTS_SETUP_DEFAULT: VimBotsSetupState = {
+const VIMBOTS_SETUP_DEFAULT: VimBotsSetupState = {
   boardSource: 'grid',
   gridPreset: 'medium',
   customRows: 50,

@@ -14,7 +14,7 @@ import { getCategoryColor } from '../engine/categoryColors'
 // ── Shared constants ──────────────────────────────────────────────────────────
 
 /** Colored abbreviation badge for each language — no emoji, works everywhere. */
-export const SETUP_LANGUAGES: { id: Language; label: string; abbr: string; badgeCls: string }[] = [
+const SETUP_LANGUAGES: { id: Language; label: string; abbr: string; badgeCls: string }[] = [
   {
     id: 'go',
     label: 'Go',
@@ -233,7 +233,7 @@ export function ChallengeToggleSection({
 
 // ── Shared challenge constants ────────────────────────────────────────────────
 
-export const SETUP_GUIDED_MODES: { id: GuidedMode; label: string; desc: string }[] = [
+const SETUP_GUIDED_MODES: { id: GuidedMode; label: string; desc: string }[] = [
   { id: 'none', label: 'None', desc: 'No hints — type from memory' },
   { id: 'all', label: 'Always', desc: 'Solution always visible' },
   { id: 'first_only', label: 'First only', desc: 'Show once, then test blindly' },
@@ -246,100 +246,12 @@ export const SETUP_GUIDED_MODES: { id: GuidedMode; label: string; desc: string }
   { id: 'alternating', label: 'Alternating', desc: 'Show on every other occurrence' },
 ]
 
-export const SETUP_REPETITIONS: { value: RepetitionLevel; label: string; desc: string }[] = [
+const SETUP_REPETITIONS: { value: RepetitionLevel; label: string; desc: string }[] = [
   { value: 1, label: '1×', desc: 'Each command once' },
   { value: 2, label: '2×', desc: 'Reinforce twice' },
   { value: 3, label: '3×', desc: 'Build muscle memory' },
   { value: 5, label: '5×', desc: 'Deep mastery' },
 ]
-
-// ── MotionChallengeOptions ────────────────────────────────────────────────────
-// Challenge sub-options valid in Motion Race (no edit mode).
-
-interface MotionChallengeOptionsProps {
-  guidedMode: GuidedMode
-  setGuidedMode: (v: GuidedMode) => void
-  startingLevel: number
-  setStartingLevel: (v: number) => void
-  repetition: RepetitionLevel
-  setRepetition: (v: RepetitionLevel) => void
-}
-
-export function MotionChallengeOptions({
-  guidedMode,
-  setGuidedMode,
-  startingLevel,
-  setStartingLevel,
-  repetition,
-  setRepetition,
-}: MotionChallengeOptionsProps) {
-  return (
-    <div className="space-y-4 text-xs font-mono">
-      {/* Guided mode */}
-      <div>
-        <p className="text-gray-500 mb-2 uppercase tracking-wider">Solution Hints</p>
-        <div className="space-y-1">
-          {SETUP_GUIDED_MODES.map(g => (
-            <button
-              key={g.id}
-              type="button"
-              onClick={() => setGuidedMode(g.id)}
-              className={`w-full text-left px-3 py-1.5 rounded border transition-colors ${
-                guidedMode === g.id
-                  ? 'bg-purple-900/40 border-purple-700 text-white font-bold'
-                  : 'bg-gray-800/60 border-gray-700 text-gray-400 hover:border-gray-600'
-              }`}
-            >
-              <span className="text-white">{g.label}</span>
-              <span className="text-gray-500 ml-2">{g.desc}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Starting level */}
-      <div>
-        <p className="text-gray-500 mb-1 uppercase tracking-wider">
-          Starting Level:{' '}
-          <span className="text-yellow-400">
-            {startingLevel === 0 ? 'Beginner' : `Lv ${startingLevel}`}
-          </span>
-        </p>
-        <input
-          type="range"
-          min={0}
-          max={9}
-          step={1}
-          value={startingLevel}
-          onChange={e => setStartingLevel(Number(e.target.value))}
-          className="w-full accent-purple-500"
-        />
-        <div className="flex justify-between text-gray-600 mt-1">
-          <span>Beginner</span>
-          <span>Expert</span>
-        </div>
-      </div>
-
-      {/* Repetition */}
-      <div>
-        <p className="text-gray-500 mb-2 uppercase tracking-wider">Repetitions per command</p>
-        <div className="flex gap-2 flex-wrap">
-          {SETUP_REPETITIONS.map(r => (
-            <button
-              key={r.value}
-              type="button"
-              onClick={() => setRepetition(r.value)}
-              className={cls.pill(repetition === r.value)}
-            >
-              {r.label}
-              <span className="text-xs font-normal opacity-70 ml-1">{r.desc}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  )
-}
 
 // ── StartButton / ReplayButton ────────────────────────────────────────────────
 // Shared across all setup screens for a consistent call-to-action.
@@ -730,14 +642,6 @@ export function patchReducer<S>(s: S, a: { type: 'PATCH'; payload: Partial<S> })
   return { ...s, ...a.payload }
 }
 
-// ── fmtCountdown ─────────────────────────────────────────────────────────────
-export function fmtCountdown(remainMs: number): string {
-  const s = Math.ceil(Math.max(0, remainMs) / 1000)
-  const m = Math.floor(s / 60)
-  const sec = s % 60
-  return `${m}:${String(sec).padStart(2, '0')}`
-}
-
 // ── toggleCategory ────────────────────────────────────────────────────────────
 // Toggle cat in/out of the list; never removes the last item.
 export function toggleCategory(categories: string[], cat: string): string[] {
@@ -745,36 +649,6 @@ export function toggleCategory(categories: string[], cat: string): string[] {
     return categories.length > 1 ? categories.filter(c => c !== cat) : categories
   }
   return [...categories, cat]
-}
-
-// ── ChallengeBar ─────────────────────────────────────────────────────────────
-
-interface ChallengeBarProps {
-  question: string
-  solution?: string[] // undefined = don't show solution keys
-  score: number
-}
-
-export function ChallengeBar({ question, solution, score }: ChallengeBarProps) {
-  return (
-    <div className="flex items-center gap-3 px-4 py-2 bg-indigo-950/60 border-b border-indigo-800 shrink-0 text-xs font-mono">
-      <Zap className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-      <span className="text-white">{question}</span>
-      {solution && solution.length > 0 && (
-        <div className="flex gap-1.5 ml-1">
-          {solution.map((s, i) => (
-            <kbd
-              key={i}
-              className="px-1.5 py-0.5 bg-gray-700 text-yellow-300 rounded-sm border border-gray-600"
-            >
-              {s}
-            </kbd>
-          ))}
-        </div>
-      )}
-      <span className="ml-auto text-indigo-400 tabular-nums">+{score}</span>
-    </div>
-  )
 }
 
 // ── HandicapsSection ──────────────────────────────────────────────────────────

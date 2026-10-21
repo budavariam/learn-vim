@@ -225,8 +225,6 @@ Defer<F> defer(F f) { return Defer<F>(std::move(f)); }
 `
 
 // cppFile is an alias for cppFileMedium for backwards compatibility.
-export const cppFile = cppFileMedium
-
 export const cppFileLong = `/**
  * concurrency.cpp - Thread pool, observable values, and scope guards.
  */

@@ -1,7 +1,7 @@
-import type { VimGolfHighScores, VimGolfEntry, VimGolfChallenge, DiffLine } from './types'
+import type { VimGolfHighScores, VimGolfEntry, DiffLine } from './types'
 import { STORAGE_KEYS } from './storageKeys'
 
-export const VIMGOLF_MAX_ENTRIES = 10
+const VIMGOLF_MAX_ENTRIES = 10
 
 // ── high scores (per-challenge leaderboard) ───────────────────────────────────
 
@@ -112,14 +112,6 @@ export function isContentCorrect(current: string, expected: string): boolean {
   return normalise(current) === normalise(expected)
 }
 
-// Fast check using string length before full comparison
-export function quickCheck(current: string, expected: string): boolean {
-  if (current.length !== expected.length && Math.abs(current.length - expected.length) > 1) {
-    return false
-  }
-  return isContentCorrect(current, expected)
-}
-
 // ── line-level diff (LCS-based) ───────────────────────────────────────────────
 
 export function computeDiff(current: string, expected: string): DiffLine[] {
@@ -155,35 +147,3 @@ export function computeDiff(current: string, expected: string): DiffLine[] {
 }
 
 // ── vimgolf.com fetch (best-effort; may fail due to CORS) ────────────────────
-
-export async function fetchVimGolfChallenge(id: string): Promise<Partial<VimGolfChallenge> | null> {
-  try {
-    // The vimgolf gem uses this endpoint. CORS may block it in the browser;
-    // if it fails the caller should offer a manual paste workflow.
-    const res = await fetch(`https://www.vimgolf.com/challenges/${id}.json`, {
-      headers: { Accept: 'application/json' },
-    })
-    if (!res.ok) return null
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = (await res.json()) as any
-    // The vimgolf JSON has different shapes depending on version:
-    // New: { challenge: { title, description, in: { data }, out: { data } } }
-    // Old: { in: { data }, out: { data } }
-    const ch = data.challenge ?? data
-    const start = ch.in?.data ?? ch.indata ?? ''
-    const end = ch.out?.data ?? ch.outdata ?? ''
-    if (!start || !end) return null
-    return {
-      id: `vgdotcom_${id}`,
-      vimgolfId: id,
-      title: ch.title ?? `VimGolf #${id}`,
-      description: ch.description ?? '',
-      start,
-      end,
-      difficulty: 'medium',
-      tags: [],
-    }
-  } catch {
-    return null
-  }
-}

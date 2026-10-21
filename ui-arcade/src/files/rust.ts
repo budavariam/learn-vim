@@ -226,8 +226,6 @@ impl fmt::Display for WordCounter {
 `
 
 // rustFile is an alias for rustFileMedium for backwards compatibility.
-export const rustFile = rustFileMedium
-
 export const rustFileLong = `use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 

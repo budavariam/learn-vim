@@ -17,7 +17,7 @@ export interface BoardDimensions {
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
-export function posEq(a: Pos, b: Pos): boolean {
+function posEq(a: Pos, b: Pos): boolean {
   return a.lineNumber === b.lineNumber && a.column === b.column
 }
 
@@ -363,39 +363,3 @@ export function orderedBorderCells(dims: BoardDimensions): Pos[] {
 }
 
 // ── computeClosingLine ────────────────────────────────────────────────────────
-
-export function computeClosingLine(
-  lastDrawnPos: Pos,
-  primaryAxis: 'h' | 'v',
-  dims: BoardDimensions,
-  tempLine: Pos[]
-): Pos[] {
-  const tempSet = new Set<string>(tempLine.map(p => `${p.lineNumber},${p.column}`))
-  const result: Pos[] = []
-
-  if (primaryAxis === 'v') {
-    const distToTop = lastDrawnPos.lineNumber - dims.minLine
-    const distToBottom = dims.maxLine - lastDrawnPos.lineNumber
-    const step = distToTop <= distToBottom ? -1 : 1
-    let ln = lastDrawnPos.lineNumber + step
-    while (ln >= dims.minLine && ln <= dims.maxLine) {
-      if (tempSet.has(`${ln},${lastDrawnPos.column}`)) break
-      result.push({ lineNumber: ln, column: lastDrawnPos.column })
-      if (ln === dims.minLine || ln === dims.maxLine) break
-      ln += step
-    }
-  } else {
-    const distToLeft = lastDrawnPos.column - dims.minCol
-    const distToRight = dims.maxCol - lastDrawnPos.column
-    const step = distToLeft <= distToRight ? -1 : 1
-    let col = lastDrawnPos.column + step
-    while (col >= dims.minCol && col <= dims.maxCol) {
-      if (tempSet.has(`${lastDrawnPos.lineNumber},${col}`)) break
-      result.push({ lineNumber: lastDrawnPos.lineNumber, column: col })
-      if (col === dims.minCol || col === dims.maxCol) break
-      col += step
-    }
-  }
-
-  return result
-}

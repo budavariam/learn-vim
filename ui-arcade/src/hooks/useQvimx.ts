@@ -1,6 +1,7 @@
 import { useReducer, useEffect, useRef, useCallback } from 'react'
 import { useMonacoEditor } from './useMonacoEditor'
 import { getSizedFile } from '../files'
+import { MOTION_CHALLENGE_CATEGORIES } from './useMotionRace'
 import type { Language, VimCommandData, ChallengeConfig, HandicapConfig } from '../engine/types'
 import {
   buildBorderedContent,
@@ -21,9 +22,6 @@ import type {
 import { normaliseVimKey } from '../engine/vimKeyUtils'
 import rawData from '@data'
 
-import { MOTION_CHALLENGE_CATEGORIES } from './useMotionRace'
-export { MOTION_CHALLENGE_CATEGORIES }
-
 const allCommands = rawData as VimCommandData[]
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -32,7 +30,7 @@ export type QvimxAILevel = 'passive' | 'wanderer' | 'hunter' | 'cutter' | 'unsto
 export type QvimxBallSpeed = 'slow' | 'medium' | 'fast' | 'mixed'
 export type QvimxSubMode = 'classic' | 'championship' | 'ball-escalation' | 'combo'
 
-export type { QvimxBorderShape, QvimxCodeSize, Pos, BoardDimensions }
+export type { QvimxBorderShape, QvimxCodeSize }
 
 export interface QvimxConfig extends ChallengeConfig, HandicapConfig {
   language: Language
@@ -48,7 +46,7 @@ export interface QvimxConfig extends ChallengeConfig, HandicapConfig {
   bombCount: 0 | 1 | 2 | 3
 }
 
-export interface Ball {
+interface Ball {
   id: number
   pos: Pos
   dx: 1 | -1
@@ -56,15 +54,15 @@ export interface Ball {
   speedMs: number
 }
 
-export interface BombPatrol {
+interface BombPatrol {
   id: number
   borderIdx: number
   direction: 1 | -1
 }
 
-export type DrawState = 'on-border' | 'drawing'
+type DrawState = 'on-border' | 'drawing'
 
-export interface QvimxGameState {
+interface QvimxGameState {
   status: 'setup' | 'playing' | 'results'
   config: QvimxConfig
   dims: BoardDimensions | null

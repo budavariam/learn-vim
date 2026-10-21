@@ -1,11 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "ignore": [".claude/**", "vimtutor/**", "public/**"],
-  "rules": {
-    "exports": "warn",
-    "types": "warn",
-    "duplicates": "warn"
-  },
   "workspaces": {
     ".": {
       "ignoreDependencies": ["tailwindcss"]

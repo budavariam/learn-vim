@@ -30,9 +30,9 @@ export interface Pos {
 
 // ── Robot types ───────────────────────────────────────────────────────────────
 
-export type RobotType = 'borg' | 'reaper' | 'phantom' | 'inferno' | 'decimator'
+type RobotType = 'borg' | 'reaper' | 'phantom' | 'inferno' | 'decimator'
 
-export interface Robot {
+interface Robot {
   pos: Pos
   type: RobotType
 }
@@ -52,7 +52,7 @@ export interface RobotTypeDef {
   outline: string
 }
 
-export const ROBOT_TYPE_DEFS: RobotTypeDef[] = [
+const ROBOT_TYPE_DEFS: RobotTypeDef[] = [
   {
     type: 'borg',
     name: 'Borg',
@@ -105,8 +105,6 @@ export function activeTypesForLevel(level: number): RobotTypeDef[] {
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
-
-export type CellContent = 'empty' | 'player' | 'robot' | 'fire'
 
 export interface VimBotsState {
   config: VimBotsConfig
@@ -296,9 +294,6 @@ export function generateLoremGrid(rows: number, cols: number): string {
   return lines.join('\n')
 }
 
-// Keep for backward-compat
-export type GridSize = VimBoardPreset
-
 // ── Par time calculation ──────────────────────────────────────────────────────
 // Par time = ms allowed before the speed bonus expires for a level.
 // Formula: robotCount × msPerRobot(difficulty). Smaller maps → fewer robots →
@@ -311,7 +306,7 @@ const PAR_MS_PER_ROBOT: Record<VimBotsDifficulty, number> = {
   expert: 3_000,
 }
 
-export function computeParMs(robotCount: number, difficulty: VimBotsDifficulty): number {
+function computeParMs(robotCount: number, difficulty: VimBotsDifficulty): number {
   return Math.max(10_000, robotCount * PAR_MS_PER_ROBOT[difficulty])
 }
 
@@ -359,10 +354,6 @@ function isOnFire(pos: Pos, fire: Pos[]): boolean {
 
 function isOnRobot(pos: Pos, robots: Robot[]): boolean {
   return robots.some(r => posEq(r.pos, pos))
-}
-
-function robotPositions(robots: Robot[]): Pos[] {
-  return robots.map(r => r.pos)
 }
 
 function isAdjacentToHazard(pos: Pos, robots: Robot[], fire: Pos[]): boolean {
@@ -625,7 +616,7 @@ export function initVimBotsState(config: VimBotsConfig, gridContent: string): Vi
   }
 }
 
-export function advanceRobots(state: VimBotsState): VimBotsState {
+function advanceRobots(state: VimBotsState): VimBotsState {
   if (state.status !== 'playing') return state
 
   const { playerPos, robots, fire, level, score } = state
@@ -852,6 +843,3 @@ export function startNextLevel(state: VimBotsState): VimBotsState {
     timerBonusEarned: 0,
   }
 }
-
-// Re-export for teleport helpers that check positions
-export { robotPositions }

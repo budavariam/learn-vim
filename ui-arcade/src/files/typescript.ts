@@ -258,8 +258,6 @@ export function formatBytes(bytes: number, decimals = 2): string {
 `
 
 // typescriptFile is an alias for typescriptFileMedium for backwards compatibility.
-export const typescriptFile = typescriptFileMedium
-
 export const typescriptFileLong = `/**
  * extras.ts - Extended TypeScript utilities: events, deep merge, and validation.
  */

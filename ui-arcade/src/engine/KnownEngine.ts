@@ -16,16 +16,12 @@ export function loadKnown(): Set<string> {
   }
 }
 
-export function saveKnown(known: Set<string>): void {
+function saveKnown(known: Set<string>): void {
   try {
     localStorage.setItem(STORAGE_KEYS.KNOWN_ITEMS, JSON.stringify([...known]))
   } catch {
     /* ignore */
   }
-}
-
-export function isKnown(id: string): boolean {
-  return loadKnown().has(id)
 }
 
 export function markKnown(ids: string[]): void {
@@ -59,7 +55,7 @@ export function loadCategoryPresets(): CategoryPresetStore[] {
   }
 }
 
-export function saveCategoryPresets(presets: CategoryPresetStore[]): void {
+function saveCategoryPresets(presets: CategoryPresetStore[]): void {
   try {
     localStorage.setItem(STORAGE_KEYS.CATEGORY_PRESETS, JSON.stringify(presets))
   } catch {

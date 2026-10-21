@@ -242,8 +242,6 @@ func Must[T any](v T, err error) T {
 `
 
 // goFile is an alias for goFileMedium for backwards compatibility.
-export const goFile = goFileMedium
-
 export const goFileLong = `package utils
 
 import (

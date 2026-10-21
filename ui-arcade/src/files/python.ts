@@ -230,8 +230,6 @@ def levenshtein(a: str, b: str) -> int:
 `
 
 // pythonFile is an alias for pythonFileMedium for backwards compatibility.
-export const pythonFile = pythonFileMedium
-
 export const pythonFileLong = `"""
 extras.py - Extended Python utilities: caching, configuration, rate limiting.
 """

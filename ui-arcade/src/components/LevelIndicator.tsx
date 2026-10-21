@@ -1,5 +1,3 @@
-import type { LevelProgress } from '../engine/types'
-
 interface LevelIndicatorProps {
   ceiling: number
   levelPct: number // 0–100, pre-computed by engine
@@ -26,4 +24,3 @@ export function LevelIndicator({ ceiling, levelPct }: LevelIndicatorProps) {
 }
 
 // Keep the type export for any future use, but suppress the unused-import warning
-export type { LevelProgress }

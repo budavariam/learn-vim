@@ -261,8 +261,6 @@ uint32_t next_power_of_two(uint32_t n) {
 `
 
 // cFile is an alias for cFileMedium for backwards compatibility.
-export const cFile = cFileMedium
-
 export const cFileLong = `/*
  * alloc.c - Arena allocator, string builder, and binary search utilities.
  */

@@ -2,9 +2,9 @@ import type { GameMode } from './types'
 
 export type TimeRating = 'lightning' | 'fast' | 'good' | 'completed'
 
-export const SURVIVAL_TIME_MULTIPLIER = 1.5
+const SURVIVAL_TIME_MULTIPLIER = 1.5
 // Guided challenges earn a fraction of normal points so blind completion feels rewarding
-export const GUIDED_POINTS_FRACTION = 0.2
+const GUIDED_POINTS_FRACTION = 0.2
 
 export function getTimeRating(
   elapsed: number,

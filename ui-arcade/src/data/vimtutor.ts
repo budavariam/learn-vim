@@ -59,7 +59,7 @@ export function getFilteredContent(chapter: VimTutorChapter, sections: string[])
 
 // ── Raw chapter content ───────────────────────────────────────────────────────
 
-export const VIMTUTOR_CHAPTER1 = `\
+const VIMTUTOR_CHAPTER1 = `\
 ===============================================================================
 =    W e l c o m e   t o   t h e   V I M   T u t o r    -    Version 1.7      =
 ===============================================================================
@@ -1030,7 +1030,7 @@ NOTE:  Completion works for many commands.  Just try pressing CTRL-D and
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
-export const VIMTUTOR_CHAPTER2 = `\
+const VIMTUTOR_CHAPTER2 = `\
 ===============================================================================
 =    W e l c o m e   t o   t h e   V I M   T u t o r    -    Version 1.7      =
 ===============================================================================

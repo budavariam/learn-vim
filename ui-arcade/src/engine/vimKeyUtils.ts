@@ -135,7 +135,7 @@ const AMBIGUOUS_SOLUTIONS = (() => {
   return s
 })()
 
-export { SOLUTIONS, PREFIXES, CROSS_MODE_SOLUTIONS, AMBIGUOUS_SOLUTIONS, MOTION_OPERATORS }
+export { SOLUTIONS, CROSS_MODE_SOLUTIONS }
 
 // ── VimSequenceMatcher ────────────────────────────────────────────────────────
 

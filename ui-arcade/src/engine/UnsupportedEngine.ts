@@ -29,10 +29,6 @@ export function unmarkUnsupported(id: string): void {
   saveUnsupported(set)
 }
 
-export function isUnsupported(id: string): boolean {
-  return loadUnsupported().has(id)
-}
-
 // ── Defaults seed ──────────────────────────────────────────────────────────
 
 interface DefaultsFile {
@@ -73,29 +69,6 @@ export async function loadAndMergeDefaults(): Promise<void> {
 }
 
 // ── Export ─────────────────────────────────────────────────────────────────
-
-/**
- * Trigger a browser download of the current unsupported list in the same
- * format as /unsupported-defaults.json so the file can be dropped straight
- * into public/ to seed new users.
- */
-export function exportUnsupportedIds(): void {
-  const ids = [...loadUnsupported()].sort()
-  const payload: DefaultsFile = { version: 'v1', unsupported: ids }
-  const json = JSON.stringify(payload, null, 2)
-  const blob = new URL(`data:application/json;charset=utf-8,${encodeURIComponent(json)}`)
-  const a = document.createElement('a')
-  a.href = blob.href
-  a.download = 'unsupported-defaults.json'
-  a.click()
-}
-
-/** Return the export JSON string without triggering a download. */
-export function getExportJson(): string {
-  const ids = [...loadUnsupported()].sort()
-  const payload: DefaultsFile = { version: 'v1', unsupported: ids }
-  return JSON.stringify(payload, null, 2)
-}
 
 /** Trigger a download directly from a JSON string. */
 export function downloadJson(json: string, filename: string): void {

@@ -92,7 +92,7 @@ export function initGameState(config: GameConfig, commands: VimCommandData[]): G
   }
 }
 
-export function createChallenge(
+function createChallenge(
   cmd: VimCommandData,
   ceiling: number,
   mode: GameConfig['mode'],

@@ -8,7 +8,7 @@ export interface MonacoUserPrefs {
   disableMouse: boolean
 }
 
-export const MONACO_PREFS_DEFAULT: MonacoUserPrefs = {
+const MONACO_PREFS_DEFAULT: MonacoUserPrefs = {
   wordWrap: 'on',
   fontSize: 14,
   lineNumbers: 'on',

@@ -65,7 +65,7 @@ export interface CompletedPath {
 
 type Pos = { lineNumber: number; column: number }
 
-export type TrailPos = Pos & { age: number }
+type TrailPos = Pos & { age: number }
 
 export interface Enemy {
   id: number
@@ -75,7 +75,7 @@ export interface Enemy {
   colorIdx: number // index into SCSS enemy palette (0–5)
 }
 
-export interface MotionRaceGameState {
+interface MotionRaceGameState {
   status: 'playing' | 'results'
   endReason: 'count' | 'timed' | 'survival' | null
   config: MotionRaceConfig
