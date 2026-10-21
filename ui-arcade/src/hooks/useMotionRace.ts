@@ -544,7 +544,9 @@ export function useMotionRace(): UseMotionRaceReturn {
 
   // Key restriction enforcement (hjklOnly / noHjkl) — delegated to shared hook
   useKeyRestriction(
-    configRef.current ? { hjklOnly: configRef.current.hjklOnly, noHjkl: configRef.current.noHjkl } : null,
+    configRef.current
+      ? { hjklOnly: configRef.current.hjklOnly, noHjkl: configRef.current.noHjkl }
+      : null,
     state.status === 'playing'
   )
 

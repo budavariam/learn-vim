@@ -8,7 +8,7 @@ export default function CategorySelect({ categories, selected, onChange }) {
 
   useEffect(() => {
     if (!open) return
-    const handler = (e) => {
+    const handler = e => {
       if (ref.current && !ref.current.contains(e.target)) setOpen(false)
     }
     document.addEventListener('mousedown', handler)
@@ -17,20 +17,23 @@ export default function CategorySelect({ categories, selected, onChange }) {
 
   useEffect(() => {
     if (!open) return
-    const handler = (e) => { if (e.key === 'Escape') setOpen(false) }
+    const handler = e => {
+      if (e.key === 'Escape') setOpen(false)
+    }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [open])
 
   const count = selected?.size ?? 0
 
-  const toggle = (cat) => {
+  const toggle = cat => {
     const next = new Set(selected ?? [])
-    if (next.has(cat)) next.delete(cat); else next.add(cat)
+    if (next.has(cat)) next.delete(cat)
+    else next.add(cat)
     onChange(next.size === 0 ? null : next)
   }
 
-  const clear = (e) => {
+  const clear = e => {
     e.stopPropagation()
     onChange(null)
   }
@@ -48,12 +51,14 @@ export default function CategorySelect({ categories, selected, onChange }) {
         }`}
       >
         <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18M7 8h10M10 12h4" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M3 4h18M7 8h10M10 12h4"
+          />
         </svg>
-        {count === 0
-          ? 'All categories'
-          : `${count} categor${count === 1 ? 'y' : 'ies'}`
-        }
+        {count === 0 ? 'All categories' : `${count} categor${count === 1 ? 'y' : 'ies'}`}
         {count > 0 && (
           <span
             onClick={clear}
@@ -62,11 +67,21 @@ export default function CategorySelect({ categories, selected, onChange }) {
             className="ml-0.5 rounded-full hover:bg-blue-200 dark:hover:bg-blue-700 p-0.5 transition-colors"
           >
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2.5}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </span>
         )}
-        <svg className={`w-3 h-3 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg
+          className={`w-3 h-3 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>

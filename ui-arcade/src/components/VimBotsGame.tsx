@@ -648,7 +648,11 @@ export function VimBotsGame({
               <div
                 key={fw.id}
                 className="vimbots-firework"
-                style={{ top: `${fw.top}px`, left: `${fw.left}px`, transform: 'translate(-50%, -50%)' }}
+                style={{
+                  top: `${fw.top}px`,
+                  left: `${fw.left}px`,
+                  transform: 'translate(-50%, -50%)',
+                }}
               >
                 {[0, 1, 2, 3, 4, 5].map(k => {
                   const dx = Math.round(8 * Math.cos((k * Math.PI) / 3))
@@ -712,33 +716,36 @@ export function VimBotsGame({
           </div>
 
           {/* Speed bonus countdown */}
-          {config.timerBonus && (() => {
-            const elapsed = Date.now() - state.levelStartedAt
-            const remaining = Math.max(0, state.parMs - elapsed)
-            const pct = remaining / state.parMs
-            const isExpired = remaining === 0
-            const isLow = pct < 0.25 && !isExpired
-            const secs = Math.ceil(remaining / 1000)
-            const m = Math.floor(secs / 60)
-            const s2 = secs % 60
-            const label = isExpired ? 'EXPIRED' : `${m}:${String(s2).padStart(2, '0')}`
-            return (
-              <div className="px-4 py-3 border-b border-gray-700">
-                <div className="text-xs text-gray-400 uppercase tracking-wide mb-1.5 flex items-center gap-1">
-                  <span>⚡ Speed bonus</span>
-                </div>
-                <div className={`text-lg font-bold tabular-nums font-mono ${isExpired ? 'text-gray-600' : isLow ? 'text-red-400' : 'text-yellow-300'}`}>
-                  {label}
-                </div>
-                <div className="mt-1.5 h-1 bg-gray-700 rounded-full overflow-hidden">
+          {config.timerBonus &&
+            (() => {
+              const elapsed = Date.now() - state.levelStartedAt
+              const remaining = Math.max(0, state.parMs - elapsed)
+              const pct = remaining / state.parMs
+              const isExpired = remaining === 0
+              const isLow = pct < 0.25 && !isExpired
+              const secs = Math.ceil(remaining / 1000)
+              const m = Math.floor(secs / 60)
+              const s2 = secs % 60
+              const label = isExpired ? 'EXPIRED' : `${m}:${String(s2).padStart(2, '0')}`
+              return (
+                <div className="px-4 py-3 border-b border-gray-700">
+                  <div className="text-xs text-gray-400 uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                    <span>⚡ Speed bonus</span>
+                  </div>
                   <div
-                    className={`h-full rounded-full transition-all duration-500 ${isExpired ? 'bg-gray-700' : isLow ? 'bg-red-500' : pct < 0.5 ? 'bg-yellow-400' : 'bg-green-400'}`}
-                    style={{ width: `${pct * 100}%` }}
-                  />
+                    className={`text-lg font-bold tabular-nums font-mono ${isExpired ? 'text-gray-600' : isLow ? 'text-red-400' : 'text-yellow-300'}`}
+                  >
+                    {label}
+                  </div>
+                  <div className="mt-1.5 h-1 bg-gray-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${isExpired ? 'bg-gray-700' : isLow ? 'bg-red-500' : pct < 0.5 ? 'bg-yellow-400' : 'bg-green-400'}`}
+                      style={{ width: `${pct * 100}%` }}
+                    />
+                  </div>
                 </div>
-              </div>
-            )
-          })()}
+              )
+            })()}
 
           {/* Enemy legend — per type */}
           <div className="px-4 py-3 border-b border-gray-700">

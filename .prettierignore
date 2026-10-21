@@ -9,3 +9,5 @@ nvim-plugin/
 .claude/
 pnpm-lock.yaml
 data.json
+# Parsed by scripts/generateData.js (expects `*` bullets); must not be reformatted
+vim-cheatsheet.md

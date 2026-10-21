@@ -4,12 +4,7 @@ import { useMotionRace } from '../hooks/useMotionRace'
 import type { MotionRaceConfig, CompletedPath } from '../hooks/useMotionRace'
 import { TopBar } from './TopBar'
 import { MotionRaceSetup, ENEMY_PALETTE_COLORS } from './MotionRaceSetup'
-import {
-  SnowOverlay,
-  OpacityFadeOverlay,
-  ConfettiOverlay,
-  PenaltyFlash,
-} from './GameOverlays'
+import { SnowOverlay, OpacityFadeOverlay, ConfettiOverlay, PenaltyFlash } from './GameOverlays'
 import { ArrowLeft, Zap, Skull, Trophy, Timer, Check } from 'lucide-react'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

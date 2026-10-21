@@ -3,18 +3,19 @@ import { getCategoryColor } from '../constants'
 
 function TocList({ categories, getHref, getCount, onNavigate, variant, activeCategory }) {
   const activeLinkRef = useRef(null)
-  const countClassName = variant === 'mobile' ? 'ml-2 text-xs opacity-50' : 'ml-1 opacity-50 text-[10px]'
+  const countClassName =
+    variant === 'mobile' ? 'ml-2 text-xs opacity-50' : 'ml-1 opacity-50 text-[10px]'
 
   useEffect(() => {
     activeLinkRef.current?.scrollIntoView({
       block: 'nearest',
-      inline: 'nearest'
+      inline: 'nearest',
     })
   }, [activeCategory])
 
   return (
     <ul className={variant === 'mobile' ? 'space-y-2' : 'space-y-1'}>
-      {categories.map((category) => {
+      {categories.map(category => {
         const isActive = category === activeCategory
         const baseClassName =
           variant === 'mobile'
@@ -72,7 +73,7 @@ export default function TableOfContents({
     if (!mobileOpen) return
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-    const onKeyDown = (e) => {
+    const onKeyDown = e => {
       if (e.key === 'Escape') setMobileOpen(false)
     }
     window.addEventListener('keydown', onKeyDown)
@@ -87,11 +88,9 @@ export default function TableOfContents({
   const desktopHeaderBaseClass =
     'sticky top-0 w-full h-12 box-border flex items-center relative bg-white dark:bg-gray-800 z-10 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 border-b focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500'
 
-  const desktopHeaderExpandedClass =
-    `${desktopHeaderBaseClass} focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-800 border-gray-100 dark:border-gray-700/50 rounded-t-lg px-6 justify-start`
+  const desktopHeaderExpandedClass = `${desktopHeaderBaseClass} focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-800 border-gray-100 dark:border-gray-700/50 rounded-t-lg px-6 justify-start`
 
-  const desktopHeaderCollapsedClass =
-    `${desktopHeaderBaseClass} focus-visible:ring-inset border-transparent rounded-lg px-0 justify-center`
+  const desktopHeaderCollapsedClass = `${desktopHeaderBaseClass} focus-visible:ring-inset border-transparent rounded-lg px-0 justify-center`
 
   return (
     <>
@@ -152,9 +151,7 @@ export default function TableOfContents({
 
       {/* Mobile TOC slide-over (kept mounted for smooth transitions) */}
       <div
-        className={
-          `fixed inset-0 z-100 xl:hidden ${mobileOpen ? '' : 'pointer-events-none'}`
-        }
+        className={`fixed inset-0 z-100 xl:hidden ${mobileOpen ? '' : 'pointer-events-none'}`}
         aria-hidden={!mobileOpen}
       >
         <div
@@ -181,7 +178,12 @@ export default function TableOfContents({
                 title="Close"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -196,9 +198,7 @@ export default function TableOfContents({
                 activeCategory={activeCategory}
               />
             ) : (
-              <div className="text-sm text-gray-600 dark:text-gray-300">
-                No sections found.
-              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-300">No sections found.</div>
             )}
           </div>
         </nav>
@@ -215,8 +215,18 @@ export default function TableOfContents({
           }
           title="Table of Contents"
         >
-          <svg className="w-5 h-5 text-gray-700 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          <svg
+            className="w-5 h-5 text-gray-700 dark:text-gray-200"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 6h16M4 12h16M4 18h16"
+            />
           </svg>
         </button>
       )}

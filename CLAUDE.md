@@ -17,8 +17,8 @@ Prettier (`lint:eslint`, `lint:knip`, `lint:format`). Fix what it reports, then 
 `pnpm typecheck` and `pnpm test`. Report anything that could not be run.
 
 - knip is deliberately not part of CI; it is a local check only.
-- Prettier is only enforced for `src/`, `scripts/`, `.github/` and the root config files.
-  The sources under `ui-*/src` predate it: do not reformat them wholesale.
+- Prettier covers the whole repo (`pnpm format` to fix). `vim-cheatsheet.md` is excluded on
+  purpose: `scripts/generateData.js` parses its `*` bullets.
 
 ## Notes
 

@@ -60,6 +60,7 @@ Inspired by the classic Unix `robots` game — survive waves of robots using onl
 **How to play:** Move your cursor with standard vim motion keys (`h`, `j`, `k`, `l`, `w`, `b`, `e`, `gg`, `G`, `0`, `$`, etc.). No editing commands are used — only navigation.
 
 **Game mechanics:**
+
 - After each move you make, every robot advances one step toward your cursor.
 - When two or more robots collide (with each other or with existing fire), they explode into fire.
 - Fire tiles are permanent — robots that walk into fire are destroyed.
@@ -68,10 +69,10 @@ Inspired by the classic Unix `robots` game — survive waves of robots using onl
 
 **Special actions:**
 
-| Action          | Description                                         | Limit        |
-| --------------- | --------------------------------------------------- | ------------ |
-| Random teleport | Jump to a random free cell (may land near a robot)  | Limited uses |
-| Safe teleport   | Jump to a cell guaranteed to be safe                | More limited |
+| Action          | Description                                        | Limit        |
+| --------------- | -------------------------------------------------- | ------------ |
+| Random teleport | Jump to a random free cell (may land near a robot) | Limited uses |
+| Safe teleport   | Jump to a cell guaranteed to be safe               | More limited |
 
 **Difficulty levels** (percentage of grid cells initially filled with robots):
 
@@ -87,13 +88,14 @@ Inspired by the classic Unix `robots` game — survive waves of robots using onl
 
 **Scoring:**
 
-| Event                  | Points                  |
-| ---------------------- | ----------------------- |
-| Robot collision        | 10 pts per robot        |
-| Level clear bonus      | level × 100 pts         |
-| Safe teleport bonus    | bonus pts per safe jump |
+| Event               | Points                  |
+| ------------------- | ----------------------- |
+| Robot collision     | 10 pts per robot        |
+| Level clear bonus   | level × 100 pts         |
+| Safe teleport bonus | bonus pts per safe jump |
 
 **Tips:**
+
 - Lure robots into each other rather than avoiding them — collisions are how you score.
 - Position yourself so robots funnel through fire you have already created.
 - Save safe teleports for desperate situations; random teleports are risky but plentiful.
@@ -147,15 +149,15 @@ The "Help" link in the navbar leads to two tabs:
 
 ## Architecture
 
-| Layer      | Path                        | Description                                                                                                     |
-| ---------- | --------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Engine     | `src/engine/`               | Pure TypeScript: scoring, levels, challenges, high scores                                                       |
-| Hooks      | `src/hooks/`                | React hooks: `useArcadeGame`, `useMotionRace`, `useGoalGame`, `useVimGolfChallenges`                            |
-| Components | `src/components/`           | React UI: setup screens, game screens, shared primitives                                                        |
-| Workers    | `src/workers/`              | Web Workers for off-thread parsing (org file)                                                                   |
-| Data       | `vim-cheatsheet.md`         | Source of truth for all vim commands; generates `ui-cheatsheet/src/data.json` (shared by all apps) via `scripts/generateData.js`                   |
-| Challenges | `vim-golf-challenges/`      | Git submodule with 1,000+ vimgolf challenges in org-mode format                                                 |
-| Storage    | `src/engine/storageKeys.ts` | Centralised localStorage key registry (all keys prefixed `vimarcade_`; `knownItems` is shared with ui-practice) |
+| Layer      | Path                        | Description                                                                                                                      |
+| ---------- | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Engine     | `src/engine/`               | Pure TypeScript: scoring, levels, challenges, high scores                                                                        |
+| Hooks      | `src/hooks/`                | React hooks: `useArcadeGame`, `useMotionRace`, `useGoalGame`, `useVimGolfChallenges`                                             |
+| Components | `src/components/`           | React UI: setup screens, game screens, shared primitives                                                                         |
+| Workers    | `src/workers/`              | Web Workers for off-thread parsing (org file)                                                                                    |
+| Data       | `vim-cheatsheet.md`         | Source of truth for all vim commands; generates `ui-cheatsheet/src/data.json` (shared by all apps) via `scripts/generateData.js` |
+| Challenges | `vim-golf-challenges/`      | Git submodule with 1,000+ vimgolf challenges in org-mode format                                                                  |
+| Storage    | `src/engine/storageKeys.ts` | Centralised localStorage key registry (all keys prefixed `vimarcade_`; `knownItems` is shared with ui-practice)                  |
 
 ---
 

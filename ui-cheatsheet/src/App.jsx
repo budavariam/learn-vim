@@ -21,18 +21,18 @@ const options = {
   keys: [
     { name: 'solution', weight: 0.4 },
     { name: 'question', weight: 0.4 },
-    { name: 'category', weight: 0.2 }
-  ]
+    { name: 'category', weight: 0.2 },
+  ],
 }
 
 const fuzzy = (search, fuse) => {
   const result = fuse.search(search)
   return result
-    .filter(item => (1 - item.score) >= 0.6)
+    .filter(item => 1 - item.score >= 0.6)
     .map(line => ({ ...line.item, score: line.score }))
 }
 
-const prepareData = (data) => {
+const prepareData = data => {
   return data.map(elem => {
     const q = elem.question.replace(/`(.*?)`/g, `<span class="reference">$1</span>`)
     return { ...elem, question: q }
@@ -42,7 +42,7 @@ const prepareData = (data) => {
 const preparedData = prepareData(data)
 const fuse = new Fuse(preparedData, options)
 
-const groupByCategory = (data) => {
+const groupByCategory = data => {
   return data.reduce((acc, item) => {
     if (!acc[item.category]) {
       acc[item.category] = []
@@ -52,8 +52,12 @@ const groupByCategory = (data) => {
   }, {})
 }
 
-const slugify = (text) => {
-  return text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
+const slugify = text => {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
 const MEMORY_ITEMS_KEY = 'memorizeItems'
@@ -70,7 +74,7 @@ const getMemoryItems = () => {
 /* ──────────────────── reducer ──────────────────── */
 
 const initialState = {
-  search: "",
+  search: '',
   darkMode: false,
   knownItems: new Set(),
   memoryItemIds: getMemoryItems(),
@@ -84,94 +88,105 @@ const initialState = {
   activeCategory: null,
   collapsedCategories: new Set(),
   activeSectionFilter: null,
-};
+}
 
 function reducer(state, action) {
   switch (action.type) {
     case 'SET_SEARCH':
-      return { ...state, search: action.payload, collapsedCategories: new Set() };
+      return { ...state, search: action.payload, collapsedCategories: new Set() }
     case 'SET_DARK_MODE':
-      return { ...state, darkMode: action.payload };
+      return { ...state, darkMode: action.payload }
     case 'SET_KNOWN_ITEMS':
-      return { ...state, knownItems: action.payload };
+      return { ...state, knownItems: action.payload }
     case 'SET_MEMORY_ITEMS':
-      return { ...state, memoryItemIds: action.payload };
+      return { ...state, memoryItemIds: action.payload }
     case 'ADD_MEMORY_ITEM': {
-      if (state.memoryItemIds.includes(action.payload)) return state;
-      return { ...state, memoryItemIds: [...state.memoryItemIds, action.payload] };
+      if (state.memoryItemIds.includes(action.payload)) return state
+      return { ...state, memoryItemIds: [...state.memoryItemIds, action.payload] }
     }
     case 'REMOVE_MEMORY_ITEM':
       return {
         ...state,
-        memoryItemIds: state.memoryItemIds.filter(id => id !== action.payload)
-      };
+        memoryItemIds: state.memoryItemIds.filter(id => id !== action.payload),
+      }
     case 'MOVE_MEMORY_ITEM': {
-      const items = [...state.memoryItemIds];
-      const [movedItem] = items.splice(action.payload.from, 1);
-      items.splice(action.payload.to, 0, movedItem);
-      return { ...state, memoryItemIds: items };
+      const items = [...state.memoryItemIds]
+      const [movedItem] = items.splice(action.payload.from, 1)
+      items.splice(action.payload.to, 0, movedItem)
+      return { ...state, memoryItemIds: items }
     }
     case 'SET_MEMORY_MODAL_OPEN':
-      return { ...state, isMemoryModalOpen: action.payload };
+      return { ...state, isMemoryModalOpen: action.payload }
     case 'SET_KEYBOARD_OPEN':
-      return { ...state, isKeyboardOpen: action.payload };
+      return { ...state, isKeyboardOpen: action.payload }
     case 'SET_INFO_OPEN':
-      return { ...state, isInfoOpen: action.payload };
+      return { ...state, isInfoOpen: action.payload }
     case 'SET_SECTION_FILTER':
       // payload: array of selected category strings, or null to clear
       if (!action.payload || action.payload.length === 0)
         return { ...state, activeSectionFilter: null }
       return { ...state, activeSectionFilter: new Set(action.payload) }
     case 'TOGGLE_KNOWN': {
-      const newSet = new Set(state.knownItems);
+      const newSet = new Set(state.knownItems)
       if (newSet.has(action.payload)) {
-        newSet.delete(action.payload);
+        newSet.delete(action.payload)
       } else {
-        newSet.add(action.payload);
+        newSet.add(action.payload)
       }
-      return { ...state, knownItems: newSet };
+      return { ...state, knownItems: newSet }
     }
     case 'TOGGLE_SHOW_UNKNOWN':
-      return { ...state, showUnknownOnly: !state.showUnknownOnly };
+      return { ...state, showUnknownOnly: !state.showUnknownOnly }
     case 'SET_LEVEL_RANGE':
-      return { ...state, levelRange: action.payload };
+      return { ...state, levelRange: action.payload }
     case 'SET_TOC_OPEN':
-      return { ...state, isTocOpen: action.payload };
+      return { ...state, isTocOpen: action.payload }
     case 'TOGGLE_SIDE_TOC':
-      return { ...state, isSideTocCollapsed: !state.isSideTocCollapsed };
+      return { ...state, isSideTocCollapsed: !state.isSideTocCollapsed }
     case 'SET_ACTIVE_CATEGORY':
-      if (state.activeCategory === action.payload) return state;
-      return { ...state, activeCategory: action.payload };
+      if (state.activeCategory === action.payload) return state
+      return { ...state, activeCategory: action.payload }
     case 'TOGGLE_CATEGORY': {
-      const newSet = new Set(state.collapsedCategories);
+      const newSet = new Set(state.collapsedCategories)
       if (newSet.has(action.payload)) {
-        newSet.delete(action.payload);
+        newSet.delete(action.payload)
       } else {
-        newSet.add(action.payload);
+        newSet.add(action.payload)
       }
-      return { ...state, collapsedCategories: newSet };
+      return { ...state, collapsedCategories: newSet }
     }
     case 'SET_COLLAPSED_CATEGORIES':
-      return { ...state, collapsedCategories: action.payload };
+      return { ...state, collapsedCategories: action.payload }
     default:
-      return state;
+      return state
   }
 }
 
 function App() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState)
   const {
-    search, darkMode, knownItems, memoryItemIds, isMemoryModalOpen, isKeyboardOpen, isInfoOpen,
-    showUnknownOnly, levelRange, isTocOpen, isSideTocCollapsed, activeCategory,
-    collapsedCategories, activeSectionFilter
-  } = state;
+    search,
+    darkMode,
+    knownItems,
+    memoryItemIds,
+    isMemoryModalOpen,
+    isKeyboardOpen,
+    isInfoOpen,
+    showUnknownOnly,
+    levelRange,
+    isTocOpen,
+    isSideTocCollapsed,
+    activeCategory,
+    collapsedCategories,
+    activeSectionFilter,
+  } = state
   const searchInputRef = useRef(null)
   const draggedMemoryIndexRef = useRef(null)
 
   useEffect(() => {
     const saved = localStorage.getItem('darkMode')
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    dispatch({ type: 'SET_DARK_MODE', payload: saved ? JSON.parse(saved) : prefersDark });
+    dispatch({ type: 'SET_DARK_MODE', payload: saved ? JSON.parse(saved) : prefersDark })
   }, [])
 
   useEffect(() => {
@@ -184,38 +199,35 @@ function App() {
   }, [darkMode])
 
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('knownItems') || '[]');
-    dispatch({ type: 'SET_KNOWN_ITEMS', payload: new Set(saved) });
-  }, []);
+    const saved = JSON.parse(localStorage.getItem('knownItems') || '[]')
+    dispatch({ type: 'SET_KNOWN_ITEMS', payload: new Set(saved) })
+  }, [])
 
   useEffect(() => {
-    localStorage.setItem('knownItems', JSON.stringify([...knownItems]));
-  }, [knownItems]);
+    localStorage.setItem('knownItems', JSON.stringify([...knownItems]))
+  }, [knownItems])
 
   useEffect(() => {
-    localStorage.setItem(MEMORY_ITEMS_KEY, JSON.stringify(memoryItemIds));
-  }, [memoryItemIds]);
+    localStorage.setItem(MEMORY_ITEMS_KEY, JSON.stringify(memoryItemIds))
+  }, [memoryItemIds])
 
   useEffect(() => {
-    const saved = localStorage.getItem('levelRange');
-    if (saved) dispatch({ type: 'SET_LEVEL_RANGE', payload: JSON.parse(saved) });
-  }, []);
+    const saved = localStorage.getItem('levelRange')
+    if (saved) dispatch({ type: 'SET_LEVEL_RANGE', payload: JSON.parse(saved) })
+  }, [])
 
   useEffect(() => {
-    localStorage.setItem('levelRange', JSON.stringify(levelRange));
-  }, [levelRange]);
+    localStorage.setItem('levelRange', JSON.stringify(levelRange))
+  }, [levelRange])
 
-
-  const result = search === "" ? preparedData : fuzzy(search, fuse)
-  let filteredData = result;
+  const result = search === '' ? preparedData : fuzzy(search, fuse)
+  let filteredData = result
   if (showUnknownOnly) {
-    filteredData = filteredData.filter((item) =>
-      !knownItems.has(item.id)
-    );
+    filteredData = filteredData.filter(item => !knownItems.has(item.id))
   }
   filteredData = filteredData.filter(
     item => item.level >= levelRange[0] && item.level <= levelRange[1]
-  );
+  )
   if (activeSectionFilter) {
     filteredData = filteredData.filter(item => activeSectionFilter.has(item.category))
   }
@@ -225,9 +237,7 @@ function App() {
   const categoryKey = categories.join('|')
   const allCategories = [...new Set(preparedData.map(item => item.category))]
   const itemsById = new Map(preparedData.map(item => [item.id, item]))
-  const memoryItems = memoryItemIds
-    .map(id => itemsById.get(id))
-    .filter(Boolean)
+  const memoryItems = memoryItemIds.map(id => itemsById.get(id)).filter(Boolean)
 
   useEffect(() => {
     const trackedCategories = categoryKey ? categoryKey.split('|') : []
@@ -261,34 +271,34 @@ function App() {
   }, [categoryKey])
 
   const toggleDarkMode = () => {
-    dispatch({ type: 'SET_DARK_MODE', payload: !darkMode });
+    dispatch({ type: 'SET_DARK_MODE', payload: !darkMode })
   }
 
-  const toggleCategory = (category) => {
-    dispatch({ type: 'TOGGLE_CATEGORY', payload: category });
+  const toggleCategory = category => {
+    dispatch({ type: 'TOGGLE_CATEGORY', payload: category })
   }
 
   const toggleAllCategories = () => {
     const allCategories = Object.keys(groupedData)
     if (collapsedCategories.size === allCategories.length) {
-      dispatch({ type: 'SET_COLLAPSED_CATEGORIES', payload: new Set() });
+      dispatch({ type: 'SET_COLLAPSED_CATEGORIES', payload: new Set() })
     } else {
-      dispatch({ type: 'SET_COLLAPSED_CATEGORIES', payload: new Set(allCategories) });
+      dispatch({ type: 'SET_COLLAPSED_CATEGORIES', payload: new Set(allCategories) })
     }
   }
 
-  const toggleKnown = (id) => {
-    dispatch({ type: 'TOGGLE_KNOWN', payload: id });
-  };
-
-  const removeMemoryItem = (id) => {
-    dispatch({ type: 'REMOVE_MEMORY_ITEM', payload: id });
+  const toggleKnown = id => {
+    dispatch({ type: 'TOGGLE_KNOWN', payload: id })
   }
 
-  const toggleMemoryItem = (id) => {
+  const removeMemoryItem = id => {
+    dispatch({ type: 'REMOVE_MEMORY_ITEM', payload: id })
+  }
+
+  const toggleMemoryItem = id => {
     dispatch({
       type: memoryItemIds.includes(id) ? 'REMOVE_MEMORY_ITEM' : 'ADD_MEMORY_ITEM',
-      payload: id
+      payload: id,
     })
   }
 
@@ -301,11 +311,11 @@ function App() {
     toggleKnown(id)
   }
 
-  const handleMemoryDragStart = (index) => {
+  const handleMemoryDragStart = index => {
     draggedMemoryIndexRef.current = index
   }
 
-  const handleMemoryDrop = (index) => {
+  const handleMemoryDrop = index => {
     const from = draggedMemoryIndexRef.current
     draggedMemoryIndexRef.current = null
     if (from === null || from === index) return
@@ -317,7 +327,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-
       <Navbar
         darkMode={darkMode}
         onDarkModeToggle={toggleDarkMode}
@@ -326,10 +335,13 @@ function App() {
         onMemorizeOpen={() => dispatch({ type: 'SET_MEMORY_MODAL_OPEN', payload: true })}
         onInfoOpen={() => dispatch({ type: 'SET_INFO_OPEN', payload: true })}
         search={search}
-        onSearchChange={(v) => dispatch({ type: 'SET_SEARCH', payload: v })}
+        onSearchChange={v => dispatch({ type: 'SET_SEARCH', payload: v })}
         showUnknownOnly={showUnknownOnly}
         onToggleUnknown={() => dispatch({ type: 'TOGGLE_SHOW_UNKNOWN' })}
-        allKnown={(() => { const ids = new Set(preparedData.map(i => i.id)); return [...ids].every(id => knownItems.has(id)) })()}
+        allKnown={(() => {
+          const ids = new Set(preparedData.map(i => i.id))
+          return [...ids].every(id => knownItems.has(id))
+        })()}
         onMarkAll={() => {
           const ids = new Set(preparedData.map(i => i.id))
           const allKnown = [...ids].every(id => knownItems.has(id))
@@ -344,10 +356,10 @@ function App() {
 
       <TableOfContents
         categories={categories}
-        getHref={(category) => `#${slugify(category)}`}
-        getCount={(category) => groupedData[category]?.length ?? 0}
+        getHref={category => `#${slugify(category)}`}
+        getCount={category => groupedData[category]?.length ?? 0}
         mobileOpen={isTocOpen}
-        setMobileOpen={(open) => dispatch({ type: 'SET_TOC_OPEN', payload: open })}
+        setMobileOpen={open => dispatch({ type: 'SET_TOC_OPEN', payload: open })}
         desktopCollapsed={isSideTocCollapsed}
         toggleDesktopCollapsed={() => dispatch({ type: 'TOGGLE_SIDE_TOC' })}
         activeCategory={activeCategory}
@@ -355,7 +367,6 @@ function App() {
 
       <div className={`w-full px-3 py-4 ${viewportGutters}`}>
         <div className="mx-auto max-w-7xl">
-
           {/* ── Filter bar ── */}
           {/* Search + utility buttons: mobile only (desktop has them in the navbar) */}
           <div className="flex sm:hidden flex-wrap items-center gap-1.5 mb-3">
@@ -366,21 +377,44 @@ function App() {
                 placeholder="Search commands…"
                 className={`w-full py-1.5 pl-8 ${search ? 'pr-8' : 'pr-3'} text-sm bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
                 value={search}
-                onChange={(e) => dispatch({ type: 'SET_SEARCH', payload: e.target.value })}
+                onChange={e => dispatch({ type: 'SET_SEARCH', payload: e.target.value })}
                 ref={searchInputRef}
               />
-              <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <svg
+                className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
               </svg>
               {search && (
                 <button
                   type="button"
-                  onClick={() => { dispatch({ type: 'SET_SEARCH', payload: '' }); searchInputRef.current?.focus() }}
+                  onClick={() => {
+                    dispatch({ type: 'SET_SEARCH', payload: '' })
+                    searchInputRef.current?.focus()
+                  }}
                   className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded-sm text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                   aria-label="Clear search"
                 >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-3.5 h-3.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               )}
@@ -394,7 +428,12 @@ function App() {
                 title="Table of Contents"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 </svg>
               </button>
             )}
@@ -406,7 +445,12 @@ function App() {
               title={showUnknownOnly ? 'Show all commands' : 'Show only unknown'}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2a7 7 0 00-7 7c0 2.485 1.355 4.66 3.367 5.828L8 20h8l-.367-5.172A7.002 7.002 0 0019 9a7 7 0 00-7-7z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 2a7 7 0 00-7 7c0 2.485 1.355 4.66 3.367 5.828L8 20h8l-.367-5.172A7.002 7.002 0 0019 9a7 7 0 00-7-7z"
+                />
               </svg>
             </button>
 
@@ -419,7 +463,10 @@ function App() {
                   onClick={() => {
                     if (allKnown && !window.confirm('Reset all items to unknown?')) return
                     if (!allKnown && !window.confirm('Mark all items as known?')) return
-                    dispatch({ type: 'SET_KNOWN_ITEMS', payload: allKnown ? new Set() : allItemIds })
+                    dispatch({
+                      type: 'SET_KNOWN_ITEMS',
+                      payload: allKnown ? new Set() : allItemIds,
+                    })
                   }}
                   className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm shrink-0"
                   title={allKnown ? 'Reset — mark all as unknown' : 'Mark all as known'}
@@ -434,12 +481,41 @@ function App() {
               <button
                 onClick={toggleAllCategories}
                 className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shrink-0"
-                title={collapsedCategories.size === Object.keys(groupedData).length ? 'Expand all' : 'Collapse all'}
-              >
-                {collapsedCategories.size === Object.keys(groupedData).length
-                  ? <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                  : <svg className="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" /></svg>
+                title={
+                  collapsedCategories.size === Object.keys(groupedData).length
+                    ? 'Expand all'
+                    : 'Collapse all'
                 }
+              >
+                {collapsedCategories.size === Object.keys(groupedData).length ? (
+                  <svg
+                    className="w-4 h-4 text-gray-600 dark:text-gray-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-4 h-4 text-gray-600 dark:text-gray-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 12H4"
+                    />
+                  </svg>
+                )}
               </button>
             )}
           </div>
@@ -448,8 +524,9 @@ function App() {
             {search && (
               <>
                 {result.length} commands found
-                {filteredData.length < result.length && ` (${filteredData.length} shown, others hidden by filters)`}
-                {result.length === 0 && " (try adjusting your search)"}
+                {filteredData.length < result.length &&
+                  ` (${filteredData.length} shown, others hidden by filters)`}
+                {result.length === 0 && ' (try adjusting your search)'}
               </>
             )}
           </p>
@@ -460,12 +537,15 @@ function App() {
               min={0}
               max={9}
               value={levelRange}
-              onChange={(range) => dispatch({ type: 'SET_LEVEL_RANGE', payload: range })}
+              onChange={range => dispatch({ type: 'SET_LEVEL_RANGE', payload: range })}
             />
             {(levelRange[0] !== 0 || levelRange[1] !== 9) && (
               <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-1">
                 Filtering to levels {levelRange[0]}–{levelRange[1]} •{' '}
-                <button onClick={() => dispatch({ type: 'SET_LEVEL_RANGE', payload: [0, 9] })} className="underline hover:text-gray-700 dark:hover:text-gray-300">
+                <button
+                  onClick={() => dispatch({ type: 'SET_LEVEL_RANGE', payload: [0, 9] })}
+                  className="underline hover:text-gray-700 dark:hover:text-gray-300"
+                >
                   show all
                 </button>
               </p>
@@ -474,13 +554,13 @@ function App() {
 
           {/* Category filter */}
           <div className="flex flex-wrap items-center gap-2 mb-3">
-            <label className="text-xs text-gray-500 dark:text-gray-400">
-              Category:
-            </label>
+            <label className="text-xs text-gray-500 dark:text-gray-400">Category:</label>
             <CategorySelect
               categories={allCategories}
               selected={activeSectionFilter}
-              onChange={(val) => dispatch({ type: 'SET_SECTION_FILTER', payload: val ? [...val] : [] })}
+              onChange={val =>
+                dispatch({ type: 'SET_SECTION_FILTER', payload: val ? [...val] : [] })
+              }
             />
             <span className="text-xs text-gray-400 dark:text-gray-500 whitespace-nowrap">
               {filteredData.length} commands
@@ -488,126 +568,163 @@ function App() {
           </div>
 
           <div className="space-y-2">
-          {Object.entries(groupedData).map(([category, items]) => {
-            const isCollapsed = collapsedCategories.has(category)
+            {Object.entries(groupedData).map(([category, items]) => {
+              const isCollapsed = collapsedCategories.has(category)
 
-            return (
-              <div
-                key={category}
-                id={slugify(category)}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-xs border border-gray-200 dark:border-gray-700 overflow-hidden scroll-mt-20"
-              >
-                <button
-                  onClick={() => toggleCategory(category)}
-                  className="w-full bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 px-4 py-2 border-b border-gray-200 dark:border-gray-600 hover:from-gray-100 hover:to-gray-150 dark:hover:from-gray-650 dark:hover:to-gray-750 transition-all duration-200"
+              return (
+                <div
+                  key={category}
+                  id={slugify(category)}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-xs border border-gray-200 dark:border-gray-700 overflow-hidden scroll-mt-20"
                 >
-                  <h2 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center">
-                    <svg
-                      className={`w-4 h-4 mr-2 shrink-0 transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                  <button
+                    onClick={() => toggleCategory(category)}
+                    className="w-full bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 px-4 py-2 border-b border-gray-200 dark:border-gray-600 hover:from-gray-100 hover:to-gray-150 dark:hover:from-gray-650 dark:hover:to-gray-750 transition-all duration-200"
+                  >
+                    <h2 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center">
+                      <svg
+                        className={`w-4 h-4 mr-2 shrink-0 transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
 
-                    <span
-                      className="w-1.5 h-1.5 rounded-full mr-2 shrink-0"
-                      style={{ backgroundColor: getCategoryColor(category) }}
-                    />
-                    {category}
-                    <span className="ml-auto text-xs font-normal text-gray-500 dark:text-gray-400 hidden sm:inline">
-                      {items.length} command{items.length !== 1 ? 's' : ''}
-                    </span>
-                  </h2>
-                </button>
+                      <span
+                        className="w-1.5 h-1.5 rounded-full mr-2 shrink-0"
+                        style={{ backgroundColor: getCategoryColor(category) }}
+                      />
+                      {category}
+                      <span className="ml-auto text-xs font-normal text-gray-500 dark:text-gray-400 hidden sm:inline">
+                        {items.length} command{items.length !== 1 ? 's' : ''}
+                      </span>
+                    </h2>
+                  </button>
 
-                <div className={`transition-all duration-300 ease-in-out ${isCollapsed ? 'max-h-0 overflow-hidden' : 'max-h-none'}`}>
-                  <div className="p-3">
-                    <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                      {items.map((item, index) => (
-                        <div
-                          onClick={(event) => handleCardClick(event, item.id)}
-                          key={index}
-                          title="Click to toggle learned. Alt-click or use the pin button to memorize."
-                          style={{ borderLeftColor: getCategoryColor(category), borderLeftWidth: '3px' }}
-                          className={`group p-2.5 rounded-md border cursor-pointer transition-all duration-200 ${memoryItemIds.includes(item.id)
-                            ? 'ring-2 ring-amber-400 dark:ring-amber-500'
-                            : ''
-                            } ${knownItems.has(item.id)
-                            ? 'opacity-50 bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600'
-                            : 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-400 dark:border-yellow-700/50 shadow-xs'
+                  <div
+                    className={`transition-all duration-300 ease-in-out ${isCollapsed ? 'max-h-0 overflow-hidden' : 'max-h-none'}`}
+                  >
+                    <div className="p-3">
+                      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {items.map((item, index) => (
+                          <div
+                            onClick={event => handleCardClick(event, item.id)}
+                            key={index}
+                            title="Click to toggle learned. Alt-click or use the pin button to memorize."
+                            style={{
+                              borderLeftColor: getCategoryColor(category),
+                              borderLeftWidth: '3px',
+                            }}
+                            className={`group p-2.5 rounded-md border cursor-pointer transition-all duration-200 ${
+                              memoryItemIds.includes(item.id)
+                                ? 'ring-2 ring-amber-400 dark:ring-amber-500'
+                                : ''
+                            } ${
+                              knownItems.has(item.id)
+                                ? 'opacity-50 bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600'
+                                : 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-400 dark:border-yellow-700/50 shadow-xs'
                             }`}
-                        >
-                          <div className="flex flex-wrap gap-1 mb-2 items-center">
-                            {item.solution.map((combo, comboIndex) => (
-                              <code key={comboIndex} className="keycombo text-xs">
-                                {combo}
-                              </code>
-                            ))}
-                            <span className="ml-auto text-xs font-mono text-gray-400 dark:text-gray-500 opacity-70">
-                              {item.level}
-                            </span>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); toggleMemoryItem(item.id) }}
-                              className={`p-0.5 rounded-sm transition-colors sm:opacity-0 sm:group-hover:opacity-100 ${memoryItemIds.includes(item.id) ? 'text-amber-500 dark:text-amber-400 opacity-100!' : 'text-gray-300 dark:text-gray-600 hover:text-amber-400'}`}
-                              title="Toggle memorize"
-                              aria-label="Toggle memorize"
-                            >
-                              <svg className="w-3.5 h-3.5" fill={memoryItemIds.includes(item.id) ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                              </svg>
-                            </button>
-                          </div>
-
-                          <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed">
-                            {parse(item.question)}
-                          </div>
-
-                          {item.score && (
-                            <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                              Match: {Math.round((1 - item.score) * 100)}%
+                          >
+                            <div className="flex flex-wrap gap-1 mb-2 items-center">
+                              {item.solution.map((combo, comboIndex) => (
+                                <code key={comboIndex} className="keycombo text-xs">
+                                  {combo}
+                                </code>
+                              ))}
+                              <span className="ml-auto text-xs font-mono text-gray-400 dark:text-gray-500 opacity-70">
+                                {item.level}
+                              </span>
+                              <button
+                                onClick={e => {
+                                  e.stopPropagation()
+                                  toggleMemoryItem(item.id)
+                                }}
+                                className={`p-0.5 rounded-sm transition-colors sm:opacity-0 sm:group-hover:opacity-100 ${memoryItemIds.includes(item.id) ? 'text-amber-500 dark:text-amber-400 opacity-100!' : 'text-gray-300 dark:text-gray-600 hover:text-amber-400'}`}
+                                title="Toggle memorize"
+                                aria-label="Toggle memorize"
+                              >
+                                <svg
+                                  className="w-3.5 h-3.5"
+                                  fill={memoryItemIds.includes(item.id) ? 'currentColor' : 'none'}
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                                  />
+                                </svg>
+                              </button>
                             </div>
-                          )}
-                        </div>
-                      ))}
+
+                            <div className="text-gray-700 dark:text-gray-300 text-xs leading-relaxed">
+                              {parse(item.question)}
+                            </div>
+
+                            {item.score && (
+                              <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                Match: {Math.round((1 - item.score) * 100)}%
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {Object.keys(groupedData).length === 0 && (
-          <div className="text-center py-8">
-            <svg className="mx-auto h-10 w-10 text-gray-400 dark:text-gray-500 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.562M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-            </svg>
-            <h3 className="text-base font-medium text-gray-900 dark:text-white mb-1">No commands found</h3>
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
-              Try adjusting your search terms or browse all categories above.
-            </p>
+              )
+            })}
           </div>
-        )}
+
+          {Object.keys(groupedData).length === 0 && (
+            <div className="text-center py-8">
+              <svg
+                className="mx-auto h-10 w-10 text-gray-400 dark:text-gray-500 mb-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.562M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                />
+              </svg>
+              <h3 className="text-base font-medium text-gray-900 dark:text-white mb-1">
+                No commands found
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                Try adjusting your search terms or browse all categories above.
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
       <ChunkErrorBoundary>
-      <Suspense fallback={null}>
-        {isKeyboardOpen && (
-          <KeyboardModal
-            data={preparedData}
-            knownItems={knownItems}
-            memoryItemIds={memoryItemIds}
-            onClose={() => dispatch({ type: 'SET_KEYBOARD_OPEN', payload: false })}
-          />
-        )}
+        <Suspense fallback={null}>
+          {isKeyboardOpen && (
+            <KeyboardModal
+              data={preparedData}
+              knownItems={knownItems}
+              memoryItemIds={memoryItemIds}
+              onClose={() => dispatch({ type: 'SET_KEYBOARD_OPEN', payload: false })}
+            />
+          )}
 
-        {isInfoOpen && (
-          <InfoModal onClose={() => dispatch({ type: 'SET_INFO_OPEN', payload: false })} />
-        )}
-      </Suspense>
+          {isInfoOpen && (
+            <InfoModal onClose={() => dispatch({ type: 'SET_INFO_OPEN', payload: false })} />
+          )}
+        </Suspense>
       </ChunkErrorBoundary>
 
       {isMemoryModalOpen && (
@@ -617,14 +734,17 @@ function App() {
         >
           <section
             className="max-h-[85vh] w-full max-w-3xl overflow-hidden rounded-lg border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800"
-            onClick={(event) => event.stopPropagation()}
+            onClick={event => event.stopPropagation()}
             role="dialog"
             aria-modal="true"
             aria-labelledby="memory-modal-title"
           >
             <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-700">
               <div>
-                <h2 id="memory-modal-title" className="text-base font-semibold text-gray-900 dark:text-white">
+                <h2
+                  id="memory-modal-title"
+                  className="text-base font-semibold text-gray-900 dark:text-white"
+                >
                   Memorize
                 </h2>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -639,7 +759,12 @@ function App() {
                 title="Close"
               >
                 <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -656,12 +781,15 @@ function App() {
                       key={item.id}
                       draggable
                       onDragStart={() => handleMemoryDragStart(index)}
-                      onDragOver={(event) => event.preventDefault()}
+                      onDragOver={event => event.preventDefault()}
                       onDrop={() => handleMemoryDrop(index)}
                       className="rounded-md border border-amber-300 bg-amber-50 p-3 shadow-xs transition-colors duration-200 hover:border-amber-400 dark:border-amber-700/70 dark:bg-amber-900/20"
                     >
                       <div className="mb-2 flex items-start gap-2">
-                        <span className="cursor-grab rounded-sm bg-amber-100 px-1.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-800/60 dark:text-amber-100" title="Drag to reorder">
+                        <span
+                          className="cursor-grab rounded-sm bg-amber-100 px-1.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-800/60 dark:text-amber-100"
+                          title="Drag to reorder"
+                        >
                           {index + 1}
                         </span>
                         <div className="flex flex-1 flex-wrap gap-1">
@@ -678,8 +806,18 @@ function App() {
                           aria-label={`Remove ${item.solution.join(', ')} from memorize list`}
                           title="Remove mark"
                         >
-                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M6 18L18 6M6 6l12 12"
+                            />
                           </svg>
                         </button>
                       </div>

@@ -251,9 +251,7 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
           </button>
           <button
             type="button"
-            onClick={() =>
-              set({ boardSource: isCodeSource ? s.boardSource : 'typescript' })
-            }
+            onClick={() => set({ boardSource: isCodeSource ? s.boardSource : 'typescript' })}
             className={`px-4 py-2 text-sm font-mono font-bold border-b-2 -mb-px transition-colors ${
               isCodeSource
                 ? 'border-blue-500 text-blue-300'
@@ -568,12 +566,16 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
         label="Speed Bonus"
         icon={Zap}
         defaultOpen={false}
-        badge={s.timerBonus ? <span className="text-yellow-300 text-[10px] font-bold">ON</span> : undefined}
+        badge={
+          s.timerBonus ? (
+            <span className="text-yellow-300 text-[10px] font-bold">ON</span>
+          ) : undefined
+        }
       >
         <p className="text-xs text-gray-500 mb-3">
           Clear the level before the par timer runs out to earn a speed bonus. The timer is
-          calculated from enemy count and difficulty — smaller maps give less time.
-          The game never ends when the timer expires; you just miss the bonus.
+          calculated from enemy count and difficulty — smaller maps give less time. The game never
+          ends when the timer expires; you just miss the bonus.
         </p>
         <div className="flex gap-2">
           <button
@@ -595,7 +597,12 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
 
       {/* Handicaps */}
       <HandicapsSection
-        config={{ hjklOnly: s.hjklOnly, noHjkl: s.noHjkl, opacityFade: s.opacityFade, snowEffect: s.snowEffect }}
+        config={{
+          hjklOnly: s.hjklOnly,
+          noHjkl: s.noHjkl,
+          opacityFade: s.opacityFade,
+          snowEffect: s.snowEffect,
+        }}
         onPatch={p => set(p)}
       />
     </SetupPageShell>

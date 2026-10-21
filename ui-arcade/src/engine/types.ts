@@ -29,10 +29,10 @@ export const CHALLENGE_CONFIG_DEFAULTS: ChallengeConfig = {
 // All game modes embed these fields; MotionRace adds its own trail-specific extras.
 
 export interface HandicapConfig {
-  hjklOnly: boolean  // restrict movement to h/j/k/l only
-  noHjkl: boolean    // block h/j/k/l — must use word/search motions
+  hjklOnly: boolean // restrict movement to h/j/k/l only
+  noHjkl: boolean // block h/j/k/l — must use word/search motions
   opacityFade: boolean // dim text far from cursor
-  snowEffect: boolean  // floating snowflakes overlay
+  snowEffect: boolean // floating snowflakes overlay
 }
 
 export const HANDICAP_CONFIG_DEFAULTS: HandicapConfig = {

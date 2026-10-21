@@ -1,5 +1,5 @@
-import { HashRouter, Routes, Route } from 'react-router-dom';
-import QuizGame from './components/QuizGame';
+import { HashRouter, Routes, Route } from 'react-router-dom'
+import QuizGame from './components/QuizGame'
 
 function App() {
   return (
@@ -14,7 +14,7 @@ function App() {
         <Route path="/review/:gameMode" element={<QuizGame />} />
       </Routes>
     </HashRouter>
-  );
+  )
 }
 
-export default App;
+export default App

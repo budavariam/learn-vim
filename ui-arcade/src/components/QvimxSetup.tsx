@@ -523,7 +523,12 @@ export function QvimxSetup({ onStart, onBack: _onBack }: SetupProps) {
 
       {/* Handicaps */}
       <HandicapsSection
-        config={{ hjklOnly: s.hjklOnly, noHjkl: s.noHjkl, opacityFade: s.opacityFade, snowEffect: s.snowEffect }}
+        config={{
+          hjklOnly: s.hjklOnly,
+          noHjkl: s.noHjkl,
+          opacityFade: s.opacityFade,
+          snowEffect: s.snowEffect,
+        }}
         onPatch={p => set(p)}
       />
     </SetupPageShell>

@@ -65,8 +65,10 @@
   cursor: pointer;
   pointer-events: all;
   border: 2px solid white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  transition:
+    background 0.2s,
+    transform 0.1s;
 }
 
 .dual-range-input::-webkit-slider-thumb:hover,
@@ -83,7 +85,7 @@
   cursor: pointer;
   pointer-events: all;
   border: 2px solid white;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .dark .dual-range-input::-webkit-slider-thumb {

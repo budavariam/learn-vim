@@ -19,9 +19,9 @@
     "lint": "pnpm lint:eslint && pnpm lint:knip && pnpm lint:format",
     "lint:eslint": "eslint .",
     "lint:knip": "knip",
-    "lint:format": "prettier --check src scripts .github \"*.{ts,js,json,yaml}\"",
+    "lint:format": "prettier --check .",
     "test": "pnpm -r --if-present test",
-    "format": "prettier --write src scripts .github \"*.{ts,js,json,yaml}\"",
+    "format": "prettier --write .",
     "validate": "pnpm typecheck && pnpm lint && pnpm test"
   },
   "dependencies": {

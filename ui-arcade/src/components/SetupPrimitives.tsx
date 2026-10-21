@@ -879,7 +879,10 @@ export function HandicapsSection({ config, onPatch, extras }: HandicapsSectionPr
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={() => {
-              onPatch({ hjklOnly: !config.hjklOnly, noHjkl: config.hjklOnly ? config.noHjkl : false })
+              onPatch({
+                hjklOnly: !config.hjklOnly,
+                noHjkl: config.hjklOnly ? config.noHjkl : false,
+              })
             }}
             className={`py-2.5 px-3 rounded border text-left text-sm font-mono transition-colors ${
               config.hjklOnly

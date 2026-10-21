@@ -29,7 +29,7 @@ services:
       - /app/ui-cheatsheet/node_modules
       - /app/ui-practice/node_modules
     ports:
-      - "5173:5173"
+      - '5173:5173'
     environment:
       - NODE_ENV=development
     command: >
@@ -42,8 +42,8 @@ services:
   learn-vim:
     profiles: [prod]
     build:
-      context: .               # repo root — gives access to the workspace, scripts/ and vim-cheatsheet.md
+      context: . # repo root — gives access to the workspace, scripts/ and vim-cheatsheet.md
       dockerfile: Dockerfile
     ports:
-      - "3001:80"
+      - '3001:80'
     restart: unless-stopped

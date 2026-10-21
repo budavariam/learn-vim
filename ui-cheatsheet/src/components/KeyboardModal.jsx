@@ -74,9 +74,7 @@ function displayKeyToChar(key) {
 }
 
 function physicalKeyToDisplay(key) {
-  const reverse = Object.fromEntries(
-    Object.entries(SPECIAL_KEY_DISPLAY).map(([k, v]) => [v, k])
-  )
+  const reverse = Object.fromEntries(Object.entries(SPECIAL_KEY_DISPLAY).map(([k, v]) => [v, k]))
   if (reverse[key]) return reverse[key]
   if (key.length === 1) return key
   return null
@@ -165,16 +163,20 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
 
   const dynamicStyles = useMemo(() => {
     const catSet = new Set(data.map(item => item.category))
-    const catRules = Array.from(catSet).map(cat => {
-      const color = getCategoryColor(cat)
-      const cls = cat.replace(/[^a-z0-9]/gi, '-').toLowerCase()
-      return [
-        `.hg-vim-${cls}.hg-button { background: ${color}28 !important; border-bottom: 2px solid ${color} !important; }`,
-        `.dark .hg-vim-${cls}.hg-button { background: ${color}50 !important; border-bottom: 2px solid ${color} !important; color: #e5e7eb !important; }`,
-      ].join('\n')
-    }).join('\n')
+    const catRules = Array.from(catSet)
+      .map(cat => {
+        const color = getCategoryColor(cat)
+        const cls = cat.replace(/[^a-z0-9]/gi, '-').toLowerCase()
+        return [
+          `.hg-vim-${cls}.hg-button { background: ${color}28 !important; border-bottom: 2px solid ${color} !important; }`,
+          `.dark .hg-vim-${cls}.hg-button { background: ${color}50 !important; border-bottom: 2px solid ${color} !important; color: #e5e7eb !important; }`,
+        ].join('\n')
+      })
+      .join('\n')
 
-    return catRules + `
+    return (
+      catRules +
+      `
 .hg-active-key.hg-button { background: rgba(59,130,246,0.4) !important; box-shadow: 0 0 0 2px #3b82f6 !important; z-index: 1; }
 .dark .hg-active-key.hg-button { background: rgba(59,130,246,0.55) !important; box-shadow: 0 0 0 2px #60a5fa !important; color: #fff !important; }
 .hg-ctrl-active.hg-button { background: rgba(59,130,246,0.4) !important; box-shadow: 0 0 0 2px #3b82f6 !important; }
@@ -182,6 +184,7 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
 .vim-keyboard .hg-button { min-width: 1.8rem !important; height: 2.2rem !important; font-size: 0.7rem !important; padding: 0 !important; }
 .vim-keyboard .hg-button[data-skbtn="{space}"] { min-width: 8rem !important; }
 `
+    )
   }, [data])
 
   useEffect(() => {
@@ -189,17 +192,26 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
   }, [locale])
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') { onClose(); return }
-      if (e.key === 'Shift') { setShift(true); return }
-      if (e.key === 'Control') { setCtrl(true); return }
+    const handleKeyDown = e => {
+      if (e.key === 'Escape') {
+        onClose()
+        return
+      }
+      if (e.key === 'Shift') {
+        setShift(true)
+        return
+      }
+      if (e.key === 'Control') {
+        setCtrl(true)
+        return
+      }
       if (e.key === 'Alt' || e.key === 'Meta') return
 
       e.preventDefault()
       const displayKey = physicalKeyToDisplay(e.key)
       if (displayKey) setActiveKey(displayKey)
     }
-    const handleKeyUp = (e) => {
+    const handleKeyUp = e => {
       if (e.key === 'Shift') setShift(false)
       if (e.key === 'Control') setCtrl(false)
     }
@@ -222,7 +234,7 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
 
     return {
       plain: keyIndex[lower] || [],
-      shift: upper ? (keyIndex[upper] || []) : [],
+      shift: upper ? keyIndex[upper] || [] : [],
       ctrl: keyIndex[`ctrl+${lower}`] || [],
       plainLabel: lower,
       shiftLabel: upper,
@@ -247,7 +259,10 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
           <div>
-            <h2 id="keyboard-modal-title" className="text-base font-semibold text-gray-900 dark:text-white">
+            <h2
+              id="keyboard-modal-title"
+              className="text-base font-semibold text-gray-900 dark:text-white"
+            >
               Keyboard View
             </h2>
             <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -261,9 +276,10 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
                 <button
                   key={key}
                   onClick={() => setLocale(key)}
-                  className={`px-2 py-1 font-mono transition-colors ${locale === key
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                  className={`px-2 py-1 font-mono transition-colors ${
+                    locale === key
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
                   }`}
                 >
                   {label}
@@ -271,16 +287,24 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
               ))}
             </div>
             {/* Modifier indicators */}
-            <span className={`px-2 py-0.5 rounded-sm text-xs font-mono ${shift ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'}`}>
+            <span
+              className={`px-2 py-0.5 rounded-sm text-xs font-mono ${shift ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'}`}
+            >
               Shift
             </span>
-            <span className={`px-2 py-0.5 rounded-sm text-xs font-mono ${ctrl ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'}`}>
+            <span
+              className={`px-2 py-0.5 rounded-sm text-xs font-mono ${ctrl ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'}`}
+            >
               Ctrl
             </span>
             <button
               onClick={() => setShowAllVariants(v => !v)}
               className={`px-2 py-0.5 rounded-sm text-xs font-mono transition-colors ${showAllVariants ? 'bg-purple-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
-              title={showAllVariants ? 'Showing all variants — click to filter by active modifier' : 'Filtering by modifier — click to show all variants'}
+              title={
+                showAllVariants
+                  ? 'Showing all variants — click to filter by active modifier'
+                  : 'Filtering by modifier — click to show all variants'
+              }
             >
               All
             </button>
@@ -290,7 +314,12 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
               aria-label="Close keyboard view"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -307,9 +336,10 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
             <button
               key={id}
               onClick={() => setFilterMode(id)}
-              className={`px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors ${filterMode === id
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              className={`px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors ${
+                filterMode === id
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
               }`}
             >
               {label}
@@ -327,8 +357,14 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
             layoutName={layoutName}
             layout={currentLayout}
             onKeyPress={key => {
-              if (key === '{shift}') { setShift(s => !s); return }
-              if (key === '{ctrl}') { setCtrl(s => !s); return }
+              if (key === '{shift}') {
+                setShift(s => !s)
+                return
+              }
+              if (key === '{ctrl}') {
+                setCtrl(s => !s)
+                return
+              }
               setActiveKey(key)
             }}
             buttonTheme={buttonTheme}
@@ -350,26 +386,43 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
         <div className="px-4 pb-4 min-h-24">
           {activeKey && activeCommands ? (
             <div className="space-y-1.5">
-              {(showAllVariants || (!ctrl && !shift)) && activeCommands.plain.map(item => (
-                <CommandLine key={`plain-${item.id}`} label={activeCommands.plainLabel} item={item} />
-              ))}
-              {(showAllVariants || (!ctrl && shift)) && activeCommands.shift.map(item => (
-                <CommandLine key={`shift-${item.id}`} label={activeCommands.shiftLabel} item={item} />
-              ))}
-              {(showAllVariants || ctrl) && activeCommands.ctrl.map(item => (
-                <CommandLine key={`ctrl-${item.id}`} label={activeCommands.ctrlLabel} item={item} />
-              ))}
+              {(showAllVariants || (!ctrl && !shift)) &&
+                activeCommands.plain.map(item => (
+                  <CommandLine
+                    key={`plain-${item.id}`}
+                    label={activeCommands.plainLabel}
+                    item={item}
+                  />
+                ))}
+              {(showAllVariants || (!ctrl && shift)) &&
+                activeCommands.shift.map(item => (
+                  <CommandLine
+                    key={`shift-${item.id}`}
+                    label={activeCommands.shiftLabel}
+                    item={item}
+                  />
+                ))}
+              {(showAllVariants || ctrl) &&
+                activeCommands.ctrl.map(item => (
+                  <CommandLine
+                    key={`ctrl-${item.id}`}
+                    label={activeCommands.ctrlLabel}
+                    item={item}
+                  />
+                ))}
               {(() => {
                 const hasVisible =
                   ((showAllVariants || (!ctrl && !shift)) && activeCommands.plain.length > 0) ||
                   ((showAllVariants || (!ctrl && shift)) && activeCommands.shift.length > 0) ||
                   ((showAllVariants || ctrl) && activeCommands.ctrl.length > 0)
-                return !hasVisible && (
-                  <p className="text-xs text-gray-400 dark:text-gray-500 py-2">
-                    No single-key Vim commands for{' '}
-                    <code className="font-mono">{displayKeyToChar(activeKey)}</code>
-                    {ctrl ? ' with Ctrl' : shift ? ' with Shift' : ''}
-                  </p>
+                return (
+                  !hasVisible && (
+                    <p className="text-xs text-gray-400 dark:text-gray-500 py-2">
+                      No single-key Vim commands for{' '}
+                      <code className="font-mono">{displayKeyToChar(activeKey)}</code>
+                      {ctrl ? ' with Ctrl' : shift ? ' with Shift' : ''}
+                    </p>
+                  )
                 )
               })()}
             </div>
