@@ -7,6 +7,7 @@ import Navbar from './components/Navbar'
 import TableOfContents from './components/TableOfContents'
 import CategorySelect from './components/CategorySelect'
 import { getCategoryColor } from './constants'
+import ChunkErrorBoundary from './components/ChunkErrorBoundary'
 
 // Modals are only needed on demand (the keyboard one pulls in react-simple-keyboard).
 const KeyboardModal = lazy(() => import('./components/KeyboardModal'))
@@ -592,6 +593,7 @@ function App() {
         </div>
       </div>
 
+      <ChunkErrorBoundary>
       <Suspense fallback={null}>
         {isKeyboardOpen && (
           <KeyboardModal
@@ -606,6 +608,7 @@ function App() {
           <InfoModal onClose={() => dispatch({ type: 'SET_INFO_OPEN', payload: false })} />
         )}
       </Suspense>
+      </ChunkErrorBoundary>
 
       {isMemoryModalOpen && (
         <div
