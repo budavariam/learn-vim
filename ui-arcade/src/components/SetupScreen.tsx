@@ -1,5 +1,5 @@
 import { STORAGE_KEYS } from '../engine/storageKeys'
-import { useReducer, useEffect, useRef, useMemo } from 'react'
+import { useReducer, useEffect, useRef, useMemo, useLayoutEffect } from 'react'
 import { loadUnsupported } from '../engine/UnsupportedEngine'
 import { loadKnown } from '../engine/KnownEngine'
 import { ALL_CATEGORIES, DEFAULT_CATEGORIES, MIN_CATEGORIES } from '../engine/categoryColors'
@@ -221,7 +221,9 @@ export function SetupScreen({
   // Use a ref so the keydown handler always calls the latest handleStart
   // without the stale closure bug.
   const handleStartRef = useRef(handleStart)
-  handleStartRef.current = handleStart
+  useLayoutEffect(() => {
+    handleStartRef.current = handleStart
+  })
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {

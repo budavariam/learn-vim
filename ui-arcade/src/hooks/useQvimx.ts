@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useRef, useCallback } from 'react'
+import { useReducer, useEffect, useRef, useCallback, useLayoutEffect } from 'react'
 import { useMonacoEditor } from './useMonacoEditor'
 import { getSizedFile } from '../files'
 import { MOTION_CHALLENGE_CATEGORIES } from './useMotionRace'
@@ -1275,7 +1275,9 @@ export function useQvimx(): UseQvimxReturn {
   )
 
   // Keep the loseLifeRef in sync so tickBombs can call it
-  loseLifeRef.current = loseLife
+  useLayoutEffect(() => {
+    loseLifeRef.current = loseLife
+  })
 
   // ── Enemy tick ────────────────────────────────────────────────────────────
 
@@ -1445,10 +1447,12 @@ export function useQvimx(): UseQvimxReturn {
     })
 
   // Keep forward refs in sync so startGame and callbacks always use fresh fns
-  setContentRef.current = setContent
-  positionCursorRef.current = positionCursor
-  focusEditorRef.current = focusEditor
-  getVisibleRangeRef.current = getVisibleRange
+  useLayoutEffect(() => {
+    setContentRef.current = setContent
+    positionCursorRef.current = positionCursor
+    focusEditorRef.current = focusEditor
+    getVisibleRangeRef.current = getVisibleRange
+  })
 
   // ── startGame ─────────────────────────────────────────────────────────────
 

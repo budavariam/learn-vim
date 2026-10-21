@@ -309,6 +309,7 @@ export function useGoalGame(): UseGoalGameReturn {
       const updated = addGoalModeHighScore(scores, entry)
       saveHighScores(updated)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- save the high score once, when the run enters the results state
   }, [state.status])
 
   const startGame = useCallback(

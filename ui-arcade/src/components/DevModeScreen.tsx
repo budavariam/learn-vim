@@ -1,4 +1,12 @@
-import { useReducer, useCallback, useRef, useEffect, useMemo, useState } from 'react'
+import {
+  useReducer,
+  useCallback,
+  useRef,
+  useEffect,
+  useMemo,
+  useState,
+  useLayoutEffect,
+} from 'react'
 import { Zap, FastForward, Pause, Ban, CheckCircle, Star, Download } from 'lucide-react'
 import type { VimCommandData } from '../engine/types'
 import type { KeyDisplayEvent } from '../hooks/useMonacoEditor'
@@ -404,7 +412,7 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
       solutionHandledRef.current = true
       const cmd = selectedRef.current
       dispatch({ type: 'SET_COMPLETED', value: true })
-      if (cmd && unsupported.has(cmd.id)) {
+      if (cmd && loadUnsupported().has(cmd.id)) {
         unmarkUnsupported(cmd.id)
         dispatch({ type: 'RELOAD_UNSUPPORTED' })
       }
@@ -496,7 +504,9 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
     onCommandExecuted: handleCommandExecuted,
   })
   // Keep ref in sync so advanceDrill (defined before this hook) can call focusEditor
-  focusEditorRef.current = focusEditor
+  useLayoutEffect(() => {
+    focusEditorRef.current = focusEditor
+  })
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {

@@ -39,14 +39,21 @@ export function SettingsDrawer({
   }
   const firstRadioRef = useRef<HTMLInputElement>(null)
 
+  // The key handler is bound once, so it must call the latest setOpen: in controlled mode it
+  // compares against the current `open` (a stale one would make Escape a no-op).
+  const setOpenRef = useRef(setOpen)
+  useEffect(() => {
+    setOpenRef.current = setOpen
+  })
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       // Cmd+Shift+P (Mac) or Ctrl+Shift+P (other)
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'P') {
         e.preventDefault()
-        setOpen(prev => !prev)
+        setOpenRef.current(prev => !prev)
       }
-      if (e.key === 'Escape') setOpen(false)
+      if (e.key === 'Escape') setOpenRef.current(false)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)

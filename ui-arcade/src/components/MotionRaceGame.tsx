@@ -78,6 +78,7 @@ function MotionRaceGameScreen({ config, onQuit }: GameProps) {
 
   useEffect(() => {
     startGame(config)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- start the game once on mount; later config changes must not restart it
   }, [])
 
   const [isGoalVisible, setIsGoalVisible] = useState(true)

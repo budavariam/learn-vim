@@ -1,4 +1,12 @@
-import { useEffect, useReducer, useRef, useCallback, useState, useMemo } from 'react'
+import {
+  useEffect,
+  useReducer,
+  useRef,
+  useCallback,
+  useState,
+  useMemo,
+  useLayoutEffect,
+} from 'react'
 import type React from 'react'
 import { useMonacoEditor } from '../hooks/useMonacoEditor'
 import { useKeyRestriction } from '../hooks/useKeyRestriction'
@@ -181,7 +189,9 @@ export function VimBotsGame({
   // ──────────────────────────────────────────────────────────────────────────
 
   const stateRef = useRef(state)
-  stateRef.current = state
+  useLayoutEffect(() => {
+    stateRef.current = state
+  })
 
   // Track previous player position to avoid re-triggering on same cell
   const prevPosRef = useRef<Pos>(initialState.playerPos)
@@ -306,6 +316,7 @@ export function VimBotsGame({
       }
     }
     prevFireRef.current = state.fire
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-decorate only when these board fields change, not on every state update
   }, [state.playerPos, state.robots, state.fire, editorReady, helperActive, safeMoveCount])
 
   // Notify parent on level complete

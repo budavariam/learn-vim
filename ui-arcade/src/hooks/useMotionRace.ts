@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useRef, useCallback } from 'react'
+import { useReducer, useEffect, useRef, useCallback, useLayoutEffect } from 'react'
 import { useMonacoEditor } from './useMonacoEditor'
 import type { TrailEntry } from './useMonacoEditor'
 import { getFile } from '../files'
@@ -544,9 +544,7 @@ export function useMotionRace(): UseMotionRaceReturn {
 
   // Key restriction enforcement (hjklOnly / noHjkl) — delegated to shared hook
   useKeyRestriction(
-    configRef.current
-      ? { hjklOnly: configRef.current.hjklOnly, noHjkl: configRef.current.noHjkl }
-      : null,
+    state.config ? { hjklOnly: state.config.hjklOnly, noHjkl: state.config.noHjkl } : null,
     state.status === 'playing'
   )
 
@@ -911,13 +909,15 @@ export function useMotionRace(): UseMotionRaceReturn {
     onCommandExecuted: handleCommandExecuted,
   })
 
-  // Sync forward refs
-  positionCursorRef.current = positionCursor
-  setGoalHighlightsRef.current = setGoalHighlights
-  setTrailDecorationsRef.current = setTrailDecorations
-  setContentEditorRef.current = setContent
-  focusEditorRef.current = focusEditor
-  getVisibleRangeRef.current = getVisibleRange
+  // Sync forward refs (layout effect: runs before any passive effect that reads them)
+  useLayoutEffect(() => {
+    positionCursorRef.current = positionCursor
+    setGoalHighlightsRef.current = setGoalHighlights
+    setTrailDecorationsRef.current = setTrailDecorations
+    setContentEditorRef.current = setContent
+    focusEditorRef.current = focusEditor
+    getVisibleRangeRef.current = getVisibleRange
+  })
   // setTargetHighlight is still available for single-goal backward compat
   void setTargetHighlight
 
@@ -1029,6 +1029,7 @@ export function useMotionRace(): UseMotionRaceReturn {
       const updated = addMotionRaceHighScore(scores, entry)
       saveHighScores(updated)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- save the high score once, when the run enters the results state
   }, [state.status])
 
   // ── startGame ────────────────────────────────────────────────────────────────
