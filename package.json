@@ -16,15 +16,15 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "pnpm generate-data && tsc -b",
-    "lint": "eslint .",
+    "lint": "pnpm lint:eslint && pnpm lint:knip && pnpm lint:format",
+    "lint:eslint": "eslint .",
+    "lint:knip": "knip",
+    "lint:format": "prettier --check src scripts .github \"*.{ts,js,json,yaml}\"",
     "test": "pnpm -r --if-present test",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "prettier --write src scripts .github \"*.{ts,js,json,yaml}\"",
     "validate": "pnpm typecheck && pnpm lint && pnpm test"
   },
   "dependencies": {
-    "react": "catalog:",
-    "react-dom": "catalog:",
     "ui-arcade": "workspace:*",
     "ui-cheatsheet": "workspace:*",
     "ui-practice": "workspace:*"
@@ -40,6 +40,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
     "globals": "^17.13.0",
+    "knip": "^6.42.1",
     "prettier": "^3.9.10",
     "sass": "^1.106.0",
     "tailwindcss": "^4.3.3",
