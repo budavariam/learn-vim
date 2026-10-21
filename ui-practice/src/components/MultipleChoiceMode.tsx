@@ -43,6 +43,7 @@ const MultipleChoiceMode: React.FC<MultipleChoiceModeProps> = ({
     const config = gameMode ? gameModes[gameMode] : null;
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const nextButtonRef = useRef<HTMLButtonElement>(null);
     const isCurrentlyKnown = knownItems.has(question.id || '');
 
     // Reset selection when question changes
@@ -78,6 +79,12 @@ const MultipleChoiceMode: React.FC<MultipleChoiceModeProps> = ({
     }, [showAnswer, selectedAnswer, mcOptions, handleAnswer]);
 
     const answered = !!selectedAnswer || showAnswer;
+
+    // autoFocus only works on mount, so focus the Next button once the question is answered;
+    // that lets Enter continue to the next question.
+    useEffect(() => {
+        if (answered) nextButtonRef.current?.focus();
+    }, [answered]);
 
     return (
         <div className="min-h-screen p-6">
@@ -218,8 +225,8 @@ const MultipleChoiceMode: React.FC<MultipleChoiceModeProps> = ({
                         <form onSubmit={onNext} className="space-y-3 pt-2">
                             <button
                                 type="submit"
+                                ref={nextButtonRef}
                                 disabled={!answered}
-                                autoFocus={answered}
                                 className={`terminal-button-primary w-full text-lg px-8 py-3 transition-opacity duration-200 ${!answered ? 'opacity-40 cursor-not-allowed' : ''}`}
                             >
                                 {currentIndex + 1 >= totalQuestions ? 'Finish Game' : 'Next Question'}
