@@ -147,7 +147,7 @@ const generateMCOptions = (
   const allAnswers = allQuestions.flatMap(q => q.solution)
   const uniqueAnswers = Array.from(new Set(allAnswers)).filter(ans => ans !== correctAnswer)
 
-  let candidates: { answer: string; similarity: number }[] = []
+  let candidates: { answer: string; similarity: number }[]
 
   if (difficulty === 'hard') {
     const sameCategoryAnswers = allQuestions

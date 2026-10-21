@@ -110,7 +110,6 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
     onCommandRef.current = options.onCommandExecuted
   }, [options.onCommandExecuted])
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onEditorCreatedRef = useRef(options.onEditorCreated)
   useEffect(() => {
     onEditorCreatedRef.current = options.onEditorCreated
@@ -410,7 +409,7 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
         // Gutter diff decorations — applied to both editors.
         // linesDecorationsClassName places a coloured bar in the left margin.
         const editDecols = editor.createDecorationsCollection([])
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         const targetDecols = targetEditor
           ? (targetEditor as any).createDecorationsCollection([])
           : null

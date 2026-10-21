@@ -413,7 +413,6 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
       } else {
         setTimeout(() => dispatch({ type: 'SET_COMPLETED', value: false }), 1500)
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
     [advanceDrill]
   )

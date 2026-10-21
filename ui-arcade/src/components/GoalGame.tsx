@@ -110,9 +110,8 @@ export function GoalGame({
             <span className="text-gray-400 text-xs">editing</span>
             <span className="ml-auto text-gray-600 text-xs">{state.keystrokes} keys</span>
           </div>
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           <div className="flex-1 min-h-0 relative">
-            <div ref={editorRef as any} className="h-full" />
+            <div ref={editorRef} className="h-full" />
             {state.config?.snowEffect && <SnowOverlay />}
             {state.config?.opacityFade && (
               <OpacityFadeOverlay cursorLine={0} getVisibleRange={() => null} />

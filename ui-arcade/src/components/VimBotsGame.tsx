@@ -162,7 +162,6 @@ export function VimBotsGame({
       setArcadeState(next)
     }, 100)
     return () => clearInterval(id)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [config.challengeMode])
 
   const onCommandExecuted = useCallback((cmd: string) => {

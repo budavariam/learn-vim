@@ -951,7 +951,7 @@ export function useMotionRace(): UseMotionRaceReturn {
       updated[enemyIdx] = { ...enemy, pos: newPos, trail: newTrail }
 
       let newEnemyScore = enemyScoreRef.current
-      let newGoals = [...goals]
+      const newGoals = [...goals]
       const goalIdx = newGoals.findIndex(g => posEq(g, newPos))
       if (goalIdx !== -1) {
         newEnemyScore++

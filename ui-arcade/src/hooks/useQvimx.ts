@@ -1115,8 +1115,6 @@ export function useQvimx(): UseQvimxReturn {
             newTempLine = [pos]
           }
         }
-      } else if (prevState === 'on-border') {
-        // already handled above — no-op here keeps exhaustive matching tidy
       }
 
       playerPosRef.current = pos
@@ -1367,7 +1365,6 @@ export function useQvimx(): UseQvimxReturn {
     }, 200)
     timerTickRef.current = id
     return () => clearInterval(id)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.status])
 
   // ── Challenge handling ────────────────────────────────────────────────────

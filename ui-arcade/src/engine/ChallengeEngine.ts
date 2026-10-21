@@ -195,7 +195,7 @@ export function handleCommandExecuted(
   const newCompleted = state.sessionStats.completed + 1
 
   // Schedule a blind verification if the challenge was guided (first_only / first_then_failure)
-  let newPending = [...state.pendingVerifications]
+  const newPending = [...state.pendingVerifications]
   if (
     challenge.showSolution &&
     (state.liveSettings.guidedMode === 'first_only' ||
@@ -279,7 +279,7 @@ export function tick(state: GameState, commands: VimCommandData[], now: number):
 
   // Clone level-progress ONCE up front — shared by survival early-return and the
   // normal path so failure counts are never silently discarded (fix: Bug #3).
-  let newLevelProgress = cloneLevelProgress(state.levelProgress)
+  const newLevelProgress = cloneLevelProgress(state.levelProgress)
 
   // Expire timed-out active challenges
   let newFailedCount = 0
@@ -341,11 +341,11 @@ export function tick(state: GameState, commands: VimCommandData[], now: number):
 
   // newLevelProgress already cloned above — no second clone needed here
 
-  let newCeiling = state.ceiling
+  const newCeiling = state.ceiling
   const warmupTarget = getWarmupCount(state.startingLevel)
   const warmupRemaining =
     state.status === 'warmup' ? Math.max(0, warmupTarget - newSessionStats.completed) : 0
-  let newStatus = state.status === 'warmup' && warmupRemaining <= 0 ? 'playing' : state.status
+  const newStatus = state.status === 'warmup' && warmupRemaining <= 0 ? 'playing' : state.status
 
   // Fill empty slots with new challenges
   const activeSlots = visibleChallenges.filter(c => c.status === 'active')

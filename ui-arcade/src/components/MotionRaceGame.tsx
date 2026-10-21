@@ -75,7 +75,6 @@ interface GameProps {
 function MotionRaceGameScreen({ config, onQuit }: GameProps) {
   const { state, editorRef, statusRef, startGame, getVisibleRange, totalLines } = useMotionRace()
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     startGame(config)
   }, [])

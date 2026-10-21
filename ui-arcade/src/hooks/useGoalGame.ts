@@ -345,7 +345,6 @@ export function useGoalGame(): UseGoalGameReturn {
 
       dispatch({ type: 'START', challenges: chosen, config, arcadeState: initialArcade })
       if (chosen[0]) loadChallenge(chosen[0])
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
     [loadChallenge]
   )

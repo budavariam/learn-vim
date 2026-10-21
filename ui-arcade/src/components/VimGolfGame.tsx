@@ -73,16 +73,15 @@ export function VimGolfGame({ challenge, handicaps, onNext, onPrev, onQuit }: Vi
       <div className="flex flex-1 overflow-hidden">
         {/* Editor — 60% */}
         <div className="flex-6 flex flex-col min-h-0">
-          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           <div className="flex-1 relative">
-            <div ref={editorRef as any} className="h-full" />
+            <div ref={editorRef} className="h-full" />
             {handicaps?.snowEffect && <SnowOverlay />}
             {handicaps?.opacityFade && (
               <OpacityFadeOverlay cursorLine={0} getVisibleRange={() => null} />
             )}
           </div>
           <div
-            ref={statusRef as any}
+            ref={statusRef}
             className="h-6 bg-gray-800 border-t border-gray-700 px-3 text-xs font-mono text-gray-400 flex items-center"
           />
         </div>

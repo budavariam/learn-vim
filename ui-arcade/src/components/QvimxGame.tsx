@@ -42,7 +42,6 @@ function QvimxGameScreen({ config, onQuit }: GameProps) {
 
   useKeyRestriction(config, state.status === 'playing')
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     startGame(config)
   }, [])
