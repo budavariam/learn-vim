@@ -30,7 +30,7 @@ export function CountdownRing({ startedAt, timeLimit, size = 44 }: CountdownRing
   const strokeDashoffset = circumference * (1 - progress)
 
   const color = progress > 0.5 ? '#22c55e' : progress > 0.25 ? '#f59e0b' : '#ef4444'
-  const secondsLeft = Math.ceil(Math.max(0, (timeLimit - (Date.now() - startedAt)) / 1000))
+  const secondsLeft = Math.ceil((progress * timeLimit) / 1000)
 
   return (
     <svg width={size} height={size} className="shrink-0 -rotate-90">

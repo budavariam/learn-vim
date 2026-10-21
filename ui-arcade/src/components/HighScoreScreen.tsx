@@ -166,10 +166,11 @@ function buildRows(mode: GameMode, real: HighScoreEntry[]): DisplayEntry[] {
     mode === 'survival' ? b.achievedTimeMs - a.achievedTimeMs : b.score - a.score
   )
   const bots = BOT_SEEDS[mode]
-  const combined = [...sortedReal, ...bots]
+  const ranked = [...sortedReal, ...bots]
     .sort((a, b) => (mode === 'survival' ? b.achievedTimeMs - a.achievedTimeMs : b.score - a.score))
     .slice(0, 10)
-  while (combined.length < 10) combined.push(null as any)
+  const combined: DisplayEntry[] = ranked
+  while (combined.length < 10) combined.push(null)
   return combined
 }
 
@@ -623,14 +624,16 @@ export function HighScoreScreen() {
         {/* Sub tabs depending on top category */}
         {topCategory === 'motionrace' && (
           <div className="flex gap-1 mb-6 border-b border-gray-700">
-            {[
-              { id: 'timed', label: 'Timed' },
-              { id: 'survival', label: 'Survival' },
-              { id: 'total_goals', label: 'Total Goals' },
-            ].map(t => (
+            {(
+              [
+                { id: 'timed', label: 'Timed' },
+                { id: 'survival', label: 'Survival' },
+                { id: 'total_goals', label: 'Total Goals' },
+              ] as const
+            ).map(t => (
               <button
                 key={t.id}
-                onClick={() => setMrTab(t.id as any)}
+                onClick={() => setMrTab(t.id)}
                 className={`px-4 py-2 text-sm font-mono transition-colors border-b-2 -mb-px ${
                   mrTab === t.id
                     ? 'border-green-500 text-green-300'
@@ -644,14 +647,16 @@ export function HighScoreScreen() {
         )}
         {topCategory === 'arcade' && (
           <div className="flex gap-1 mb-6 border-b border-gray-700">
-            {[
-              { id: 'general', label: 'General' },
-              { id: 'timed_challenge', label: 'Timed' },
-              { id: 'survival', label: 'Survival' },
-            ].map(t => (
+            {(
+              [
+                { id: 'general', label: 'General' },
+                { id: 'timed_challenge', label: 'Timed' },
+                { id: 'survival', label: 'Survival' },
+              ] as const
+            ).map(t => (
               <button
                 key={t.id}
-                onClick={() => setArcadeTab(t.id as any)}
+                onClick={() => setArcadeTab(t.id)}
                 className={`px-4 py-2 text-sm font-mono transition-colors border-b-2 -mb-px ${
                   arcadeTab === t.id
                     ? 'border-green-500 text-green-300'

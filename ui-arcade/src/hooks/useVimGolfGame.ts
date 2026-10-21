@@ -124,7 +124,7 @@ export function useVimGolfGame(challenge: VimGolfChallenge): UseVimGolfGameRetur
   // Refs for values read inside callbacks to avoid stale closures (fix: Bug #7)
   const keystrokesRef = useRef(0)
   const resetCountRef = useRef(0)
-  const startRef = useRef(Date.now())
+  const startRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const solvedAtRef = useRef<number | null>(null)
 
@@ -132,6 +132,7 @@ export function useVimGolfGame(challenge: VimGolfChallenge): UseVimGolfGameRetur
 
   // Timer — stops when solved
   useEffect(() => {
+    if (startRef.current === 0) startRef.current = Date.now()
     timerRef.current = setInterval(() => {
       if (solvedAtRef.current !== null) return
       dispatch({ type: 'SET_ELAPSED', ms: Date.now() - startRef.current })

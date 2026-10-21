@@ -1014,8 +1014,11 @@ export function useMotionRace(): UseMotionRaceReturn {
       const entry: MotionRaceHighScoreEntry = {
         id: crypto.randomUUID(),
         timestamp: Date.now(),
+        // both count-based goals are ranked on the total-goals board
         endGoal:
-          state.config.endGoal === 'user_count' ? 'total_goals' : (state.config.endGoal as any),
+          state.config.endGoal === 'user_count' || state.config.endGoal === 'total_count'
+            ? 'total_goals'
+            : state.config.endGoal,
         score: state.userScore,
         keystrokes: state.keystrokes,
         sessionDurationMs: state.totalElapsedMs,

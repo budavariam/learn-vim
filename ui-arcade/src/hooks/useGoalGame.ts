@@ -169,7 +169,7 @@ export function useGoalGame(): UseGoalGameReturn {
   const [state, dispatch] = useReducer(goalReducer, blankState)
   const [targetContent, setTargetContent] = useState<string | undefined>(undefined)
 
-  const startRef = useRef(Date.now())
+  const startRef = useRef(0) // set when a run starts
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const keystrokesRef = useRef(0)
   const configRef = useRef<GoalModeConfig | null>(null)

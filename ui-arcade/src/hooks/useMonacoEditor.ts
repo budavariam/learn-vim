@@ -377,8 +377,7 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
         }
 
         // ── Target (read-only) editor + diff gutter markers ───────────────
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let targetEditor: any = null
+        let targetEditor: ReturnType<typeof monaco.editor.create> | null = null
         const targetContainer = options.targetEditorRef?.current
 
         if (targetContainer) {
@@ -410,9 +409,7 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
         // linesDecorationsClassName places a coloured bar in the left margin.
         const editDecols = editor.createDecorationsCollection([])
 
-        const targetDecols = targetEditor
-          ? (targetEditor as any).createDecorationsCollection([])
-          : null
+        const targetDecols = targetEditor ? targetEditor.createDecorationsCollection([]) : null
 
         const updateDiffDecorations = () => {
           const target = targetContentRef.current

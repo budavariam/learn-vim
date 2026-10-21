@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import type React from 'react'
 
 // ── SnowOverlay ───────────────────────────────────────────────────────────────
@@ -93,16 +93,8 @@ export interface ConfettiOverlayProps {
   onDone: () => void
 }
 
-export function ConfettiOverlay({ isActive, onDone }: ConfettiOverlayProps) {
-  useEffect(() => {
-    if (!isActive) return
-    const id = setTimeout(onDone, 1500)
-    return () => clearTimeout(id)
-  }, [isActive, onDone])
-
-  if (!isActive) return null
-
-  const pieces = Array.from({ length: 30 }, (_, i) => {
+function makeConfettiPieces() {
+  return Array.from({ length: 30 }, (_, i) => {
     const left = Math.floor(Math.random() * 100)
     const top = Math.floor(Math.random() * 60)
     const rotation = Math.floor(Math.random() * 360)
@@ -110,6 +102,19 @@ export function ConfettiOverlay({ isActive, onDone }: ConfettiOverlayProps) {
     const delay = Math.random() * 0.3
     return { i, left, top, rotation, color, delay }
   })
+}
+
+export function ConfettiOverlay({ isActive, onDone }: ConfettiOverlayProps) {
+  useEffect(() => {
+    if (!isActive) return
+    const id = setTimeout(onDone, 1500)
+    return () => clearTimeout(id)
+  }, [isActive, onDone])
+
+  // Randomised once per activation, so re-renders don't reshuffle the confetti
+  const pieces = useMemo(() => (isActive ? makeConfettiPieces() : []), [isActive])
+
+  if (!isActive) return null
 
   return (
     <div

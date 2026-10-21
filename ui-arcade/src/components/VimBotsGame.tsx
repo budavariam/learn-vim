@@ -101,10 +101,12 @@ export function VimBotsGame({
   const [helperActive, setHelperActive] = useState(false)
 
   // Live countdown tick — re-renders every second while playing so the timer stays current.
-  const [, setTick] = useState(0)
+  const [now, setNow] = useState(() => Date.now())
+  // Phase for the CSS fire animations, fixed at mount so re-renders don't shift it
+  const [firePhase] = useState(() => Date.now() / 1000)
   useEffect(() => {
     if (!config.timerBonus || state.status !== 'playing') return
-    const id = setInterval(() => setTick(t => t + 1), 500)
+    const id = setInterval(() => setNow(Date.now()), 500)
     return () => clearInterval(id)
   }, [config.timerBonus, state.status])
 
@@ -458,7 +460,7 @@ export function VimBotsGame({
         ${
           config.animatedEffects
             ? (() => {
-                const t = Date.now() / 1000
+                const t = firePhase
                 const fireOff1 = `${-(t % 1.4).toFixed(3)}s`
                 const fireOff2 = `${-(t % 0.7).toFixed(3)}s`
                 const fireOff1b = `${-(t % 1.1).toFixed(3)}s`
@@ -717,7 +719,7 @@ export function VimBotsGame({
           {/* Speed bonus countdown */}
           {config.timerBonus &&
             (() => {
-              const elapsed = Date.now() - state.levelStartedAt
+              const elapsed = Math.max(0, now - state.levelStartedAt)
               const remaining = Math.max(0, state.parMs - elapsed)
               const pct = remaining / state.parMs
               const isExpired = remaining === 0

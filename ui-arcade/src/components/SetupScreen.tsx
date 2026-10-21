@@ -318,7 +318,7 @@ export function SetupScreen({
           dynamicAssistPct={s.assistEnabled ? effectiveAssistPct : undefined}
           onDynamicAssistPct={v => dispatch({ type: 'SET_ASSIST_PCT', value: v })}
           knowledgeFilter={s.knowledgeFilter}
-          onKnowledgeFilter={v => dispatch({ type: 'SET_KNOWLEDGE_FILTER', value: v as any })}
+          onKnowledgeFilter={v => dispatch({ type: 'SET_KNOWLEDGE_FILTER', value: v })}
           drillMode={s.drillMode}
           onDrillMode={v => dispatch({ type: 'SET_DRILL_MODE', value: v })}
         />
