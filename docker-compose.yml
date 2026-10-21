@@ -2,6 +2,8 @@
 # vimtutor has its own compose at vimtutor/docker-compose.yml
 #
 # One pnpm workspace, one Vite app: cheatsheet (/), quiz (/game/), arcade (/arcade/).
+# The prod image also builds the vimtutor submodule (dev profile does not serve it;
+# run it with vimtutor/docker-compose.yml).
 #
 # Profiles:
 #   dev    — hot-reload Vite dev server  (default)
@@ -10,6 +12,7 @@
 # Usage:
 #   dev:  docker compose --profile dev up      → http://localhost:5173/learn-vim/
 #   prod: docker compose --profile prod up --build → http://localhost:3001/learn-vim/
+#                                                      http://localhost:3001/vimtutor/  (git submodule)
 
 services:
   # ── dev ───────────────────────────────────────────────────────────────────

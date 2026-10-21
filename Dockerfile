@@ -15,10 +15,21 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm build
 
+## vimtutor (git submodule) — separate CRA app, built exactly like vimtutor/Dockerfile does
+## (own npm lockfile, Node 20); not part of the pnpm workspace
+FROM node:20.13.1-alpine AS vimtutor
+
+WORKDIR /app
+COPY vimtutor/package*.json ./
+RUN npm install
+COPY vimtutor/ ./
+RUN npm run build
+
 ## Serve stage
 FROM nginx:alpine AS server
 
 COPY --from=builder /app/dist /usr/share/nginx/html/learn-vim
+COPY --from=vimtutor /app/build /usr/share/nginx/html/vimtutor
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
