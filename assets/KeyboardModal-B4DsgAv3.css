@@ -1,0 +1,23 @@
+/*!
+ * 
+ *   react-simple-keyboard v3.8.284
+ *   https://github.com/hodgef/react-simple-keyboard
+ *
+ *   Copyright (c) Francisco Hodge (https://github.com/hodgef) and project contributors.
+ *
+ *   This source code is licensed under the MIT license found in the
+ *   LICENSE file in the root directory of this source tree.
+ *
+ */
+/*!
+ * 
+ *   simple-keyboard v3.8.195
+ *   https://github.com/hodgef/simple-keyboard
+ *
+ *   Copyright (c) Francisco Hodge (https://github.com/hodgef) and project contributors.
+ *
+ *   This source code is licensed under the MIT license found in the
+ *   LICENSE file in the root directory of this source tree.
+ *
+ */
+.hg-theme-default{box-sizing:border-box;touch-action:manipulation;-webkit-user-select:none;user-select:none;background-color:#ececec;border-radius:5px;width:100%;padding:5px;font-family:HelveticaNeue-Light,Helvetica Neue Light,Helvetica Neue,Helvetica,Arial,Lucida Grande,sans-serif;overflow:hidden}.hg-theme-default .hg-button span,.hg-theme-default .hg-button span svg{pointer-events:none}.hg-theme-default button.hg-button{font-size:inherit;border-width:0}.hg-theme-default .hg-button{flex-grow:1;display:inline-block}.hg-theme-default .hg-row{display:flex}.hg-theme-default .hg-row:not(:last-child){margin-bottom:5px}.hg-theme-default .hg-row .hg-button-container,.hg-theme-default .hg-row .hg-button:not(:last-child){margin-right:5px}.hg-theme-default .hg-row>div:last-child{margin-right:0}.hg-theme-default .hg-row .hg-button-container{display:flex}.hg-theme-default .hg-button{box-sizing:border-box;cursor:pointer;-webkit-tap-highlight-color:#0000;background:#fff;border-bottom:1px solid #b5b5b5;border-radius:5px;justify-content:center;align-items:center;height:40px;padding:5px;display:flex;box-shadow:0 0 3px -1px #0000004d}.hg-theme-default .hg-button.hg-standardBtn{width:20px}.hg-theme-default .hg-button.hg-activeButton{background:#efefef}.hg-theme-default.hg-layout-numeric .hg-button{justify-content:center;align-items:center;width:33.3%;height:60px;display:flex}.hg-theme-default .hg-button.hg-button-numpadadd,.hg-theme-default .hg-button.hg-button-numpadenter{height:85px}.hg-theme-default .hg-button.hg-button-numpad0{width:105px}.hg-theme-default .hg-button.hg-button-com{max-width:85px}.hg-theme-default .hg-button.hg-standardBtn.hg-button-at{max-width:45px}.hg-theme-default .hg-button.hg-selectedButton{color:#fff;background:#05194687}.hg-theme-default .hg-button.hg-standardBtn[data-skbtn=\.com]{max-width:82px}.hg-theme-default .hg-button.hg-standardBtn[data-skbtn=\@]{max-width:60px}.hg-candidate-box{-webkit-user-select:none;user-select:none;background:#ececec;border-bottom:2px solid #b5b5b5;border-radius:5px;margin-top:-10px;display:inline-flex;position:absolute;transform:translateY(-100%)}ul.hg-candidate-box-list{flex:1;margin:0;padding:0;list-style:none;display:flex}li.hg-candidate-box-list-item{justify-content:center;align-items:center;width:40px;height:40px;display:flex}li.hg-candidate-box-list-item:hover{cursor:pointer;background:#00000008}li.hg-candidate-box-list-item:active{background:#0000001a}.hg-candidate-box-prev:before{content:"◄"}.hg-candidate-box-next:before{content:"►"}.hg-candidate-box-next,.hg-candidate-box-prev{color:#969696;cursor:pointer;align-items:center;padding:0 10px;display:flex}.hg-candidate-box-next{border-top-right-radius:5px;border-bottom-right-radius:5px}.hg-candidate-box-prev{border-top-left-radius:5px;border-bottom-left-radius:5px}.hg-candidate-box-btn-active{color:#444}
