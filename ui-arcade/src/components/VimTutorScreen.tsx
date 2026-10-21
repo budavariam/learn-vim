@@ -92,6 +92,7 @@ function TutorEditorWithChallenges({
   const arcadeCmdsRef = useRef<VimCommandData[]>([])
   const arcadeStateRef = useRef<GameState | null>(null)
 
+  // eslint-disable-next-line react-hooks/refs -- refs are seeded once together with the initial reducer state
   const [arcadeState, dispatchArcade] = useReducer(arcadeReducer, null, (): GameState => {
     const cfg = buildArcadeConfig(config)
     const cmds = filterCommands(config)

@@ -34,35 +34,18 @@ export default defineConfig([
     extends: [tseslint.configs.recommended],
   },
   {
-    // React Compiler rules shipped with eslint-plugin-react-hooks 7. The code base predates
-    // them, so surface them as warnings until the call sites are cleaned up.
-    rules: {
-      'react-hooks/refs': 'warn',
-      'react-hooks/purity': 'warn',
-      'react-hooks/set-state-in-effect': 'warn',
-      'react-hooks/immutability': 'warn',
-      'react-refresh/only-export-components': 'warn',
-    },
-  },
-  {
     files: ['**/*.{js,jsx}'],
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
   {
-    // Pre-existing patterns in the code base; kept visible as warnings.
     files: ['**/*.{ts,tsx}'],
     rules: {
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' },
       ],
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-expressions': 'warn',
-      'prefer-const': 'warn',
-      'no-useless-assignment': 'warn',
-      'no-dupe-else-if': 'warn',
     },
   },
   {

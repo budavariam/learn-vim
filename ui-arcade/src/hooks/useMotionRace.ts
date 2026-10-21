@@ -1,4 +1,4 @@
-import { useReducer, useEffect, useRef, useCallback, useLayoutEffect } from 'react'
+import { useReducer, useEffect, useRef, useCallback, useLayoutEffect, useState } from 'react'
 import { useMonacoEditor } from './useMonacoEditor'
 import type { TrailEntry } from './useMonacoEditor'
 import { getFile } from '../files'
@@ -505,7 +505,7 @@ export function useMotionRace(): UseMotionRaceReturn {
   const configRef = useRef<MotionRaceConfig | null>(null)
   const fileContentRef = useRef('')
   const validLinesRef = useRef<ReturnType<typeof buildValidLines>>([]) // cached, recomputed on startGame
-  const totalLinesRef = useRef(0)
+  const [totalLines, setTotalLines] = useState(0)
   const gameStartRef = useRef(0)
   const pathStartRef = useRef(0)
   const contentValidRef = useRef(true)
@@ -1049,7 +1049,7 @@ export function useMotionRace(): UseMotionRaceReturn {
       }
       fileContentRef.current = content
       validLinesRef.current = buildValidLines(content)
-      totalLinesRef.current = content.split('\n').length
+      setTotalLines(content.split('\n').length)
 
       const from = config.startAtFirstLine
         ? (() => {
@@ -1150,6 +1150,6 @@ export function useMotionRace(): UseMotionRaceReturn {
     statusRef,
     startGame,
     getVisibleRange,
-    totalLines: totalLinesRef.current,
+    totalLines,
   }
 }

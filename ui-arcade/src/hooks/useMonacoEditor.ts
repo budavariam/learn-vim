@@ -326,6 +326,7 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
   }, [options.targetContent, options.targetEditorRef])
 
   // ── Main Monaco init effect ───────────────────────────────────────────────
+  // eslint-disable-next-line react-hooks/immutability -- async init with a cancellation flag; the editor is an external system
   useEffect(() => {
     if (!editorRef.current) return
     let disposed = false
@@ -351,6 +352,7 @@ export function useMonacoEditor(options: UseMonacoEditorOptions = {}): UseMonaco
           lineNumbers: prefs.lineNumbers,
           renderLineHighlight: 'all',
           automaticLayout: true,
+          // eslint-disable-next-line react-hooks/immutability -- Monaco options are built inside the async init; the editor is an external system
           wordWrap: options.wordWrapOverride ?? prefs.wordWrap,
           inlineSuggest: { enabled: false },
           renderWhitespace: prefs.renderWhitespace,

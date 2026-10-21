@@ -1166,15 +1166,14 @@ export function useQvimx(): UseQvimxReturn {
         console.log(
           `[qvimx] ball ${ballId} hit player temp-line at (${moved.pos.lineNumber},${moved.pos.column}), tempLine.length=${playerTempLineRef.current.length}`
         )
-        loseLife('player', 'ball')
+        loseLifeRef.current('player', 'ball')
       } else if (hitEnemyTemp) {
-        loseLife('enemy', 'ball')
+        loseLifeRef.current('enemy', 'ball')
       } else {
         dispatch({ type: 'BALL_TICK', balls: updated })
         syncDecorations()
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [syncDecorations]
   )
 

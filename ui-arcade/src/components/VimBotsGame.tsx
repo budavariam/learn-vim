@@ -159,6 +159,7 @@ export function VimBotsGame({
     arcadeConfigRef.current = arcadeCfg
     arcadeCmdsRef.current = filtered
     arcadeStateRef.current = initialArcade
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time initialisation from props, seeded together with the refs
     setArcadeState(initialArcade)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -312,6 +313,7 @@ export function VimBotsGame({
         }
       }
       if (newBursts.length > 0) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- burst positions come from Monaco layout (external system)
         setFireworks(prev => [...prev, ...newBursts])
       }
     }

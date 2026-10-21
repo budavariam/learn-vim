@@ -129,6 +129,7 @@ function MotionRaceGameScreen({ config, onQuit }: GameProps) {
   }, [getVisibleRange, state.goals])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mirrors the Monaco viewport, an external system
     checkVisibility()
   }, [checkVisibility])
 
