@@ -56,7 +56,7 @@ export interface UseMonacoEditorOptions {
    */
   targetContent?: string
   /** Container div for the read-only target editor (diff right-pane). */
-  targetEditorRef?: React.RefObject<HTMLDivElement>
+  targetEditorRef?: React.RefObject<HTMLDivElement | null>
   /** Extra actions registered into Monaco's command palette (F1). */
   monacoActions?: MonacoAction[]
   /**
@@ -85,8 +85,8 @@ export interface TrailEntry {
 }
 
 export interface UseMonacoEditorReturn {
-  editorRef: React.RefObject<HTMLDivElement>
-  statusRef: React.RefObject<HTMLDivElement>
+  editorRef: React.RefObject<HTMLDivElement | null>
+  statusRef: React.RefObject<HTMLDivElement | null>
   setContent: (content: string) => void
   resetCursor: () => void
   getContent: () => string

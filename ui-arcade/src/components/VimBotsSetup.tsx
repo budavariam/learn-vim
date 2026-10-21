@@ -226,7 +226,7 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
         }
       >
         {/* Tab bar */}
-        <div className="flex border-b border-gray-700 mb-4 -mx-0">
+        <div className="flex border-b border-gray-700 mb-4 mx-0">
           <button
             type="button"
             onClick={() => set({ boardSource: 'grid' })}
@@ -298,7 +298,7 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
                   onChange={e =>
                     set({ customRows: Math.max(5, Math.min(300, Number(e.target.value))) })
                   }
-                  className="w-20 px-2 py-1.5 rounded border border-gray-700 bg-gray-800 text-gray-300 text-sm font-mono text-center focus:outline-none focus:border-blue-500"
+                  className="w-20 px-2 py-1.5 rounded-sm border border-gray-700 bg-gray-800 text-gray-300 text-sm font-mono text-center focus:outline-hidden focus:border-blue-500"
                 />
                 <label className="text-xs text-gray-400">Cols</label>
                 <input
@@ -309,7 +309,7 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
                   onChange={e =>
                     set({ customCols: Math.max(5, Math.min(300, Number(e.target.value))) })
                   }
-                  className="w-20 px-2 py-1.5 rounded border border-gray-700 bg-gray-800 text-gray-300 text-sm font-mono text-center focus:outline-none focus:border-blue-500"
+                  className="w-20 px-2 py-1.5 rounded-sm border border-gray-700 bg-gray-800 text-gray-300 text-sm font-mono text-center focus:outline-hidden focus:border-blue-500"
                 />
                 <span className="text-xs text-gray-600 font-mono">
                   = {s.customRows * s.customCols} cells
@@ -368,7 +368,7 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
           {(() => {
             const opt = DIFFICULTY_OPTIONS[DIFFICULTY_INDEX[s.difficulty]]
             return opt ? (
-              <div className="bg-gray-800/60 border border-gray-700 rounded p-2.5 text-xs font-mono">
+              <div className="bg-gray-800/60 border border-gray-700 rounded-sm p-2.5 text-xs font-mono">
                 <span className="text-white font-bold">{opt.label}</span>
                 <span className="text-gray-500 ml-1">{opt.pct} of cells</span>
                 <p className="text-gray-400 mt-1">{opt.desc}</p>
@@ -416,7 +416,7 @@ export function VimBotsSetup({ onStart, onBack: _onBack }: VimBotsSetupProps) {
                     const v = Math.max(1, Math.min(99, Number(e.target.value)))
                     if (!isNaN(v)) set({ maxTeleports: v })
                   }}
-                  className="w-16 px-2 py-1.5 rounded border border-gray-700 bg-gray-800 text-gray-300 text-sm font-mono text-center focus:outline-none focus:border-blue-500"
+                  className="w-16 px-2 py-1.5 rounded-sm border border-gray-700 bg-gray-800 text-gray-300 text-sm font-mono text-center focus:outline-hidden focus:border-blue-500"
                 />
               </div>
             </div>

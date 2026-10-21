@@ -9,7 +9,7 @@ import { type VimTutorConfig, getFilteredContent } from '../data/vimtutor'
 import { initGameState, tick, handleCommandExecuted } from '../engine/ChallengeEngine'
 import { loadUnsupported } from '../engine/UnsupportedEngine'
 import type { GameState, VimCommandData, GameConfig } from '../engine/types'
-import rawData from '../data.json'
+import rawData from '@data'
 import { useReducer } from 'react'
 
 const allCommands = rawData as VimCommandData[]
@@ -144,7 +144,7 @@ function TutorEditorWithChallenges({
   return (
     <div className="flex h-full overflow-hidden">
       {/* Editor pane */}
-      <div className="flex-[3] flex flex-col min-w-0 bg-gray-950">
+      <div className="flex-3 flex flex-col min-w-0 bg-gray-950">
         <div className="flex items-center px-4 py-2 bg-gray-800 border-b border-gray-700">
           <span className="text-gray-400 text-xs font-mono">vimtutor</span>
           <span className="ml-auto text-xs text-gray-500 font-mono uppercase">
@@ -159,8 +159,8 @@ function TutorEditorWithChallenges({
       </div>
 
       {/* Challenge sidebar */}
-      <div className="flex-[2] flex flex-col border-l border-gray-700 min-w-0 overflow-hidden">
-        <div className="p-3 border-b border-gray-700 flex gap-3 items-start flex-shrink-0">
+      <div className="flex-2 flex flex-col border-l border-gray-700 min-w-0 overflow-hidden">
+        <div className="p-3 border-b border-gray-700 flex gap-3 items-start shrink-0">
           <ScoreDisplay score={arcadeState.score} combo={arcadeState.combo} />
           <LevelIndicator ceiling={arcadeState.ceiling} levelPct={arcadeState.levelPct} />
         </div>

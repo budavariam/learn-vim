@@ -13,7 +13,7 @@ export function ScoreDisplay({ score, combo }: ScoreDisplayProps) {
       {combo.count >= 2 && (
         <div className="mt-1 flex items-center gap-2">
           <span className="text-orange-400 font-mono font-bold text-sm">{combo.count}x COMBO</span>
-          <span className="text-xs bg-orange-900 text-orange-300 px-1.5 py-0.5 rounded font-mono">
+          <span className="text-xs bg-orange-900 text-orange-300 px-1.5 py-0.5 rounded-sm font-mono">
             ×{combo.multiplier.toFixed(1)}
           </span>
         </div>

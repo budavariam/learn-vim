@@ -3,7 +3,7 @@
  * future consumer that needs to detect or display vim key sequences.
  */
 
-import rawData from '../data.json'
+import rawData from '@data'
 
 // ── Key normalisation ─────────────────────────────────────────────────────────
 

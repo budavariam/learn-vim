@@ -232,7 +232,7 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/60 backdrop-blur-xs p-4"
       onClick={onClose}
     >
       <div
@@ -271,22 +271,22 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
               ))}
             </div>
             {/* Modifier indicators */}
-            <span className={`px-2 py-0.5 rounded text-xs font-mono ${shift ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'}`}>
+            <span className={`px-2 py-0.5 rounded-sm text-xs font-mono ${shift ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'}`}>
               Shift
             </span>
-            <span className={`px-2 py-0.5 rounded text-xs font-mono ${ctrl ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'}`}>
+            <span className={`px-2 py-0.5 rounded-sm text-xs font-mono ${ctrl ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500'}`}>
               Ctrl
             </span>
             <button
               onClick={() => setShowAllVariants(v => !v)}
-              className={`px-2 py-0.5 rounded text-xs font-mono transition-colors ${showAllVariants ? 'bg-purple-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+              className={`px-2 py-0.5 rounded-sm text-xs font-mono transition-colors ${showAllVariants ? 'bg-purple-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
               title={showAllVariants ? 'Showing all variants — click to filter by active modifier' : 'Filtering by modifier — click to show all variants'}
             >
               All
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 rounded text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="p-1.5 rounded-sm text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               aria-label="Close keyboard view"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -347,7 +347,7 @@ export default function KeyboardModal({ data, knownItems, memoryItemIds, onClose
         </div>
 
         {/* Command info panel */}
-        <div className="px-4 pb-4 min-h-[6rem]">
+        <div className="px-4 pb-4 min-h-24">
           {activeKey && activeCommands ? (
             <div className="space-y-1.5">
               {(showAllVariants || (!ctrl && !shift)) && activeCommands.plain.map(item => (
@@ -388,14 +388,14 @@ function CommandLine({ label, item }) {
   const color = getCategoryColor(item.category)
   return (
     <div className="flex items-center gap-2 text-xs">
-      <code className="font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 whitespace-nowrap min-w-[3.5rem] text-center">
+      <code className="font-mono px-1.5 py-0.5 rounded-sm bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 whitespace-nowrap min-w-14 text-center">
         {label}
       </code>
       <span className="text-gray-700 dark:text-gray-300 flex-1 leading-relaxed">
         {parse(item.question)}
       </span>
       <span
-        className="text-[10px] px-1.5 py-0.5 rounded whitespace-nowrap"
+        className="text-[10px] px-1.5 py-0.5 rounded-sm whitespace-nowrap"
         style={{ backgroundColor: color + '28', color }}
       >
         {item.category}

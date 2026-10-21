@@ -4,7 +4,7 @@ import type { QuizQuestion } from './QuizGame';
 import ThemeToggle from './ThemeToggle';
 import TypingText from './TypingText';
 import DualRangeSlider from './DualRangeSlider';
-import quizData from '../data.json';
+import quizData from '@data';
 
 interface IntroScreenProps {
     onModeSelect: (mode: GameMode) => void;
@@ -43,7 +43,7 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onModeSelect, levelRange, onL
 
                 {/* Skill Level Filter */}
                 <div className="max-w-xl mx-auto px-4 w-full">
-                    <div className="p-4 md:p-6 space-y-3 !mb-0">
+                    <div className="p-4 md:p-6 space-y-3 mb-0!">
                         <h2 className="text-base md:text-lg font-bold color-cyan text-center">
                             🎯 Skill Level Filter
                         </h2>
@@ -79,15 +79,15 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onModeSelect, levelRange, onL
                                     className="group cursor-pointer h-full"
                                 >
                                     <div className="quiz-card hover:scale-105 transition-all duration-300 hover:shadow-2xl h-full flex flex-col">
-                                        <div className="text-center space-y-3 md:space-y-4 flex-grow flex flex-col justify-between p-4">
+                                        <div className="text-center space-y-3 md:space-y-4 grow flex flex-col justify-between p-4">
                                             <div className="space-y-3 md:space-y-4">
-                                                <div className={`w-12 h-12 md:w-16 md:h-16 mx-auto rounded-full bg-gradient-to-r ${config.bgColor} flex items-center justify-center`}>
+                                                <div className={`w-12 h-12 md:w-16 md:h-16 mx-auto rounded-full bg-linear-to-r ${config.bgColor} flex items-center justify-center`}>
                                                     <IconComponent className="w-6 h-6 md:w-8 md:h-8 text-white" />
                                                 </div>
-                                                <h3 className={`text-lg md:text-2xl font-bold ${config.color} break-words`}>
+                                                <h3 className={`text-lg md:text-2xl font-bold ${config.color} wrap-break-word`}>
                                                     {config.name}
                                                 </h3>
-                                                <p className="terminal-text color-cyan min-h-[3rem] flex items-center justify-center text-sm md:text-base px-2">
+                                                <p className="terminal-text color-cyan min-h-12 flex items-center justify-center text-sm md:text-base px-2">
                                                     {config.description}
                                                 </p>
                                                 <div className="text-base md:text-lg font-mono color-yellow">
@@ -133,15 +133,15 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onModeSelect, levelRange, onL
                                     className={`group h-full ${isEmpty ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                                 >
                                     <div className={`quiz-card transition-all duration-300 h-full flex flex-col ${!isEmpty && 'hover:scale-105 hover:shadow-2xl'}`}>
-                                        <div className="text-center space-y-3 md:space-y-4 flex-grow flex flex-col justify-between p-4">
+                                        <div className="text-center space-y-3 md:space-y-4 grow flex flex-col justify-between p-4">
                                             <div className="space-y-3 md:space-y-4">
-                                                <div className={`w-12 h-12 md:w-16 md:h-16 mx-auto rounded-full bg-gradient-to-r ${config.bgColor} flex items-center justify-center`}>
+                                                <div className={`w-12 h-12 md:w-16 md:h-16 mx-auto rounded-full bg-linear-to-r ${config.bgColor} flex items-center justify-center`}>
                                                     <IconComponent className="w-6 h-6 md:w-8 md:h-8 text-white" />
                                                 </div>
-                                                <h3 className={`text-lg md:text-2xl font-bold ${config.color} break-words`}>
+                                                <h3 className={`text-lg md:text-2xl font-bold ${config.color} wrap-break-word`}>
                                                     {config.name}
                                                 </h3>
-                                                <p className="terminal-text color-cyan min-h-[3rem] flex items-center justify-center text-sm md:text-base px-2">
+                                                <p className="terminal-text color-cyan min-h-12 flex items-center justify-center text-sm md:text-base px-2">
                                                     {config.description}
                                                 </p>
                                                 <div className="text-base md:text-lg font-mono color-yellow">
@@ -176,15 +176,15 @@ const IntroScreen: React.FC<IntroScreenProps> = ({ onModeSelect, levelRange, onL
                                     className="group cursor-pointer h-full"
                                 >
                                     <div className="quiz-card hover:scale-105 transition-all duration-300 hover:shadow-2xl h-full flex flex-col">
-                                        <div className="text-center space-y-3 md:space-y-4 flex-grow flex flex-col justify-between p-4">
+                                        <div className="text-center space-y-3 md:space-y-4 grow flex flex-col justify-between p-4">
                                             <div className="space-y-3 md:space-y-4">
-                                                <div className={`w-12 h-12 md:w-16 md:h-16 mx-auto rounded-full bg-gradient-to-r ${config.bgColor} flex items-center justify-center`}>
+                                                <div className={`w-12 h-12 md:w-16 md:h-16 mx-auto rounded-full bg-linear-to-r ${config.bgColor} flex items-center justify-center`}>
                                                     <IconComponent className="w-6 h-6 md:w-8 md:h-8 text-white" />
                                                 </div>
-                                                <h3 className={`text-lg md:text-2xl font-bold ${config.color} break-words`}>
+                                                <h3 className={`text-lg md:text-2xl font-bold ${config.color} wrap-break-word`}>
                                                     {config.name}
                                                 </h3>
-                                                <p className="terminal-text color-cyan min-h-[3rem] flex items-center justify-center text-sm md:text-base px-2">
+                                                <p className="terminal-text color-cyan min-h-12 flex items-center justify-center text-sm md:text-base px-2">
                                                     {config.description}
                                                 </p>
                                                 <div className="text-base md:text-lg font-mono color-yellow">

@@ -19,15 +19,15 @@ export function Navbar() {
   const onHelp = isActive('/help')
 
   const iconBtn = (path: string, active: string, idle: string) =>
-    `px-2 py-1 rounded text-xs font-mono transition-colors ${isActive(path) ? active : idle}`
+    `px-2 py-1 rounded-sm text-xs font-mono transition-colors ${isActive(path) ? active : idle}`
 
   return (
-    <header className="flex-shrink-0 bg-gray-900 border-b border-gray-700 z-50">
+    <header className="shrink-0 bg-gray-900 border-b border-gray-700 z-50">
       <div className="px-4 h-11 flex items-center gap-2 font-mono">
         {/* Home */}
         <button
           onClick={() => navigate('/')}
-          className="font-bold text-white text-sm tracking-tight hover:text-green-400 transition-colors flex-shrink-0"
+          className="font-bold text-white text-sm tracking-tight hover:text-green-400 transition-colors shrink-0"
         >
           VIM ARCADE
         </button>

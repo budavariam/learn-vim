@@ -19,7 +19,7 @@ function TocList({ categories, getHref, getCount, onNavigate, variant, activeCat
         const baseClassName =
           variant === 'mobile'
             ? 'block px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200'
-            : 'block px-2 py-1.5 text-xs font-medium rounded transition-colors duration-200'
+            : 'block px-2 py-1.5 text-xs font-medium rounded-sm transition-colors duration-200'
         const activeClassName =
           variant === 'mobile'
             ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200'
@@ -42,7 +42,7 @@ function TocList({ categories, getHref, getCount, onNavigate, variant, activeCat
             >
               {color && (
                 <span
-                  className="flex-shrink-0 rounded-full"
+                  className="shrink-0 rounded-full"
                   style={{ width: '6px', height: '6px', backgroundColor: color }}
                 />
               )}
@@ -85,7 +85,7 @@ export default function TableOfContents({
   const showDesktopToc = categories.length > 1
 
   const desktopHeaderBaseClass =
-    'sticky top-0 w-full h-12 box-border flex items-center relative bg-white dark:bg-gray-800 z-10 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 border-b focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500'
+    'sticky top-0 w-full h-12 box-border flex items-center relative bg-white dark:bg-gray-800 z-10 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-200 border-b focus:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500'
 
   const desktopHeaderExpandedClass =
     `${desktopHeaderBaseClass} focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-gray-800 border-gray-100 dark:border-gray-700/50 rounded-t-lg px-6 justify-start`
@@ -153,13 +153,13 @@ export default function TableOfContents({
       {/* Mobile TOC slide-over (kept mounted for smooth transitions) */}
       <div
         className={
-          `fixed inset-0 z-[100] xl:hidden ${mobileOpen ? '' : 'pointer-events-none'}`
+          `fixed inset-0 z-100 xl:hidden ${mobileOpen ? '' : 'pointer-events-none'}`
         }
         aria-hidden={!mobileOpen}
       >
         <div
           className={
-            `absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-200 ` +
+            `absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-200 ` +
             (mobileOpen ? 'opacity-100' : 'opacity-0')
           }
           onClick={() => setMobileOpen(false)}
@@ -209,9 +209,9 @@ export default function TableOfContents({
         <button
           onClick={() => setMobileOpen(true)}
           className={
-            `fixed bottom-4 right-4 z-[90] xl:hidden ` +
+            `fixed bottom-4 right-4 z-90 xl:hidden ` +
             `p-3 rounded-full shadow-lg border border-gray-200 dark:border-gray-700 ` +
-            `bg-white/90 dark:bg-gray-800/90 backdrop-blur hover:bg-white dark:hover:bg-gray-800 transition-colors duration-200`
+            `bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 transition-colors duration-200`
           }
           title="Table of Contents"
         >

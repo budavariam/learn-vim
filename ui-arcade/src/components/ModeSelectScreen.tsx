@@ -96,7 +96,7 @@ export function ModeSelectScreen({
       <button
         key={card.name}
         onClick={card.onClick}
-        className={`bg-gray-800 border border-gray-700 hover:border-green-500 rounded-xl p-6 text-left transition-all hover:bg-gray-800/80 focus:outline-none focus:border-green-500 ${fullWidth ? 'w-full' : ''}`}
+        className={`bg-gray-800 border border-gray-700 hover:border-green-500 rounded-xl p-6 text-left transition-all hover:bg-gray-800/80 focus:outline-hidden focus:border-green-500 ${fullWidth ? 'w-full' : ''}`}
       >
         <card.icon className="w-10 h-10 mb-3 text-gray-300" />
         <div className="font-mono font-bold text-white text-lg mb-1">{card.name}</div>

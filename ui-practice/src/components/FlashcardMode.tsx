@@ -57,7 +57,7 @@ const FlashcardMode: React.FC<FlashcardModeProps> = ({
                         <button
                             onClick={onToggleLevelBadge}
                             title={showLevelBadge ? 'Hide difficulty level' : 'Show difficulty level'}
-                            className={`text-xs font-mono px-2 py-1 rounded border transition-colors ${showLevelBadge ? 'border-cyan-500 color-cyan bg-cyan-500/10' : 'border-gray-400 dark:border-gray-600 text-gray-400 dark:text-gray-500'}`}
+                            className={`text-xs font-mono px-2 py-1 rounded-sm border transition-colors ${showLevelBadge ? 'border-cyan-500 color-cyan bg-cyan-500/10' : 'border-gray-400 dark:border-gray-600 text-gray-400 dark:text-gray-500'}`}
                         >
                             Lv
                         </button>

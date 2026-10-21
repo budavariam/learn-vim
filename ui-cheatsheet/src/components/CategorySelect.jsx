@@ -47,7 +47,7 @@ export default function CategorySelect({ categories, selected, onChange }) {
             : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-400'
         }`}
       >
-        <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h18M7 8h10M10 12h4" />
         </svg>
         {count === 0
@@ -66,14 +66,14 @@ export default function CategorySelect({ categories, selected, onChange }) {
             </svg>
           </span>
         )}
-        <svg className={`w-3 h-3 flex-shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className={`w-3 h-3 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute left-0 top-full mt-1 z-30 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg min-w-[13rem] max-h-72 overflow-y-auto py-1">
+        <div className="absolute left-0 top-full mt-1 z-30 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg min-w-52 max-h-72 overflow-y-auto py-1">
           {/* Select all / clear row */}
           <div className="flex gap-2 px-3 py-1.5 border-b border-gray-100 dark:border-gray-700">
             <button
@@ -105,10 +105,10 @@ export default function CategorySelect({ categories, selected, onChange }) {
                   type="checkbox"
                   checked={checked}
                   onChange={() => toggle(cat)}
-                  className="rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 w-3.5 h-3.5"
+                  className="rounded-sm border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 focus:ring-offset-0 w-3.5 h-3.5"
                 />
                 <span
-                  className="w-2 h-2 rounded-full flex-shrink-0"
+                  className="w-2 h-2 rounded-full shrink-0"
                   style={{ backgroundColor: color }}
                 />
                 <span className="text-xs text-gray-700 dark:text-gray-200 flex-1 min-w-0 truncate">

@@ -1,7 +1,7 @@
 export default function InfoModal({ onClose }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-950/60 backdrop-blur-xs p-4"
       onClick={onClose}
     >
       <div
@@ -18,7 +18,7 @@ export default function InfoModal({ onClose }) {
           </h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded-sm text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             aria-label="Close"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,11 +56,11 @@ export default function InfoModal({ onClose }) {
           {/* Neovim plugin */}
           <Section title="Neovim plugin">
             <p className="mb-2">
-              Lives in <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded">nvim-plugin/</code>.
-              Reads the same <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded">data.json</code> as
+              Lives in <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded-sm">nvim-plugin/</code>.
+              Reads the same <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded-sm">data.json</code> as
               the web cheatsheet — one source of truth.
               Install via <a href="https://github.com/folke/lazy.nvim" target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-600 dark:hover:text-blue-400">lazy.nvim</a> pointing
-              at <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded">budavariam/learn-vim</code>.
+              at <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded-sm">budavariam/learn-vim</code>.
             </p>
             <FeatureList items={[
               ['Cheatsheet overlay', 'Floating window over any buffer. Live fuzzy search (/), filter by known/unknown (f), toggle known (Space). Category colours match the web UI.'],
@@ -76,17 +76,17 @@ export default function InfoModal({ onClose }) {
           <Section title="Source of truth">
             <p>
               All commands live in{' '}
-              <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded">vim-cheatsheet.md</code>.
+              <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded-sm">vim-cheatsheet.md</code>.
               Running{' '}
-              <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded">node scripts/generateData.js</code>{' '}
+              <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded-sm">node scripts/generateData.js</code>{' '}
               regenerates{' '}
-              <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded">ui-cheatsheet/src/data.json</code>,
+              <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded-sm">ui-cheatsheet/src/data.json</code>,
               which both the web app and the Neovim plugin read at runtime.
               Edit the markdown → regenerate → both surfaces update.
             </p>
             <p className="mt-2">
               Entry format:{' '}
-              <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded">
+              <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded-sm">
                 * LEVEL - `cmd1`, `cmd2` - description
               </code>
             </p>
@@ -95,9 +95,9 @@ export default function InfoModal({ onClose }) {
           {/* Practice */}
           <Section title="CLI practice script">
             <p>
-              <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded">practice.py</code>{' '}
+              <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded-sm">practice.py</code>{' '}
               is a Python 3 terminal quiz that drills the commands from the cheatsheet.
-              Run it with <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded">python3 practice.py</code>.
+              Run it with <code className="font-mono text-xs bg-gray-100 dark:bg-gray-700 px-1 rounded-sm">python3 practice.py</code>.
             </p>
           </Section>
 

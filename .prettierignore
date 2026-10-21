@@ -1,0 +1,11 @@
+dist/
+dev-dist/
+node_modules/
+*.lock
+public/
+vimtutor/
+ui-arcade/vim-golf-challenges/
+nvim-plugin/
+.claude/
+pnpm-lock.yaml
+data.json

@@ -12,7 +12,7 @@ import {
   downloadJson,
 } from '../engine/UnsupportedEngine'
 import { loadKnown, toggleKnown } from '../engine/KnownEngine'
-import rawData from '../data.json'
+import rawData from '@data'
 
 const allCommands = rawData as VimCommandData[]
 
@@ -196,7 +196,7 @@ function ExportModal({ unsupportedIds, allCmds, onClose }: ExportModalProps) {
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700 flex-shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-700 shrink-0">
           <span className="text-white font-mono font-bold text-sm">
             Export Unsupported ({unsupportedIds.length} entries)
           </span>
@@ -210,7 +210,7 @@ function ExportModal({ unsupportedIds, allCmds, onClose }: ExportModalProps) {
         </div>
 
         {/* Format selector */}
-        <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-700 flex-shrink-0 bg-gray-800/50">
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-700 shrink-0 bg-gray-800/50">
           <span className="text-xs text-gray-400 font-mono">Export as:</span>
           {[
             { id: 'id' as ExportFormat, label: 'ID only' },
@@ -240,7 +240,7 @@ function ExportModal({ unsupportedIds, allCmds, onClose }: ExportModalProps) {
         </pre>
 
         {/* Actions */}
-        <div className="flex gap-3 px-4 py-3 border-t border-gray-700 flex-shrink-0">
+        <div className="flex gap-3 px-4 py-3 border-t border-gray-700 shrink-0">
           <button
             onClick={handleCopy}
             className={`flex-1 py-2 rounded text-sm font-mono font-bold transition-colors border ${
@@ -260,7 +260,7 @@ function ExportModal({ unsupportedIds, allCmds, onClose }: ExportModalProps) {
           </button>
           <button
             onClick={handleDownload}
-            className="flex-1 py-2 rounded bg-blue-700 hover:bg-blue-600 text-white text-sm font-mono font-bold transition-colors border border-blue-600"
+            className="flex-1 py-2 rounded-sm bg-blue-700 hover:bg-blue-600 text-white text-sm font-mono font-bold transition-colors border border-blue-600"
           >
             <>
               <Download className="w-3.5 h-3.5 mr-1 inline" />
@@ -530,8 +530,8 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
   return (
     <div className="h-full bg-gray-900 flex flex-col overflow-hidden font-mono">
       {/* Header — no back button (global navbar handles home navigation) */}
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-800 border-b border-gray-700 flex-shrink-0 flex-wrap font-mono">
-        <h1 className="text-white font-bold text-base flex-shrink-0">Dev Mode</h1>
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-800 border-b border-gray-700 shrink-0 flex-wrap font-mono">
+        <h1 className="text-white font-bold text-base shrink-0">Dev Mode</h1>
 
         {/* Search — left side, close to the title */}
         <input
@@ -539,7 +539,7 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
           placeholder="Search…"
           value={search}
           onChange={e => dispatch({ type: 'SET_SEARCH', value: e.target.value })}
-          className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 w-40"
+          className="px-2 py-1.5 bg-gray-700 border border-gray-600 rounded-sm text-xs text-white placeholder-gray-500 focus:outline-hidden focus:border-blue-500 w-40"
         />
 
         <div className="flex items-center gap-2 ml-auto flex-wrap">
@@ -593,7 +593,7 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
               {!autoAdvance && (
                 <button
                   onClick={advanceDrill}
-                  className="px-3 py-1.5 rounded text-xs border border-gray-500 bg-gray-700 text-gray-300 hover:border-gray-300 hover:text-white transition-colors"
+                  className="px-3 py-1.5 rounded-sm text-xs border border-gray-500 bg-gray-700 text-gray-300 hover:border-gray-300 hover:text-white transition-colors"
                 >
                   Next → ⌥N
                 </button>
@@ -648,7 +648,7 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
           {/* Mark all unsupported — requires confirm */}
           <button
             onClick={markAllUnsupported}
-            className="px-3 py-1.5 rounded text-xs border border-red-900 bg-red-950/30 text-red-500 hover:text-red-300 hover:border-red-700 transition-colors"
+            className="px-3 py-1.5 rounded-sm text-xs border border-red-900 bg-red-950/30 text-red-500 hover:text-red-300 hover:border-red-700 transition-colors"
             title="Mark every command as unsupported (prompts for confirmation)"
           >
             <>
@@ -661,7 +661,7 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
           {unsupportedCount > 0 && (
             <button
               onClick={clearAllUnsupported}
-              className="px-3 py-1.5 rounded text-xs border border-gray-600 bg-gray-700 text-gray-400 hover:text-white transition-colors"
+              className="px-3 py-1.5 rounded-sm text-xs border border-gray-600 bg-gray-700 text-gray-400 hover:text-white transition-colors"
               title="Remove all unsupported marks (prompts for confirmation)"
             >
               <>
@@ -675,7 +675,7 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
           {unsupportedCount > 0 && (
             <button
               onClick={() => setShowExportModal(true)}
-              className="px-3 py-1.5 rounded text-xs border border-gray-600 bg-gray-700 text-gray-400 hover:text-white transition-colors"
+              className="px-3 py-1.5 rounded-sm text-xs border border-gray-600 bg-gray-700 text-gray-400 hover:text-white transition-colors"
               title="Export unsupported list as JSON"
             >
               <>
@@ -690,9 +690,9 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
       {/* Body */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left: command list */}
-        <div className="w-72 flex-shrink-0 flex flex-col border-r border-gray-700 overflow-hidden">
+        <div className="w-72 shrink-0 flex flex-col border-r border-gray-700 overflow-hidden">
           {/* List field selector */}
-          <div className="flex items-center gap-1 px-2 py-1.5 bg-gray-800/70 border-b border-gray-700 flex-shrink-0">
+          <div className="flex items-center gap-1 px-2 py-1.5 bg-gray-800/70 border-b border-gray-700 shrink-0">
             <span className="text-gray-500 text-xs mr-1">Show:</span>
             {(['question', 'solution', 'id'] as ListField[]).map(f => (
               <button
@@ -758,7 +758,7 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
                           className={`truncate flex items-center gap-1 ${isUnsupported ? 'text-red-400' : isActive ? 'text-white' : 'text-gray-300'}`}
                         >
                           {known.has(cmd.id) && (
-                            <Star className="w-3 h-3 fill-yellow-500 text-yellow-500 flex-shrink-0" />
+                            <Star className="w-3 h-3 fill-yellow-500 text-yellow-500 shrink-0" />
                           )}
                           {primaryLabel}
                         </div>
@@ -778,7 +778,7 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
                             : toggleUnsupported(cmd.id)
                         }
                         title={isUnsupported ? 'Remove from unsupported' : 'Mark as unsupported'}
-                        className={`flex-shrink-0 px-2 py-2 transition-colors ${
+                        className={`shrink-0 px-2 py-2 transition-colors ${
                           isUnsupported
                             ? 'text-red-500 hover:text-red-300'
                             : 'text-gray-700 hover:text-red-500'
@@ -797,7 +797,7 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
         {/* Centre: editor */}
         <div className="flex-1 flex flex-col overflow-hidden">
           <div
-            className={`flex-shrink-0 px-4 py-3 border-b border-gray-700 transition-colors ${
+            className={`shrink-0 px-4 py-3 border-b border-gray-700 transition-colors ${
               completed ? 'bg-green-900/40 border-green-700' : 'bg-gray-800'
             }`}
           >
@@ -816,7 +816,7 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
                     {selected.solution.map((s, i) => (
                       <kbd
                         key={i}
-                        className="px-2 py-0.5 bg-gray-700 text-yellow-300 text-xs rounded border border-gray-600"
+                        className="px-2 py-0.5 bg-gray-700 text-yellow-300 text-xs rounded-sm border border-gray-600"
                       >
                         {s}
                       </kbd>
@@ -826,7 +826,7 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 shrink-0">
                   {completed && (
                     <span className="text-green-400 font-bold text-sm">✓ MATCHED!</span>
                   )}
@@ -893,8 +893,8 @@ export function DevModeScreen({ onBack: _onBack }: { onBack: () => void }) {
         </div>
 
         {/* Right: log */}
-        <div className="w-80 flex-shrink-0 border-l border-gray-700 flex flex-col overflow-hidden">
-          <div className="flex items-center justify-between px-3 py-2 bg-gray-800 border-b border-gray-700 flex-shrink-0">
+        <div className="w-80 shrink-0 border-l border-gray-700 flex flex-col overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-2 bg-gray-800 border-b border-gray-700 shrink-0">
             <span className="text-gray-400 text-xs uppercase tracking-wider">Keystroke Log</span>
             <button
               onClick={() => {

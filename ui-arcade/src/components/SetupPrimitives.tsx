@@ -100,7 +100,7 @@ export function LanguageGrid({ value, onChange }: LanguageGridProps) {
       {SETUP_LANGUAGES.map(l => (
         <button key={l.id} onClick={() => onChange(l.id)} className={cls.lang(value === l.id)}>
           <span
-            className={`text-[10px] font-bold font-mono px-1.5 py-0.5 rounded flex-shrink-0 ${l.badgeCls}`}
+            className={`text-[10px] font-bold font-mono px-1.5 py-0.5 rounded-sm shrink-0 ${l.badgeCls}`}
           >
             {l.abbr}
           </span>
@@ -137,12 +137,12 @@ export function CollapseSection({
         className="w-full flex items-center justify-between py-3 text-left group"
       >
         <span className="flex items-center gap-1.5">
-          {Icon && <Icon className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />}
+          {Icon && <Icon className="w-3.5 h-3.5 text-gray-500 shrink-0" />}
           <span className="text-xs font-mono uppercase tracking-wider text-gray-400 group-hover:text-gray-300 transition-colors">
             {label}
           </span>
         </span>
-        <span className="flex items-center gap-2 flex-shrink-0">
+        <span className="flex items-center gap-2 shrink-0">
           {!open && badge && <span className="text-xs text-gray-500">{badge}</span>}
           <span
             className={`text-gray-600 text-xs transition-transform duration-150 ${open ? 'rotate-90' : ''}`}
@@ -385,7 +385,7 @@ export function ReplayButton({ onClick, summary }: ReplayButtonProps) {
       onClick={onClick}
       className="w-full py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-400 font-mono text-sm rounded-xl border border-gray-700 transition-colors flex items-center justify-center gap-1.5"
     >
-      <RotateCcw className="w-3.5 h-3.5 flex-shrink-0" />
+      <RotateCcw className="w-3.5 h-3.5 shrink-0" />
       <span className="truncate">Repeat last: {summary}</span>
     </button>
   )
@@ -612,7 +612,7 @@ export function UnifiedChallengeOptions({
               role="switch"
               aria-checked={dynamicAssistEnabled}
               onClick={onDynamicAssistToggle}
-              className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${dynamicAssistEnabled ? 'bg-orange-600' : 'bg-gray-700'}`}
+              className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${dynamicAssistEnabled ? 'bg-orange-600' : 'bg-gray-700'}`}
             >
               <span
                 className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${dynamicAssistEnabled ? 'translate-x-4' : 'translate-x-0.5'}`}
@@ -757,15 +757,15 @@ interface ChallengeBarProps {
 
 export function ChallengeBar({ question, solution, score }: ChallengeBarProps) {
   return (
-    <div className="flex items-center gap-3 px-4 py-2 bg-indigo-950/60 border-b border-indigo-800 flex-shrink-0 text-xs font-mono">
-      <Zap className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+    <div className="flex items-center gap-3 px-4 py-2 bg-indigo-950/60 border-b border-indigo-800 shrink-0 text-xs font-mono">
+      <Zap className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
       <span className="text-white">{question}</span>
       {solution && solution.length > 0 && (
         <div className="flex gap-1.5 ml-1">
           {solution.map((s, i) => (
             <kbd
               key={i}
-              className="px-1.5 py-0.5 bg-gray-700 text-yellow-300 rounded border border-gray-600"
+              className="px-1.5 py-0.5 bg-gray-700 text-yellow-300 rounded-sm border border-gray-600"
             >
               {s}
             </kbd>
@@ -833,7 +833,7 @@ export function HandicapsSection({ config, onPatch, extras }: HandicapsSectionPr
       defaultOpen={false}
       badge={
         activeCount > 0 ? (
-          <span className="bg-yellow-800 text-yellow-300 text-xs px-1.5 py-0.5 rounded font-bold">
+          <span className="bg-yellow-800 text-yellow-300 text-xs px-1.5 py-0.5 rounded-sm font-bold">
             {activeCount} active
           </span>
         ) : undefined
@@ -841,7 +841,7 @@ export function HandicapsSection({ config, onPatch, extras }: HandicapsSectionPr
     >
       <div className="space-y-2">
         {config.snowEffect && (
-          <p className="text-xs text-yellow-400 bg-yellow-900/30 border border-yellow-700 rounded px-2 py-1.5">
+          <p className="text-xs text-yellow-400 bg-yellow-900/30 border border-yellow-700 rounded-sm px-2 py-1.5">
             Epilepsy warning: flashing / moving visuals enabled.
           </p>
         )}

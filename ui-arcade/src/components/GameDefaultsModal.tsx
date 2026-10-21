@@ -498,7 +498,7 @@ function ArcadeDefaultsPanel({ onClose }: { onClose: () => void }) {
             role="switch"
             aria-checked={s.assistEnabled}
             onClick={() => set({ assistEnabled: !s.assistEnabled })}
-            className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${s.assistEnabled ? 'bg-orange-600' : 'bg-gray-700'}`}
+            className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${s.assistEnabled ? 'bg-orange-600' : 'bg-gray-700'}`}
           >
             <span
               className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${s.assistEnabled ? 'translate-x-4' : 'translate-x-0.5'}`}
@@ -1000,7 +1000,7 @@ function MotionDefaultsPanel({ onClose }: { onClose: () => void }) {
               onClick={() => set({ endGoal: o.id })}
               className={`${cls.modeCard(s.endGoal === o.id)} flex items-center gap-2`}
             >
-              <o.icon className="w-4 h-4 flex-shrink-0" />
+              <o.icon className="w-4 h-4 shrink-0" />
               <span>{o.label}</span>
               <span
                 className={`text-xs font-normal ml-1 ${s.endGoal === o.id ? 'text-blue-200' : 'text-gray-500'}`}
@@ -1746,7 +1746,7 @@ function VimBotsDefaultsPanel({ onClose }: { onClose: () => void }) {
             role="switch"
             aria-checked={s.enableTeleport}
             onClick={() => set({ enableTeleport: !s.enableTeleport })}
-            className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${s.enableTeleport ? 'bg-blue-600' : 'bg-gray-700'}`}
+            className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${s.enableTeleport ? 'bg-blue-600' : 'bg-gray-700'}`}
           >
             <span
               className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${s.enableTeleport ? 'translate-x-4' : 'translate-x-0.5'}`}
@@ -1780,7 +1780,7 @@ function VimBotsDefaultsPanel({ onClose }: { onClose: () => void }) {
             role="switch"
             aria-checked={s.enableSafeTeleport}
             onClick={() => set({ enableSafeTeleport: !s.enableSafeTeleport })}
-            className={`relative w-9 h-5 rounded-full transition-colors flex-shrink-0 ${s.enableSafeTeleport ? 'bg-blue-600' : 'bg-gray-700'}`}
+            className={`relative w-9 h-5 rounded-full transition-colors shrink-0 ${s.enableSafeTeleport ? 'bg-blue-600' : 'bg-gray-700'}`}
           >
             <span
               className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${s.enableSafeTeleport ? 'translate-x-4' : 'translate-x-0.5'}`}
@@ -1838,7 +1838,7 @@ function ModalShell({ title, onClose, onSave, showWarning, onTidy, children }: M
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex-shrink-0 flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-700">
+        <div className="shrink-0 flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-700">
           <h2 className="text-base font-bold text-white font-mono">{title}</h2>
           <button
             type="button"
@@ -1852,14 +1852,14 @@ function ModalShell({ title, onClose, onSave, showWarning, onTidy, children }: M
 
         {/* Warning banner */}
         {showWarning && (
-          <div className="flex-shrink-0 mx-5 mt-4 p-3 bg-yellow-900/40 border border-yellow-700 rounded-lg">
+          <div className="shrink-0 mx-5 mt-4 p-3 bg-yellow-900/40 border border-yellow-700 rounded-lg">
             <p className="text-yellow-300 text-xs font-mono leading-relaxed">
               Some saved options were invalid and were reset to defaults.
             </p>
             <button
               type="button"
               onClick={onTidy}
-              className="mt-2 px-3 py-1 text-xs font-mono bg-yellow-700 hover:bg-yellow-600 text-white rounded transition-colors"
+              className="mt-2 px-3 py-1 text-xs font-mono bg-yellow-700 hover:bg-yellow-600 text-white rounded-sm transition-colors"
             >
               Tidy
             </button>
@@ -1872,7 +1872,7 @@ function ModalShell({ title, onClose, onSave, showWarning, onTidy, children }: M
         </div>
 
         {/* Footer */}
-        <div className="flex-shrink-0 flex gap-3 px-5 pb-5">
+        <div className="shrink-0 flex gap-3 px-5 pb-5">
           <button
             type="button"
             onClick={onClose}

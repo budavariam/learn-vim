@@ -89,7 +89,7 @@ const QuizPlayingMode: React.FC<QuizPlayingModeProps> = ({
                         <button
                             onClick={onToggleLevelBadge}
                             title={showLevelBadge ? 'Hide difficulty level' : 'Show difficulty level'}
-                            className={`text-xs font-mono px-2 py-1 rounded border transition-colors ${showLevelBadge ? 'border-cyan-500 color-cyan bg-cyan-500/10' : 'border-gray-400 dark:border-gray-600 text-gray-400 dark:text-gray-500'}`}
+                            className={`text-xs font-mono px-2 py-1 rounded-sm border transition-colors ${showLevelBadge ? 'border-cyan-500 color-cyan bg-cyan-500/10' : 'border-gray-400 dark:border-gray-600 text-gray-400 dark:text-gray-500'}`}
                         >
                             Lv
                         </button>
@@ -124,7 +124,7 @@ const QuizPlayingMode: React.FC<QuizPlayingModeProps> = ({
                         {/* invisible until answered — holds layout space */}
                         <button
                             onClick={() => onToggleKnown(question.id)}
-                            className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-200 mt-1 ${
+                            className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all duration-200 mt-1 ${
                                 showAnswer
                                     ? isCurrentlyKnown
                                         ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 hover:bg-green-200 dark:hover:bg-green-800'

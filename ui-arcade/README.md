@@ -153,7 +153,7 @@ The "Help" link in the navbar leads to two tabs:
 | Hooks      | `src/hooks/`                | React hooks: `useArcadeGame`, `useMotionRace`, `useGoalGame`, `useVimGolfChallenges`                            |
 | Components | `src/components/`           | React UI: setup screens, game screens, shared primitives                                                        |
 | Workers    | `src/workers/`              | Web Workers for off-thread parsing (org file)                                                                   |
-| Data       | `vim-cheatsheet.md`         | Source of truth for all vim commands; generates `src/data.json` via `scripts/generateData.js`                   |
+| Data       | `vim-cheatsheet.md`         | Source of truth for all vim commands; generates `ui-cheatsheet/src/data.json` (shared by all apps) via `scripts/generateData.js`                   |
 | Challenges | `vim-golf-challenges/`      | Git submodule with 1,000+ vimgolf challenges in org-mode format                                                 |
 | Storage    | `src/engine/storageKeys.ts` | Centralised localStorage key registry (all keys prefixed `vimarcade_`; `knownItems` is shared with ui-practice) |
 
@@ -162,8 +162,8 @@ The "Help" link in the navbar leads to two tabs:
 ## Development
 
 ```bash
-npm install
-npm run dev      # start dev server
-npm run build    # production build (also regenerates data.json)
-npm test         # vitest unit tests (engine layer only)
+pnpm install     # from the repo root (pnpm workspace, Node 24)
+pnpm dev         # start dev server for the whole site
+pnpm build       # production build (also regenerates data.json)
+pnpm test        # vitest unit tests (engine layer only)
 ```

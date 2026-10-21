@@ -243,7 +243,7 @@ export function PreferencesScreen() {
             onChange={e => handleChange(e.target.value)}
             maxLength={20}
             placeholder="vim-user"
-            className={`w-full px-3 py-2.5 rounded border text-sm text-white bg-gray-800 focus:outline-none transition-colors ${
+            className={`w-full px-3 py-2.5 rounded border text-sm text-white bg-gray-800 focus:outline-hidden transition-colors ${
               error
                 ? 'border-red-600 focus:border-red-500'
                 : isValid
@@ -299,7 +299,7 @@ export function PreferencesScreen() {
                     setResetConfirm(null)
                     setOpenModal(key)
                   }}
-                  className="flex-1 px-3 py-2 rounded border text-sm font-mono bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500 hover:text-white text-left transition-colors"
+                  className="flex-1 px-3 py-2 rounded-sm border text-sm font-mono bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500 hover:text-white text-left transition-colors"
                 >
                   {label}
                 </button>
@@ -324,7 +324,7 @@ export function PreferencesScreen() {
 
             {/* VimGolf: no configurable defaults */}
             <div className="flex items-center gap-2">
-              <div className="flex-1 px-3 py-2 rounded border text-sm font-mono bg-gray-800/40 border-gray-700/50 text-gray-600">
+              <div className="flex-1 px-3 py-2 rounded-sm border text-sm font-mono bg-gray-800/40 border-gray-700/50 text-gray-600">
                 VimGolf
               </div>
               <span className="text-xs font-mono text-gray-600 px-2">No configurable defaults</span>

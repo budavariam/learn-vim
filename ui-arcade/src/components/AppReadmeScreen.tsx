@@ -44,7 +44,7 @@ export function AppReadmeScreen() {
   return (
     <div className="h-full bg-gray-900 font-mono flex overflow-hidden">
       {/* Sticky TOC sidebar */}
-      <nav className="hidden md:flex flex-col w-48 flex-shrink-0 border-r border-gray-800 py-6 px-3 overflow-y-auto">
+      <nav className="hidden md:flex flex-col w-48 shrink-0 border-r border-gray-800 py-6 px-3 overflow-y-auto">
         <p className="text-gray-600 text-xs uppercase tracking-wider mb-3 px-1">Contents</p>
         {SECTIONS.map(s => (
           <button
@@ -207,7 +207,7 @@ export function AppReadmeScreen() {
                 ].map(([key, desc]) => (
                   <tr key={key} className="border-b border-gray-800">
                     <td className="py-1.5 pr-4 w-24">
-                      <kbd className="px-1.5 py-0.5 bg-gray-800 border border-gray-600 rounded text-gray-200">
+                      <kbd className="px-1.5 py-0.5 bg-gray-800 border border-gray-600 rounded-sm text-gray-200">
                         {key}
                       </kbd>
                     </td>
@@ -253,7 +253,7 @@ function Section({
         {title}
         {route && <span className="text-xs text-gray-600 font-normal">{route}</span>}
       </h2>
-      <div className="space-y-1.5 text-gray-400 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_b]:text-gray-200 [&_kbd]:text-xs [&_kbd]:px-1 [&_kbd]:py-0.5 [&_kbd]:bg-gray-800 [&_kbd]:border [&_kbd]:border-gray-600 [&_kbd]:rounded [&_code]:text-blue-300">
+      <div className="space-y-1.5 text-gray-400 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-1 [&_b]:text-gray-200 [&_kbd]:text-xs [&_kbd]:px-1 [&_kbd]:py-0.5 [&_kbd]:bg-gray-800 [&_kbd]:border [&_kbd]:border-gray-600 [&_kbd]:rounded-sm [&_code]:text-blue-300">
         {children}
       </div>
     </section>

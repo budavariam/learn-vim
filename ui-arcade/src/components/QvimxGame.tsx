@@ -110,7 +110,7 @@ function QvimxGameScreen({ config, onQuit }: GameProps) {
       )}
       {/* Results overlay */}
       {isResults && (
-        <div className="absolute inset-0 z-40 backdrop-blur-sm bg-gray-900/80 flex flex-col items-center justify-center px-6">
+        <div className="absolute inset-0 z-40 backdrop-blur-xs bg-gray-900/80 flex flex-col items-center justify-center px-6">
           <div className="w-full max-w-lg bg-gray-900/90 border border-gray-600 rounded-2xl shadow-2xl p-8">
             <div className="text-center mb-8">
               <div className="flex justify-center mb-3">
@@ -152,13 +152,13 @@ function QvimxGameScreen({ config, onQuit }: GameProps) {
             <div className="flex gap-3 mt-6">
               <button
                 onClick={() => startGame(config)}
-                className="flex-1 py-2.5 rounded bg-green-700 hover:bg-green-600 text-white font-bold text-sm transition-colors"
+                className="flex-1 py-2.5 rounded-sm bg-green-700 hover:bg-green-600 text-white font-bold text-sm transition-colors"
               >
                 Play again
               </button>
               <button
                 onClick={onQuit}
-                className="flex-1 py-2.5 rounded bg-gray-700 hover:bg-gray-600 text-white font-bold text-sm transition-colors"
+                className="flex-1 py-2.5 rounded-sm bg-gray-700 hover:bg-gray-600 text-white font-bold text-sm transition-colors"
               >
                 Back to menu
               </button>
@@ -197,7 +197,7 @@ function QvimxGameScreen({ config, onQuit }: GameProps) {
       </TopBar>
 
       {/* Lives bar */}
-      <div className="flex items-center gap-6 px-4 py-1.5 bg-gray-800 border-b border-gray-700 flex-shrink-0 text-sm">
+      <div className="flex items-center gap-6 px-4 py-1.5 bg-gray-800 border-b border-gray-700 shrink-0 text-sm">
         <div className="flex items-center gap-2">
           <span className="text-gray-400 text-xs">You</span>
           <LivesDisplay count={state.playerLives} max={config.lives} />
@@ -213,8 +213,8 @@ function QvimxGameScreen({ config, onQuit }: GameProps) {
 
       {/* Challenge bar */}
       {config.challengeMode && state.activeChallenge && !isResults && (
-        <div className="flex items-center gap-3 px-4 py-2 bg-indigo-950/60 border-b border-indigo-800 flex-shrink-0 text-xs font-mono">
-          <Zap className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-2 bg-indigo-950/60 border-b border-indigo-800 shrink-0 text-xs font-mono">
+          <Zap className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
           <span className="text-white">{state.activeChallenge.question}</span>
           <span className="ml-auto text-indigo-400 tabular-nums">+{state.challengeScore}</span>
         </div>
@@ -232,7 +232,7 @@ function QvimxGameScreen({ config, onQuit }: GameProps) {
       {/* Status bar */}
       <div
         ref={statusRef as React.RefObject<HTMLDivElement>}
-        className="h-7 bg-gray-800 border-t border-gray-700 px-3 flex items-center text-xs text-gray-400 flex-shrink-0"
+        className="h-7 bg-gray-800 border-t border-gray-700 px-3 flex items-center text-xs text-gray-400 shrink-0"
       />
     </div>
   )

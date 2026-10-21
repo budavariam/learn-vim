@@ -612,7 +612,7 @@ export function HighScoreScreen() {
               onClick={() => setTopCategory(tab.id)}
               className={`px-4 py-2 text-sm font-bold rounded-md transition-colors ${
                 topCategory === tab.id
-                  ? 'bg-blue-600 text-white shadow'
+                  ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-gray-400 hover:text-gray-200'
               }`}
             >

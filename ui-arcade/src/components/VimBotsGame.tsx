@@ -8,7 +8,7 @@ import { loadUsername } from '../engine/UserPrefs'
 import { initGameState, tick, handleCommandExecuted } from '../engine/ChallengeEngine'
 import { loadUnsupported, markUnsupported } from '../engine/UnsupportedEngine'
 import type { VimBotsHighScoreEntry, GameState, GameConfig, VimCommandData } from '../engine/types'
-import rawData from '../data.json'
+import rawData from '@data'
 import {
   initVimBotsState,
   movePlayer,
@@ -523,7 +523,7 @@ export function VimBotsGame({
 
       {/* Game over overlay */}
       {isDead && (
-        <div className="absolute inset-0 z-40 backdrop-blur-sm bg-gray-900/80 flex flex-col items-center justify-center px-6">
+        <div className="absolute inset-0 z-40 backdrop-blur-xs bg-gray-900/80 flex flex-col items-center justify-center px-6">
           <div className="w-full max-w-md bg-gray-900/90 border border-gray-600 rounded-2xl shadow-2xl p-8 text-center">
             <Trophy className="w-14 h-14 text-yellow-400 mx-auto mb-3" />
             <h2 className="text-3xl font-bold text-white mb-2">Game Over</h2>
@@ -569,14 +569,14 @@ export function VimBotsGame({
             <div className="flex gap-3">
               <button
                 onClick={onReplay}
-                className="flex-1 py-2.5 rounded bg-green-700 hover:bg-green-600 text-white font-bold text-sm transition-colors"
+                className="flex-1 py-2.5 rounded-sm bg-green-700 hover:bg-green-600 text-white font-bold text-sm transition-colors"
               >
                 Play again
                 <span className="ml-1.5 text-green-300 font-normal text-xs opacity-80">↵</span>
               </button>
               <button
                 onClick={onQuit}
-                className="flex-1 py-2.5 rounded bg-gray-700 hover:bg-gray-600 text-white font-bold text-sm transition-colors"
+                className="flex-1 py-2.5 rounded-sm bg-gray-700 hover:bg-gray-600 text-white font-bold text-sm transition-colors"
               >
                 Back to menu
                 <span className="ml-1.5 text-gray-400 font-normal text-xs opacity-80">Esc</span>
@@ -588,7 +588,7 @@ export function VimBotsGame({
 
       {/* Level cleared overlay */}
       {isLevelCleared && (
-        <div className="absolute inset-0 z-40 backdrop-blur-sm bg-gray-900/70 flex flex-col items-center justify-center px-6 pointer-events-none">
+        <div className="absolute inset-0 z-40 backdrop-blur-xs bg-gray-900/70 flex flex-col items-center justify-center px-6 pointer-events-none">
           <div className="bg-gray-900/90 border border-green-700 rounded-2xl shadow-2xl p-8 text-center pointer-events-none">
             <div className="text-4xl mb-2">🎉</div>
             <h2 className="text-2xl font-bold text-green-400 mb-2">{state.message}</h2>
@@ -615,15 +615,15 @@ export function VimBotsGame({
           const ch = arcadeState.activeChallenges.find(c => c.status === 'active')
           if (!ch) return null
           return (
-            <div className="flex items-center gap-3 px-4 py-2 bg-indigo-950/60 border-b border-indigo-800 flex-shrink-0 text-xs font-mono">
-              <Zap className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+            <div className="flex items-center gap-3 px-4 py-2 bg-indigo-950/60 border-b border-indigo-800 shrink-0 text-xs font-mono">
+              <Zap className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
               <span className="text-white">{ch.question}</span>
               {ch.showSolution && ch.solution.length > 0 && (
                 <div className="flex gap-1 ml-1">
                   {ch.solution.map((s, i) => (
                     <kbd
                       key={i}
-                      className="px-1.5 py-0.5 bg-gray-700 text-yellow-300 rounded border border-gray-600"
+                      className="px-1.5 py-0.5 bg-gray-700 text-yellow-300 rounded-sm border border-gray-600"
                     >
                       {s}
                     </kbd>
@@ -637,8 +637,8 @@ export function VimBotsGame({
 
       {/* Main content row */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
-        {/* Monaco editor — left flex-[3] */}
-        <div className="flex-[3] min-w-0 min-h-0 relative">
+        {/* Monaco editor — left flex-3 */}
+        <div className="flex-3 min-w-0 min-h-0 relative">
           <div ref={editorRef as React.RefObject<HTMLDivElement>} className="h-full" />
           {config.snowEffect && <SnowOverlay />}
           {config.opacityFade && <OpacityFadeOverlay cursorLine={0} getVisibleRange={() => null} />}
@@ -672,17 +672,17 @@ export function VimBotsGame({
           })}
         </div>
 
-        {/* Sidebar HUD — right flex-[2] */}
-        <div className="flex-[2] min-w-[200px] max-w-xs bg-gray-800 border-l border-gray-700 flex flex-col gap-0 overflow-y-auto">
+        {/* Sidebar HUD — right flex-2 */}
+        <div className="flex-2 min-w-[200px] max-w-xs bg-gray-800 border-l border-gray-700 flex flex-col gap-0 overflow-y-auto">
           {/* Challenge panel (challenge mode) */}
           {config.challengeMode && arcadeState && (
-            <div className="px-3 pt-3 pb-1 border-b border-gray-700 flex gap-2 items-start flex-shrink-0">
+            <div className="px-3 pt-3 pb-1 border-b border-gray-700 flex gap-2 items-start shrink-0">
               <ScoreDisplay score={arcadeState.score} combo={arcadeState.combo} />
               <LevelIndicator ceiling={arcadeState.ceiling} levelPct={arcadeState.levelPct} />
             </div>
           )}
           {config.challengeMode && arcadeState && (
-            <div className="px-3 py-2 border-b border-gray-700 max-h-48 overflow-y-auto flex-shrink-0">
+            <div className="px-3 py-2 border-b border-gray-700 max-h-48 overflow-y-auto shrink-0">
               <ChallengePanel
                 challenges={arcadeState.activeChallenges}
                 onMarkUnsupported={id => {
@@ -756,7 +756,7 @@ export function VimBotsGame({
               return (
                 <div key={def.type} className="flex items-center gap-2 mb-1.5">
                   <span
-                    className="inline-block w-3 h-3 rounded-sm flex-shrink-0"
+                    className="inline-block w-3 h-3 rounded-xs shrink-0"
                     style={{ background: def.color, outline: def.outline, outlineOffset: '-1px' }}
                   />
                   <span className="text-xs text-gray-300 flex-1">{def.name}</span>
@@ -816,7 +816,7 @@ export function VimBotsGame({
                 focusEditor()
               }}
               disabled={state.status !== 'playing'}
-              className="flex items-center gap-2 px-3 py-2 rounded bg-gray-700 hover:bg-gray-600 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm font-bold transition-colors w-full"
+              className="flex items-center gap-2 px-3 py-2 rounded-sm bg-gray-700 hover:bg-gray-600 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm font-bold transition-colors w-full"
               title="Pass turn — let robots advance without moving (.)"
             >
               <span className="text-base leading-none">⏸</span>
@@ -832,9 +832,9 @@ export function VimBotsGame({
                   focusEditor()
                 }}
                 disabled={state.teleportsLeft <= 0 || state.status !== 'playing'}
-                className="flex items-center gap-2 px-3 py-2 rounded bg-indigo-700 hover:bg-indigo-600 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm font-bold transition-colors w-full"
+                className="flex items-center gap-2 px-3 py-2 rounded-sm bg-indigo-700 hover:bg-indigo-600 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm font-bold transition-colors w-full"
               >
-                <Zap className="w-4 h-4 flex-shrink-0" />
+                <Zap className="w-4 h-4 shrink-0" />
                 <span>Teleport ({state.teleportsLeft} left)</span>
               </button>
             )}
@@ -846,9 +846,9 @@ export function VimBotsGame({
                   focusEditor()
                 }}
                 disabled={state.safeTeleportsLeft <= 0 || state.status !== 'playing'}
-                className="flex items-center gap-2 px-3 py-2 rounded bg-teal-700 hover:bg-teal-600 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm font-bold transition-colors w-full"
+                className="flex items-center gap-2 px-3 py-2 rounded-sm bg-teal-700 hover:bg-teal-600 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm font-bold transition-colors w-full"
               >
-                <Shield className="w-4 h-4 flex-shrink-0" />
+                <Shield className="w-4 h-4 shrink-0" />
                 <span>Safe Teleport ({state.safeTeleportsLeft} left)</span>
               </button>
             )}
@@ -910,14 +910,14 @@ export function VimBotsGame({
             {isDead && (
               <button
                 onClick={onReplay}
-                className="w-full px-3 py-2 rounded bg-green-700 hover:bg-green-600 text-white text-sm font-bold transition-colors"
+                className="w-full px-3 py-2 rounded-sm bg-green-700 hover:bg-green-600 text-white text-sm font-bold transition-colors"
               >
                 Play again
               </button>
             )}
             <button
               onClick={onQuit}
-              className="w-full px-3 py-2 rounded bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm font-bold transition-colors"
+              className="w-full px-3 py-2 rounded-sm bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm font-bold transition-colors"
             >
               {isDead ? 'Back to menu' : 'Quit'}
             </button>
@@ -928,7 +928,7 @@ export function VimBotsGame({
       {/* Vim status bar */}
       <div
         ref={statusRef as React.RefObject<HTMLDivElement>}
-        className="h-7 bg-gray-800 border-t border-gray-700 px-3 flex items-center text-xs text-gray-400 flex-shrink-0"
+        className="h-7 bg-gray-800 border-t border-gray-700 px-3 flex items-center text-xs text-gray-400 shrink-0"
       />
     </div>
   )

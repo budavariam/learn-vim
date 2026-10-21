@@ -81,19 +81,19 @@ function ChallengeCard({
         {/* Category + level + badges */}
         <div className="flex items-center gap-1.5 flex-wrap mb-1">
           <span
-            className="text-xs px-2 py-0.5 rounded font-mono border"
+            className="text-xs px-2 py-0.5 rounded-sm font-mono border"
             style={categoryBadgeStyle(c.category)}
           >
             {c.category}
           </span>
           <span className="text-xs text-gray-500 font-mono">Lv{c.level}</span>
           {c.isVerification && (
-            <span className="text-xs bg-indigo-900 text-indigo-300 px-1.5 py-0.5 rounded font-mono">
+            <span className="text-xs bg-indigo-900 text-indigo-300 px-1.5 py-0.5 rounded-sm font-mono">
               🔍 verify
             </span>
           )}
           {c.showSolution && (
-            <span className="text-xs bg-purple-900/50 text-purple-400 px-1.5 py-0.5 rounded font-mono">
+            <span className="text-xs bg-purple-900/50 text-purple-400 px-1.5 py-0.5 rounded-sm font-mono">
               guided
             </span>
           )}
@@ -108,7 +108,7 @@ function ChallengeCard({
             {c.solution.map((sol, i) => (
               <kbd
                 key={i}
-                className="inline-block px-2 py-1 bg-gray-700 text-yellow-300 font-mono text-xs rounded border border-gray-500 shadow-sm"
+                className="inline-block px-2 py-1 bg-gray-700 text-yellow-300 font-mono text-xs rounded-sm border border-gray-500 shadow-xs"
               >
                 {sol}
               </kbd>
@@ -117,7 +117,7 @@ function ChallengeCard({
         )}
         <div className="mt-2 flex justify-end">
           <button
-            className="text-xs font-mono px-1.5 py-0.5 rounded bg-transparent text-gray-600 hover:text-red-400 hover:bg-red-900/20 border border-transparent hover:border-red-800 transition-colors"
+            className="text-xs font-mono px-1.5 py-0.5 rounded-sm bg-transparent text-gray-600 hover:text-red-400 hover:bg-red-900/20 border border-transparent hover:border-red-800 transition-colors"
             onClick={e => {
               e.stopPropagation()
               onMarkUnsupported(c.commandId)
@@ -139,7 +139,7 @@ function RecentCard({ challenge: c }: { challenge: ActiveChallenge }) {
         isOk ? 'border-green-800 bg-green-900/20' : 'border-red-800 bg-red-900/20'
       }`}
     >
-      <span className="text-xl flex-shrink-0">{isOk ? '✓' : '✗'}</span>
+      <span className="text-xl shrink-0">{isOk ? '✓' : '✗'}</span>
       <div className="flex-1 min-w-0">
         <p className="text-sm font-mono text-gray-400 truncate">{c.question}</p>
         {isOk && c.pointsEarned > 0 && (

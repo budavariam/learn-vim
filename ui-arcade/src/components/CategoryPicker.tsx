@@ -75,13 +75,13 @@ export function CategoryPicker({ selected, onChange }: CategoryPickerProps) {
         </button>
         <button
           onClick={() => onChange([])}
-          className="px-3 py-1 rounded font-mono text-xs border border-gray-600 bg-gray-800 text-gray-400 hover:border-gray-400 transition-all"
+          className="px-3 py-1 rounded-sm font-mono text-xs border border-gray-600 bg-gray-800 text-gray-400 hover:border-gray-400 transition-all"
         >
           None
         </button>
         <button
           onClick={() => onChange([...DEFAULT_CATEGORIES])}
-          className="px-3 py-1 rounded font-mono text-xs border border-gray-600 bg-gray-800 text-gray-400 hover:border-gray-400 transition-all"
+          className="px-3 py-1 rounded-sm font-mono text-xs border border-gray-600 bg-gray-800 text-gray-400 hover:border-gray-400 transition-all"
         >
           Defaults
         </button>
@@ -123,11 +123,11 @@ export function CategoryPicker({ selected, onChange }: CategoryPickerProps) {
                 }
               }}
               placeholder="Preset name…"
-              className="px-2 py-1 rounded font-mono text-xs bg-gray-700 border border-gray-500 text-white placeholder-gray-500 w-32 focus:outline-none focus:border-green-500"
+              className="px-2 py-1 rounded-sm font-mono text-xs bg-gray-700 border border-gray-500 text-white placeholder-gray-500 w-32 focus:outline-hidden focus:border-green-500"
             />
             <button
               onClick={handleSavePreset}
-              className="px-2 py-1 rounded font-mono text-xs border border-green-700 bg-green-900/30 text-green-400 hover:bg-green-900/60 transition-all"
+              className="px-2 py-1 rounded-sm font-mono text-xs border border-green-700 bg-green-900/30 text-green-400 hover:bg-green-900/60 transition-all"
             >
               Save
             </button>
@@ -136,7 +136,7 @@ export function CategoryPicker({ selected, onChange }: CategoryPickerProps) {
                 setShowSaveInput(false)
                 setSavingName('')
               }}
-              className="px-2 py-1 rounded font-mono text-xs border border-gray-600 text-gray-500 hover:text-gray-300 transition-all"
+              className="px-2 py-1 rounded-sm font-mono text-xs border border-gray-600 text-gray-500 hover:text-gray-300 transition-all"
             >
               Cancel
             </button>
@@ -144,7 +144,7 @@ export function CategoryPicker({ selected, onChange }: CategoryPickerProps) {
         ) : (
           <button
             onClick={() => setShowSaveInput(true)}
-            className="px-3 py-1 rounded font-mono text-xs border border-dashed border-gray-600 text-gray-500 hover:border-gray-400 hover:text-gray-300 transition-all"
+            className="px-3 py-1 rounded-sm font-mono text-xs border border-dashed border-gray-600 text-gray-500 hover:border-gray-400 hover:text-gray-300 transition-all"
             title="Save current selection as a preset"
           >
             + Save preset
@@ -170,7 +170,7 @@ export function CategoryPicker({ selected, onChange }: CategoryPickerProps) {
             >
               <span
                 style={{ backgroundColor: active ? color : '#4b5563' }}
-                className="inline-block w-2 h-2 rounded-full flex-shrink-0"
+                className="inline-block w-2 h-2 rounded-full shrink-0"
               />
               {cat}
             </button>

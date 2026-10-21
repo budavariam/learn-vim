@@ -314,7 +314,7 @@ export function MotionRaceSetup({ onStart, onBack: _onBack }: SetupProps) {
               onClick={() => set({ endGoal: o.id })}
               className={`${cls.modeCard(s.endGoal === o.id)} flex items-center gap-2`}
             >
-              <o.icon className="w-4 h-4 flex-shrink-0" />
+              <o.icon className="w-4 h-4 shrink-0" />
               <span>{o.label}</span>
               <span
                 className={`text-xs font-normal ml-1 ${s.endGoal === o.id ? 'text-blue-200' : 'text-gray-500'}`}
@@ -528,7 +528,7 @@ export function MotionRaceSetup({ onStart, onBack: _onBack }: SetupProps) {
             <button
               key={n}
               onClick={() => set({ enemyCount: n })}
-              className={`px-4 py-2 rounded border text-sm font-mono transition-colors ${s.enemyCount === n ? 'bg-orange-700 border-orange-500 text-white font-bold' : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'}`}
+              className={`px-4 py-2 rounded-sm border text-sm font-mono transition-colors ${s.enemyCount === n ? 'bg-orange-700 border-orange-500 text-white font-bold' : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'}`}
             >
               {n === 0 ? 'None' : n}
             </button>

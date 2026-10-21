@@ -1,32 +1,68 @@
 import { Routes, Route, Navigate, useNavigate, useParams, useLocation } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { lazy, Suspense, useState, useEffect } from 'react'
 import { useArcadeGame } from './hooks/useArcadeGame'
-import { SetupScreen } from './components/SetupScreen'
-import { ArcadeGame } from './components/ArcadeGame'
-import { ResultsScreen } from './components/ResultsScreen'
-import { HighScoreScreen } from './components/HighScoreScreen'
-import { SessionReviewScreen } from './components/SessionReviewScreen'
 import { VimGolfScreen, loadCustomChallenges } from './components/VimGolfScreen'
-import { VimGolfGame } from './components/VimGolfGame'
-import { GoalSetupScreen } from './components/GoalSetupScreen'
-import { GoalGame } from './components/GoalGame'
 import { useGoalGame } from './hooks/useGoalGame'
-import { DevModeScreen } from './components/DevModeScreen'
-import { HelpVimGolfScreen } from './components/HelpVimGolfScreen'
-import { ModeSelectScreen } from './components/ModeSelectScreen'
-import { MotionRaceWrapper } from './components/MotionRaceGame'
-import { QvimxWrapper } from './components/QvimxGame'
-import { VimBotsWrapper } from './components/VimBotsGame'
-import { VimTutorScreen } from './components/VimTutorScreen'
-import { VimTutorSetupScreen } from './components/VimTutorSetupScreen'
 import type { VimTutorConfig } from './data/vimtutor'
 import { Navbar } from './components/Navbar'
-import { PreferencesScreen } from './components/PreferencesScreen'
-import { AppReadmeScreen } from './components/AppReadmeScreen'
 import { BUILTIN_CHALLENGES } from './engine/vimgolfChallenges'
 import type { GoalModeConfig, HandicapConfig } from './engine/types'
 import { HANDICAP_CONFIG_DEFAULTS } from './engine/types'
 import { STORAGE_KEYS, loadStoredConfig } from './engine/storageKeys'
+
+// Route screens are loaded on demand so the arcade shell stays small.
+const SetupScreen = lazy(() =>
+  import('./components/SetupScreen').then(m => ({ default: m.SetupScreen }))
+)
+const ArcadeGame = lazy(() =>
+  import('./components/ArcadeGame').then(m => ({ default: m.ArcadeGame }))
+)
+const ResultsScreen = lazy(() =>
+  import('./components/ResultsScreen').then(m => ({ default: m.ResultsScreen }))
+)
+const HighScoreScreen = lazy(() =>
+  import('./components/HighScoreScreen').then(m => ({ default: m.HighScoreScreen }))
+)
+const SessionReviewScreen = lazy(() =>
+  import('./components/SessionReviewScreen').then(m => ({ default: m.SessionReviewScreen }))
+)
+const VimGolfGame = lazy(() =>
+  import('./components/VimGolfGame').then(m => ({ default: m.VimGolfGame }))
+)
+const GoalSetupScreen = lazy(() =>
+  import('./components/GoalSetupScreen').then(m => ({ default: m.GoalSetupScreen }))
+)
+const GoalGame = lazy(() => import('./components/GoalGame').then(m => ({ default: m.GoalGame })))
+const DevModeScreen = lazy(() =>
+  import('./components/DevModeScreen').then(m => ({ default: m.DevModeScreen }))
+)
+const HelpVimGolfScreen = lazy(() =>
+  import('./components/HelpVimGolfScreen').then(m => ({ default: m.HelpVimGolfScreen }))
+)
+const ModeSelectScreen = lazy(() =>
+  import('./components/ModeSelectScreen').then(m => ({ default: m.ModeSelectScreen }))
+)
+const MotionRaceWrapper = lazy(() =>
+  import('./components/MotionRaceGame').then(m => ({ default: m.MotionRaceWrapper }))
+)
+const QvimxWrapper = lazy(() =>
+  import('./components/QvimxGame').then(m => ({ default: m.QvimxWrapper }))
+)
+const VimBotsWrapper = lazy(() =>
+  import('./components/VimBotsGame').then(m => ({ default: m.VimBotsWrapper }))
+)
+const VimTutorScreen = lazy(() =>
+  import('./components/VimTutorScreen').then(m => ({ default: m.VimTutorScreen }))
+)
+const VimTutorSetupScreen = lazy(() =>
+  import('./components/VimTutorSetupScreen').then(m => ({ default: m.VimTutorSetupScreen }))
+)
+const PreferencesScreen = lazy(() =>
+  import('./components/PreferencesScreen').then(m => ({ default: m.PreferencesScreen }))
+)
+const AppReadmeScreen = lazy(() =>
+  import('./components/AppReadmeScreen').then(m => ({ default: m.AppReadmeScreen }))
+)
 
 function VimTutorWrapper({ onBack }: { onBack: () => void }) {
   const [config, setConfig] = useState<VimTutorConfig | null>(null)
@@ -173,124 +209,129 @@ function App() {
     <div className="h-screen flex flex-col overflow-hidden">
       <Navbar />
       <div className="flex-1 min-h-0 overflow-y-auto">
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <ModeSelectScreen
-                onSelectArcade={() => navigate('/arcade')}
-                onSelectVimGolf={() => navigate('/vimgolf')}
-                onSelectGoal={() => navigate('/goal')}
-                onSelectMotionRace={() => navigate('/motion-race')}
-                onSelectQvimx={() => navigate('/qvimx')}
-                onSelectVimTutor={() => navigate('/vimtutor')}
-                onSelectVimBots={() => navigate('/vimbots')}
-              />
-            }
-          />
-          <Route
-            path="/arcade"
-            element={
-              <SetupScreen
-                onStart={config => {
-                  startGame(config)
-                  navigate('/play')
-                }}
-                onHighScores={() => navigate('/high-scores')}
-                lastConfig={lastConfig}
-              />
-            }
-          />
-          <Route
-            path="/play"
-            element={
-              state.status === 'setup' ? (
-                <Navigate to="/arcade" replace />
-              ) : (
-                <ArcadeGame
-                  state={state}
-                  onCommandExecuted={onCommandExecuted}
-                  onUpdateSettings={updateSettings}
-                  onQuit={() => {
-                    resetGame()
-                    navigate('/')
-                  }}
-                  onMarkUnsupported={markChallengeUnsupported}
+        <Suspense fallback={null}>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <ModeSelectScreen
+                  onSelectArcade={() => navigate('/arcade')}
+                  onSelectVimGolf={() => navigate('/vimgolf')}
+                  onSelectGoal={() => navigate('/goal')}
+                  onSelectMotionRace={() => navigate('/motion-race')}
+                  onSelectQvimx={() => navigate('/qvimx')}
+                  onSelectVimTutor={() => navigate('/vimtutor')}
+                  onSelectVimBots={() => navigate('/vimbots')}
                 />
-              )
-            }
-          />
-          <Route
-            path="/results"
-            element={
-              state.status !== 'results' ? (
-                <Navigate to="/" replace />
-              ) : (
-                <ResultsScreen
-                  state={state}
-                  onRestart={() => {
-                    resetGame()
-                    navigate('/arcade')
+              }
+            />
+            <Route
+              path="/arcade"
+              element={
+                <SetupScreen
+                  onStart={config => {
+                    startGame(config)
+                    navigate('/play')
                   }}
                   onHighScores={() => navigate('/high-scores')}
-                  onReview={() => navigate('/review')}
-                  reviewCount={reviewItems.length}
+                  lastConfig={lastConfig}
                 />
-              )
-            }
-          />
-          <Route
-            path="/review"
-            element={
-              reviewItems.length === 0 ? (
-                <Navigate to="/" replace />
-              ) : (
-                <SessionReviewScreen
-                  items={reviewItems}
-                  onDone={() => {
-                    resetGame()
-                    navigate('/')
-                  }}
+              }
+            />
+            <Route
+              path="/play"
+              element={
+                state.status === 'setup' ? (
+                  <Navigate to="/arcade" replace />
+                ) : (
+                  <ArcadeGame
+                    state={state}
+                    onCommandExecuted={onCommandExecuted}
+                    onUpdateSettings={updateSettings}
+                    onQuit={() => {
+                      resetGame()
+                      navigate('/')
+                    }}
+                    onMarkUnsupported={markChallengeUnsupported}
+                  />
+                )
+              }
+            />
+            <Route
+              path="/results"
+              element={
+                state.status !== 'results' ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <ResultsScreen
+                    state={state}
+                    onRestart={() => {
+                      resetGame()
+                      navigate('/arcade')
+                    }}
+                    onHighScores={() => navigate('/high-scores')}
+                    onReview={() => navigate('/review')}
+                    reviewCount={reviewItems.length}
+                  />
+                )
+              }
+            />
+            <Route
+              path="/review"
+              element={
+                reviewItems.length === 0 ? (
+                  <Navigate to="/" replace />
+                ) : (
+                  <SessionReviewScreen
+                    items={reviewItems}
+                    onDone={() => {
+                      resetGame()
+                      navigate('/')
+                    }}
+                  />
+                )
+              }
+            />
+            <Route path="/high-scores" element={<HighScoreScreen />} />
+            <Route
+              path="/vimgolf"
+              element={
+                <VimGolfScreen
+                  onBack={() => navigate('/')}
+                  onPlay={(c, list) =>
+                    navigate(`/vimgolf/${c.id}`, { state: { challengeList: list.map(x => x.id) } })
+                  }
                 />
-              )
-            }
-          />
-          <Route path="/high-scores" element={<HighScoreScreen />} />
-          <Route
-            path="/vimgolf"
-            element={
-              <VimGolfScreen
-                onBack={() => navigate('/')}
-                onPlay={(c, list) =>
-                  navigate(`/vimgolf/${c.id}`, { state: { challengeList: list.map(x => x.id) } })
-                }
-              />
-            }
-          />
-          <Route path="/vimgolf/:challengeId" element={<VimGolfGameRoute />} />
-          <Route path="/goal" element={<GoalModeWrapper onBack={() => navigate('/')} />} />
-          <Route path="/motion-race" element={<MotionRaceWrapper onBack={() => navigate('/')} />} />
-          <Route path="/qvimx" element={<QvimxWrapper onBack={() => navigate('/')} />} />
-          <Route
-            path="/vimbots"
-            element={
-              <VimBotsWrapper
-                onBack={() => navigate('/')}
-                onViewHighScores={difficulty =>
-                  navigate('/high-scores', { state: { tab: 'vimbots', vimbotsTab: difficulty } })
-                }
-              />
-            }
-          />
-          <Route path="/vimtutor" element={<VimTutorWrapper onBack={() => navigate('/')} />} />
-          <Route path="/help" element={<DevModeScreen onBack={() => navigate('/')} />} />
-          <Route path="/help/readme" element={<AppReadmeScreen />} />
-          <Route path="/help/vimgolf" element={<HelpVimGolfScreen />} />
-          <Route path="/dev" element={<Navigate to="/help" replace />} />
-          <Route path="/dev/readme" element={<Navigate to="/help/readme" replace />} />
-          <Route path="/preferences" element={<PreferencesScreen />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+              }
+            />
+            <Route path="/vimgolf/:challengeId" element={<VimGolfGameRoute />} />
+            <Route path="/goal" element={<GoalModeWrapper onBack={() => navigate('/')} />} />
+            <Route
+              path="/motion-race"
+              element={<MotionRaceWrapper onBack={() => navigate('/')} />}
+            />
+            <Route path="/qvimx" element={<QvimxWrapper onBack={() => navigate('/')} />} />
+            <Route
+              path="/vimbots"
+              element={
+                <VimBotsWrapper
+                  onBack={() => navigate('/')}
+                  onViewHighScores={difficulty =>
+                    navigate('/high-scores', { state: { tab: 'vimbots', vimbotsTab: difficulty } })
+                  }
+                />
+              }
+            />
+            <Route path="/vimtutor" element={<VimTutorWrapper onBack={() => navigate('/')} />} />
+            <Route path="/help" element={<DevModeScreen onBack={() => navigate('/')} />} />
+            <Route path="/help/readme" element={<AppReadmeScreen />} />
+            <Route path="/help/vimgolf" element={<HelpVimGolfScreen />} />
+            <Route path="/dev" element={<Navigate to="/help" replace />} />
+            <Route path="/dev/readme" element={<Navigate to="/help/readme" replace />} />
+            <Route path="/preferences" element={<PreferencesScreen />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </div>
     </div>
   )

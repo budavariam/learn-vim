@@ -82,10 +82,10 @@ const DIFF_BADGE_CLS: Record<VimGolfChallenge['difficulty'], string> = {
 }
 
 const inputCls =
-  'w-full px-2 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 font-mono'
+  'w-full px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-sm text-xs text-white placeholder-gray-600 focus:outline-hidden focus:border-blue-500 font-mono'
 
 const textareaCls =
-  'w-full px-2 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs text-white placeholder-gray-600 focus:outline-none focus:border-blue-500 font-mono resize-y'
+  'w-full px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-sm text-xs text-white placeholder-gray-600 focus:outline-hidden focus:border-blue-500 font-mono resize-y'
 
 // ── Challenges tab (list + form) ──────────────────────────────────────────────
 
@@ -234,7 +234,7 @@ function ChallengesTab({ onChanged }: { onChanged: () => void }) {
             <button
               type="button"
               onClick={handleExport}
-              className="flex items-center gap-1 px-2 py-1 rounded text-xs text-gray-400 bg-gray-700 hover:bg-gray-600 transition-colors font-mono"
+              className="flex items-center gap-1 px-2 py-1 rounded-sm text-xs text-gray-400 bg-gray-700 hover:bg-gray-600 transition-colors font-mono"
               title="Download all custom challenges as JSON"
             >
               <Download className="w-3.5 h-3.5" />
@@ -252,7 +252,7 @@ function ChallengesTab({ onChanged }: { onChanged: () => void }) {
                 }`}
               >
                 <span
-                  className={`px-1.5 py-0.5 rounded text-[10px] flex-shrink-0 ${DIFF_BADGE_CLS[c.difficulty]}`}
+                  className={`px-1.5 py-0.5 rounded-sm text-[10px] shrink-0 ${DIFF_BADGE_CLS[c.difficulty]}`}
                 >
                   {c.difficulty[0].toUpperCase()}
                 </span>
@@ -263,7 +263,7 @@ function ChallengesTab({ onChanged }: { onChanged: () => void }) {
                 <button
                   type="button"
                   onClick={() => startEdit(c)}
-                  className="text-gray-500 hover:text-blue-400 transition-colors p-1 flex-shrink-0"
+                  className="text-gray-500 hover:text-blue-400 transition-colors p-1 shrink-0"
                   title="Edit"
                 >
                   <Pencil className="w-3.5 h-3.5" />
@@ -273,14 +273,14 @@ function ChallengesTab({ onChanged }: { onChanged: () => void }) {
                     <button
                       type="button"
                       onClick={() => handleDelete(c.id)}
-                      className="text-red-400 hover:text-red-300 transition-colors text-[10px] flex-shrink-0 animate-pulse"
+                      className="text-red-400 hover:text-red-300 transition-colors text-[10px] shrink-0 animate-pulse"
                     >
                       Confirm
                     </button>
                     <button
                       type="button"
                       onClick={() => setDeleteConfirmId(null)}
-                      className="text-gray-600 hover:text-gray-400 transition-colors p-1 flex-shrink-0"
+                      className="text-gray-600 hover:text-gray-400 transition-colors p-1 shrink-0"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -289,7 +289,7 @@ function ChallengesTab({ onChanged }: { onChanged: () => void }) {
                   <button
                     type="button"
                     onClick={() => setDeleteConfirmId(c.id)}
-                    className="text-gray-600 hover:text-red-400 transition-colors p-1 flex-shrink-0"
+                    className="text-gray-600 hover:text-red-400 transition-colors p-1 shrink-0"
                     title="Delete"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -420,7 +420,7 @@ function ChallengesTab({ onChanged }: { onChanged: () => void }) {
             <button
               type="button"
               onClick={handleSave}
-              className="px-4 py-1.5 bg-blue-700 hover:bg-blue-600 text-white rounded text-xs font-mono transition-colors"
+              className="px-4 py-1.5 bg-blue-700 hover:bg-blue-600 text-white rounded-sm text-xs font-mono transition-colors"
             >
               {isEditing ? 'Update challenge' : 'Save challenge'}
             </button>
@@ -503,7 +503,7 @@ function ImportJsonSection({ onSaved }: { onSaved: () => void }) {
         <button
           type="button"
           onClick={handleImport}
-          className="px-4 py-1.5 bg-blue-700 hover:bg-blue-600 text-white rounded text-xs font-mono transition-colors"
+          className="px-4 py-1.5 bg-blue-700 hover:bg-blue-600 text-white rounded-sm text-xs font-mono transition-colors"
         >
           Import
         </button>
@@ -576,23 +576,23 @@ function ResetScoresSection() {
                 if (trimmed) setConfirmSingle(true)
               }}
               disabled={!trimmed}
-              className="px-3 py-1.5 bg-red-800 hover:bg-red-700 disabled:opacity-40 text-white rounded text-xs font-mono transition-colors flex-shrink-0"
+              className="px-3 py-1.5 bg-red-800 hover:bg-red-700 disabled:opacity-40 text-white rounded-sm text-xs font-mono transition-colors shrink-0"
             >
               Reset
             </button>
           ) : (
-            <div className="flex gap-1 flex-shrink-0">
+            <div className="flex gap-1 shrink-0">
               <button
                 type="button"
                 onClick={handleResetOne}
-                className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded text-xs font-mono transition-colors animate-pulse"
+                className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-sm text-xs font-mono transition-colors animate-pulse"
               >
                 Confirm
               </button>
               <button
                 type="button"
                 onClick={() => setConfirmSingle(false)}
-                className="px-2 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded text-xs font-mono transition-colors"
+                className="px-2 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-sm text-xs font-mono transition-colors"
               >
                 Cancel
               </button>
@@ -640,23 +640,23 @@ function ResetScoresSection() {
               type="button"
               onClick={() => setConfirmAll(true)}
               disabled={totalScoredCount === 0}
-              className="px-3 py-1.5 bg-red-900 hover:bg-red-800 disabled:opacity-40 text-red-300 rounded text-xs font-mono transition-colors flex-shrink-0"
+              className="px-3 py-1.5 bg-red-900 hover:bg-red-800 disabled:opacity-40 text-red-300 rounded-sm text-xs font-mono transition-colors shrink-0"
             >
               Reset all
             </button>
           ) : (
-            <div className="flex gap-1 flex-shrink-0">
+            <div className="flex gap-1 shrink-0">
               <button
                 type="button"
                 onClick={handleResetAll}
-                className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded text-xs font-mono transition-colors animate-pulse"
+                className="px-3 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-sm text-xs font-mono transition-colors animate-pulse"
               >
                 Yes, clear everything
               </button>
               <button
                 type="button"
                 onClick={() => setConfirmAll(false)}
-                className="px-2 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded text-xs font-mono transition-colors"
+                className="px-2 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-sm text-xs font-mono transition-colors"
               >
                 Cancel
               </button>
@@ -721,7 +721,7 @@ function ExcludedSection() {
         <button
           type="button"
           onClick={add}
-          className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded text-xs font-mono transition-colors flex-shrink-0 flex items-center gap-1"
+          className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white rounded-sm text-xs font-mono transition-colors shrink-0 flex items-center gap-1"
         >
           <Plus className="w-3.5 h-3.5" /> Exclude
         </button>
@@ -735,7 +735,7 @@ function ExcludedSection() {
             return (
               <div
                 key={id}
-                className="flex items-center justify-between px-2 py-1.5 bg-gray-800 border border-gray-700 rounded text-xs font-mono"
+                className="flex items-center justify-between px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-sm text-xs font-mono"
               >
                 <div className="min-w-0">
                   {title ? (
@@ -750,7 +750,7 @@ function ExcludedSection() {
                 <button
                   type="button"
                   onClick={() => remove(id)}
-                  className="text-gray-600 hover:text-red-400 transition-colors ml-3 flex-shrink-0"
+                  className="text-gray-600 hover:text-red-400 transition-colors ml-3 shrink-0"
                   title="Remove from exclusion list"
                 >
                   <X className="w-3.5 h-3.5" />

@@ -49,7 +49,7 @@ const ModeConfirmation: React.FC<ModeConfirmationProps> = ({
             <div className="text-center space-y-6 md:space-y-8 fade-in w-full max-w-2xl">
                 <ThemeToggle size="sm" className="mx-auto" />
 
-                <div className={`w-20 h-20 md:w-24 md:h-24 mx-auto rounded-full bg-gradient-to-r ${config.bgColor} flex items-center justify-center`}>
+                <div className={`w-20 h-20 md:w-24 md:h-24 mx-auto rounded-full bg-linear-to-r ${config.bgColor} flex items-center justify-center`}>
                     <IconComponent className="w-10 h-10 md:w-12 md:h-12 text-white" />
                 </div>
 
@@ -90,7 +90,7 @@ const ModeConfirmation: React.FC<ModeConfirmationProps> = ({
                         </div>
                     )}
                     
-                    <p className="text-sm md:text-lg terminal-text color-cyan break-words">
+                    <p className="text-sm md:text-lg terminal-text color-cyan wrap-break-word">
                         {questions.length} {isFlashcardMode ? 'cards' : 'questions'} available • {
                             isFlashcardMode ? 'Practice mode - apply changes at the end' :
                                 gameMode?.startsWith('mc-') ? 'Multiple choice - Press 1-4 for quick answers' :

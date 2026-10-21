@@ -68,7 +68,7 @@ export function ComboNotification({ notifications }: ComboNotificationProps) {
                   t.exiting ? 'toast-exit' : 'toast-enter'
                 }`}
               >
-                {Icon && <Icon className="w-4 h-4 flex-shrink-0" />}
+                {Icon && <Icon className="w-4 h-4 shrink-0" />}
                 <span>{t.text}</span>
               </div>
             )

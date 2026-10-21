@@ -22,53 +22,33 @@ jobs:
           ls -la ui-arcade/vim-golf-challenges
           test -f ui-arcade/vim-golf-challenges/README.org
 
-      - name: Use Node.js 24
+      # pnpm version comes from "packageManager" in package.json
+      - uses: pnpm/action-setup@v4
+
+      - name: Use Node.js (from .nvmrc)
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version-file: .nvmrc
+          cache: pnpm
 
-      # ── Cheatsheet ──────────────────────────────────────────────────────────
-      - name: Install — Cheatsheet
-        run: cd ui-cheatsheet && npm install
+      - name: Install
+        run: pnpm install --frozen-lockfile
 
-      - name: Build — Cheatsheet
-        run: cd ui-cheatsheet && npm run build
+      - name: Typecheck
+        run: pnpm typecheck
 
-      # ── Quiz ────────────────────────────────────────────────────────────────
-      - name: Install — Quiz
-        run: cd ui-practice && npm install
+      - name: Test
+        run: pnpm test
 
-      - name: Build — Quiz
-        run: cd ui-practice && npm run build
-
-      # ── Arcade ──────────────────────────────────────────────────────────────
-      - name: Install — Arcade
-        run: cd ui-arcade && npm install
-
-      - name: Build — Arcade
-        run: cd ui-arcade && npm run build
-
-      # ── Assemble deployment ─────────────────────────────────────────────────
-      - name: Prepare deployment structure
-        run: |
-          mkdir -p deploy
-
-          # Main site (cheatsheet)
-          cp -r ui-cheatsheet/dist/* deploy/
-
-          # Quiz at /game
-          mkdir -p deploy/game
-          cp -r ui-practice/dist/* deploy/game/
-
-          # Arcade at /arcade
-          mkdir -p deploy/arcade
-          cp -r ui-arcade/dist/* deploy/arcade/
-
-          echo "Deployment structure:"
-          find deploy -type f | head -30
+      # One bundle for the whole site. dist/ already has the final layout:
+      #   /          cheatsheet
+      #   /game      quiz      (index.html shell copied by the build)
+      #   /arcade    arcade    (index.html shell copied by the build)
+      - name: Build
+        run: pnpm build
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
-          publish_dir: ./deploy
+          publish_dir: ./dist
           github_token: ${{ secrets.GITHUB_TOKEN }}

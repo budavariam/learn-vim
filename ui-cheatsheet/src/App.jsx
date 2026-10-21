@@ -1,14 +1,16 @@
-import data from './data.json'
-import { useEffect, useReducer, useRef } from 'react'
+import data from '@data'
+import { lazy, Suspense, useEffect, useReducer, useRef } from 'react'
 import Fuse from 'fuse.js'
 import parse from 'html-react-parser'
 import DualRangeSlider from './DualRangeSlider'
 import Navbar from './components/Navbar'
 import TableOfContents from './components/TableOfContents'
-import KeyboardModal from './components/KeyboardModal'
-import InfoModal from './components/InfoModal'
 import CategorySelect from './components/CategorySelect'
 import { getCategoryColor } from './constants'
+
+// Modals are only needed on demand (the keyboard one pulls in react-simple-keyboard).
+const KeyboardModal = lazy(() => import('./components/KeyboardModal'))
+const InfoModal = lazy(() => import('./components/InfoModal'))
 
 const options = {
   includeScore: true,
@@ -373,7 +375,7 @@ function App() {
                 <button
                   type="button"
                   onClick={() => { dispatch({ type: 'SET_SEARCH', payload: '' }); searchInputRef.current?.focus() }}
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded-sm text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                   aria-label="Clear search"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -387,7 +389,7 @@ function App() {
             {categories.length > 0 && (
               <button
                 onClick={() => dispatch({ type: 'SET_TOC_OPEN', payload: !isTocOpen })}
-                className="xl:hidden p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors flex-shrink-0"
+                className="xl:hidden p-1.5 rounded-lg bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 transition-colors shrink-0"
                 title="Table of Contents"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -399,7 +401,7 @@ function App() {
             {/* Unknown only */}
             <button
               onClick={() => dispatch({ type: 'TOGGLE_SHOW_UNKNOWN' })}
-              className={`p-1.5 rounded-lg transition-colors flex-shrink-0 ${showUnknownOnly ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-600' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
+              className={`p-1.5 rounded-lg transition-colors shrink-0 ${showUnknownOnly ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-600' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`}
               title={showUnknownOnly ? 'Show all commands' : 'Show only unknown'}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -418,7 +420,7 @@ function App() {
                     if (!allKnown && !window.confirm('Mark all items as known?')) return
                     dispatch({ type: 'SET_KNOWN_ITEMS', payload: allKnown ? new Set() : allItemIds })
                   }}
-                  className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm flex-shrink-0"
+                  className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors text-sm shrink-0"
                   title={allKnown ? 'Reset — mark all as unknown' : 'Mark all as known'}
                 >
                   {allKnown ? '🔄' : '✅'}
@@ -430,7 +432,7 @@ function App() {
             {Object.keys(groupedData).length > 0 && (
               <button
                 onClick={toggleAllCategories}
-                className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex-shrink-0"
+                className="p-1.5 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors shrink-0"
                 title={collapsedCategories.size === Object.keys(groupedData).length ? 'Expand all' : 'Collapse all'}
               >
                 {collapsedCategories.size === Object.keys(groupedData).length
@@ -492,15 +494,15 @@ function App() {
               <div
                 key={category}
                 id={slugify(category)}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden scroll-mt-20"
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-xs border border-gray-200 dark:border-gray-700 overflow-hidden scroll-mt-20"
               >
                 <button
                   onClick={() => toggleCategory(category)}
-                  className="w-full bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 px-4 py-2 border-b border-gray-200 dark:border-gray-600 hover:from-gray-100 hover:to-gray-150 dark:hover:from-gray-650 dark:hover:to-gray-750 transition-all duration-200"
+                  className="w-full bg-linear-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 px-4 py-2 border-b border-gray-200 dark:border-gray-600 hover:from-gray-100 hover:to-gray-150 dark:hover:from-gray-650 dark:hover:to-gray-750 transition-all duration-200"
                 >
                   <h2 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center">
                     <svg
-                      className={`w-4 h-4 mr-2 flex-shrink-0 transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}
+                      className={`w-4 h-4 mr-2 shrink-0 transition-transform duration-200 ${isCollapsed ? '' : 'rotate-90'}`}
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -509,7 +511,7 @@ function App() {
                     </svg>
 
                     <span
-                      className="w-1.5 h-1.5 rounded-full mr-2 flex-shrink-0"
+                      className="w-1.5 h-1.5 rounded-full mr-2 shrink-0"
                       style={{ backgroundColor: getCategoryColor(category) }}
                     />
                     {category}
@@ -533,7 +535,7 @@ function App() {
                             : ''
                             } ${knownItems.has(item.id)
                             ? 'opacity-50 bg-gray-200 dark:bg-gray-700 border-gray-300 dark:border-gray-600'
-                            : 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-400 dark:border-yellow-700/50 shadow-sm'
+                            : 'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-400 dark:border-yellow-700/50 shadow-xs'
                             }`}
                         >
                           <div className="flex flex-wrap gap-1 mb-2 items-center">
@@ -547,7 +549,7 @@ function App() {
                             </span>
                             <button
                               onClick={(e) => { e.stopPropagation(); toggleMemoryItem(item.id) }}
-                              className={`p-0.5 rounded transition-colors sm:opacity-0 sm:group-hover:opacity-100 ${memoryItemIds.includes(item.id) ? 'text-amber-500 dark:text-amber-400 !opacity-100' : 'text-gray-300 dark:text-gray-600 hover:text-amber-400'}`}
+                              className={`p-0.5 rounded-sm transition-colors sm:opacity-0 sm:group-hover:opacity-100 ${memoryItemIds.includes(item.id) ? 'text-amber-500 dark:text-amber-400 opacity-100!' : 'text-gray-300 dark:text-gray-600 hover:text-amber-400'}`}
                               title="Toggle memorize"
                               aria-label="Toggle memorize"
                             >
@@ -590,22 +592,24 @@ function App() {
         </div>
       </div>
 
-      {isKeyboardOpen && (
-        <KeyboardModal
-          data={preparedData}
-          knownItems={knownItems}
-          memoryItemIds={memoryItemIds}
-          onClose={() => dispatch({ type: 'SET_KEYBOARD_OPEN', payload: false })}
-        />
-      )}
+      <Suspense fallback={null}>
+        {isKeyboardOpen && (
+          <KeyboardModal
+            data={preparedData}
+            knownItems={knownItems}
+            memoryItemIds={memoryItemIds}
+            onClose={() => dispatch({ type: 'SET_KEYBOARD_OPEN', payload: false })}
+          />
+        )}
 
-      {isInfoOpen && (
-        <InfoModal onClose={() => dispatch({ type: 'SET_INFO_OPEN', payload: false })} />
-      )}
+        {isInfoOpen && (
+          <InfoModal onClose={() => dispatch({ type: 'SET_INFO_OPEN', payload: false })} />
+        )}
+      </Suspense>
 
       {isMemoryModalOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-start justify-center bg-gray-950/40 px-3 py-8 backdrop-blur-sm sm:items-center"
+          className="fixed inset-0 z-50 flex items-start justify-center bg-gray-950/40 px-3 py-8 backdrop-blur-xs sm:items-center"
           onClick={() => dispatch({ type: 'SET_MEMORY_MODAL_OPEN', payload: false })}
         >
           <section
@@ -651,10 +655,10 @@ function App() {
                       onDragStart={() => handleMemoryDragStart(index)}
                       onDragOver={(event) => event.preventDefault()}
                       onDrop={() => handleMemoryDrop(index)}
-                      className="rounded-md border border-amber-300 bg-amber-50 p-3 shadow-sm transition-colors duration-200 hover:border-amber-400 dark:border-amber-700/70 dark:bg-amber-900/20"
+                      className="rounded-md border border-amber-300 bg-amber-50 p-3 shadow-xs transition-colors duration-200 hover:border-amber-400 dark:border-amber-700/70 dark:bg-amber-900/20"
                     >
                       <div className="mb-2 flex items-start gap-2">
-                        <span className="cursor-grab rounded bg-amber-100 px-1.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-800/60 dark:text-amber-100" title="Drag to reorder">
+                        <span className="cursor-grab rounded-sm bg-amber-100 px-1.5 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-800/60 dark:text-amber-100" title="Drag to reorder">
                           {index + 1}
                         </span>
                         <div className="flex flex-1 flex-wrap gap-1">
@@ -667,7 +671,7 @@ function App() {
                         <button
                           type="button"
                           onClick={() => removeMemoryItem(item.id)}
-                          className="rounded p-1 text-gray-500 transition-colors duration-200 hover:bg-red-100 hover:text-red-700 dark:text-gray-400 dark:hover:bg-red-900/40 dark:hover:text-red-300"
+                          className="rounded-sm p-1 text-gray-500 transition-colors duration-200 hover:bg-red-100 hover:text-red-700 dark:text-gray-400 dark:hover:bg-red-900/40 dark:hover:text-red-300"
                           aria-label={`Remove ${item.solution.join(', ')} from memorize list`}
                           title="Remove mark"
                         >

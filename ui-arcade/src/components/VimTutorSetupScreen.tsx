@@ -232,7 +232,7 @@ export function VimTutorSetupScreen({ onStart, onBack: _onBack }: VimTutorSetupS
                 } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <span
-                  className={`w-4 h-4 mt-0.5 flex-shrink-0 rounded-sm border text-xs flex items-center justify-center ${
+                  className={`w-4 h-4 mt-0.5 shrink-0 rounded-xs border text-xs flex items-center justify-center ${
                     active ? 'bg-green-600 border-green-500 text-white' : 'border-gray-600'
                   }`}
                 >

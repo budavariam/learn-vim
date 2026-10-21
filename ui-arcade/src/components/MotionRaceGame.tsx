@@ -63,7 +63,7 @@ function GoalIndicator({ goalLine, isVisible, getRange }: GoalIndicatorProps) {
     <div
       className={`absolute right-4 ${dir === '↑' ? 'top-2' : 'bottom-2'} z-20 pointer-events-none`}
     >
-      <span className="bg-yellow-800/80 text-yellow-300 text-lg font-bold px-2 py-1 rounded shadow-lg border border-yellow-700">
+      <span className="bg-yellow-800/80 text-yellow-300 text-lg font-bold px-2 py-1 rounded-sm shadow-lg border border-yellow-700">
         {dir} Goal
       </span>
     </div>
@@ -175,7 +175,7 @@ function MotionRaceGameScreen({ config, onQuit }: GameProps) {
 
       {/* Results overlay — glossy frosted glass over the editor */}
       {isResults && (
-        <div className="absolute inset-0 z-40 backdrop-blur-sm bg-gray-900/80 flex flex-col items-center justify-center px-6">
+        <div className="absolute inset-0 z-40 backdrop-blur-xs bg-gray-900/80 flex flex-col items-center justify-center px-6">
           <div className="w-full max-w-lg bg-gray-900/90 border border-gray-600 rounded-2xl shadow-2xl p-8">
             <div className="text-center mb-8">
               <div className="flex justify-center mb-3">
@@ -212,7 +212,7 @@ function MotionRaceGameScreen({ config, onQuit }: GameProps) {
             <div className="flex gap-3">
               <button
                 onClick={() => startGame(config)}
-                className="w-full py-2.5 rounded bg-green-700 hover:bg-green-600 text-white font-bold text-sm transition-colors"
+                className="w-full py-2.5 rounded-sm bg-green-700 hover:bg-green-600 text-white font-bold text-sm transition-colors"
               >
                 Play again
               </button>
@@ -255,7 +255,7 @@ function MotionRaceGameScreen({ config, onQuit }: GameProps) {
 
       {/* Target bar */}
       <div
-        className={`flex items-center gap-4 px-4 py-2.5 border-b flex-shrink-0 text-sm transition-colors ${
+        className={`flex items-center gap-4 px-4 py-2.5 border-b shrink-0 text-sm transition-colors ${
           !contentValid
             ? 'bg-red-900/40 border-red-700'
             : atTarget
@@ -266,7 +266,7 @@ function MotionRaceGameScreen({ config, onQuit }: GameProps) {
         {config.goalDisplayMode === 'next' && primaryGoal ? (
           <div className="flex items-center gap-2">
             <span className="text-gray-400">Goal</span>
-            <kbd className="px-2 py-0.5 bg-yellow-900/60 border border-yellow-700 rounded text-xs text-yellow-300 font-bold">
+            <kbd className="px-2 py-0.5 bg-yellow-900/60 border border-yellow-700 rounded-sm text-xs text-yellow-300 font-bold">
               L{primaryGoal.lineNumber} C{primaryGoal.column}
             </kbd>
             <span className="text-gray-600 text-xs">
@@ -280,7 +280,7 @@ function MotionRaceGameScreen({ config, onQuit }: GameProps) {
             {goals.slice(0, 6).map((g, i) => (
               <kbd
                 key={i}
-                className="px-1.5 py-0.5 bg-yellow-900/60 border border-yellow-700 rounded text-xs text-yellow-300 font-bold"
+                className="px-1.5 py-0.5 bg-yellow-900/60 border border-yellow-700 rounded-sm text-xs text-yellow-300 font-bold"
               >
                 L{g.lineNumber}C{g.column}
               </kbd>
@@ -316,15 +316,15 @@ function MotionRaceGameScreen({ config, onQuit }: GameProps) {
             gm === 'first_then_failure' ||
             gm === 'alternating'
           return (
-            <div className="flex items-center gap-3 px-4 py-2 bg-indigo-950/60 border-b border-indigo-800 flex-shrink-0 text-xs font-mono">
-              <Zap className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+            <div className="flex items-center gap-3 px-4 py-2 bg-indigo-950/60 border-b border-indigo-800 shrink-0 text-xs font-mono">
+              <Zap className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
               <span className="text-white">{ch.question}</span>
               {showSolution && (
                 <div className="flex gap-1.5 ml-1">
                   {ch.solution.map((s, i) => (
                     <kbd
                       key={i}
-                      className="px-1.5 py-0.5 bg-gray-700 text-yellow-300 rounded border border-gray-600"
+                      className="px-1.5 py-0.5 bg-gray-700 text-yellow-300 rounded-sm border border-gray-600"
                     >
                       {s}
                     </kbd>
@@ -375,11 +375,11 @@ function MotionRaceGameScreen({ config, onQuit }: GameProps) {
 
       <div
         ref={statusRef as React.RefObject<HTMLDivElement>}
-        className="h-7 bg-gray-800 border-t border-gray-700 px-3 flex items-center text-xs text-gray-400 flex-shrink-0"
+        className="h-7 bg-gray-800 border-t border-gray-700 px-3 flex items-center text-xs text-gray-400 shrink-0"
       />
 
       {completedPaths.length > 0 && !isResults && (
-        <div className="flex items-center gap-2 px-4 py-2 bg-gray-800 border-t border-gray-700 flex-shrink-0 overflow-x-auto">
+        <div className="flex items-center gap-2 px-4 py-2 bg-gray-800 border-t border-gray-700 shrink-0 overflow-x-auto">
           {completedPaths.slice(-8).map((p, i) => (
             <PathPill
               key={i}
@@ -426,7 +426,7 @@ function RaceMinimap({ totalLines, goals, enemies, cursorLine, visibleRange }: M
   const pct = (line: number) => `${Math.round((line / Math.max(1, totalLines)) * 100)}%`
 
   return (
-    <div className="w-12 flex-shrink-0 border-l border-gray-700 bg-gray-950 relative overflow-hidden select-none">
+    <div className="w-12 shrink-0 border-l border-gray-700 bg-gray-950 relative overflow-hidden select-none">
       {/* Viewport highlight */}
       {visibleRange && (
         <div

@@ -3,7 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import {
     Zap, BookOpen, Database, Layers, Brain, Repeat, Grid3x3
 } from 'lucide-react';
-import quizData from '../data.json';
+import quizData from '@data';
 import IntroScreen from './IntroScreen';
 import ModeConfirmation from './ModeConfirmation';
 import FlashcardMode from './FlashcardMode';

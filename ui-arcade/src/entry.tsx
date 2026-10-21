@@ -5,7 +5,6 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App.tsx'
 import './index.css'
 import './enemy-trails.scss'
-import 'monaco-editor/min/vs/editor/editor.main.css'
 import { loadAndMergeDefaults } from './engine/UnsupportedEngine'
 import { migrateStorage } from './engine/storageKeys'
 
@@ -83,13 +82,14 @@ class AppErrorBoundary extends React.Component<{ children: React.ReactNode }, EB
   }
 }
 
-migrateStorage()
-loadAndMergeDefaults().finally(() => {
-  ReactDOM.createRoot(document.getElementById('root')!).render(
+export async function mount(root: HTMLElement) {
+  migrateStorage()
+  await loadAndMergeDefaults()
+  ReactDOM.createRoot(root).render(
     <AppErrorBoundary>
       <BrowserRouter basename="/learn-vim/arcade">
         <App />
       </BrowserRouter>
     </AppErrorBoundary>
   )
-})
+}

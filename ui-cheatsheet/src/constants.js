@@ -1,4 +1,4 @@
-import data from './data.json'
+import data from '@data'
 
 // Sort categories alphabetically and assign evenly spaced hues across the full color wheel.
 // This guarantees maximum perceptual distance between adjacent categories.

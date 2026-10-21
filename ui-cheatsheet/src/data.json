@@ -2542,12 +2542,102 @@
   },
   {
     "category": "Folding",
-    "question": "toggle folding",
+    "question": "toggle fold under cursor",
     "solution": [
       "za"
     ],
-    "id": "4099b72ad5c0",
+    "id": "7ff66b348d9a",
     "level": 5
+  },
+  {
+    "category": "Folding",
+    "question": "open fold under cursor",
+    "solution": [
+      "zo"
+    ],
+    "id": "638adfe574d2",
+    "level": 5
+  },
+  {
+    "category": "Folding",
+    "question": "close fold under cursor",
+    "solution": [
+      "zc"
+    ],
+    "id": "9150f33d3dd9",
+    "level": 5
+  },
+  {
+    "category": "Folding",
+    "question": "open fold under cursor recursively (all nested folds)",
+    "solution": [
+      "zO"
+    ],
+    "id": "bc11a24048bf",
+    "level": 6
+  },
+  {
+    "category": "Folding",
+    "question": "close fold under cursor recursively (all nested folds)",
+    "solution": [
+      "zC"
+    ],
+    "id": "041c3ea5d255",
+    "level": 6
+  },
+  {
+    "category": "Folding",
+    "question": "open all folds in buffer",
+    "solution": [
+      "zR"
+    ],
+    "id": "b991d35532f4",
+    "level": 5
+  },
+  {
+    "category": "Folding",
+    "question": "close all folds in buffer",
+    "solution": [
+      "zM"
+    ],
+    "id": "438f00718e79",
+    "level": 5
+  },
+  {
+    "category": "Folding",
+    "question": "reduce fold level by one (open one level of folds)",
+    "solution": [
+      "zr"
+    ],
+    "id": "b149f4077af5",
+    "level": 6
+  },
+  {
+    "category": "Folding",
+    "question": "increase fold level by one (close one more level of folds)",
+    "solution": [
+      "zm"
+    ],
+    "id": "d647aa98fa18",
+    "level": 6
+  },
+  {
+    "category": "Folding",
+    "question": "jump to the start of the next fold",
+    "solution": [
+      "zj"
+    ],
+    "id": "5c4f90c682e6",
+    "level": 6
+  },
+  {
+    "category": "Folding",
+    "question": "jump to the end of the previous fold",
+    "solution": [
+      "zk"
+    ],
+    "id": "870db22d8812",
+    "level": 6
   },
   {
     "category": "Folding",
@@ -2578,20 +2668,20 @@
   },
   {
     "category": "Folding",
-    "question": "delete fold",
+    "question": "delete fold under cursor",
     "solution": [
       "zd"
     ],
-    "id": "5ecaed4b01a2",
+    "id": "39dc0cb2b5bf",
     "level": 6
   },
   {
     "category": "Folding",
-    "question": "delete all folds",
+    "question": "delete all folds in buffer",
     "solution": [
       "zE"
     ],
-    "id": "9f5e3193ef48",
+    "id": "7786249b1f77",
     "level": 6
   },
   {
@@ -2611,24 +2701,6 @@
     ],
     "id": "c94046cb8c7f",
     "level": 7
-  },
-  {
-    "category": "Folding",
-    "question": "open all folds",
-    "solution": [
-      "zR"
-    ],
-    "id": "3a8a20aef70a",
-    "level": 5
-  },
-  {
-    "category": "Folding",
-    "question": "close all folds",
-    "solution": [
-      "zM"
-    ],
-    "id": "5ea787ba1b54",
-    "level": 5
   },
   {
     "category": "Folding",

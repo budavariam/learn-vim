@@ -1,4 +1,4 @@
-import rawData from '../data.json'
+import rawData from '@data'
 import type { VimCommandData } from './types'
 
 const _cmds = rawData as VimCommandData[]

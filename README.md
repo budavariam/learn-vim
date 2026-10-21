@@ -5,7 +5,7 @@ learning Vim practical. The goal is an overview of features and commands that
 boost productivity — not exhaustive reference, but a solid launchpad.
 
 All commands live in [`vim-cheatsheet.md`](./vim-cheatsheet.md) as the single
-source of truth. Run `node scripts/generateData.js ui-cheatsheet` to regenerate
+source of truth. Run `pnpm generate-data` (or any `pnpm dev`/`pnpm build`) to regenerate
 `ui-cheatsheet/src/data.json`, which both the web app and the Neovim plugin read
 at runtime.
 
@@ -71,17 +71,22 @@ An interactive vim practice game served at **`/learn-vim/arcade/`**.
 
 ### Running locally
 
+The repo is one pnpm workspace (Node 24, see `.nvmrc`) that builds a single Vite app. The
+cheatsheet (`/`), quiz (`/game/`) and arcade (`/arcade/`) are separate packages that are
+lazy-loaded by URL (`src/main.ts`).
+
 ```sh
-cd ui-arcade
-npm install
-npm run generate-data   # populate data.json from vim-cheatsheet.md
-npm run dev             # http://localhost:5174/learn-vim/arcade/
+nvm use                 # Node 24
+pnpm install
+pnpm dev                # http://localhost:5173/learn-vim/arcade/  (data.json is generated on start)
+pnpm build              # whole site into dist/
+pnpm validate           # typecheck + lint + tests
 ```
 
 Or with Docker (requires the repo root as build context):
 
 ```sh
-docker compose --profile dev up          # hot-reload dev server on :5174
+docker compose --profile dev up          # hot-reload dev server on :5173
 docker compose --profile prod up --build # production nginx on :3001
 ```
 

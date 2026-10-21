@@ -158,7 +158,7 @@ function ReviewRow({ item, checked, onToggle, readonly = false }: ReviewRowProps
         {/* Checkbox */}
         {!readonly && (
           <div
-            className={`mt-0.5 w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+            className={`mt-0.5 w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 ${
               checked ? 'border-green-500 bg-green-500' : 'border-gray-600'
             }`}
           >
@@ -166,7 +166,7 @@ function ReviewRow({ item, checked, onToggle, readonly = false }: ReviewRowProps
           </div>
         )}
         {readonly && (
-          <div className="mt-0.5 w-4 h-4 flex items-center justify-center flex-shrink-0 text-gray-600 text-xs">
+          <div className="mt-0.5 w-4 h-4 flex items-center justify-center shrink-0 text-gray-600 text-xs">
             ●
           </div>
         )}
@@ -174,7 +174,7 @@ function ReviewRow({ item, checked, onToggle, readonly = false }: ReviewRowProps
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1">
             <span
-              className="text-xs px-2 py-0.5 rounded font-mono"
+              className="text-xs px-2 py-0.5 rounded-sm font-mono"
               style={{
                 color,
                 borderColor: color,
@@ -193,7 +193,7 @@ function ReviewRow({ item, checked, onToggle, readonly = false }: ReviewRowProps
               {item.solution.slice(0, 3).map((sol, i) => (
                 <kbd
                   key={i}
-                  className="px-1.5 py-0.5 bg-gray-700 text-yellow-300 font-mono text-xs rounded border border-gray-600"
+                  className="px-1.5 py-0.5 bg-gray-700 text-yellow-300 font-mono text-xs rounded-sm border border-gray-600"
                 >
                   {sol}
                 </kbd>

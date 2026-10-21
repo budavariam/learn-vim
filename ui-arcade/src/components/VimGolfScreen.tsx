@@ -104,7 +104,7 @@ export function VimGolfScreen({ onPlay }: VimGolfScreenProps) {
   return (
     <div className="h-full bg-gray-900 flex flex-col overflow-hidden font-mono">
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-800 border-b border-gray-700 flex-shrink-0 flex-wrap">
+      <div className="flex items-center gap-2 px-4 py-2.5 bg-gray-800 border-b border-gray-700 shrink-0 flex-wrap">
         <span className="font-bold text-yellow-400 tracking-widest text-sm">VIMGOLF</span>
         {loading && <span className="text-xs text-gray-500 animate-pulse">Loading…</span>}
         {!loading && (
@@ -118,7 +118,7 @@ export function VimGolfScreen({ onPlay }: VimGolfScreenProps) {
           placeholder="Search…"
           value={search}
           onChange={e => setState({ search: e.target.value })}
-          className="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 w-32"
+          className="px-2 py-1 bg-gray-700 border border-gray-600 rounded-sm text-xs text-white placeholder-gray-500 focus:outline-hidden focus:border-blue-500 w-32"
         />
 
         <div className="flex gap-1 ml-auto flex-wrap">
@@ -163,7 +163,7 @@ export function VimGolfScreen({ onPlay }: VimGolfScreenProps) {
           <select
             value={sortKey}
             onChange={e => setState({ sortKey: e.target.value as SortKey })}
-            className="px-2 py-1 rounded text-xs bg-gray-800 text-gray-400 border border-gray-700 focus:outline-none focus:border-blue-500"
+            className="px-2 py-1 rounded-sm text-xs bg-gray-800 text-gray-400 border border-gray-700 focus:outline-hidden focus:border-blue-500"
             title="Sort"
           >
             <option value="default">Order: default</option>
@@ -197,11 +197,11 @@ export function VimGolfScreen({ onPlay }: VimGolfScreenProps) {
                 className="w-full text-left px-4 py-2.5 border-b border-gray-800 hover:bg-gray-800 transition-colors flex items-center gap-3"
               >
                 <CheckCircle2
-                  className={`w-3.5 h-3.5 flex-shrink-0 ${solved ? 'text-green-500' : 'text-gray-700'}`}
+                  className={`w-3.5 h-3.5 shrink-0 ${solved ? 'text-green-500' : 'text-gray-700'}`}
                 />
 
                 <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded flex-shrink-0 ${DIFF_BADGE[challenge.difficulty]}`}
+                  className={`text-[10px] px-1.5 py-0.5 rounded-sm shrink-0 ${DIFF_BADGE[challenge.difficulty]}`}
                 >
                   {challenge.difficulty[0].toUpperCase()}
                 </span>
@@ -209,7 +209,7 @@ export function VimGolfScreen({ onPlay }: VimGolfScreenProps) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-sm text-white truncate">{challenge.title}</span>
-                    <span className="text-[10px] text-gray-600 flex-shrink-0 hidden sm:inline">
+                    <span className="text-[10px] text-gray-600 shrink-0 hidden sm:inline">
                       {challenge.id}
                     </span>
                   </div>
@@ -221,7 +221,7 @@ export function VimGolfScreen({ onPlay }: VimGolfScreenProps) {
                 </div>
 
                 {solved && (
-                  <span className="text-xs text-yellow-400 flex-shrink-0 tabular-nums flex items-center gap-1">
+                  <span className="text-xs text-yellow-400 shrink-0 tabular-nums flex items-center gap-1">
                     <KeyRound className="w-3 h-3 opacity-60" />
                     {record}
                   </span>

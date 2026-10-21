@@ -79,7 +79,7 @@ const ReviewScreen: React.FC<ReviewScreenProps> = ({
                         <Minus className="w-4 h-4" />
                         Remove Missed (-{incorrectToRemove})
                     </button>
-                    <div className="terminal-text color-yellow text-center p-2 rounded">
+                    <div className="terminal-text color-yellow text-center p-2 rounded-sm">
                         Known but Missed: {knownButMissed.length}
                     </div>
                 </div>
@@ -124,14 +124,14 @@ const ReviewScreen: React.FC<ReviewScreenProps> = ({
                                                 }`}
                                         >
                                             <div className="flex items-start gap-4">
-                                                <div className="flex-shrink-0 mt-1">
+                                                <div className="shrink-0 mt-1">
                                                     {result.isCorrect ? (
                                                         <CheckCircle className="w-6 h-6 color-green" />
                                                     ) : (
                                                         <XCircle className="w-6 h-6 color-red" />
                                                     )}
                                                 </div>
-                                                <div className="flex-grow space-y-3">
+                                                <div className="grow space-y-3">
                                                     <div className="flex items-center justify-between">
                                                         <div className="flex items-center gap-2">
                                                             <span className="text-sm font-bold color-cyan">

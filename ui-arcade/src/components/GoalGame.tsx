@@ -58,7 +58,7 @@ export function GoalGame({
   return (
     <div className="h-full bg-gray-900 flex flex-col overflow-hidden relative font-mono">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700 flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700 shrink-0">
         <button
           onClick={onQuit}
           className="text-gray-400 hover:text-white text-sm transition-colors flex items-center gap-1"
@@ -73,7 +73,7 @@ export function GoalGame({
               </span>
               <span className="font-bold text-white text-sm">{currentChallenge.title}</span>
               <span
-                className={`px-1.5 py-0.5 rounded text-xs font-bold uppercase ${DIFFICULTY_BADGE[currentChallenge.difficulty]}`}
+                className={`px-1.5 py-0.5 rounded-sm text-xs font-bold uppercase ${DIFFICULTY_BADGE[currentChallenge.difficulty]}`}
               >
                 {currentChallenge.difficulty}
               </span>
@@ -89,13 +89,13 @@ export function GoalGame({
         <div className="flex gap-2">
           <button
             onClick={onCheck}
-            className="px-4 py-1.5 bg-green-700 hover:bg-green-600 text-white text-sm rounded transition-colors flex items-center gap-1"
+            className="px-4 py-1.5 bg-green-700 hover:bg-green-600 text-white text-sm rounded-sm transition-colors flex items-center gap-1"
           >
             <Check className="w-4 h-4" /> Check
           </button>
           <button
             onClick={onSkip}
-            className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded transition-colors flex items-center gap-1"
+            className="px-4 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm rounded-sm transition-colors flex items-center gap-1"
           >
             Skip <ChevronRight className="w-4 h-4" />
           </button>
@@ -106,7 +106,7 @@ export function GoalGame({
       <div className="flex flex-1 overflow-hidden">
         {/* ── Left (~40%): editable editor ── */}
         <div className="flex flex-col min-w-0 border-r border-gray-700" style={{ flex: '0 0 40%' }}>
-          <div className="flex items-center px-3 py-1.5 bg-gray-800 border-b border-gray-700 flex-shrink-0">
+          <div className="flex items-center px-3 py-1.5 bg-gray-800 border-b border-gray-700 shrink-0">
             <span className="text-gray-400 text-xs">editing</span>
             <span className="ml-auto text-gray-600 text-xs">{state.keystrokes} keys</span>
           </div>
@@ -121,13 +121,13 @@ export function GoalGame({
           <div
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ref={statusRef as any}
-            className="h-6 bg-gray-800 border-t border-gray-700 px-3 text-xs text-gray-400 flex items-center flex-shrink-0"
+            className="h-6 bg-gray-800 border-t border-gray-700 px-3 text-xs text-gray-400 flex items-center shrink-0"
           />
         </div>
 
         {/* ── Middle (~35%): read-only target ── */}
         <div className="flex flex-col min-w-0 border-r border-gray-700" style={{ flex: '0 0 35%' }}>
-          <div className="flex items-center px-3 py-1.5 bg-gray-800 border-b border-gray-700 flex-shrink-0">
+          <div className="flex items-center px-3 py-1.5 bg-gray-800 border-b border-gray-700 shrink-0">
             <span className="text-gray-400 text-xs">target</span>
             {currentChallenge && (
               <span className="ml-3 text-gray-600 text-xs truncate">
@@ -138,24 +138,24 @@ export function GoalGame({
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           <div ref={targetEditorRef as any} className="flex-1 min-h-0" />
           {/* Diff legend */}
-          <div className="h-6 bg-gray-800 border-t border-gray-700 px-3 flex items-center gap-4 flex-shrink-0">
+          <div className="h-6 bg-gray-800 border-t border-gray-700 px-3 flex items-center gap-4 shrink-0">
             <span className="flex items-center gap-1 text-xs text-gray-500">
               <span
-                className="inline-block w-2.5 h-2.5 rounded-sm"
+                className="inline-block w-2.5 h-2.5 rounded-xs"
                 style={{ background: '#f59e0b' }}
               />
               changed
             </span>
             <span className="flex items-center gap-1 text-xs text-gray-500">
               <span
-                className="inline-block w-2.5 h-2.5 rounded-sm"
+                className="inline-block w-2.5 h-2.5 rounded-xs"
                 style={{ background: '#22c55e' }}
               />
               need to add
             </span>
             <span className="flex items-center gap-1 text-xs text-gray-500">
               <span
-                className="inline-block w-2.5 h-2.5 rounded-sm"
+                className="inline-block w-2.5 h-2.5 rounded-xs"
                 style={{ background: '#ef4444' }}
               />
               need to remove
@@ -166,7 +166,7 @@ export function GoalGame({
         {/* ── Right (~25%): arcade command challenges ── */}
         <div className="flex flex-col min-w-0 overflow-hidden" style={{ flex: '0 0 25%' }}>
           {/* Score + level header */}
-          <div className="flex items-center gap-3 px-3 py-2 bg-gray-800 border-b border-gray-700 flex-shrink-0">
+          <div className="flex items-center gap-3 px-3 py-2 bg-gray-800 border-b border-gray-700 shrink-0">
             {arcade ? (
               <>
                 <ScoreDisplay score={arcade.score} combo={arcade.combo} />
@@ -188,7 +188,7 @@ export function GoalGame({
 
       {/* Recent results strip at bottom */}
       {recentResults.length > 0 && (
-        <div className="flex-shrink-0 border-t border-gray-700 bg-gray-800 px-4 py-1.5 flex gap-6 text-xs">
+        <div className="shrink-0 border-t border-gray-700 bg-gray-800 px-4 py-1.5 flex gap-6 text-xs">
           {recentResults.map((r, i) => (
             <div key={i} className="flex items-center gap-2">
               <span className="text-gray-500 truncate max-w-32">{r.title}</span>

@@ -56,7 +56,7 @@ describe('loadHighScores', () => {
   })
 
   it('returns empty scores when localStorage has invalid JSON', () => {
-    localStorage.setItem('vim_arcade_high_scores', 'not-json')
+    localStorage.setItem('vimarcade_high_scores', 'not-json')
     const scores = loadHighScores()
     expect(scores.general).toEqual([])
   })
@@ -72,14 +72,14 @@ describe('loadHighScores', () => {
       goal: [],
       vimbots: [],
     }
-    localStorage.setItem('vim_arcade_high_scores', JSON.stringify(stored))
+    localStorage.setItem('vimarcade_high_scores', JSON.stringify(stored))
     const loaded = loadHighScores()
     expect(loaded.general[0].id).toBe('x')
     expect(loaded.general[0].score).toBe(999)
   })
 
   it('fills missing mode arrays with []', () => {
-    localStorage.setItem('vim_arcade_high_scores', JSON.stringify({ general: [] }))
+    localStorage.setItem('vimarcade_high_scores', JSON.stringify({ general: [] }))
     const scores = loadHighScores()
     expect(Array.isArray(scores.timed_challenge)).toBe(true)
     expect(Array.isArray(scores.survival)).toBe(true)

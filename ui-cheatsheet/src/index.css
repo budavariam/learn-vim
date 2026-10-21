@@ -1,26 +1,44 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
 
-html {
-  @apply bg-gray-50 dark:bg-gray-900;
-  overscroll-behavior: none;
-  /* Disable overscroll */
+@custom-variant dark (&:is(.dark *));
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
 }
 
-body {
-  @apply bg-gray-50 dark:bg-gray-900;
-  overscroll-behavior: none;
-  /* Disable overscroll */
+@utility reference {
+  @apply text-green-600 dark:text-green-400 font-bold;
 }
 
-@layer components {
-  .reference {
-    @apply text-green-600 dark:text-green-400 font-bold;
+@utility keycombo {
+  @apply text-xs border border-gray-300 dark:border-gray-600 rounded-sm px-1.5 py-0.5 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 font-mono whitespace-nowrap mr-1 inline-block;
+}
+
+@layer utilities {
+  html {
+    @apply bg-gray-50 dark:bg-gray-900;
+    overscroll-behavior: none;
+    /* Disable overscroll */
   }
 
-  .keycombo {
-    @apply text-xs border border-gray-300 dark:border-gray-600 rounded px-1.5 py-0.5 bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-gray-200 font-mono whitespace-nowrap mr-1 inline-block;
+  body {
+    @apply bg-gray-50 dark:bg-gray-900;
+    overscroll-behavior: none;
+    /* Disable overscroll */
   }
 }
 

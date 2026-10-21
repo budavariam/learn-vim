@@ -13,7 +13,7 @@ import type {
   HandicapConfig,
 } from '../engine/types'
 import { CategoryPicker } from './CategoryPicker'
-import rawData from '../data.json'
+import rawData from '@data'
 import {
   cls,
   LanguageGrid,

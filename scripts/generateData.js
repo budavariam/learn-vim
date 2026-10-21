@@ -6,13 +6,10 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const folderName = process.argv[2];
 
-if (!folderName) {
-    console.error('❌ Error: Please provide a folder name as an argument');
-    console.log('Usage: node script.js <folderName>');
-    process.exit(1);
-}
+// One shared output for every app (they import it through the `@data` alias). It stays
+// committed at this path because the Neovim plugin reads it from the repo checkout.
+export const OUTPUT_PATH = path.join(__dirname, '..', 'ui-cheatsheet', 'src', 'data.json');
 
 function generateId(obj) {
   const str = JSON.stringify(obj);
@@ -71,7 +68,7 @@ function parseMarkdownData(markdownContent) {
     return result;
 }
 
-function generateDataFromMarkdown() {
+export function generateDataFromMarkdown() {
     try {
         // Read the markdown file
         const markdownPath = path.join(__dirname, '..', 'vim-cheatsheet.md');
@@ -80,18 +77,11 @@ function generateDataFromMarkdown() {
         // Parse the markdown content
         const quizData = parseMarkdownData(markdownContent);
 
-        // Ensure the src directory exists
-        const srcDir = path.join(__dirname, '..', folderName, 'src');
-        if (!fs.existsSync(srcDir)) {
-            fs.mkdirSync(srcDir, { recursive: true });
-        }
-
         // Write the parsed data to a JSON file
-        const outputPath = path.join(srcDir, 'data.json');
-        fs.writeFileSync(outputPath, JSON.stringify(quizData, null, 2));
+        fs.writeFileSync(OUTPUT_PATH, JSON.stringify(quizData, null, 2));
 
         console.log(`✅ Generated ${quizData.length} quiz questions from markdown file`);
-        console.log(`📝 Data written to: ${outputPath}`);
+        console.log(`📝 Data written to: ${OUTPUT_PATH}`);
 
         // Log some statistics
         const categories = [...new Set(quizData.map(q => q.category))];
@@ -101,10 +91,18 @@ function generateDataFromMarkdown() {
             console.log(`   - ${cat}: ${count} questions`);
         });
 
+        return quizData;
     } catch (error) {
         console.error('❌ Error generating data from markdown:', error);
-        process.exit(1);
+        throw error;
     }
 }
 
-generateDataFromMarkdown();
+// Run when invoked directly: `node scripts/generateData.js`
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+    try {
+        generateDataFromMarkdown();
+    } catch {
+        process.exit(1);
+    }
+}

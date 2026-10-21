@@ -72,7 +72,7 @@ export function VimGolfGame({ challenge, handicaps, onNext, onPrev, onQuit }: Vi
     <div className="min-h-screen bg-gray-900 flex flex-col">
       <div className="flex flex-1 overflow-hidden">
         {/* Editor — 60% */}
-        <div className="flex-[6] flex flex-col min-h-0">
+        <div className="flex-6 flex flex-col min-h-0">
           {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           <div className="flex-1 relative">
             <div ref={editorRef as any} className="h-full" />
@@ -88,7 +88,7 @@ export function VimGolfGame({ challenge, handicaps, onNext, onPrev, onQuit }: Vi
         </div>
 
         {/* HUD — 40% */}
-        <div className="flex-[4] bg-gray-800 border-l border-gray-700 overflow-y-auto p-5 flex flex-col gap-4">
+        <div className="flex-4 bg-gray-800 border-l border-gray-700 overflow-y-auto p-5 flex flex-col gap-4">
           {/* Back button */}
           {/* Navigation buttons */}
           <div className="flex gap-2">
@@ -125,7 +125,7 @@ export function VimGolfGame({ challenge, handicaps, onNext, onPrev, onQuit }: Vi
             <div className="flex items-center gap-2 flex-wrap mb-1">
               <h1 className="font-mono font-bold text-white text-lg">{challenge.title}</h1>
               <span
-                className={`px-2 py-0.5 rounded text-xs font-mono font-bold uppercase ${DIFFICULTY_BADGE[challenge.difficulty]}`}
+                className={`px-2 py-0.5 rounded-sm text-xs font-mono font-bold uppercase ${DIFFICULTY_BADGE[challenge.difficulty]}`}
               >
                 {challenge.difficulty}
               </span>
@@ -134,7 +134,7 @@ export function VimGolfGame({ challenge, handicaps, onNext, onPrev, onQuit }: Vi
               {challenge.tags.map(tag => (
                 <span
                   key={tag}
-                  className="px-1.5 py-0.5 bg-gray-700 text-gray-400 rounded text-xs font-mono"
+                  className="px-1.5 py-0.5 bg-gray-700 text-gray-400 rounded-sm text-xs font-mono"
                 >
                   {tag}
                 </span>
@@ -194,7 +194,7 @@ export function VimGolfGame({ challenge, handicaps, onNext, onPrev, onQuit }: Vi
               className="w-full py-2 bg-green-700 hover:bg-green-600 disabled:bg-gray-700 disabled:text-gray-500 text-white font-mono text-sm rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               Check{' '}
-              <span className="text-[10px] bg-green-800/50 px-1.5 py-0.5 rounded opacity-80">
+              <span className="text-[10px] bg-green-800/50 px-1.5 py-0.5 rounded-sm opacity-80">
                 ⌘ Enter
               </span>
             </button>

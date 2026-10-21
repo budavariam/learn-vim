@@ -33,7 +33,7 @@ export function CountdownRing({ startedAt, timeLimit, size = 44 }: CountdownRing
   const secondsLeft = Math.ceil(Math.max(0, (timeLimit - (Date.now() - startedAt)) / 1000))
 
   return (
-    <svg width={size} height={size} className="flex-shrink-0 -rotate-90">
+    <svg width={size} height={size} className="shrink-0 -rotate-90">
       {/* Background circle */}
       <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#374151" strokeWidth={3} />
       {/* Progress arc */}

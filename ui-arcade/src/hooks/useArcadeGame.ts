@@ -20,7 +20,7 @@ import {
   buildHighScoreEntry,
 } from '../engine/HighScoreEngine'
 import { shouldSuggestKnown, loadKnown } from '../engine/KnownEngine'
-import rawData from '../data.json'
+import rawData from '@data'
 import { loadUnsupported, markUnsupported } from '../engine/UnsupportedEngine'
 import { STORAGE_KEYS } from '../engine/storageKeys'
 

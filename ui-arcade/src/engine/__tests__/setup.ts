@@ -2,7 +2,7 @@
 // Mocks data.json so tests never depend on the generated file.
 import { vi } from 'vitest'
 
-vi.mock('../../data.json', () => ({
+vi.mock('@data', () => ({
   default: [
     { id: 'c1', category: 'Motion', question: 'move left', solution: ['h'], level: 0 },
     { id: 'c2', category: 'Motion', question: 'move down', solution: ['j'], level: 0 },

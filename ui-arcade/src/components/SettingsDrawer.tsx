@@ -14,7 +14,7 @@ const GUIDED_OPTIONS: { id: GuidedMode; label: string }[] = [
 interface SettingsDrawerProps {
   settings: GameSettings
   onUpdate: (patch: Partial<GameSettings>) => void
-  triggerRef?: React.RefObject<HTMLElement>
+  triggerRef?: React.RefObject<HTMLElement | null>
   isOpen?: boolean
   onToggle?: () => void
 }
@@ -127,27 +127,27 @@ export function SettingsDrawer({
               Keyboard Shortcuts
             </p>
             <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 items-center">
-              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
+              <kbd className="px-1.5 py-0.5 rounded-sm bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
                 ⌘⇧P
               </kbd>
               <span className="font-mono text-xs text-gray-500">Open / close settings</span>
 
-              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
+              <kbd className="px-1.5 py-0.5 rounded-sm bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
                 ?
               </kbd>
               <span className="font-mono text-xs text-gray-500">Keyboard shortcuts overlay</span>
 
-              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
+              <kbd className="px-1.5 py-0.5 rounded-sm bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
                 ℹ
               </kbd>
               <span className="font-mono text-xs text-gray-500">Game info modal</span>
 
-              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
+              <kbd className="px-1.5 py-0.5 rounded-sm bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
                 ✕ Quit
               </kbd>
               <span className="font-mono text-xs text-gray-500">Return to setup screen</span>
 
-              <kbd className="px-1.5 py-0.5 rounded bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
+              <kbd className="px-1.5 py-0.5 rounded-sm bg-gray-800 border border-gray-600 font-mono text-xs text-gray-300 whitespace-nowrap">
                 Esc
               </kbd>
               <span className="font-mono text-xs text-gray-500">Close overlays</span>

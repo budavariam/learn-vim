@@ -19,7 +19,7 @@ import type {
   CellKind,
 } from '../engine/QvimxBorderEngine'
 import { normaliseVimKey } from '../engine/vimKeyUtils'
-import rawData from '../data.json'
+import rawData from '@data'
 
 import { MOTION_CHALLENGE_CATEGORIES } from './useMotionRace'
 export { MOTION_CHALLENGE_CATEGORIES }

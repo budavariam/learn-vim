@@ -15,7 +15,7 @@ import { initGameState, tick, handleCommandExecuted } from '../engine/ChallengeE
 import { loadUnsupported } from '../engine/UnsupportedEngine'
 import { loadHighScores, saveHighScores, addGoalModeHighScore } from '../engine/HighScoreEngine'
 import type { GoalModeHighScoreEntry } from '../engine/types'
-import rawData from '../data.json'
+import rawData from '@data'
 
 // Suppress unused import warning — React is needed for JSX in the same module
 void React

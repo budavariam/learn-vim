@@ -158,7 +158,7 @@ export function ArcadeGame({
       )}
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex-[3] flex flex-col min-w-0">
+        <div className="flex-3 flex flex-col min-w-0">
           <Editor
             language={state.language}
             onCommandExecuted={onCommandExecuted}
@@ -174,7 +174,7 @@ export function ArcadeGame({
           />
         </div>
 
-        <div className="flex-[2] flex flex-col border-l border-gray-700 min-w-0 overflow-y-auto">
+        <div className="flex-2 flex flex-col border-l border-gray-700 min-w-0 overflow-y-auto">
           <div className="p-4 border-b border-gray-700 flex gap-4 items-start">
             <ScoreDisplay score={state.score} combo={state.combo} />
             <LevelIndicator ceiling={state.ceiling} levelPct={state.levelPct} />
@@ -182,14 +182,14 @@ export function ArcadeGame({
           <div className="px-4 pt-3 pb-1 flex gap-2">
             <button
               onClick={onQuit}
-              className="text-xs font-mono px-2 py-1 rounded bg-gray-800 text-gray-400 hover:bg-red-900/50 hover:text-red-300 border border-gray-700 transition-colors focus-visible:ring-2 focus-visible:ring-blue-400"
+              className="text-xs font-mono px-2 py-1 rounded-sm bg-gray-800 text-gray-400 hover:bg-red-900/50 hover:text-red-300 border border-gray-700 transition-colors focus-visible:ring-2 focus-visible:ring-blue-400"
             >
               ✕ Quit
             </button>
             <button
               ref={infoButtonRef}
               onClick={() => setUi({ showInfo: true })}
-              className="text-xs font-mono px-2 py-1 rounded bg-gray-800 text-gray-400 hover:bg-blue-900/50 hover:text-blue-300 border border-gray-700 transition-colors focus-visible:ring-2 focus-visible:ring-blue-400"
+              className="text-xs font-mono px-2 py-1 rounded-sm bg-gray-800 text-gray-400 hover:bg-blue-900/50 hover:text-blue-300 border border-gray-700 transition-colors focus-visible:ring-2 focus-visible:ring-blue-400"
             >
               ℹ Info
             </button>
